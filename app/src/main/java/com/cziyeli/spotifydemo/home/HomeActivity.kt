@@ -2,28 +2,21 @@ package com.cziyeli.spotifydemo.home
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.StrictMode
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import com.cziyeli.commons.*
 import com.cziyeli.spotifydemo.R
-import com.google.common.util.concurrent.FutureCallback
-import com.google.common.util.concurrent.Futures
+import com.cziyeli.spotifydemo.di.App
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
 import com.spotify.sdk.android.authentication.AuthenticationResponse
 import com.spotify.sdk.android.player.ConnectionStateCallback
 import com.spotify.sdk.android.player.Error
-import com.wrapper.spotify.Api
-import com.wrapper.spotify.models.Album
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-
-
-
-
+import kaaes.spotify.webapi.android.SpotifyApi
+import kaaes.spotify.webapi.android.models.Album
+import retrofit.Callback
+import retrofit.RetrofitError
+import javax.inject.Inject
 
 
 /**
@@ -36,20 +29,28 @@ import io.reactivex.schedulers.Schedulers
 class HomeActivity : AppCompatActivity(), ConnectionStateCallback {
 
     // Create an API instance. The default instance connects to https://api.spotify.com/.
-    private var api: Api? = null
+    @Inject lateinit var api: SpotifyApi
+
+    // in seconds
+    private var expirationCutoff: Long by bindSharedPreference(this, LOGIN_EXPIRATION, 0)
+
+
+    val component by lazy { App.appComponent.plus(HomeModule(this)) }
 
     private var isLoggedIn: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+        component.inject(this) // init dagger
+    }
 
-        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
-        StrictMode.setThreadPolicy(policy)
+    fun isLoggedIn(): Boolean {
+        return isLoggedIn || (System.currentTimeMillis() / 1000) < expirationCutoff
     }
 
     fun onLoginButtonClicked(view: View) {
-        if (!isLoggedIn) {
+        if (!isLoggedIn()) {
             Utils.log("Logging in")
             openLoginWindow()
         } else {
@@ -58,32 +59,26 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback {
     }
 
     fun onTestButtonClicked(view: View) {
-        api?.let{
-            testApi(api!!)
+        if (!isLoggedIn()) {
+            Utils.log("Logging in")
+            openLoginWindow()
+        } else {
+            testApi(api)
         }
     }
 
-    fun testApi(api: Api) {
-       Observable.fromCallable { api.getAlbum(TEST_ALBUM_ID).build().async }
-               .subscribeOn(Schedulers.io())
-               .observeOn(AndroidSchedulers.mainThread())
-               .subscribe({ albumFuture ->
-                   // Create callbacks in case of success or failure
-                   Futures.addCallback(albumFuture, object : FutureCallback<Album> {
+    fun testApi(api: SpotifyApi) {
+        val spotify = api.service
 
-                       // Print the genres of the album call is successful
-                       override fun onSuccess(album: Album?) {
-                          Utils.log("got album: $album")
-                       }
+        spotify.getAlbum("2dIGnmEIy1WZIcZCFSj6i8", object : Callback<Album> {
+            override fun success(album: Album?, response: retrofit.client.Response) {
+                Utils.log("Album success: $album.name")
+            }
 
-                       // In case of failure
-                       override fun onFailure(thrown: Throwable) {
-                           Utils.log("could not get album")
-                       }
-                   })
-               }, { thrown ->
-                   Log.i(TAG, "Could not get albums. ${thrown.localizedMessage}")
-               })
+            override fun failure(error: RetrofitError) {
+                Utils.log("Album failure: $error.toString()")
+            }
+        })
     }
 
     //   ____      _ _ _                _      __  __      _   _               _
@@ -125,8 +120,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback {
 
     private fun openLoginWindow() {
         val request = AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID,
-                AuthenticationResponse.Type.TOKEN,
-                SPOTIFY_REDIRECT_URI)
+                AuthenticationResponse.Type.TOKEN, SPOTIFY_REDIRECT_URI)
                 .setScopes(arrayOf("user-read-private", "playlist-read", "playlist-read-private", "streaming"))
                 .build()
 
@@ -155,13 +149,12 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback {
     private fun onAuthenticationComplete(authResponse: AuthenticationResponse) {
         isLoggedIn = true
         // Once we have obtained an authorization token, we can proceed with creating a Player.
-        Utils.log("Got authentication token: $authResponse.accessToken")
-        api = Api.builder()
-                .accessToken(authResponse.accessToken)
-                .build()
-        api?.let {
-            testApi(it)
-        }
+        api.setAccessToken(authResponse.accessToken)
+
+        // save in shared pref
+        val nextExpirationTime = System.currentTimeMillis() / 1000 + authResponse.expiresIn // 1 hour
+        expirationCutoff = nextExpirationTime
+        Utils.log("Got authentication token: $authResponse.accessToken ++ nextExpirationTime: $nextExpirationTime")
     }
 
 }

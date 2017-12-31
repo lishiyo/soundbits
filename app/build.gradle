@@ -26,6 +26,7 @@ android {
 
 repositories {
     mavenCentral()
+    maven { url "https://jitpack.io" }
     flatDir {
         dirs 'libs'
     }
@@ -54,11 +55,7 @@ dependencies {
     implementation "com.spotify.android:auth:$rootProject.ext.spotifyAuthVersion"
     // This library handles music playback
     implementation "com.spotify.sdk:$rootProject.ext.spotifySdkVersion"
-    implementation("se.michaelthelin.spotify:spotify-web-api-java:$rootProject.ext.spotifyWebApiVersion") {
-        exclude group: "commons-beanutils", module: "commons-beanutils"
-
-    }
-    implementation 'commons-beanutils:commons-beanutils:20030211.134440'
+    implementation "com.github.kaaes:spotify-web-api-android:$rootProject.ext.spotifyWebApiVersion"
 
     // lifecycle and room
     implementation "android.arch.lifecycle:extensions:$rootProject.ext.archVersion"
