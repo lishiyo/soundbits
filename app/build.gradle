@@ -8,6 +8,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.cziyeli.spotifydemo"
+        multiDexEnabled true
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
@@ -48,33 +49,38 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
+    // ==== SPOTIFY ====
     // This library handles authentication and authorization
-    compile "com.spotify.android:auth:$rootProject.ext.spotifyAuthVersion"
-
+    implementation "com.spotify.android:auth:$rootProject.ext.spotifyAuthVersion"
     // This library handles music playback
-    compile "com.spotify.sdk:$rootProject.ext.spotifySdkVersion"
+    implementation "com.spotify.sdk:$rootProject.ext.spotifySdkVersion"
+    implementation("se.michaelthelin.spotify:spotify-web-api-java:$rootProject.ext.spotifyWebApiVersion") {
+        exclude group: "commons-beanutils", module: "commons-beanutils"
+
+    }
+    implementation 'commons-beanutils:commons-beanutils:20030211.134440'
 
     // lifecycle and room
-    compile "android.arch.lifecycle:extensions:$rootProject.ext.archVersion"
+    implementation "android.arch.lifecycle:extensions:$rootProject.ext.archVersion"
     kapt "android.arch.lifecycle:compiler:$rootProject.ext.archVersion"
-    compile "android.arch.persistence.room:runtime:$rootProject.ext.archVersion"
+    implementation "android.arch.persistence.room:runtime:$rootProject.ext.archVersion"
     kapt "android.arch.persistence.room:compiler:$rootProject.ext.archVersion"
-    compile "android.arch.persistence.room:rxjava2:$rootProject.ext.archVersion"
+    implementation "android.arch.persistence.room:rxjava2:$rootProject.ext.archVersion"
 
     // retrofit and gson
-    compile "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofitVersion"
-    compile "com.squareup.retrofit2:converter-gson:$rootProject.ext.retrofitVersion"
-    compile "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
-    compile "com.squareup.retrofit2:adapter-rxjava2:$rootProject.ext.retrofitVersion"
-    compile "com.squareup.okhttp3:logging-interceptor:$rootProject.ext.okhttpVersion"
+    implementation "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofitVersion"
+    implementation  "com.squareup.retrofit2:converter-gson:$rootProject.ext.retrofitVersion"
+    implementation "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$rootProject.ext.retrofitVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$rootProject.ext.okhttpVersion"
 
     // Dagger2
-    compile "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
+    implementation "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
 
     // Rx
-    compile "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
-    compile "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxAndroidVersion"
 
-    compile 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'com.squareup.picasso:picasso:2.5.2'
 }

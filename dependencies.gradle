@@ -4,6 +4,7 @@ ext {
     archVersion = '1.0.0'
     spotifyAuthVersion = '1.0.0-alpha'
     spotifySdkVersion = 'spotify-player-24-noconnect-2.20b@aar'
+    spotifyWebApiVersion = '1.5.0'
     retrofitVersion = "2.3.0"
     okhttpVersion = "3.9.1"
     daggerVersion = "2.13"

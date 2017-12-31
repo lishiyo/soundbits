@@ -13,6 +13,7 @@ import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import android.widget.*
+import com.cziyeli.commons.TAG
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
 import com.spotify.sdk.android.authentication.AuthenticationResponse
@@ -480,6 +481,6 @@ class DemoActivity : Activity(), Player.NotificationCallback, ConnectionStateCal
          * UI controls which should only be enabled if the player is actively playing.
          */
         private val REQUIRES_PLAYING_STATE = intArrayOf(R.id.skip_next_button, R.id.skip_prev_button, R.id.queue_song_button, R.id.toggle_shuffle_button, R.id.toggle_repeat_button)
-        val TAG = "SpotifySdkDemo"
+
     }
 }
