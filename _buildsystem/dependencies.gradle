@@ -1,0 +1,12 @@
+ext {
+    final def supportVersion = '27.0.2'
+    final def constraintLayoutVersion = '1.0.2'
+    final def archVersion = '1.0.01'
+    final def spotifyAuthVersion = '1.0.0-alpha'
+    final def spotifySdkVersion = 'spotify-player-24-noconnect-2.20b@aar'
+    final def retrofitVersion = "2.3.0"
+    final def okhttpVersion = "3.9.1"
+    final def daggerVersion = "2.13"
+    final def rxJavaVersion = "2.1.6"
+    final def rxAndroidVersion = '2.0.1'
+}
