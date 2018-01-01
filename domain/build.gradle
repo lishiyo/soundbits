@@ -25,19 +25,29 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation project(':commons')
+    implementation project(':data')
 
     implementation 'com.android.support:appcompat-v7:26.1.0'
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // ==== SPOTIFY ====
     // This library handles authentication and authorization
     implementation "com.spotify.android:auth:$rootProject.ext.spotifyAuthVersion"
     implementation "com.github.kaaes:spotify-web-api-android:$rootProject.ext.spotifyWebApiVersion"
+
+    // Rx
+    compile "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
+    compile "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxAndroidVersion"
+
+    // Dagger2
+    implementation "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
+    kapt "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
 }
 
 repositories {

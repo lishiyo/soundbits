@@ -1,12 +1,13 @@
 package com.cziyeli.spotifydemo.di
 
 import android.content.Context
+import com.cziyeli.data.Repository
+import com.cziyeli.data.RepositoryImpl
+import com.cziyeli.data.local.RoomDataSource
+import com.cziyeli.data.remote.RemoteDataSource
 import dagger.Module
 import dagger.Provides
-import io.reactivex.Scheduler
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import javax.inject.Named
+import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import javax.inject.Singleton
 
 /**
@@ -24,13 +25,11 @@ class AppModule(private val application: App) {
     fun provideContext(): Context = application
 
     @Provides
-    @Named("io")
     @Singleton
-    fun ioScheduler(): Scheduler = Schedulers.io()
+    fun provideRepository(local: RoomDataSource, remote: RemoteDataSource): Repository {
+        return RepositoryImpl(local, remote)
+    }
 
-    @Provides
-    @Named("main")
-    @Singleton
-    fun mainThreadScheduler(): Scheduler = AndroidSchedulers.mainThread()
+
 }
 

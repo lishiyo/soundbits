@@ -20,6 +20,7 @@ class App : Application() {
                 .appModule(AppModule(this))
                 .roomModule(RoomModule())
                 .remoteModule(RemoteModule())
+                .utilsModule(UtilsModule())
                 .build()
     }
 }

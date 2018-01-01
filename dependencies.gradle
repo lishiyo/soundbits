@@ -11,4 +11,5 @@ ext {
     rxJavaVersion = "2.1.6"
     rxAndroidVersion = '2.0.1'
     placeholderViewVersion = '0.7.2'
+    frescoVersion = '1.7.1'
 }

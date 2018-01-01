@@ -8,11 +8,18 @@ import javax.inject.Singleton
 /**
  * Created by connieli on 12/31/17.
  */
-@Component(modules = arrayOf(AppModule::class, RoomModule::class, RemoteModule::class))
+@Component(modules = [
+    (AppModule::class),
+    (UtilsModule::class),
+    (RoomModule::class),
+    (RemoteModule::class)
+])
 @Singleton
 interface AppComponent {
 
-    // inject viewmodels
+    // injection targets
+    fun inject(application: App)
+
 
     // subcomponents
     fun plus(homeModule: HomeModule): HomeComponent

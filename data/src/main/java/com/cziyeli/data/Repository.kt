@@ -1,6 +1,7 @@
 package com.cziyeli.data
 
-import io.reactivex.Flowable
+import io.reactivex.Observable
+import kaaes.spotify.webapi.android.models.Pager
 import kaaes.spotify.webapi.android.models.PlaylistSimple
 
 /**
@@ -8,6 +9,6 @@ import kaaes.spotify.webapi.android.models.PlaylistSimple
  */
 interface Repository {
 
-    // get user's playlists
-    fun getPlaylists(): Flowable<List<PlaylistSimple>>
+    // get current user's playlists
+    fun fetchUserPlaylists(limit: Int = 20, offset: Int = 0): Observable<Pager<PlaylistSimple>>
 }

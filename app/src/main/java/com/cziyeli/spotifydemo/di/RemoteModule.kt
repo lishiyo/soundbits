@@ -1,8 +1,10 @@
 package com.cziyeli.spotifydemo.di
 
+import com.cziyeli.data.remote.RemoteDataSource
 import dagger.Module
 import dagger.Provides
 import kaaes.spotify.webapi.android.SpotifyApi
+import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Singleton
 
 /**
@@ -13,7 +15,10 @@ import javax.inject.Singleton
 @Module
 class RemoteModule {
 
-    // provide spotify api (log in)
+    @Provides
+    @Singleton
+    fun provideRemoteDataSource(api: SpotifyApi, schedulerProvider: BaseSchedulerProvider): RemoteDataSource
+            = RemoteDataSource(api, schedulerProvider)
 
     @Provides
     @Singleton
@@ -22,22 +27,4 @@ class RemoteModule {
         return SpotifyApi()
     }
 
-
-//    private fun isLoggedIn(): Boolean {
-//        var currentlyLoggedIn = isLoggedIn
-//        api.service.getMe(object: Callback<UserPrivate> {
-//            override fun failure(error: RetrofitError?) {
-//                Utils.log("failure: ${error?.localizedMessage}")
-//                currentlyLoggedIn = false
-//            }
-//
-//            override fun success(t: UserPrivate?, response: Response?) {
-//                currentlyLoggedIn = true
-//            }
-//
-//        })
-//    }
-
-
-    // provide RemoteSpotifyService (wrapper around spotify web api)
 }

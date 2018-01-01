@@ -39,6 +39,7 @@ dependencies {
     // colon needs to prefixed with the library path
     implementation project(':commons')
     implementation project(':data')
+    implementation project(':domain')
 
     implementation "com.android.support:appcompat-v7:$rootProject.ext.supportVersion"
     implementation "com.android.support:design:$rootProject.ext.supportVersion"
@@ -46,7 +47,6 @@ dependencies {
     compile "com.android.support:support-vector-drawable:$rootProject.ext.supportVersion"
     implementation "com.android.support.constraint:constraint-layout:$rootProject.ext.constraintLayoutVersion"
     implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportVersion"
-    implementation "com.mindorks:placeholderview:$rootProject.ext.placeholderViewVersion"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
@@ -81,5 +81,10 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
     implementation "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxAndroidVersion"
 
+    // UI
+    implementation "com.facebook.fresco:fresco:$rootProject.ext.frescoVersion"
     implementation 'com.squareup.picasso:picasso:2.5.2'
+
+    // tinder ui
+    implementation "com.mindorks:placeholderview:$rootProject.ext.placeholderViewVersion"
 }

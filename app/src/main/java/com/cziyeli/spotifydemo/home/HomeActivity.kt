@@ -1,5 +1,7 @@
 package com.cziyeli.spotifydemo.home
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -12,14 +14,10 @@ import com.spotify.sdk.android.authentication.AuthenticationRequest
 import com.spotify.sdk.android.authentication.AuthenticationResponse
 import com.spotify.sdk.android.player.ConnectionStateCallback
 import com.spotify.sdk.android.player.Error
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 import kaaes.spotify.webapi.android.SpotifyApi
-import kaaes.spotify.webapi.android.models.Album
-import kaaes.spotify.webapi.android.models.Pager
-import kaaes.spotify.webapi.android.models.PlaylistSimple
-import kaaes.spotify.webapi.android.models.PlaylistTrack
-import retrofit.Callback
-import retrofit.RetrofitError
-import retrofit.client.Response
+import lishiyo.kotlin_arch.mvibase.MviView
 import javax.inject.Inject
 
 
@@ -30,8 +28,10 @@ import javax.inject.Inject
  *
  * Created by connieli on 12/31/17.
  */
-class HomeActivity : AppCompatActivity(), ConnectionStateCallback {
+class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeIntent, HomeViewState> {
 
+    // dagger
+    private val component by lazy { App.appComponent.plus(HomeModule()) }
     @Inject lateinit var api: SpotifyApi
 
     // check if logged in by shared prefs and in-memory
@@ -39,7 +39,10 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback {
     private var accessToken: String by bindSharedPreference(this, AUTH_TOKEN, "")
     private var isLoggedIn: Boolean = false
 
-    private val component by lazy { App.appComponent.plus(HomeModule(this)) }
+    // view models
+    private lateinit var viewModel: HomeViewModel
+
+    private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadPlaylists>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,10 +54,47 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback {
         } else {
             openLoginWindow()
         }
+
+        // even if not logged in, create the vm
+        initViewModel()
     }
 
-    fun isLoggedIn(): Boolean {
+    override fun intents(): Observable<out HomeIntent> {
+        return Observable.merge(
+                Observable.just(HomeIntent.Initial.create()), // send out initial intent immediately
+                mLoadPublisher
+        )
+    }
+
+    override fun render(state: HomeViewState) {
+        Utils.log("RENDER ++ state: ${state.status}")
+    }
+
+    private fun isLoggedIn(): Boolean {
         return !accessToken.isEmpty() && (isLoggedIn || (System.currentTimeMillis() / 1000) < expirationCutoff)
+    }
+
+    private fun initViewModel() {
+        Utils.log("initing home view model")
+
+        viewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
+
+        // add viewmodel as an observer of this fragment lifecycle
+        viewModel.let { lifecycle.addObserver(it) }
+
+        // Subscribe to the viewmodel states with LiveData, not Rx
+        viewModel.states().observe(this, Observer { state ->
+            state?.let {
+                this.render(state)
+            }
+        })
+
+        // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
+        viewModel.processIntents(intents())
+
+        if (isLoggedIn()) {
+            mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create())
+        }
     }
 
     fun onLoginButtonClicked(view: View) {
@@ -71,66 +111,66 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback {
             Utils.log("Logging in")
             openLoginWindow()
         } else {
-            testUserPlaylists(api)
+            mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create())
         }
     }
 
-    fun testUserPlaylists(authedApi: SpotifyApi) {
-        // get all the user's playlists
-        authedApi.service.getMyPlaylists(object : Callback<Pager<PlaylistSimple>> {
-            override fun success(pagedResponse: Pager<PlaylistSimple>?, response: Response?) {
-                Utils.log("got playlists! total: $pagedResponse.total")
-//                pagedResponse?.items?.take(5)?.forEach {
-//                    Utils.log("playlist id: ${it.id} ++ ${it.name} ++ ${it.owner}")
+//    fun testUserPlaylists(authedApi: SpotifyApi) {
+//        // get all the user's playlists
+//        authedApi.service.getMyPlaylists(object : Callback<Pager<PlaylistSimple>> {
+//            override fun success(pagedResponse: Pager<PlaylistSimple>?, response: Response?) {
+//                Utils.log("got playlists! total: $pagedResponse.total")
+////                pagedResponse?.items?.take(5)?.forEach {
+////                    Utils.log("playlist id: ${it.id} ++ ${it.name} ++ ${it.owner}")
+////                }
+//
+//                pagedResponse?.items?.get(0)?.let {
+//                    testPlaylistTracks(authedApi, it.owner.id, it.id)
 //                }
-
-                pagedResponse?.items?.get(0)?.let {
-                    testPlaylistTracks(authedApi, it.owner.id, it.id)
-                }
-            }
-
-            override fun failure(error: RetrofitError?) {
-                Utils.log("fetch playlists error: ${error?.localizedMessage}")
-            }
-        })
-    }
-
-    fun testPlaylistTracks(authedApi: SpotifyApi, ownerId: String, playlistId: String) {
-        // get all the tracks in a playlist
-        authedApi.service.getPlaylistTracks(ownerId, playlistId, object : Callback<Pager<PlaylistTrack>> {
-            override fun failure(error: RetrofitError?) {
-                Utils.log("get playlist tracks error: ${error?.localizedMessage}")
-            }
-
-            override fun success(pagedResponse: Pager<PlaylistTrack>?, response: Response?) {
-                Utils.log("got playlist tracks! total: ${pagedResponse?.items?.size}")
-//                Utils.log("first track: ${pagedResponse?.items?.get(0)?.track.toString()}")
-
-                pagedResponse?.items?.let {
-                    Utils.log("total num with previewUrls: ${countPreviewUrls(it)}")
-                }
-            }
-        })
-    }
-
-    private fun countPreviewUrls(tracks: List<PlaylistTrack>): Int {
-        val previewUrls = tracks.map { it.track?.preview_url }.filter { it != null && !it.isEmpty() }
-        return previewUrls.size
-    }
-
-    fun testApi(authedApi: SpotifyApi) {
-        val spotify = authedApi.service
-
-        spotify.getAlbum("2dIGnmEIy1WZIcZCFSj6i8", object : Callback<Album> {
-            override fun success(album: Album?, response: retrofit.client.Response) {
-                Utils.log("Album success: $album.name")
-            }
-
-            override fun failure(error: RetrofitError) {
-                Utils.log("Album failure: $error.toString()")
-            }
-        })
-    }
+//            }
+//
+//            override fun failure(error: RetrofitError?) {
+//                Utils.log("fetch playlists error: ${error?.localizedMessage}")
+//            }
+//        })
+//    }
+//
+//    fun testPlaylistTracks(authedApi: SpotifyApi, ownerId: String, playlistId: String) {
+//        // get all the tracks in a playlist
+//        authedApi.service.getPlaylistTracks(ownerId, playlistId, object : Callback<Pager<PlaylistTrack>> {
+//            override fun failure(error: RetrofitError?) {
+//                Utils.log("get playlist tracks error: ${error?.localizedMessage}")
+//            }
+//
+//            override fun success(pagedResponse: Pager<PlaylistTrack>?, response: Response?) {
+//                Utils.log("got playlist tracks! total: ${pagedResponse?.items?.size}")
+////                Utils.log("first track: ${pagedResponse?.items?.get(0)?.track.toString()}")
+//
+//                pagedResponse?.items?.let {
+//                    Utils.log("total num with previewUrls: ${countPreviewUrls(it)}")
+//                }
+//            }
+//        })
+//    }
+//
+//    private fun countPreviewUrls(tracks: List<PlaylistTrack>): Int {
+//        val previewUrls = tracks.map { it.track?.preview_url }.filter { it != null && !it.isEmpty() }
+//        return previewUrls.size
+//    }
+//
+//    fun testApi(authedApi: SpotifyApi) {
+//        val spotify = authedApi.service
+//
+//        spotify.getAlbum("2dIGnmEIy1WZIcZCFSj6i8", object : Callback<Album> {
+//            override fun success(album: Album?, response: retrofit.client.Response) {
+//                Utils.log("Album success: $album.name")
+//            }
+//
+//            override fun failure(error: RetrofitError) {
+//                Utils.log("Album failure: $error.toString()")
+//            }
+//        })
+//    }
 
     //   ____      _ _ _                _      __  __      _   _               _
     //  / ___|__ _| | | |__   __ _  ___| | __ |  \/  | ___| |_| |__   ___   __| |___
@@ -199,14 +239,15 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback {
 
     private fun onAuthenticationComplete(authResponse: AuthenticationResponse) {
         isLoggedIn = true
-        // Save the access token
+        // Save the access token and expiration time in shared prefs
         api.setAccessToken(authResponse.accessToken)
         accessToken = authResponse.accessToken
-
-        // save in shared pref
         val nextExpirationTime = System.currentTimeMillis() / 1000 + authResponse.expiresIn // 1 hour
         expirationCutoff = nextExpirationTime
         Utils.log("Got authentication token: $authResponse.accessToken ++ nextExpirationTime: $nextExpirationTime")
+
+        // now we can load
+        mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create())
     }
 
 }
