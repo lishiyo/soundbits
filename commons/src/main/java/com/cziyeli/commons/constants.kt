@@ -14,6 +14,7 @@ const val SPOTIFY_REQUEST_CODE = 1337
 
 // Shared Prefs
 const val LOGIN_EXPIRATION = "login_expiration" // in seconds
+const val AUTH_TOKEN = "spotify_auth_token"
 
 // tests
 private val TEST_SONG_URI = "spotify:track:6KywfgRqvgvfJc3JRwaZdZ"
@@ -25,3 +26,5 @@ private val TEST_QUEUE_SONG_URI = "spotify:track:5EEOjaJyWvfMglmEwf9bG3"
 
 // test web api
 const val TEST_ALBUM_ID = "7e0ij2fpWaxOEHv5fUYZjd"
+const val TEST_PLAYLIST_ID_00 = "3TsVGhO21QrDDw2gNjGyfd" // Bryce Vine Approved
+const val TEST_PLAYLIST_ID_01 = "37i9dQZF1DWT2jS7NwYPVI" // New Noise

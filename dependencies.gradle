@@ -10,4 +10,5 @@ ext {
     daggerVersion = "2.13"
     rxJavaVersion = "2.1.6"
     rxAndroidVersion = '2.0.1'
+    placeholderViewVersion = '0.7.2'
 }

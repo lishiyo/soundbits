@@ -4,7 +4,7 @@ apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 27
-    defaultPublishConfig "debug"
+
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 27
@@ -12,7 +12,6 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {

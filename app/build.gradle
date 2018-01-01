@@ -45,6 +45,8 @@ dependencies {
     implementation "com.android.support:cardview-v7:$rootProject.ext.supportVersion"
     compile "com.android.support:support-vector-drawable:$rootProject.ext.supportVersion"
     implementation "com.android.support.constraint:constraint-layout:$rootProject.ext.constraintLayoutVersion"
+    implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportVersion"
+    implementation "com.mindorks:placeholderview:$rootProject.ext.placeholderViewVersion"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
