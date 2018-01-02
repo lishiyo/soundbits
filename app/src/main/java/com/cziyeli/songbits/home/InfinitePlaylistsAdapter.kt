@@ -25,16 +25,19 @@ class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderVie
         var reachedEnd = state.status != HomeViewState.Status.LOADING && state.status != HomeViewState.Status.SUCCESS
         if (state.status == HomeViewState.Status.SUCCESS) {
             if (state.playlists.isNotEmpty()) {
+                val currentCount = Math.max(0, mLoadMoreView.viewCount)
                 val playlists = state.playlists
-                Utils.log("playlistAdapter RENDER ++ got playlists count: ${playlists!!.size}")
+                val newPlaylists = playlists.subList(currentCount, playlists.size)
 
-                playlists.forEach{
+                Utils.log("playlistAdapter RENDER ++ currentCount: $currentCount ++ got newPlaylists: ${newPlaylists!!.size}")
+
+                newPlaylists.forEach{
                     mLoadMoreView.addView<PlaylistItem>(PlaylistItem(mLoadMoreView.context, it))
                 }
 
                 mLoadMoreView.loadingDone() // finished populating adapter
             } else {
-            // if successful and items are empty, then we've reached end
+                // if successful and items are empty, then we've reached end
                 reachedEnd = true
             }
         }
@@ -51,10 +54,9 @@ class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderVie
 
     @LoadMore
     private fun onLoadMore() {
-        Utils.log("onLoadMore -- any network call should go here")
+        Utils.log("playlistAdapter onLoadMore ++ currentCount: ${mLoadMoreView.viewCount}")
 
         // post intent to load playlists
-        val currentOffset = mLoadMoreView.viewCount
-        mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create(offset = currentOffset))
+        mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create(offset = mLoadMoreView.viewCount))
     }
 }
