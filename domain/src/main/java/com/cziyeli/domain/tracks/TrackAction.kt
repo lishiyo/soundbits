@@ -6,6 +6,8 @@ import lishiyo.kotlin_arch.mvibase.MviAction
  * Created by connieli on 1/1/18.
  */
 sealed class TrackAction : MviAction {
+    // no-op
+    object None : TrackAction()
 
     // https://developer.spotify.com/web-api/console/get-playlist-tracks/
     class LoadTrackCards(val ownerId: String,

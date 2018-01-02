@@ -6,6 +6,8 @@ import lishiyo.kotlin_arch.mvibase.MviAction
  * Created by connieli on 12/31/17.
  */
 sealed class PlaylistAction : MviAction {
+    // no-op
+    object None : PlaylistAction()
 
     // fetch current user's playlists (default to first page)
     class UserPlaylists(val limit: Int = 20, val offset: Int = 0) : PlaylistAction() {
@@ -17,13 +19,6 @@ sealed class PlaylistAction : MviAction {
         }
     }
 
-    class None : PlaylistAction() {
-        companion object {
-            fun create(): None {
-                return None()
-            }
-        }
-    }
 
     // get recommendations by seed:
     // https://developer.spotify.com/web-api/console/get-recommendations/

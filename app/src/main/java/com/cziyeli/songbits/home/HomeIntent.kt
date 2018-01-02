@@ -16,7 +16,7 @@ sealed class HomeIntent : MviIntent {
         }
     }
 
-    // opened home, already logged in -> load the playlists
+    // opened home, already logged in -> load the items
     class LoadPlaylists(val limit: Int = 20, val offset: Int = 0) : HomeIntent() {
         companion object {
             fun create(limit: Int = 20, offset: Int = 0): LoadPlaylists {

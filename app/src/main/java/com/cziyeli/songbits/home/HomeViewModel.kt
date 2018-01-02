@@ -66,8 +66,6 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
         // inject repo, actionprocessor, scheduler
         initializeDagger()
 
-        Utils.log("init ViewModel!")
-
         // create observable to push into states live data
         val observable: Observable<HomeViewState> = intentsSubject
                 .subscribeOn(schedulerProvider.io())
@@ -100,7 +98,7 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
     private fun actionFromIntent(intent: MviIntent) : PlaylistAction {
         return when(intent) {
             is HomeIntent.LoadPlaylists -> PlaylistAction.UserPlaylists.create(intent.limit, intent.offset)
-            else -> PlaylistAction.None.create() // no-op all other events
+            else -> PlaylistAction.None // no-op all other events
         }
     }
 

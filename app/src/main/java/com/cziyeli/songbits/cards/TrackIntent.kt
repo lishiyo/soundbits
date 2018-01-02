@@ -10,14 +10,14 @@ sealed class TrackIntent : MviIntent {
     // https://developer.spotify.com/web-api/console/get-playlist-tracks/
     class LoadTrackCards(val ownerId: String,
                          val playlistId: String,
-                         val fields: String?,
+                         val fields: String? = null,
                          val limit: Int = 100,
                          val offset: Int = 0
     ) : TrackIntent() {
         companion object {
             fun create(ownerId: String,
                        playlistId: String,
-                       fields: String?,
+                       fields: String? = null,
                        limit: Int = 100,
                        offset: Int = 0): LoadTrackCards{
                 return LoadTrackCards(ownerId, playlistId, fields, limit, offset)

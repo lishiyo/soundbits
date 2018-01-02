@@ -14,20 +14,33 @@ data class TrackCard(val name: String,
                      val uri: String,
                      val preview_url: String?,
                      val album: TrackAlbum,
-                     val is_playable: Boolean,
-                     val popularity: Int
+                     val is_playable: Boolean?,
+                     val popularity: Int?
 ) {
     val coverImage: CoverImage?
         get() = (album.images?.get(0))
 
-    fun isValid(): Boolean = is_playable && preview_url != null
+    val artist: Artist?
+        get() = (album.artists?.get(0))
+
+    /**
+     * @return whether this can be shown in the tinder ui
+     */
+    fun isRenderable(): Boolean = preview_url != null
 
     companion object {
         fun create(apiModel: Track) : TrackCard {
             val artists: List<Artist> = apiModel.artists.map { Artist(it.name, it.id, it.uri) }
             val images = apiModel.album.images?.map { CoverImage(it.height, it.width, it.url) }
             val trackAlbum = TrackAlbum(apiModel.album.id, apiModel.album.uri, artists, images)
-            return TrackCard(apiModel.name, apiModel.id, apiModel.uri, apiModel.preview_url, trackAlbum, apiModel.is_playable, apiModel.popularity)
+            return TrackCard(
+                    apiModel.name,
+                    apiModel.id,
+                    apiModel.uri,
+                    apiModel.preview_url,
+                    trackAlbum,
+                    apiModel.is_playable,
+                    apiModel.popularity)
         }
     }
 }

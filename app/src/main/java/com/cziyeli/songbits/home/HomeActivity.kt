@@ -25,7 +25,7 @@ import javax.inject.Inject
 
 /**
  * Main screen:
- * - Show user's playlists
+ * - Show user's items
  * - show current liked and discard piles
  *
  * Created by connieli on 12/31/17.
@@ -55,7 +55,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         setContentView(R.layout.activity_home)
         component.inject(this) // init dagger
 
-        // init the playlists view
+        // init the items view
         playlistsAdapter = InfinitePlaylistsAdapter(playlists_container)
         playlists_container.setLoadMoreResolver(playlistsAdapter)
 
@@ -127,10 +127,10 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     }
 
 //    fun testUserPlaylists(authedApi: SpotifyApi) {
-//        // get all the user's playlists
+//        // get all the user's items
 //        authedApi.service.getMyPlaylists(object : Callback<Pager<PlaylistSimple>> {
 //            override fun success(pagedResponse: Pager<PlaylistSimple>?, response: Response?) {
-//                Utils.log("got playlists! total: $pagedResponse.total")
+//                Utils.log("got items! total: $pagedResponse.total")
 ////                pagedResponse?.items?.take(5)?.forEach {
 ////                    Utils.log("playlist id: ${it.id} ++ ${it.name} ++ ${it.owner}")
 ////                }
@@ -141,7 +141,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 //            }
 //
 //            override fun failure(error: RetrofitError?) {
-//                Utils.log("fetch playlists error: ${error?.localizedMessage}")
+//                Utils.log("fetch items error: ${error?.localizedMessage}")
 //            }
 //        })
 //    }
@@ -223,7 +223,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     private fun openLoginWindow() {
         val request = AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID,
                 AuthenticationResponse.Type.TOKEN, SPOTIFY_REDIRECT_URI)
-                .setScopes(arrayOf("user-read-private", "playlist-read", "playlist-read-private", "streaming"))
+                .setScopes(SCOPES)
                 .build()
 
         AuthenticationClient.openLoginActivity(this, SPOTIFY_REQUEST_CODE, request)

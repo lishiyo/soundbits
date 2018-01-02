@@ -11,6 +11,14 @@ const val SPOTIFY_CLIENT_ID = "7943ec6271944a349bea91696be9b8ec"
 const val SPOTIFY_CLIENT_SECRET = "ec5a09e5d0ad46bc8bd21d7a4e7bdb3d"
 const val SPOTIFY_REDIRECT_URI = "songbits://callback"
 const val SPOTIFY_REQUEST_CODE = 1337
+val SCOPES = arrayOf(
+        "user-read-private",
+        "playlist-read",
+        "playlist-read-private",
+        "streaming",
+        "playlist-modify-public",
+        "playlist-modify-private"
+)
 
 // Shared Prefs
 const val LOGIN_EXPIRATION = "login_expiration" // in seconds

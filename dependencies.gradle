@@ -1,4 +1,6 @@
 ext {
+    ankoVersion = '0.10.4'
+    stethoVersion = '1.5.0'
     supportVersion = '27.0.2'
     constraintLayoutVersion = '1.0.2'
     archVersion = '1.0.0'
