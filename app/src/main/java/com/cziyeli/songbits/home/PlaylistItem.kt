@@ -42,12 +42,12 @@ class PlaylistItem(val context: Context, private var playlist: Playlist?) {
     @Resolve
     private fun onResolved() {
        playlist?.let {
-           name.setText(it.name)
-           ownerName.setText(it.owner?.display_name)
+           name.text = it.name
+           ownerName.text = it.owner?.display_name
 
            imageView.setImageURI(it.coverImage?.url)
 
-           itemView.setOnClickListener(clickListener)
+//           itemView.setOnClickListener(clickListener)
        }
     }
 

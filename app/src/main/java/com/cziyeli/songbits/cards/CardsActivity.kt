@@ -58,7 +58,8 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState> 
 
         mLoadPublisher.onNext(TrackIntent.LoadTrackCards.create(
                 ownerId = playlist.owner.id,
-                playlistId = playlist.id))
+                playlistId = playlist.id)
+        )
     }
 
     private fun initSwipeView() {
@@ -105,9 +106,8 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState> 
 
         // populate
         if (state.status == TrackViewState.Status.SUCCESS) {
-            val filteredTracks = state.items.filter { it.isRenderable() }
-            Utils.log("CardsActivity RENDER ++ count ${filteredTracks.size}")
-            filteredTracks.forEach {
+            Utils.log("CardsActivity RENDER ++ count ${state.items.size}")
+            state.items.forEach {
                 swipeView.addView(TrackItem(this, it, swipeView))
             }
         } else {
@@ -131,7 +131,6 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState> 
 
         // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
         viewModel.processIntents(intents())
-
     }
 
 }

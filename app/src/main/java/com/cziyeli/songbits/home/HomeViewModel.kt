@@ -77,7 +77,7 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
                 .map{ it -> actionFromIntent(it)}
                 .doOnNext { intent -> Utils.log("ViewModel ++ intentsSubject hitActionProcessor: ${intent.javaClass.name}") }
                 .compose(actionProcessor.combinedProcessor)
-                .scan(HomeViewState.IDLE, reducer)
+                .scan(HomeViewState(), reducer)
                 // Emit the last one event of the stream on subscription
                 // Useful when a View rebinds to the ViewModel after rotation.
                 .replay(1)
@@ -152,8 +152,4 @@ data class HomeViewState(var status: Status = Status.NOT_LOGGED_IN,
         NOT_LOGGED_IN, LOADING, SUCCESS, ERROR
     }
 
-    companion object {
-        // start with this - assume not logged in
-        @JvmField val IDLE = HomeViewState()
-    }
 }

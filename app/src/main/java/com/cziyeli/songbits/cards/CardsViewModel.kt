@@ -63,9 +63,7 @@ class CardsViewModel : ViewModel(), LifecycleObserver, MviViewModel<TrackIntent,
                 .map{ it -> actionFromIntent(it)}
                 .doOnNext { intent -> Utils.log("ViewModel ++ intentsSubject hitActionProcessor: ${intent.javaClass.name}") }
                 .compose(actionProcessor.combinedProcessor)
-                .scan(TrackViewState.IDLE, reducer)
-                .replay(1)
-                .autoConnect(0) // connect asap
+                .scan(TrackViewState(), reducer)
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
@@ -89,7 +87,9 @@ class CardsViewModel : ViewModel(), LifecycleObserver, MviViewModel<TrackIntent,
     }
 
     override fun processIntents(intents: Observable<out TrackIntent>) {
-        intents.subscribe(intentsSubject)
+        compositeDisposable.add(
+            intents.subscribe(intentsSubject::onNext)
+        )
     }
 
     override fun states(): LiveData<TrackViewState> {
@@ -103,21 +103,26 @@ class CardsViewModel : ViewModel(), LifecycleObserver, MviViewModel<TrackIntent,
             compositeDisposable.addAll(disposable)
         }
         compositeDisposable.clear()
+
+        // reset
+        liveViewState.value = null
     }
 
     // ===== Individual reducers ======
 
     private fun processTrackCards(previousState: TrackViewState, result: TrackResult.TrackCards): TrackViewState {
         val newState = previousState.copy()
+        Utils.log("previous items: ${previousState.items.size}")
         newState.error = null
 
         when (result.status) {
             TrackResult.Status.LOADING -> {
                 newState.status = TrackViewState.Status.LOADING
             }
-            TrackResult.Status.SUCCESS, TrackResult.Status.IDLE -> {
+            TrackResult.Status.SUCCESS -> {
                 newState.status = TrackViewState.Status.SUCCESS
-                newState.items.addAll(result.items)
+//                newState.items.clear()
+                newState.items.addAll(result.items.filter { it.isRenderable() })
             }
             TrackResult.Status.FAILURE -> {
                 newState.status = TrackViewState.Status.ERROR
@@ -137,11 +142,5 @@ data class TrackViewState(var status: Status = Status.IDLE,
                           var playlist: Playlist? = null) : MviViewState {
     enum class Status {
         IDLE, LOADING, SUCCESS, ERROR
-    }
-
-    companion object {
-        // start with this - assume not logged in
-        @JvmField
-        val IDLE = TrackViewState()
     }
 }

@@ -1,8 +1,8 @@
 package com.cziyeli.songbits.cards
 
 import android.content.Context
-import android.util.Log
 import android.widget.TextView
+import com.cziyeli.commons.Utils
 import com.cziyeli.domain.tracks.TrackCard
 import com.cziyeli.songbits.R
 import com.facebook.drawee.view.SimpleDraweeView
@@ -35,8 +35,8 @@ class TrackItem(private val context: Context,
 
     @Resolve
     private fun onResolved() {
-        trackName.setText(model.name)
-        artistName.setText(model.artist?.name)
+        trackName.text = model.name
+        artistName.text = model.artist?.name
 
         imageView.setImageURI(model.coverImage?.url)
     }
@@ -53,33 +53,31 @@ class TrackItem(private val context: Context,
 
     @Click(R.id.image)
     private fun onClick() {
-        Log.d("EVENT", "image click")
-        //        mSwipeView.addView(this);
+        Utils.log("image click")
     }
 
     @SwipeOut
     private fun onSwipedOut() {
-        Log.d("EVENT", "onSwipedOut")
-        //        mSwipeView.addView(this);
+        Utils.log("onSwipedOut")
     }
 
     @SwipeCancelState
     private fun onSwipeCancelState() {
-        Log.d("EVENT", "onSwipeCancelState")
+        Utils.log("onSwipeCancelState")
     }
 
     @SwipeIn
     private fun onSwipeIn() {
-        Log.d("EVENT", "onSwipedIn")
+        Utils.log("onSwipeIn")
     }
 
     @SwipeInState
     private fun onSwipeInState() {
-        Log.d("EVENT", "onSwipeInState")
+        Utils.log("onSwipeInState")
     }
 
     @SwipeOutState
     private fun onSwipeOutState() {
-        Log.d("EVENT", "onSwipeOutState")
+        Utils.log("onSwipeOutState")
     }
 }
