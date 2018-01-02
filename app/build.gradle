@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "com.cziyeli.spotifydemo"
+        applicationId "com.cziyeli.songbits"
         multiDexEnabled true
         minSdkVersion 21
         targetSdkVersion 27
@@ -15,17 +15,37 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
+        multiDexEnabled true
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            testCoverageEnabled false
+        }
+    }
+    sourceSets {
+        main {
+            assets.srcDirs = ['src/main/assets', 'src/main/assets/']
+//            res.srcDirs = ['src/main/res', 'src/main/res/drawable']
+//            main.java.srcDirs += 'src/main/kotlin'
+        }
+    }
+    buildToolsVersion '27.0.3'
+    lintOptions {
+        abortOnError false
     }
 }
 
 repositories {
-    mavenCentral()
+//    mavenCentral()
     maven { url "https://jitpack.io" }
     flatDir {
         dirs 'libs'
@@ -33,28 +53,30 @@ repositories {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+//    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     // colon needs to prefixed with the library path
     implementation project(':commons')
     implementation project(':data')
     implementation project(':domain')
-
     implementation "com.android.support:appcompat-v7:$rootProject.ext.supportVersion"
     implementation "com.android.support:design:$rootProject.ext.supportVersion"
     implementation "com.android.support:cardview-v7:$rootProject.ext.supportVersion"
-    compile "com.android.support:support-vector-drawable:$rootProject.ext.supportVersion"
+    implementation "com.android.support:support-vector-drawable:$rootProject.ext.supportVersion"
     implementation "com.android.support.constraint:constraint-layout:$rootProject.ext.constraintLayoutVersion"
     implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportVersion"
-
+    implementation "com.android.support:support-core-utils:$rootProject.ext.supportVersion"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
     // ==== SPOTIFY ====
+
     // This library handles authentication and authorization
     implementation "com.spotify.android:auth:$rootProject.ext.spotifyAuthVersion"
+
     // This library handles music playback
     implementation "com.spotify.sdk:$rootProject.ext.spotifySdkVersion"
     implementation "com.github.kaaes:spotify-web-api-android:$rootProject.ext.spotifyWebApiVersion"
@@ -68,14 +90,17 @@ dependencies {
 
     // retrofit and gson
     implementation "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofitVersion"
-    implementation  "com.squareup.retrofit2:converter-gson:$rootProject.ext.retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$rootProject.ext.retrofitVersion"
     implementation "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
     implementation "com.squareup.retrofit2:adapter-rxjava2:$rootProject.ext.retrofitVersion"
     implementation "com.squareup.okhttp3:logging-interceptor:$rootProject.ext.okhttpVersion"
 
     // Dagger2
     implementation "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
+//    implementation "com.google.dagger:dagger-android:$rootProject.ext.daggerVersion"
+//    implementation "com.google.dagger:dagger-android-support:$rootProject.ext.daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
+    kapt "com.google.dagger:dagger-android-processor:$rootProject.ext.daggerVersion"
 
     // Rx
     implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
@@ -83,8 +108,18 @@ dependencies {
 
     // UI
     implementation "com.facebook.fresco:fresco:$rootProject.ext.frescoVersion"
-    implementation 'com.squareup.picasso:picasso:2.5.2'
 
-    // tinder ui
+    // For animated GIF support
+    implementation "com.facebook.fresco:animated-gif:$rootProject.ext.frescoVersion"
+
+    // For WebP support, including animated WebP
+    implementation "com.facebook.fresco:animated-webp:$rootProject.ext.frescoVersion"
+    implementation "com.facebook.fresco:webpsupport:$rootProject.ext.frescoVersion"
+
+    // For WebP support, without animations
+    implementation "com.facebook.fresco:webpsupport:$rootProject.ext.frescoVersion"
+    implementation 'com.squareup.picasso:picasso:2.5.2' // todo remove
+
+    // Placeholder view
     implementation "com.mindorks:placeholderview:$rootProject.ext.placeholderViewVersion"
 }

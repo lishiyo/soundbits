@@ -17,7 +17,7 @@ sealed class PlaylistAction : MviAction {
         }
     }
 
-    class None() : PlaylistAction() {
+    class None : PlaylistAction() {
         companion object {
             fun create(): None {
                 return None()

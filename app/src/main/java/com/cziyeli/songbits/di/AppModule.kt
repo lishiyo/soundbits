@@ -1,4 +1,4 @@
-package com.cziyeli.spotifydemo.di
+package com.cziyeli.songbits.di
 
 import android.content.Context
 import com.cziyeli.data.Repository
@@ -7,7 +7,6 @@ import com.cziyeli.data.local.RoomDataSource
 import com.cziyeli.data.remote.RemoteDataSource
 import dagger.Module
 import dagger.Provides
-import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import javax.inject.Singleton
 
 /**

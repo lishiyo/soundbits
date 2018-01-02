@@ -1,6 +1,6 @@
-package com.cziyeli.spotifydemo.home
+package com.cziyeli.songbits.home
 
-import com.cziyeli.spotifydemo.di.PerActivity
+import com.cziyeli.songbits.di.PerActivity
 import dagger.Subcomponent
 
 /**

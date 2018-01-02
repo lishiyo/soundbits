@@ -1,5 +1,5 @@
 <resources>
-	<string name="app_name">Spotify Demo</string>
+	<string name="app_name">Songbits</string>
 	<string name="title_home">Real Home</string>
 	<string name="title_demo">Demo Spotify SDK</string>
 	<string name="title_dashboard">Dashboard</string>

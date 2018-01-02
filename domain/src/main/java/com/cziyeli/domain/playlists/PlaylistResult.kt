@@ -16,7 +16,7 @@ sealed class PlaylistResult(var status: Status = Status.IDLE, var error: Throwab
         : PlaylistResult(status, error) {
         companion object {
             fun createSuccess(playlists: List<Playlist>) : UserPlaylists {
-                return UserPlaylists(Status.SUCCESS, null)
+                return UserPlaylists(Status.SUCCESS, null, playlists)
             }
             fun createError(throwable: Throwable) : UserPlaylists {
                 return UserPlaylists(Status.FAILURE, throwable)

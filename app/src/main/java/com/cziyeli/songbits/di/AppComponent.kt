@@ -1,7 +1,7 @@
-package com.cziyeli.spotifydemo.di
+package com.cziyeli.songbits.di
 
-import com.cziyeli.spotifydemo.home.HomeComponent
-import com.cziyeli.spotifydemo.home.HomeModule
+import com.cziyeli.songbits.home.HomeComponent
+import com.cziyeli.songbits.home.HomeModule
 import dagger.Component
 import javax.inject.Singleton
 

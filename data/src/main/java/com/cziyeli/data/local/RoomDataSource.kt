@@ -10,7 +10,8 @@ import android.content.Context
  */
 @Database(
         entities = arrayOf(TrackEntity::class),
-        version = 1)
+        version = 1,
+        exportSchema = false)
 abstract class RoomDataSource : RoomDatabase() {
 
     abstract fun tracksDao(): RoomDao

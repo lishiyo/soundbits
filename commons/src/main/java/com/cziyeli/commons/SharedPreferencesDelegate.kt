@@ -38,12 +38,12 @@ private class SharedPreferenceDelegate<T>(
 }
 
 @TargetApi(Build.VERSION_CODES.N)
-fun Context.safeContext(): Context =
-        takeUnless { isDeviceProtectedStorage }?.run {
-            this.applicationContext.let {
-                ContextCompat.createDeviceProtectedStorageContext(it) ?: it
-            }
-        } ?: this
+fun Context.safeContext(): Context = takeUnless { Build.VERSION.SDK_INT < 24 || isDeviceProtectedStorage }?.run {
+        this.applicationContext.let {
+            ContextCompat.createDeviceProtectedStorageContext(it) ?: it
+        }
+    } ?: this
+
 
 @Suppress("UNCHECKED_CAST")
 fun <T> bindSharedPreference(context: Context, key: String, defaultValue: T): ReadWriteProperty<Any, T> =

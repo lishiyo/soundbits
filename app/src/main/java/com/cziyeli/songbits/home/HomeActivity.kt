@@ -1,4 +1,4 @@
-package com.cziyeli.spotifydemo.home
+package com.cziyeli.songbits.home
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -7,8 +7,8 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.cziyeli.commons.*
-import com.cziyeli.spotifydemo.R
-import com.cziyeli.spotifydemo.di.App
+import com.cziyeli.songbits.R
+import com.cziyeli.songbits.di.App
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
 import com.spotify.sdk.android.authentication.AuthenticationResponse
@@ -17,6 +17,7 @@ import com.spotify.sdk.android.player.Error
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kaaes.spotify.webapi.android.SpotifyApi
+import kotlinx.android.synthetic.main.activity_home.*
 import lishiyo.kotlin_arch.mvibase.MviView
 import javax.inject.Inject
 
@@ -42,6 +43,10 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     // view models
     private lateinit var viewModel: HomeViewModel
 
+    // subviews
+    private lateinit var playlistsAdapter: InfinitePlaylistsAdapter
+
+    // intents
     private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadPlaylists>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,25 +54,35 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         setContentView(R.layout.activity_home)
         component.inject(this) // init dagger
 
-        if (isLoggedIn()) { // we have an access token
-            api.setAccessToken(accessToken)
-        } else {
-            openLoginWindow()
-        }
+        // init the playlists view
+        playlistsAdapter = InfinitePlaylistsAdapter(playlists_container)
+        playlists_container.setLoadMoreResolver(playlistsAdapter)
 
-        // even if not logged in, create the vm
+        // bind the view model after all views are done
         initViewModel()
+
+        if (isLoggedIn()) {
+            api.setAccessToken(accessToken)
+            mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create())
+        }
     }
 
     override fun intents(): Observable<out HomeIntent> {
         return Observable.merge(
                 Observable.just(HomeIntent.Initial.create()), // send out initial intent immediately
-                mLoadPublisher
+                mLoadPublisher, // own load intent
+                playlistsAdapter.intents() // subviews intents
         )
     }
 
     override fun render(state: HomeViewState) {
         Utils.log("RENDER ++ state: ${state.status}")
+
+        val loginVisibility= if (state.status == HomeViewState.Status.NOT_LOGGED_IN) View.VISIBLE else View.GONE
+        login_button.visibility = loginVisibility
+
+        // render subviews
+        playlistsAdapter.render(state)
     }
 
     private fun isLoggedIn(): Boolean {
@@ -75,8 +90,6 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     }
 
     private fun initViewModel() {
-        Utils.log("initing home view model")
-
         viewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
 
         // add viewmodel as an observer of this fragment lifecycle
@@ -92,9 +105,6 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
         viewModel.processIntents(intents())
 
-        if (isLoggedIn()) {
-            mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create())
-        }
     }
 
     fun onLoginButtonClicked(view: View) {
@@ -108,7 +118,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
     fun onTestButtonClicked(view: View) {
         if (!isLoggedIn()) {
-            Utils.log("Logging in")
+            Utils.log("Logging in first")
             openLoginWindow()
         } else {
             mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create())
@@ -245,9 +255,6 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         val nextExpirationTime = System.currentTimeMillis() / 1000 + authResponse.expiresIn // 1 hour
         expirationCutoff = nextExpirationTime
         Utils.log("Got authentication token: $authResponse.accessToken ++ nextExpirationTime: $nextExpirationTime")
-
-        // now we can load
-        mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create())
     }
 
 }

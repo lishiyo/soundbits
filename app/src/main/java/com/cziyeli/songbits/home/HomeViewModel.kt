@@ -1,4 +1,4 @@
-package com.cziyeli.spotifydemo.home
+package com.cziyeli.songbits.home
 
 import android.arch.lifecycle.*
 import android.util.Log
@@ -8,7 +8,7 @@ import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.playlists.PlaylistAction
 import com.cziyeli.domain.playlists.PlaylistActionProcessor
 import com.cziyeli.domain.playlists.PlaylistResult
-import com.cziyeli.spotifydemo.di.App
+import com.cziyeli.songbits.di.App
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
@@ -100,8 +100,8 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
 
     private fun actionFromIntent(intent: MviIntent) : PlaylistAction {
         return when(intent) {
-            is HomeIntent.LoadPlaylists -> PlaylistAction.UserPlaylists.create()
-            else -> PlaylistAction.None.create()
+            is HomeIntent.LoadPlaylists -> PlaylistAction.UserPlaylists.create(intent.limit, intent.offset)
+            else -> PlaylistAction.None.create() // no-op all other events
         }
     }
 
@@ -135,6 +135,7 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
             }
             PlaylistResult.Status.SUCCESS, PlaylistResult.Status.IDLE -> {
                 newState.status = HomeViewState.Status.SUCCESS
+                newState.playlists.addAll(result.playlists)
             }
             PlaylistResult.Status.FAILURE -> {
                 newState.status = HomeViewState.Status.ERROR
@@ -150,13 +151,13 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
 
 data class HomeViewState(var status: Status = Status.NOT_LOGGED_IN,
                          var error: Throwable? = null,
-                         val playlists: MutableLiveData<List<Playlist>> = MutableLiveData()) : MviViewState {
+                         val playlists: MutableList<Playlist> = mutableListOf()) : MviViewState {
     enum class Status {
         NOT_LOGGED_IN, LOADING, SUCCESS, ERROR
     }
 
     companion object {
-        // start with this!
+        // start with this - assume not logged in
         @JvmField val IDLE = HomeViewState()
     }
 }

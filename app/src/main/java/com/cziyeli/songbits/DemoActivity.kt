@@ -1,4 +1,4 @@
-package com.cziyeli.spotifydemo
+package com.cziyeli.songbits
 
 import android.app.Activity
 import android.content.BroadcastReceiver

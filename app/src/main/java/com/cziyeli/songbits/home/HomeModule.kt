@@ -1,8 +1,8 @@
-package com.cziyeli.spotifydemo.home
+package com.cziyeli.songbits.home
 
 import com.cziyeli.data.Repository
 import com.cziyeli.domain.playlists.PlaylistActionProcessor
-import com.cziyeli.spotifydemo.di.PerActivity
+import com.cziyeli.songbits.di.PerActivity
 import dagger.Module
 import dagger.Provides
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider

@@ -1,4 +1,4 @@
-package com.cziyeli.spotifydemo.di
+package com.cziyeli.songbits.di
 
 import javax.inject.Scope
 

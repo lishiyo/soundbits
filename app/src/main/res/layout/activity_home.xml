@@ -13,20 +13,35 @@
 		android:focusable="true"
 		android:onClick="onLoginButtonClicked"
 		android:text="@string/login_button_label"
+		android:visibility="gone"
 		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
 		tools:layout_editor_absoluteX="0dp" />
+
+	<com.mindorks.placeholderview.InfinitePlaceHolderView
+		android:id="@+id/playlists_container"
+		android:layout_width="match_parent"
+		android:layout_height="414dp"
+		android:layout_marginBottom="8dp"
+		android:layout_marginTop="8dp"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/test_button" />
 
 	<Button
 		android:id="@+id/test_button"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
+		android:layout_width="332dp"
+		android:layout_height="43dp"
 		android:layout_marginBottom="8dp"
+		android:layout_marginEnd="8dp"
+		android:layout_marginStart="8dp"
 		android:layout_marginTop="8dp"
 		android:focusable="true"
 		android:onClick="onTestButtonClicked"
 		android:text="TEST"
 		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/login_button"
-		app:layout_constraintVertical_bias="0.02"
-		tools:layout_editor_absoluteX="0dp" />
+		app:layout_constraintVertical_bias="0.015" />
 </android.support.constraint.ConstraintLayout>

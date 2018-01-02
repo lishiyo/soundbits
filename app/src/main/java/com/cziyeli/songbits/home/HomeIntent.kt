@@ -1,4 +1,4 @@
-package com.cziyeli.spotifydemo.home
+package com.cziyeli.songbits.home
 
 import lishiyo.kotlin_arch.mvibase.MviIntent
 
@@ -17,10 +17,10 @@ sealed class HomeIntent : MviIntent {
     }
 
     // opened home, already logged in -> load the playlists
-    class LoadPlaylists : HomeIntent() {
+    class LoadPlaylists(val limit: Int = 20, val offset: Int = 0) : HomeIntent() {
         companion object {
-            fun create(): LoadPlaylists {
-                return LoadPlaylists()
+            fun create(limit: Int = 20, offset: Int = 0): LoadPlaylists {
+                return LoadPlaylists(limit, offset)
             }
         }
     }
