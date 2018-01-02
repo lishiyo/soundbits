@@ -1,7 +1,7 @@
 package com.cziyeli.songbits.di
 
-import com.cziyeli.songbits.home.HomeComponent
-import com.cziyeli.songbits.home.HomeModule
+import com.cziyeli.songbits.home.di.HomeComponent
+import com.cziyeli.songbits.home.di.HomeModule
 import dagger.Component
 import javax.inject.Singleton
 

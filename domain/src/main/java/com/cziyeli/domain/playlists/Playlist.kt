@@ -1,10 +1,13 @@
 package com.cziyeli.domain.playlists
 
+import com.cziyeli.domain.CoverImage
 import kaaes.spotify.webapi.android.models.PlaylistSimple
 import kaaes.spotify.webapi.android.models.PlaylistTracksInformation
 
 /**
- * Domain model wrapping {@link PlaylistSimple}
+ * Domain model wrapping {@link PlaylistSimple} from the api =>
+ * pass to Results
+ *
  * Created by connieli on 12/31/17.
  */
 data class Playlist(val id: String,
@@ -12,9 +15,9 @@ data class Playlist(val id: String,
                     val href: String,
                     val uri: String,
                     val owner: Owner?,
-                    val images: List<Image>?,
+                    val images: List<CoverImage>?,
                     val tracks: PlaylistTracksInformation?) {
-    // num tracks in this playlist
+    // num com.cziyeli.domain.tracks in this playlist
     val tracksCount: Int
         get() = tracks?.total ?: 0
 
@@ -25,12 +28,10 @@ data class Playlist(val id: String,
             apiModel.owner?.let {
                 owner = Owner(apiModel.owner.id, apiModel.owner.uri, apiModel.owner.display_name)
             }
-            val images = apiModel.images?.map { Image(it.height, it.width, it.url) }
+            val images = apiModel.images?.map { CoverImage(it.height, it.width, it.url) }
             return Playlist(apiModel.id, apiModel.name, apiModel.href, apiModel.uri, owner, images, apiModel.tracks)
         }
     }
 }
-
-data class Image(val height: Int?, val width: Int?, val url: String)
 
 data class Owner(val id: String, val uri: String, val display_name: String? = null)

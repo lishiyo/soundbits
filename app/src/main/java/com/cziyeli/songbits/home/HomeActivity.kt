@@ -9,6 +9,7 @@ import android.view.View
 import com.cziyeli.commons.*
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.di.App
+import com.cziyeli.songbits.home.di.HomeModule
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
 import com.spotify.sdk.android.authentication.AuthenticationResponse
@@ -146,14 +147,14 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 //    }
 //
 //    fun testPlaylistTracks(authedApi: SpotifyApi, ownerId: String, playlistId: String) {
-//        // get all the tracks in a playlist
+//        // get all the com.cziyeli.domain.tracks in a playlist
 //        authedApi.service.getPlaylistTracks(ownerId, playlistId, object : Callback<Pager<PlaylistTrack>> {
 //            override fun failure(error: RetrofitError?) {
-//                Utils.log("get playlist tracks error: ${error?.localizedMessage}")
+//                Utils.log("get playlist com.cziyeli.domain.tracks error: ${error?.localizedMessage}")
 //            }
 //
 //            override fun success(pagedResponse: Pager<PlaylistTrack>?, response: Response?) {
-//                Utils.log("got playlist tracks! total: ${pagedResponse?.items?.size}")
+//                Utils.log("got playlist com.cziyeli.domain.tracks! total: ${pagedResponse?.items?.size}")
 ////                Utils.log("first track: ${pagedResponse?.items?.get(0)?.track.toString()}")
 //
 //                pagedResponse?.items?.let {
@@ -163,8 +164,8 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 //        })
 //    }
 //
-//    private fun countPreviewUrls(tracks: List<PlaylistTrack>): Int {
-//        val previewUrls = tracks.map { it.track?.preview_url }.filter { it != null && !it.isEmpty() }
+//    private fun countPreviewUrls(com.cziyeli.domain.tracks: List<PlaylistTrack>): Int {
+//        val previewUrls = com.cziyeli.domain.tracks.map { it.track?.preview_url }.filter { it != null && !it.isEmpty() }
 //        return previewUrls.size
 //    }
 //

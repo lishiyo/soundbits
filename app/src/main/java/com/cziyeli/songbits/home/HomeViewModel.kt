@@ -8,6 +8,7 @@ import com.cziyeli.domain.playlists.PlaylistAction
 import com.cziyeli.domain.playlists.PlaylistActionProcessor
 import com.cziyeli.domain.playlists.PlaylistResult
 import com.cziyeli.songbits.di.App
+import com.cziyeli.songbits.home.di.HomeModule
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
