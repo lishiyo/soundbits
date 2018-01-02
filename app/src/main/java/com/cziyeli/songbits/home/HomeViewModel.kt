@@ -1,7 +1,6 @@
 package com.cziyeli.songbits.home
 
 import android.arch.lifecycle.*
-import android.util.Log
 import com.cziyeli.commons.Utils
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlists.Playlist
@@ -53,7 +52,7 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
 
     // Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<HomeViewState, PlaylistResult, HomeViewState> = BiFunction { previousState, result ->
-        Log.i("connie", "reducer ++ result: ${result.javaClass.simpleName} with status: ${result.status}")
+        Utils.log("reducer ++ result: ${result.javaClass.simpleName} with status: ${result.status}")
         when (result) {
             is PlaylistResult.UserPlaylists -> return@BiFunction processUserPlaylists(previousState, result)
             else -> return@BiFunction previousState
@@ -72,12 +71,12 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
         val observable: Observable<HomeViewState> = intentsSubject
                 .subscribeOn(schedulerProvider.io())
                 .observeOn(schedulerProvider.ui())
-                .doOnSubscribe{ Log.i("connie", "subscribed!") }
-                .doOnDispose{ Log.i("connie", "disposed!") }
-                .doOnTerminate { Log.i("connie", "terminated!") }
+                .doOnSubscribe{ Utils.log("subscribed!") }
+                .doOnDispose{ Utils.log( "disposed!") }
+                .doOnTerminate { Utils.log( "terminated!") }
                 .compose(intentFilter)
                 .map{ it -> actionFromIntent(it)}
-                .doOnNext { intent -> Log.i("Connie", "ViewModel ++ intentsSubject hitActionProcessor: ${intent.javaClass.name}") }
+                .doOnNext { intent -> Utils.log("ViewModel ++ intentsSubject hitActionProcessor: ${intent.javaClass.name}") }
                 .compose(actionProcessor.combinedProcessor)
                 .scan(HomeViewState.IDLE, reducer)
                 // Emit the last one event of the stream on subscription
@@ -90,10 +89,9 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
-                    Log.i("connie", "ViewModel ++ new viewState posted: $viewState")
                     liveViewState.postValue(viewState) // should be on main thread (if worker, use postValue)
                 }, { err ->
-                    Log.i("connie", "ViewModel ++ ERROR " + err.localizedMessage)
+                    Utils.log("ViewModel ++ ERROR " + err.localizedMessage)
                 })
         )
     }
@@ -115,7 +113,6 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun unSubscribeViewModel() {
-        Log.i("connie", "ViewModel ++ unsubscribe, clear out disposables")
         // clear out repo subscriptions as well
         for (disposable in repository.allCompositeDisposable) {
             compositeDisposable.addAll(disposable)
