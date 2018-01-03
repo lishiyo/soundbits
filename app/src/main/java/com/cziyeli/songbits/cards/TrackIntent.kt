@@ -1,5 +1,6 @@
 package com.cziyeli.songbits.cards
 
+import android.app.Activity
 import lishiyo.kotlin_arch.mvibase.MviIntent
 
 /**
@@ -7,22 +8,35 @@ import lishiyo.kotlin_arch.mvibase.MviIntent
  */
 sealed class TrackIntent : MviIntent {
 
-    // https://developer.spotify.com/web-api/console/get-playlist-tracks/
-    class LoadTrackCards(val ownerId: String,
-                         val playlistId: String,
-                         val fields: String? = null,
-                         val limit: Int = 100,
-                         val offset: Int = 0
+    // opened CardsActivity, no player yet - create player
+    class NewScreen(val activity: Activity, val accessToken: String) : TrackIntent() {
+        companion object {
+            fun create(activity: Activity, accessToken: String) : NewScreen {
+                return NewScreen(activity, accessToken)
+            }
+        }
+    }
+
+    // opened CardsActivity, loaded view model - load tracks
+    class ScreenOpened(val ownerId: String,
+                       val playlistId: String,
+                       val fields: String? = null,
+                       val limit: Int = 100,
+                       val offset: Int = 0
     ) : TrackIntent() {
         companion object {
             fun create(ownerId: String,
                        playlistId: String,
                        fields: String? = null,
                        limit: Int = 100,
-                       offset: Int = 0): LoadTrackCards{
-                return LoadTrackCards(ownerId, playlistId, fields, limit, offset)
+                       offset: Int = 0): ScreenOpened {
+                return ScreenOpened(ownerId, playlistId, fields, limit, offset)
             }
         }
     }
 
+
+    // command track
+
+    // destroy player
 }

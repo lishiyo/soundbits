@@ -1,5 +1,6 @@
 package com.cziyeli.domain.tracks
 
+import com.cziyeli.domain.SpotifyPlayerManager
 import lishiyo.kotlin_arch.mvibase.MviResult
 import java.util.*
 
@@ -26,4 +27,17 @@ sealed class TrackResult(var status: Status = Status.IDLE, var error: Throwable?
         }
     }
 
+    class CreatePlayer(status: Status, error: Throwable?, val playerManager: SpotifyPlayerManager? = null) {
+        companion object {
+            fun createSuccess(playerManager: SpotifyPlayerManager) : CreatePlayer {
+                return CreatePlayer(Status.SUCCESS, null, playerManager)
+            }
+            fun createError(throwable: Throwable) : CreatePlayer {
+                return CreatePlayer(Status.FAILURE, throwable)
+            }
+            fun createLoading(): CreatePlayer {
+                return CreatePlayer(Status.LOADING, null)
+            }
+        }
+    }
 }

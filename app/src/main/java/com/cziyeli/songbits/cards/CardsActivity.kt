@@ -16,6 +16,9 @@ import com.cziyeli.songbits.di.App
 import com.mindorks.placeholderview.SwipeDecor
 import com.mindorks.placeholderview.SwipePlaceHolderView
 import com.mindorks.placeholderview.SwipeViewBuilder
+import com.spotify.sdk.android.player.Error
+import com.spotify.sdk.android.player.Player
+import com.spotify.sdk.android.player.PlayerEvent
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_cards.*
@@ -25,7 +28,8 @@ import org.jetbrains.anko.intentFor
 /**
  * Created by connieli on 1/1/18.
  */
-class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState> {
+class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>, Player.NotificationCallback {
+
     companion object {
         const val PLAYLIST = "playlist"
 
@@ -40,7 +44,8 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState> 
     private lateinit var viewModel: CardsViewModel
 
     // intents
-    private val mLoadPublisher = PublishSubject.create<TrackIntent.LoadTrackCards>()
+    private val mLoadPublisher = PublishSubject.create<TrackIntent.ScreenOpened>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,11 +61,26 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState> 
         // bind the view model after all views are done
         initViewModel(playlist)
 
-        mLoadPublisher.onNext(TrackIntent.LoadTrackCards.create(
+        mLoadPublisher.onNext(TrackIntent.ScreenOpened.create(
                 ownerId = playlist.owner.id,
                 playlistId = playlist.id)
         )
     }
+
+    override fun onResume() {
+        super.onResume()
+
+        // intent to load the player
+    }
+
+    override fun onPlaybackError(p0: Error?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onPlaybackEvent(p0: PlayerEvent?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
 
     private fun initSwipeView() {
         val bottomMargin = Utils.dpToPx(160)

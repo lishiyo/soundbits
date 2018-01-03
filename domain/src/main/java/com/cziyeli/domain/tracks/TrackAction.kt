@@ -1,5 +1,6 @@
 package com.cziyeli.domain.tracks
 
+import android.app.Activity
 import lishiyo.kotlin_arch.mvibase.MviAction
 
 /**
@@ -22,6 +23,15 @@ sealed class TrackAction : MviAction {
                        limit: Int = 100,
                        offset: Int = 0): LoadTrackCards{
                 return LoadTrackCards(ownerId, playlistId, fields, limit, offset)
+            }
+        }
+    }
+
+    // opened - create a new Player
+    class CreatePlayer(val activity: Activity, val accessToken: String) : TrackAction() {
+        companion object {
+            fun create(activity: Activity, accessToken: String) : CreatePlayer {
+                return CreatePlayer(activity, accessToken)
             }
         }
     }

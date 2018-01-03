@@ -1,6 +1,7 @@
 package com.cziyeli.songbits.home
 
 import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
@@ -8,13 +9,12 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.cziyeli.commons.*
 import com.cziyeli.songbits.R
-import com.cziyeli.songbits.di.App
-import com.cziyeli.songbits.home.di.HomeModule
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
 import com.spotify.sdk.android.authentication.AuthenticationResponse
 import com.spotify.sdk.android.player.ConnectionStateCallback
 import com.spotify.sdk.android.player.Error
+import dagger.android.AndroidInjection
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kaaes.spotify.webapi.android.SpotifyApi
@@ -32,9 +32,8 @@ import javax.inject.Inject
  */
 class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeIntent, HomeViewState> {
 
-    // dagger
-    private val component by lazy { App.appComponent.plus(HomeModule()) }
     @Inject lateinit var api: SpotifyApi
+    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
 
     // check if logged in by shared prefs and in-memory
     private var expirationCutoff: Long by bindSharedPreference(this, LOGIN_EXPIRATION, 0)
@@ -51,9 +50,11 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadPlaylists>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Dagger
+        AndroidInjection.inject(this)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-        component.inject(this) // init dagger
 
         // init the items view
         playlistsAdapter = InfinitePlaylistsAdapter(playlists_container)
@@ -91,7 +92,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     }
 
     private fun initViewModel() {
-        viewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(HomeViewModel::class.java)
 
         // add viewmodel as an observer of this fragment lifecycle
         viewModel.let { lifecycle.addObserver(it) }

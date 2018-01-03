@@ -7,8 +7,6 @@ import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.playlists.PlaylistAction
 import com.cziyeli.domain.playlists.PlaylistActionProcessor
 import com.cziyeli.domain.playlists.PlaylistResult
-import com.cziyeli.songbits.di.App
-import com.cziyeli.songbits.home.di.HomeModule
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
@@ -23,11 +21,11 @@ import javax.inject.Inject
 /**
  * Created by connieli on 12/31/17.
  */
-class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, HomeViewState> {
+class HomeViewModel @Inject constructor(
+        val repository: RepositoryImpl,
+        private val actionProcessor: PlaylistActionProcessor
+) : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, HomeViewState> {
 
-    // Dagger
-    @Inject lateinit var repository: RepositoryImpl
-    @Inject lateinit var actionProcessor: PlaylistActionProcessor
     val schedulerProvider = SchedulerProvider
 
     private val compositeDisposable = CompositeDisposable()
@@ -60,12 +58,7 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
         }
     }
 
-    private val component by lazy { App.appComponent.plus(HomeModule()) }
-
     init {
-        // inject repo, actionprocessor, scheduler
-        initializeDagger()
-
         // create observable to push into states live data
         val observable: Observable<HomeViewState> = intentsSubject
                 .subscribeOn(schedulerProvider.io())
@@ -141,8 +134,6 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
 
         return newState
     }
-
-    private fun initializeDagger() = component.inject(this)
 }
 
 data class HomeViewState(var status: Status = Status.NOT_LOGGED_IN,

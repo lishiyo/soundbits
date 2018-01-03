@@ -28,6 +28,10 @@ class CardsViewModel : ViewModel(), LifecycleObserver, MviViewModel<TrackIntent,
     // Dagger
     @Inject lateinit var repository: RepositoryImpl
     @Inject lateinit var actionProcessor: TrackActionProcessor
+
+//    @PerActivity
+//    @Inject lateinit var spotifyPlayerManager: SpotifyPlayerManager
+
     val schedulerProvider = SchedulerProvider
 
     private val compositeDisposable = CompositeDisposable()
@@ -80,7 +84,7 @@ class CardsViewModel : ViewModel(), LifecycleObserver, MviViewModel<TrackIntent,
 
     private fun actionFromIntent(intent: MviIntent) : TrackAction {
         return when(intent) {
-            is TrackIntent.LoadTrackCards -> TrackAction.LoadTrackCards.create(
+            is TrackIntent.ScreenOpened -> TrackAction.LoadTrackCards.create(
                     intent.ownerId, intent.playlistId, intent.fields, intent.limit, intent.offset)
             else -> TrackAction.None // no-op all other events
         }
@@ -121,7 +125,6 @@ class CardsViewModel : ViewModel(), LifecycleObserver, MviViewModel<TrackIntent,
             }
             TrackResult.Status.SUCCESS -> {
                 newState.status = TrackViewState.Status.SUCCESS
-//                newState.items.clear()
                 newState.items.addAll(result.items.filter { it.isRenderable() })
             }
             TrackResult.Status.FAILURE -> {

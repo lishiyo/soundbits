@@ -6,14 +6,12 @@ import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Business logic to convert actions => results.
  *
  * Created by connieli on 12/31/17.
  */
-@Singleton
 class PlaylistActionProcessor @Inject constructor(private val repository: Repository,
                                                   private val schedulerProvider: BaseSchedulerProvider) {
 

@@ -29,6 +29,5 @@ class AppModule(private val application: App) {
         return RepositoryImpl(local, remote)
     }
 
-
 }
 

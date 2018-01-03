@@ -48,4 +48,11 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
             .startWith(TrackResult.TrackCards.createLoading())
     }
 
+//    val createPlayerProcessor : ObservableTransformer<TrackAction.CreatePlayer, TrackResult.CreatePlayer> = ObservableTransformer {
+//        action -> action
+//            .switchMap { act -> {
+//                val manager = SpotifyPlayerManager(act.activity, act.accessToken)
+//                TrackResult.CreatePlayer.createSuccess(manager)
+//            }}
+//    }
 }

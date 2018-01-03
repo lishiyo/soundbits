@@ -1,4 +1,4 @@
-package com.cziyeli.songbits.di
+package com.cziyeli.commons.di
 
 import dagger.Module
 import dagger.Provides

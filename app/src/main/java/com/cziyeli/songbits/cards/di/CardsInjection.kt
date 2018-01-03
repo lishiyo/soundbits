@@ -1,10 +1,10 @@
 package com.cziyeli.songbits.cards.di
 
+import com.cziyeli.commons.di.PerActivity
 import com.cziyeli.data.Repository
 import com.cziyeli.domain.tracks.TrackActionProcessor
 import com.cziyeli.songbits.cards.CardsActivity
 import com.cziyeli.songbits.cards.CardsViewModel
-import com.cziyeli.songbits.di.PerActivity
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
@@ -13,7 +13,6 @@ import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 /**
  * Created by connieli on 1/1/18.
  */
-
 @Module
 class CardsModule {
 
@@ -33,3 +32,4 @@ interface CardsComponent {
 
     fun inject(viewModel: CardsViewModel)
 }
+

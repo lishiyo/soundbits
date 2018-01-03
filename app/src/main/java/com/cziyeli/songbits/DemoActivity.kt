@@ -52,7 +52,7 @@ class DemoActivity : Activity(), Player.NotificationCallback, ConnectionStateCal
     /**
      * Used to get notifications from the system about the current network state in order
      * to pass them along to
-     * [SpotifyPlayer.setConnectivityStatus]
+     * [SpotifyPlayerManager.setConnectivityStatus]
      * Note that this implies <pre>android.permission.ACCESS_NETWORK_STATE</pre> must be
      * declared in the manifest. Not setting the correct network state in the SDK may
      * result in strange behavior.
@@ -136,7 +136,7 @@ class DemoActivity : Activity(), Player.NotificationCallback, ConnectionStateCal
      * Registering for connectivity changes in Android does not actually deliver them to
      * us in the delivered intent.
      *
-     * @param context Android context
+     * @param context Android activity
      * @return Connectivity state to be passed to the SDK
      */
     private fun getNetworkConnectivity(context: Context): Connectivity {
