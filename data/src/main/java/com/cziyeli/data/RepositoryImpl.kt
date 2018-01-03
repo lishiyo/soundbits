@@ -6,6 +6,7 @@ import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import kaaes.spotify.webapi.android.models.Pager
 import kaaes.spotify.webapi.android.models.PlaylistSimple
+import kaaes.spotify.webapi.android.models.PlaylistTrack
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,12 +19,15 @@ class RepositoryImpl @Inject constructor(
         private val roomDataSource: RoomDataSource,
         private val remoteDataSource: RemoteDataSource
 ) : Repository {
-
     val allCompositeDisposable: MutableList<Disposable> = arrayListOf()
 
     override fun fetchUserPlaylists(limit: Int, offset: Int): Observable<Pager<PlaylistSimple>> {
         return remoteDataSource.fetchUserPlaylists(limit, offset)
     }
 
+    override fun fetchPlaylistTracks(ownerId: String, playlistId: String, fields: String?, limit: Int, offset: Int):
+            Observable<Pager<PlaylistTrack>> {
+        return remoteDataSource.fetchPlaylistTracks(ownerId, playlistId, fields, limit, offset)
+    }
 
 }

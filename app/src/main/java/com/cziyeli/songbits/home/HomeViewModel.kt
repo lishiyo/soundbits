@@ -8,6 +8,7 @@ import com.cziyeli.domain.playlists.PlaylistAction
 import com.cziyeli.domain.playlists.PlaylistActionProcessor
 import com.cziyeli.domain.playlists.PlaylistResult
 import com.cziyeli.songbits.di.App
+import com.cziyeli.songbits.home.di.HomeModule
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
@@ -65,8 +66,6 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
         // inject repo, actionprocessor, scheduler
         initializeDagger()
 
-        Utils.log("init ViewModel!")
-
         // create observable to push into states live data
         val observable: Observable<HomeViewState> = intentsSubject
                 .subscribeOn(schedulerProvider.io())
@@ -78,7 +77,7 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
                 .map{ it -> actionFromIntent(it)}
                 .doOnNext { intent -> Utils.log("ViewModel ++ intentsSubject hitActionProcessor: ${intent.javaClass.name}") }
                 .compose(actionProcessor.combinedProcessor)
-                .scan(HomeViewState.IDLE, reducer)
+                .scan(HomeViewState(), reducer)
                 // Emit the last one event of the stream on subscription
                 // Useful when a View rebinds to the ViewModel after rotation.
                 .replay(1)
@@ -99,7 +98,7 @@ class HomeViewModel : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, H
     private fun actionFromIntent(intent: MviIntent) : PlaylistAction {
         return when(intent) {
             is HomeIntent.LoadPlaylists -> PlaylistAction.UserPlaylists.create(intent.limit, intent.offset)
-            else -> PlaylistAction.None.create() // no-op all other events
+            else -> PlaylistAction.None // no-op all other events
         }
     }
 
@@ -153,8 +152,4 @@ data class HomeViewState(var status: Status = Status.NOT_LOGGED_IN,
         NOT_LOGGED_IN, LOADING, SUCCESS, ERROR
     }
 
-    companion object {
-        // start with this - assume not logged in
-        @JvmField val IDLE = HomeViewState()
-    }
 }

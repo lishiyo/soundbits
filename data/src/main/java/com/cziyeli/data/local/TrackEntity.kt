@@ -9,7 +9,7 @@ import android.arch.persistence.room.PrimaryKey
 /**
  * Created by connieli on 1/1/18.
  */
-@Entity(tableName = "tracks")
+@Entity(tableName = "com.cziyeli.domain.tracks")
 class TrackEntity {
 
     @PrimaryKey(autoGenerate = true)

@@ -9,6 +9,7 @@ import android.view.View
 import com.cziyeli.commons.*
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.di.App
+import com.cziyeli.songbits.home.di.HomeModule
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
 import com.spotify.sdk.android.authentication.AuthenticationResponse
@@ -24,7 +25,7 @@ import javax.inject.Inject
 
 /**
  * Main screen:
- * - Show user's playlists
+ * - Show user's items
  * - show current liked and discard piles
  *
  * Created by connieli on 12/31/17.
@@ -54,7 +55,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         setContentView(R.layout.activity_home)
         component.inject(this) // init dagger
 
-        // init the playlists view
+        // init the items view
         playlistsAdapter = InfinitePlaylistsAdapter(playlists_container)
         playlists_container.setLoadMoreResolver(playlistsAdapter)
 
@@ -126,10 +127,10 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     }
 
 //    fun testUserPlaylists(authedApi: SpotifyApi) {
-//        // get all the user's playlists
+//        // get all the user's items
 //        authedApi.service.getMyPlaylists(object : Callback<Pager<PlaylistSimple>> {
 //            override fun success(pagedResponse: Pager<PlaylistSimple>?, response: Response?) {
-//                Utils.log("got playlists! total: $pagedResponse.total")
+//                Utils.log("got items! total: $pagedResponse.total")
 ////                pagedResponse?.items?.take(5)?.forEach {
 ////                    Utils.log("playlist id: ${it.id} ++ ${it.name} ++ ${it.owner}")
 ////                }
@@ -140,20 +141,20 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 //            }
 //
 //            override fun failure(error: RetrofitError?) {
-//                Utils.log("fetch playlists error: ${error?.localizedMessage}")
+//                Utils.log("fetch items error: ${error?.localizedMessage}")
 //            }
 //        })
 //    }
 //
 //    fun testPlaylistTracks(authedApi: SpotifyApi, ownerId: String, playlistId: String) {
-//        // get all the tracks in a playlist
+//        // get all the com.cziyeli.domain.tracks in a playlist
 //        authedApi.service.getPlaylistTracks(ownerId, playlistId, object : Callback<Pager<PlaylistTrack>> {
 //            override fun failure(error: RetrofitError?) {
-//                Utils.log("get playlist tracks error: ${error?.localizedMessage}")
+//                Utils.log("get playlist com.cziyeli.domain.tracks error: ${error?.localizedMessage}")
 //            }
 //
 //            override fun success(pagedResponse: Pager<PlaylistTrack>?, response: Response?) {
-//                Utils.log("got playlist tracks! total: ${pagedResponse?.items?.size}")
+//                Utils.log("got playlist com.cziyeli.domain.tracks! total: ${pagedResponse?.items?.size}")
 ////                Utils.log("first track: ${pagedResponse?.items?.get(0)?.track.toString()}")
 //
 //                pagedResponse?.items?.let {
@@ -163,8 +164,8 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 //        })
 //    }
 //
-//    private fun countPreviewUrls(tracks: List<PlaylistTrack>): Int {
-//        val previewUrls = tracks.map { it.track?.preview_url }.filter { it != null && !it.isEmpty() }
+//    private fun countPreviewUrls(com.cziyeli.domain.tracks: List<PlaylistTrack>): Int {
+//        val previewUrls = com.cziyeli.domain.tracks.map { it.track?.preview_url }.filter { it != null && !it.isEmpty() }
 //        return previewUrls.size
 //    }
 //
@@ -222,7 +223,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     private fun openLoginWindow() {
         val request = AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID,
                 AuthenticationResponse.Type.TOKEN, SPOTIFY_REDIRECT_URI)
-                .setScopes(arrayOf("user-read-private", "playlist-read", "playlist-read-private", "streaming"))
+                .setScopes(SCOPES)
                 .build()
 
         AuthenticationClient.openLoginActivity(this, SPOTIFY_REQUEST_CODE, request)

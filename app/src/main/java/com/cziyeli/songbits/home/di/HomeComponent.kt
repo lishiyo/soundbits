@@ -1,6 +1,8 @@
-package com.cziyeli.songbits.home
+package com.cziyeli.songbits.home.di
 
 import com.cziyeli.songbits.di.PerActivity
+import com.cziyeli.songbits.home.HomeActivity
+import com.cziyeli.songbits.home.HomeViewModel
 import dagger.Subcomponent
 
 /**

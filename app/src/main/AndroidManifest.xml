@@ -24,6 +24,7 @@
 		</activity>
 
 		<activity android:name=".home.HomeActivity" />
+		<activity android:name=".cards.CardsActivity" />
 
 		<!-- Spotify sdk demo -->
 		<activity android:name=".DemoActivity" />
