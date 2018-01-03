@@ -23,7 +23,7 @@ import javax.inject.Inject
  */
 class HomeViewModel @Inject constructor(
         val repository: RepositoryImpl,
-        private val actionProcessor: PlaylistActionProcessor
+        actionProcessor: PlaylistActionProcessor
 ) : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, HomeViewState> {
 
     val schedulerProvider = SchedulerProvider

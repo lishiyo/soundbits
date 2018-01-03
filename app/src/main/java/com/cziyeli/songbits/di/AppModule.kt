@@ -1,12 +1,16 @@
 package com.cziyeli.songbits.di
 
 import android.content.Context
+import com.cziyeli.commons.di.ForApplication
 import com.cziyeli.data.Repository
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.data.local.RoomDataSource
 import com.cziyeli.data.remote.RemoteDataSource
+import com.cziyeli.domain.player.NativePlayerManager
+import com.cziyeli.domain.player.PlayerInterface
 import dagger.Module
 import dagger.Provides
+import javax.inject.Named
 import javax.inject.Singleton
 
 /**
@@ -21,6 +25,7 @@ class AppModule(private val application: App) {
 
     @Provides
     @Singleton
+    @ForApplication
     fun provideContext(): Context = application
 
     @Provides
@@ -29,5 +34,11 @@ class AppModule(private val application: App) {
         return RepositoryImpl(local, remote)
     }
 
+    @Provides
+    @Singleton
+    @Named("Native")
+    fun provideNativePlayer(@ForApplication context: Context) : PlayerInterface {
+        return NativePlayerManager(context)
+    }
 }
 

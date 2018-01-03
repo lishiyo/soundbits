@@ -3,6 +3,7 @@ package com.cziyeli.songbits.cards
 import android.content.Context
 import android.widget.TextView
 import com.cziyeli.commons.Utils
+import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.tracks.TrackCard
 import com.cziyeli.songbits.R
 import com.facebook.drawee.view.SimpleDraweeView
@@ -19,7 +20,8 @@ import com.mindorks.placeholderview.annotations.swipe.*
 @Layout(R.layout.cards_track_view)
 class TrackItem(private val context: Context,
                 private val model: TrackCard,
-                private val swipeView: SwipePlaceHolderView) {
+                private val swipeView: SwipePlaceHolderView,
+                private val listener: TrackListener) {
 
     @View(R.id.image)
     private lateinit var imageView: SimpleDraweeView
@@ -53,7 +55,8 @@ class TrackItem(private val context: Context,
 
     @Click(R.id.image)
     private fun onClick() {
-        Utils.log("image click")
+        Utils.log("image click -- playing")
+        listener.onTrackCommand(model, PlayerInterface.Command.PLAY)
     }
 
     @SwipeOut
@@ -79,5 +82,10 @@ class TrackItem(private val context: Context,
     @SwipeOutState
     private fun onSwipeOutState() {
         Utils.log("onSwipeOutState")
+    }
+
+    interface TrackListener {
+        // TODO do as intents =>
+        fun onTrackCommand(model: TrackCard, command: PlayerInterface.Command)
     }
 }

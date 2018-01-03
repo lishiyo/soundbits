@@ -8,8 +8,6 @@ import com.cziyeli.domain.tracks.TrackAction
 import com.cziyeli.domain.tracks.TrackActionProcessor
 import com.cziyeli.domain.tracks.TrackCard
 import com.cziyeli.domain.tracks.TrackResult
-import com.cziyeli.songbits.cards.di.CardsModule
-import com.cziyeli.songbits.di.App
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
@@ -23,14 +21,10 @@ import javax.inject.Inject
 /**
  * Created by connieli on 1/1/18.
  */
-class CardsViewModel : ViewModel(), LifecycleObserver, MviViewModel<TrackIntent, TrackViewState> {
-
-    // Dagger
-    @Inject lateinit var repository: RepositoryImpl
-    @Inject lateinit var actionProcessor: TrackActionProcessor
-
-//    @PerActivity
-//    @Inject lateinit var spotifyPlayerManager: SpotifyPlayerManager
+class CardsViewModel @Inject constructor(
+        val repository: RepositoryImpl,
+        val actionProcessor: TrackActionProcessor
+): ViewModel(), LifecycleObserver, MviViewModel<TrackIntent, TrackViewState> {
 
     val schedulerProvider = SchedulerProvider
 
@@ -51,11 +45,7 @@ class CardsViewModel : ViewModel(), LifecycleObserver, MviViewModel<TrackIntent,
         }
     }
 
-    private val component by lazy { App.appComponent.plus(CardsModule()) }
-
     init {
-        // inject repo, actionprocessor, scheduler
-        initializeDagger()
 
         // create observable to push into states live data
         val observable: Observable<TrackViewState> = intentsSubject
@@ -78,7 +68,7 @@ class CardsViewModel : ViewModel(), LifecycleObserver, MviViewModel<TrackIntent,
         )
     }
 
-    fun setPlaylist(playlist: Playlist) {
+    fun setUp(playlist: Playlist) {
         liveViewState.value?.playlist = playlist
     }
 
@@ -135,8 +125,6 @@ class CardsViewModel : ViewModel(), LifecycleObserver, MviViewModel<TrackIntent,
 
         return newState
     }
-
-    private fun initializeDagger() = component.inject(this)
 }
 
 data class TrackViewState(var status: Status = Status.IDLE,

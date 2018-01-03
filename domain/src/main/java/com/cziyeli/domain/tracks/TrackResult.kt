@@ -1,6 +1,6 @@
 package com.cziyeli.domain.tracks
 
-import com.cziyeli.domain.SpotifyPlayerManager
+import com.cziyeli.domain.player.SpotifyPlayerManager
 import lishiyo.kotlin_arch.mvibase.MviResult
 import java.util.*
 

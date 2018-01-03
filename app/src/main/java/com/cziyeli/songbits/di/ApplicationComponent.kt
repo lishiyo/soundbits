@@ -1,8 +1,6 @@
 package com.cziyeli.songbits.di
 
 import com.cziyeli.commons.di.UtilsModule
-import com.cziyeli.songbits.cards.di.CardsComponent
-import com.cziyeli.songbits.cards.di.CardsModule
 import com.cziyeli.songbits.di.viewModels.ViewModelsModule
 import dagger.Component
 import dagger.android.AndroidInjectionModule
@@ -26,8 +24,6 @@ interface ApplicationComponent {
     // injection targets
     fun inject(application: App)
 
-    // subcomponents
-    fun plus(homeModule: CardsModule): CardsComponent
 }
 
 

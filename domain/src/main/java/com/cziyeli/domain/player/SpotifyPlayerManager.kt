@@ -1,22 +1,43 @@
-package com.cziyeli.domain
+package com.cziyeli.domain.player
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
+import android.widget.Toast
 import com.cziyeli.commons.SPOTIFY_CLIENT_ID
 import com.cziyeli.commons.Utils
-import com.cziyeli.commons.di.PerActivity
 import com.spotify.sdk.android.player.*
 
 /**
  * Created by connieli on 1/2/18.
  */
-//@PerActivity
 class SpotifyPlayerManager(val activity: Activity,
-                           private val accessToken: String) : Player.NotificationCallback {
+                           private val accessToken: String)
+    : Player.NotificationCallback, ConnectionStateCallback, PlayerInterface {
+
+    override fun onLoggedOut() {
+        Utils.log("---- logged out ----")
+    }
+
+    override fun onLoggedIn() {
+        Utils.log("---- logged in ----")
+    }
+
+    override fun onConnectionMessage(message: String?) {
+        Utils.log("---- onConnectionMessage: $message ----")
+    }
+
+    override fun onLoginFailed(error: Error?) {
+        Utils.log("---- onLoginFailed $error ----")
+    }
+
+    override fun onTemporaryError() {
+        Utils.log("---- onTemporaryError ----")
+    }
 
     // player
     private val mPlayer: SpotifyPlayer by lazy {
@@ -31,7 +52,8 @@ class SpotifyPlayerManager(val activity: Activity,
                 Utils.log("-- Player initialized --")
                 mPlayer.setConnectivityStatus(mOperationCallback, getNetworkConnectivity(activity))
                 mPlayer.addNotificationCallback(this@SpotifyPlayerManager)
-//                    mPlayer!!.addConnectionStateCallback(this@DemoActivity)
+                mPlayer.addConnectionStateCallback(this@SpotifyPlayerManager)
+
                 // Trigger UI refresh
             }
 
@@ -66,23 +88,19 @@ class SpotifyPlayerManager(val activity: Activity,
         get() = mPlayer.isLoggedIn
 
     init {
-        // Set up the broadcast receiver for network events. Note that we also unregister
-        // this receiver again in onPause().
-        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-        activity.registerReceiver(mNetworkStateReceiver, filter)
-
         mPlayer.apply {
-            login(accessToken)
-            this.addNotificationCallback(this@SpotifyPlayerManager)
-//            mPlayer!!.addConnectionStateCallback(callback)
+            Utils.log("SpotifyPlayerManager init ++ loggedIn: $isLoggedIn accessToken: $accessToken")
+            if (!isLoggedIn) {
+                login(accessToken)
+            }
         }
     }
 
-    fun handleTrack(uri: String, command: Command = Command.PLAY) {
+    override fun handleTrack(uri: String, command: PlayerInterface.Command) {
         Utils.log("Starting playback for $uri with command: $command")
         when (command) {
-            Command.PLAY -> mPlayer.playUri(mOperationCallback, uri, 0, 0)
-            Command.PAUSE_OR_RESUME, Command.STOP -> if (shouldPausePlayer())
+            PlayerInterface.Command.PLAY -> mPlayer.playUri(mOperationCallback, uri, 0, 0)
+            PlayerInterface.Command.PAUSE_OR_RESUME, PlayerInterface.Command.STOP -> if (shouldPausePlayer())
                 mPlayer.pause(mOperationCallback) else mPlayer.resume(mOperationCallback)
 
         }
@@ -92,15 +110,30 @@ class SpotifyPlayerManager(val activity: Activity,
         return mCurrentPlaybackState != null && mCurrentPlaybackState!!.isPlaying
     }
 
-    fun onPause() {
-        activity.unregisterReceiver(mNetworkStateReceiver)
+    override fun onResume() {
+        // Set up the broadcast receiver for network events. Note that we also unregister
+        // this receiver again in onPause().
+        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        activity.registerReceiver(mNetworkStateReceiver, filter)
+
         mPlayer.apply {
-            removeNotificationCallback(this@SpotifyPlayerManager)
-//            removeConnectionStateCallback(listener)
+//            if (!isLoggedIn) {
+//                login(accessToken)
+//            }
+            this.addNotificationCallback(this@SpotifyPlayerManager)
+//            mPlayer!!.addConnectionStateCallback(callback)
         }
     }
 
-    fun onDestroy() {
+    override fun onPause() {
+        activity.unregisterReceiver(mNetworkStateReceiver)
+        mPlayer.apply {
+            removeNotificationCallback(this@SpotifyPlayerManager)
+            removeConnectionStateCallback(this@SpotifyPlayerManager)
+        }
+    }
+
+    override fun onDestroy() {
         // *** ULTRA-IMPORTANT ***
         // ALWAYS call this in your onDestroy() method, otherwise you will leak native resources!
         // This is an unfortunate necessity due to the different memory management models of
@@ -114,12 +147,14 @@ class SpotifyPlayerManager(val activity: Activity,
     }
 
     override fun onPlaybackEvent(event: PlayerEvent?) {
-        // Remember kids, always use the English locale when changing case for non-UI strings!
-        Utils.log("onPlaybackEvent ++ Event: " + event)
+        if (!mPlayer.isLoggedIn) {
+            Toast.makeText(activity, "onPlaybackEvent not logged in yet", Toast.LENGTH_LONG).show()
+            return
+        }
+
         mCurrentPlaybackState = mPlayer.playbackState
         mMetadata = mPlayer.metadata
-        Utils.log("Player state: " + mCurrentPlaybackState!!)
-        Utils.log("Metadata: " + mMetadata!!)
+        Utils.log("onPlaybackEvent got event: $event with current state now: $mCurrentPlaybackState")
 
 //        updateView()
     }
@@ -132,6 +167,7 @@ class SpotifyPlayerManager(val activity: Activity,
      * @param context Android activity
      * @return Connectivity state to be passed to the SDK
      */
+    @SuppressLint("MissingPermission")
     private fun getNetworkConnectivity(context: Context): Connectivity {
         val connectivityManager: ConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork = connectivityManager.activeNetworkInfo
@@ -142,7 +178,4 @@ class SpotifyPlayerManager(val activity: Activity,
         }
     }
 
-    enum class Command {
-        PAUSE_OR_RESUME, PLAY, STOP
-    }
 }

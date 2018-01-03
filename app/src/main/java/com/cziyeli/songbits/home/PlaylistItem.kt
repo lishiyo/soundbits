@@ -46,8 +46,6 @@ class PlaylistItem(val context: Context, private var playlist: Playlist?) {
            ownerName.text = it.owner?.display_name
 
            imageView.setImageURI(it.coverImage?.url)
-
-//           itemView.setOnClickListener(clickListener)
        }
     }
 

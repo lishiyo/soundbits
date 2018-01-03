@@ -1,6 +1,7 @@
 package com.cziyeli.songbits.cards
 
 import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
@@ -9,26 +10,26 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
 import android.widget.Toast
 import com.cziyeli.commons.Utils
+import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
+import com.cziyeli.domain.tracks.TrackCard
 import com.cziyeli.songbits.R
-import com.cziyeli.songbits.cards.di.CardsModule
-import com.cziyeli.songbits.di.App
 import com.mindorks.placeholderview.SwipeDecor
 import com.mindorks.placeholderview.SwipePlaceHolderView
 import com.mindorks.placeholderview.SwipeViewBuilder
-import com.spotify.sdk.android.player.Error
-import com.spotify.sdk.android.player.Player
-import com.spotify.sdk.android.player.PlayerEvent
+import dagger.android.AndroidInjection
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_cards.*
 import lishiyo.kotlin_arch.mvibase.MviView
 import org.jetbrains.anko.intentFor
+import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Created by connieli on 1/1/18.
  */
-class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>, Player.NotificationCallback {
+class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>, TrackItem.TrackListener {
 
     companion object {
         const val PLAYLIST = "playlist"
@@ -38,7 +39,7 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         }
     }
 
-    private val component by lazy { App.appComponent.plus(CardsModule()) }
+    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
 
     // view models
     private lateinit var viewModel: CardsViewModel
@@ -46,14 +47,20 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
     // intents
     private val mLoadPublisher = PublishSubject.create<TrackIntent.ScreenOpened>()
 
+    // player
+    @Inject @field:Named("Native") lateinit var mPlayer: PlayerInterface
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cards)
-        component.inject(this) // init dagger
 
         // parse out the intent bundle
         val playlist = intent.extras.get(PLAYLIST) as Playlist
+
+        // create the player
+//        initPlayer()
 
         // init the placeholder view
         initSwipeView()
@@ -71,16 +78,19 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         super.onResume()
 
         // intent to load the player
+        mPlayer?.apply { onResume() }
     }
 
-    override fun onPlaybackError(p0: Error?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onPause() {
+        super.onPause()
+
+        mPlayer?.apply { onPause() }
     }
 
-    override fun onPlaybackEvent(p0: PlayerEvent?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onDestroy() {
+        mPlayer?.apply { onDestroy() }
+        super.onDestroy()
     }
-
 
     private fun initSwipeView() {
         val bottomMargin = Utils.dpToPx(160)
@@ -128,16 +138,18 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         if (state.status == TrackViewState.Status.SUCCESS) {
             Utils.log("CardsActivity RENDER ++ count ${state.items.size}")
             state.items.forEach {
-                swipeView.addView(TrackItem(this, it, swipeView))
+                swipeView.addView(TrackItem(this, it, swipeView, this))
             }
         } else {
             Toast.makeText(this, "CardsActivity not ready: ${state.status} ", Toast.LENGTH_LONG).show()
         }
+
+        // todo render play button based on mediaplayer state
     }
 
     private fun initViewModel(playlist: Playlist) {
-        viewModel = ViewModelProviders.of(this).get(CardsViewModel::class.java)
-        viewModel.setPlaylist(playlist)
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(CardsViewModel::class.java)
+        viewModel.setUp(playlist)
 
         // add viewmodel as an observer of this fragment lifecycle
         viewModel.let { lifecycle.addObserver(it) }
@@ -152,5 +164,15 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
         viewModel.processIntents(intents())
     }
+
+//    private fun initPlayer() {
+//        mPlayer = SpotifyPlayerManager(this, accessToken)
+//    }
+
+    override fun onTrackCommand(model: TrackCard, command: PlayerInterface.Command) {
+        Utils.log("CardsActivity got command: $command --- playing")
+        mPlayer?.handleTrack(model.preview_url!!, command)
+    }
+
 
 }
