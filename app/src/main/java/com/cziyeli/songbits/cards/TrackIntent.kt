@@ -1,21 +1,13 @@
 package com.cziyeli.songbits.cards
 
-import android.app.Activity
+import com.cziyeli.domain.player.PlayerInterface
+import com.cziyeli.domain.tracks.TrackCard
 import lishiyo.kotlin_arch.mvibase.MviIntent
 
 /**
  * Created by connieli on 1/1/18.
  */
 sealed class TrackIntent : MviIntent {
-
-    // opened CardsActivity, no player yet - create player
-    class NewScreen(val activity: Activity, val accessToken: String) : TrackIntent() {
-        companion object {
-            fun create(activity: Activity, accessToken: String) : NewScreen {
-                return NewScreen(activity, accessToken)
-            }
-        }
-    }
 
     // opened CardsActivity, loaded view model - load tracks
     class ScreenOpened(val ownerId: String,
@@ -35,8 +27,15 @@ sealed class TrackIntent : MviIntent {
         }
     }
 
-
-    // command track
+    // command the player to do something with a track
+    class CommandPlayer(val command: PlayerInterface.Command,
+                        val track: TrackCard) : TrackIntent() {
+        companion object {
+            fun create(command: PlayerInterface.Command, track: TrackCard) : CommandPlayer {
+                return CommandPlayer(command, track)
+            }
+        }
+    }
 
     // destroy player
 }

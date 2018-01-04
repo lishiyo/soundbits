@@ -25,13 +25,13 @@ class PlaylistActionProcessor @Inject constructor(private val repository: Reposi
                     shared.filter { v ->
                         (v !is PlaylistAction.UserPlaylists && v !is PlaylistAction.None)
                     }.flatMap { w -> Observable.error<PlaylistResult>(IllegalArgumentException("Unknown Action type: " + w)) }
-            )
+            ).retry() // don't unsubscribe ever
         }
     }
 
 
     // ==== individual list of processors (action -> result) ====
-    val userPlaylistsProcessor : ObservableTransformer<PlaylistAction.UserPlaylists, PlaylistResult.UserPlaylists>
+    private val userPlaylistsProcessor : ObservableTransformer<PlaylistAction.UserPlaylists, PlaylistResult.UserPlaylists>
             = ObservableTransformer { action -> action.switchMap {
                     act -> repository.fetchUserPlaylists(act.limit, act.offset)
                                 .subscribeOn(schedulerProvider.io())
@@ -44,6 +44,7 @@ class PlaylistActionProcessor @Inject constructor(private val repository: Reposi
                     .map { playlists -> PlaylistResult.UserPlaylists.createSuccess(playlists) }
                     .onErrorReturn { err -> PlaylistResult.UserPlaylists.createError(err) }
                     .startWith(PlaylistResult.UserPlaylists.createLoading())
+                    .retry()
             }
 
 }

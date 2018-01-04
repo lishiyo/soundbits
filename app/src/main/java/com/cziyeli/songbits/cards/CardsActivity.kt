@@ -59,9 +59,6 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         // parse out the intent bundle
         val playlist = intent.extras.get(PLAYLIST) as Playlist
 
-        // create the player
-//        initPlayer()
-
         // init the placeholder view
         initSwipeView()
 
@@ -165,13 +162,9 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         viewModel.processIntents(intents())
     }
 
-//    private fun initPlayer() {
-//        mPlayer = SpotifyPlayerManager(this, accessToken)
-//    }
-
     override fun onTrackCommand(model: TrackCard, command: PlayerInterface.Command) {
         Utils.log("CardsActivity got command: $command --- playing")
-        mPlayer?.handleTrack(model.preview_url!!, command)
+        mPlayer?.handleTrack(model, command)
     }
 
 

@@ -29,8 +29,9 @@ sealed class TrackResult(var status: Status = Status.IDLE, var error: Throwable?
 
     class CommandPlayerResult(status: Status,
                               error: Throwable?,
-                              val currentTrack: TrackCard,
-                              val currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED) {
+                              val currentTrack: TrackCard?,
+                              val currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED)
+        : TrackResult(status, error) {
         companion object {
             fun createSuccess(currentTrack: TrackCard,
                               currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED) :
@@ -38,7 +39,7 @@ sealed class TrackResult(var status: Status = Status.IDLE, var error: Throwable?
                 return CommandPlayerResult(Status.SUCCESS, null, currentTrack, currentPlayerState)
             }
             fun createError(throwable: Throwable,
-                            currentTrack: TrackCard,
+                            currentTrack: TrackCard?,
                             currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED) : CommandPlayerResult {
                 return CommandPlayerResult(Status.FAILURE, throwable, currentTrack, currentPlayerState)
             }

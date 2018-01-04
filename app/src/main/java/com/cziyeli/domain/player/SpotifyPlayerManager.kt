@@ -10,7 +10,10 @@ import android.net.ConnectivityManager
 import android.widget.Toast
 import com.cziyeli.commons.SPOTIFY_CLIENT_ID
 import com.cziyeli.commons.Utils
+import com.cziyeli.domain.tracks.TrackCard
+import com.cziyeli.domain.tracks.TrackResult
 import com.spotify.sdk.android.player.*
+import io.reactivex.Observable
 
 /**
  * Created by connieli on 1/2/18.
@@ -18,6 +21,10 @@ import com.spotify.sdk.android.player.*
 class SpotifyPlayerManager(val activity: Activity,
                            private val accessToken: String)
     : Player.NotificationCallback, ConnectionStateCallback, PlayerInterface {
+
+    override fun currentState(): PlayerInterface.State {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     override fun onLoggedOut() {
         Utils.log("---- logged out ----")
@@ -96,14 +103,16 @@ class SpotifyPlayerManager(val activity: Activity,
         }
     }
 
-    override fun handleTrack(uri: String, command: PlayerInterface.Command) {
-        Utils.log("Starting playback for $uri with command: $command")
+    override fun handleTrack(track: TrackCard, command: PlayerInterface.Command) : Observable<TrackResult.CommandPlayerResult> {
+        Utils.log("Starting playback for $track with command: $command")
         when (command) {
-            PlayerInterface.Command.PLAY -> mPlayer.playUri(mOperationCallback, uri, 0, 0)
+            PlayerInterface.Command.PLAY -> mPlayer.playUri(mOperationCallback, track.preview_url, 0, 0)
             PlayerInterface.Command.PAUSE_OR_RESUME, PlayerInterface.Command.STOP -> if (shouldPausePlayer())
                 mPlayer.pause(mOperationCallback) else mPlayer.resume(mOperationCallback)
 
         }
+
+        return Observable.empty()
     }
 
     private fun shouldPausePlayer() : Boolean {

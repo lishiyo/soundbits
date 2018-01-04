@@ -8,6 +8,10 @@ import android.media.MediaPlayer
 import android.os.PowerManager
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.di.ForApplication
+import com.cziyeli.domain.tracks.TrackCard
+import com.cziyeli.domain.tracks.TrackResult
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 import javax.inject.Singleton
 
 
@@ -21,35 +25,44 @@ class NativePlayerManager(@ForApplication val context: Context) :
         MediaPlayer.OnPreparedListener,
         PlayerInterface {
 
-
+    // the actual player
     var mMediaPlayer: MediaPlayer? = null
 
-    // The current track to play.
-    private var currentUri: String? = null
-
-    init {
-
+    // subject to publish results to
+    private val resultsSubject : PublishSubject<TrackResult.CommandPlayerResult> by lazy {
+        PublishSubject.create<TrackResult.CommandPlayerResult>()
     }
 
-    override fun handleTrack(uri: String, command: PlayerInterface.Command) {
-        Utils.log("MEDIAPLAYER ++ handleTrack: $uri ++ $command")
+    // The current track to play.
+    private var currentTrack: TrackCard? = null
+    private val previewUrl: String?
+            get() = currentTrack?.preview_url
+
+
+    override fun handleTrack(track: TrackCard, command: PlayerInterface.Command) : Observable<TrackResult.CommandPlayerResult> {
+        Utils.log("MEDIAPLAYER ++ handleTrack: $previewUrl ++ $command")
 
         createMediaPlayerIfNeeded()
 
+        currentTrack = track
+
         when (command) {
             PlayerInterface.Command.PLAY -> {
-                playAudio(uri)
+                playAudio(previewUrl!!)
             }
             PlayerInterface.Command.PAUSE_OR_RESUME -> {
                 if (mMediaPlayer?.isPlaying == true) {
                     pauseAudio()
                 } else {
-                    playAudio(uri)
+                    playAudio(previewUrl!!)
                 }
             }
             PlayerInterface.Command.STOP -> mMediaPlayer?.stop()
         }
 
+        notifyLoading()
+
+        return resultsSubject
     }
 
     /**
@@ -84,7 +97,6 @@ class NativePlayerManager(@ForApplication val context: Context) :
     }
 
     fun playAudio(uri: String) {
-        currentUri = uri
         mMediaPlayer?.apply {
             setDataSource(uri)
             prepareAsync()
@@ -93,28 +105,19 @@ class NativePlayerManager(@ForApplication val context: Context) :
     }
 
     fun pauseAudio() {
-        mMediaPlayer?.pause()
+        if (mMediaPlayer != null) {
+            mMediaPlayer!!.pause()
+            resultsSubject.onNext(
+                    TrackResult.CommandPlayerResult.createSuccess(currentTrack!!,
+                    currentState()))
+        } else {
+            notifyError("pauseAudio failed ++ mediaPlayer is NULL")
+        }
     }
 
-    /**
-     * Releases resources used by the service for playback. This includes the
-     * "foreground service" status, the wake locks and possibly the MediaPlayer.
-     * @param releaseMediaPlayer Indicates whether the Media Player should also
-     * *            be released or not
-     */
-    private fun relaxResources(releaseMediaPlayer: Boolean) {
-        Utils.log("MEDIAPLAYER ++ relaxResources. releaseMediaPlayer= $releaseMediaPlayer")
 
-        currentUri = null
-        mMediaPlayer?.apply {
-            reset()
-        }
-
-        // stop and release the Media Player, if it's available
-        if (releaseMediaPlayer) {
-            mMediaPlayer?.release()
-            mMediaPlayer = null
-        }
+    override fun currentState(): PlayerInterface.State {
+        return PlayerInterface.State.PREPARED // todo change
     }
 
     override fun onPause() {
@@ -135,22 +138,67 @@ class NativePlayerManager(@ForApplication val context: Context) :
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
         Utils.log("MEDIAPLAYER ++ onError ++ $what")
+        notifyError("onError $what")
         relaxResources(false)
         return false
     }
 
     override fun onPrepared(mp: MediaPlayer?) {
-        Utils.log("MEDIAPLAYER ++ onPrepared ++ currentUri: $currentUri")
-        currentUri?.let {
-            mp?.start() // start playing if we have one
-        }
+        Utils.log("MEDIAPLAYER ++ onPrepared ++ currentUri: $previewUrl")
+        startPlaying()
     }
 
     override fun onResume() {
-        Utils.log("MEDIAPLAYER ++ onResume ++ currentUri: $currentUri")
-        currentUri?.let {
-            mMediaPlayer?.start()
+        Utils.log("MEDIAPLAYER ++ onResume ++ currentUri: $previewUrl")
+        startPlaying()
+    }
+
+    private fun startPlaying() {
+        if (currentTrack != null && mMediaPlayer != null) {
+            mMediaPlayer?.start() // starts with preview url
+            notifySuccess()
+        } else {
+            notifyError("startPlaying FAILED -- called with null track or player")
         }
     }
 
+    /**
+     * Releases resources used by the service for playback. This includes the
+     * "foreground service" status, the wake locks and possibly the MediaPlayer.
+     * @param releaseMediaPlayer Indicates whether the Media Player should also
+     * *            be released or not
+     */
+    private fun relaxResources(releaseMediaPlayer: Boolean) {
+        Utils.log("MEDIAPLAYER ++ relaxResources. releaseMediaPlayer= $releaseMediaPlayer")
+
+        currentTrack = null
+        mMediaPlayer?.apply {
+            reset()
+        }
+
+        // stop and release the Media Player, if it's available
+        if (releaseMediaPlayer) {
+            mMediaPlayer?.release()
+            mMediaPlayer = null
+        }
+
+        // notify listeners
+        notifySuccess()
+    }
+
+    private fun notifyLoading() {
+        resultsSubject.onNext(TrackResult.CommandPlayerResult.createLoading(currentTrack!!, currentState()))
+    }
+
+    private fun notifySuccess() {
+        resultsSubject.onNext(TrackResult.CommandPlayerResult.createSuccess(currentTrack!!, currentState()))
+    }
+
+    private fun notifyError(message: String) {
+        resultsSubject.onNext(TrackResult.CommandPlayerResult.createError(
+                Error(message),
+                currentTrack,
+                currentState())
+        )
+    }
 }

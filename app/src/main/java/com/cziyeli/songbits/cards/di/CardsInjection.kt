@@ -1,14 +1,10 @@
 package com.cziyeli.songbits.cards.di
 
 import android.app.Activity
-import android.content.Context
-import com.cziyeli.commons.di.ForApplication
-import com.cziyeli.commons.di.PerActivity
 import com.cziyeli.data.Repository
-import com.cziyeli.domain.player.NativePlayerManager
-import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.tracks.TrackActionProcessor
 import com.cziyeli.songbits.cards.CardsActivity
+import com.cziyeli.songbits.di.AppModule
 import com.cziyeli.songbits.di.viewModels.ViewModelsModule
 import dagger.Module
 import dagger.Provides
@@ -22,12 +18,13 @@ import javax.inject.Singleton
  * Created by connieli on 1/1/18.
  */
 
-@Module(includes = [ViewModelsModule::class])
+@Module(includes = [ViewModelsModule::class, AppModule::class])
 class CardsModule {
 
     @Provides
-    @PerActivity
-    fun provideActionProcessor(repo: Repository, schedulerProvider: BaseSchedulerProvider)
+    @Singleton
+    fun provideActionProcessor(repo: Repository,
+                               schedulerProvider: BaseSchedulerProvider)
             : TrackActionProcessor {
         return TrackActionProcessor(repo, schedulerProvider)
     }
@@ -41,8 +38,8 @@ class CardsModule {
 
     @Provides
     @Named("ActivityContext")
-    fun provideActivityContext(canvasActivity: CardsActivity): Activity {
-        return canvasActivity
+    fun provideActivityContext(cardsActivity: CardsActivity): Activity {
+        return cardsActivity
     }
 
 }

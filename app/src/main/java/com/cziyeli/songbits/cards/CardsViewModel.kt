@@ -27,7 +27,7 @@ class CardsViewModel @Inject constructor(
         val actionProcessor: TrackActionProcessor
 ): ViewModel(), LifecycleObserver, MviViewModel<TrackIntent, TrackViewState> {
 
-    val schedulerProvider = SchedulerProvider
+    val schedulerProvider = SchedulerProvider // TODO inject this
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -42,6 +42,7 @@ class CardsViewModel @Inject constructor(
         Utils.log("reducer ++ result: ${result.javaClass.simpleName} with status: ${result.status}")
         when (result) {
             is TrackResult.TrackCards -> return@BiFunction processTrackCards(previousState, result)
+            is TrackResult.CommandPlayerResult -> return@BiFunction processPlayerCommand(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -77,6 +78,9 @@ class CardsViewModel @Inject constructor(
         return when(intent) {
             is TrackIntent.ScreenOpened -> TrackAction.LoadTrackCards.create(
                     intent.ownerId, intent.playlistId, intent.fields, intent.limit, intent.offset)
+            is TrackIntent.CommandPlayer -> TrackAction.CommandPlayer.create(
+                    intent.command, intent.track
+            )
             else -> TrackAction.None // no-op all other events
         }
     }
@@ -107,7 +111,6 @@ class CardsViewModel @Inject constructor(
 
     private fun processTrackCards(previousState: TrackViewState, result: TrackResult.TrackCards): TrackViewState {
         val newState = previousState.copy()
-        Utils.log("previous items: ${previousState.items.size}")
         newState.error = null
 
         when (result.status) {
@@ -126,14 +129,36 @@ class CardsViewModel @Inject constructor(
 
         return newState
     }
+
+    private fun processPlayerCommand(previousState: TrackViewState, result: TrackResult.CommandPlayerResult) : TrackViewState {
+        val newState = previousState.copy()
+        newState.error = null
+        newState.currentTrack = result.currentTrack
+        newState.currentPlayerState = result.currentPlayerState
+
+        when (result.status) {
+            TrackResult.Status.LOADING -> {
+                newState.status = TrackViewState.Status.LOADING
+            }
+            TrackResult.Status.SUCCESS -> {
+                newState.status = TrackViewState.Status.SUCCESS
+            }
+            TrackResult.Status.FAILURE -> {
+                newState.status = TrackViewState.Status.ERROR
+                newState.error = result.error
+            }
+        }
+
+        return newState
+    }
 }
 
 data class TrackViewState(var status: Status = Status.IDLE,
                           var error: Throwable? = null,
                           val items: MutableList<TrackCard> = mutableListOf(),
                           var playlist: Playlist? = null,
-                          val currentTrack: TrackCard? = null,
-                          val currentPlayerState: PlayerInterface.State = PlayerInterface.State.RELEASED) : MviViewState {
+                          var currentTrack: TrackCard? = null,
+                          var currentPlayerState: PlayerInterface.State = PlayerInterface.State.RELEASED) : MviViewState {
     enum class Status {
         IDLE, LOADING, SUCCESS, ERROR
     }
