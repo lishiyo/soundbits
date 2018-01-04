@@ -62,7 +62,6 @@ dependencies {
     // colon needs to prefixed with the library path
     implementation project(':commons')
     implementation project(':data')
-    implementation project(':domain')
     implementation "com.android.support:appcompat-v7:$rootProject.ext.supportVersion"
     implementation "com.android.support:design:$rootProject.ext.supportVersion"
     implementation "com.android.support:cardview-v7:$rootProject.ext.supportVersion"
