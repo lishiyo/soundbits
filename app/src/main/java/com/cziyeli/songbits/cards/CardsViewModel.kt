@@ -3,6 +3,7 @@ package com.cziyeli.songbits.cards
 import android.arch.lifecycle.*
 import com.cziyeli.commons.Utils
 import com.cziyeli.data.RepositoryImpl
+import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.tracks.TrackAction
 import com.cziyeli.domain.tracks.TrackActionProcessor
@@ -130,7 +131,9 @@ class CardsViewModel @Inject constructor(
 data class TrackViewState(var status: Status = Status.IDLE,
                           var error: Throwable? = null,
                           val items: MutableList<TrackCard> = mutableListOf(),
-                          var playlist: Playlist? = null) : MviViewState {
+                          var playlist: Playlist? = null,
+                          val currentTrack: TrackCard? = null,
+                          val currentPlayerState: PlayerInterface.State = PlayerInterface.State.RELEASED) : MviViewState {
     enum class Status {
         IDLE, LOADING, SUCCESS, ERROR
     }
