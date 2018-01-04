@@ -24,8 +24,9 @@ import javax.inject.Inject
  */
 class CardsViewModel @Inject constructor(
         val repository: RepositoryImpl,
-        val actionProcessor: TrackActionProcessor
+        actionProcessor: TrackActionProcessor
 ): ViewModel(), LifecycleObserver, MviViewModel<TrackIntent, TrackViewState> {
+    private val TAG = CardsViewModel::class.simpleName
 
     val schedulerProvider = SchedulerProvider // TODO inject this
 
@@ -39,7 +40,7 @@ class CardsViewModel @Inject constructor(
 
     // Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<TrackViewState, TrackResult, TrackViewState> = BiFunction { previousState, result ->
-        Utils.log("reducer ++ result: ${result.javaClass.simpleName} with status: ${result.status}")
+        Utils.log(TAG, "reducer ++ result: ${result.javaClass.simpleName} with status: ${result.status}")
         when (result) {
             is TrackResult.TrackCards -> return@BiFunction processTrackCards(previousState, result)
             is TrackResult.CommandPlayerResult -> return@BiFunction processPlayerCommand(previousState, result)
@@ -53,11 +54,11 @@ class CardsViewModel @Inject constructor(
         val observable: Observable<TrackViewState> = intentsSubject
                 .subscribeOn(schedulerProvider.io())
                 .observeOn(schedulerProvider.ui())
-                .doOnSubscribe{ Utils.log("subscribed!") }
-                .doOnDispose{ Utils.log( "disposed!") }
-                .doOnTerminate { Utils.log( "terminated!") }
+                .doOnSubscribe{ Utils.log(TAG,"subscribed!") }
+                .doOnDispose{ Utils.log(TAG,"disposed!") }
+                .doOnTerminate { Utils.log(TAG, "terminated!") }
                 .map{ it -> actionFromIntent(it)}
-                .doOnNext { intent -> Utils.log("ViewModel ++ intentsSubject hitActionProcessor: ${intent.javaClass.name}") }
+                .doOnNext { intent -> Utils.log(TAG, "ViewModel ++ intentsSubject hitActionProcessor: ${intent.javaClass.name}") }
                 .compose(actionProcessor.combinedProcessor)
                 .scan(TrackViewState(), reducer)
 
@@ -65,12 +66,13 @@ class CardsViewModel @Inject constructor(
                 observable.subscribe({ viewState ->
                     liveViewState.postValue(viewState)
                 }, { err ->
-                    Utils.log("ViewModel ++ ERROR " + err.localizedMessage)
+                    Utils.log(TAG, "ViewModel ++ ERROR " + err.localizedMessage)
                 })
         )
     }
 
     fun setUp(playlist: Playlist) {
+        // make sure viewmodel has the playlist info
         liveViewState.value?.playlist = playlist
     }
 

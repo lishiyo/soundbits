@@ -38,7 +38,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     // check if logged in by shared prefs and in-memory
     private var expirationCutoff: Long by bindSharedPreference(this, LOGIN_EXPIRATION, 0)
     private var accessToken: String by bindSharedPreference(this, AUTH_TOKEN, "")
-    private var isLoggedIn: Boolean = false
+    private var loggedInFlag: Boolean = false
 
     // view models
     private lateinit var viewModel: HomeViewModel
@@ -79,16 +79,14 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
     override fun render(state: HomeViewState) {
         Utils.log("RENDER ++ state: ${state.status}")
-
-        val loginVisibility= if (state.status == HomeViewState.Status.NOT_LOGGED_IN) View.VISIBLE else View.GONE
-        login_button.visibility = loginVisibility
+        Utils.setVisible(login_button, !isLoggedIn())
 
         // render subviews
         playlistsAdapter.render(state)
     }
 
     private fun isLoggedIn(): Boolean {
-        return !accessToken.isEmpty() && (isLoggedIn || (System.currentTimeMillis() / 1000) < expirationCutoff)
+        return !accessToken.isEmpty() && (loggedInFlag || (System.currentTimeMillis() / 1000) < expirationCutoff)
     }
 
     private fun initViewModel() {
@@ -193,17 +191,17 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
     override fun onLoggedIn() {
         Utils.log("Login complete")
-        isLoggedIn = true
+        loggedInFlag = true
     }
 
     override fun onLoggedOut() {
         Utils.log("Logout complete")
-        isLoggedIn = false
+        loggedInFlag = false
     }
 
     override fun onLoginFailed(error: Error) {
         Utils.log("Login error " + error)
-        isLoggedIn = false
+        loggedInFlag = false
     }
 
     override fun onTemporaryError() {
@@ -250,7 +248,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     }
 
     private fun onAuthenticationComplete(authResponse: AuthenticationResponse) {
-        isLoggedIn = true
+        loggedInFlag = true
         // Save the access token and expiration time in shared prefs
         api.setAccessToken(authResponse.accessToken)
         accessToken = authResponse.accessToken

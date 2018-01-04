@@ -8,11 +8,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
-import android.widget.Toast
 import com.cziyeli.commons.Utils
+import com.cziyeli.commons.toast
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
-import com.cziyeli.domain.tracks.TrackCard
 import com.cziyeli.songbits.R
 import com.mindorks.placeholderview.SwipeDecor
 import com.mindorks.placeholderview.SwipePlaceHolderView
@@ -33,6 +32,7 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
 
     companion object {
         const val PLAYLIST = "playlist"
+        const val TAG: String = "CardsActivity"
 
         fun create(context: Context, playlist: Playlist) : Intent {
             return context.intentFor<CardsActivity>("playlist" to playlist)
@@ -46,6 +46,9 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
 
     // intents
     private val mLoadPublisher = PublishSubject.create<TrackIntent.ScreenOpened>()
+    private val mCommandsPublisher : PublishSubject<TrackIntent.CommandPlayer> by lazy {
+        PublishSubject.create<TrackIntent.CommandPlayer>()
+    }
 
     // player
     @Inject @field:Named("Native") lateinit var mPlayer: PlayerInterface
@@ -75,17 +78,17 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         super.onResume()
 
         // intent to load the player
-        mPlayer?.apply { onResume() }
+        mPlayer.apply { onResume() }
     }
 
     override fun onPause() {
         super.onPause()
 
-        mPlayer?.apply { onPause() }
+        mPlayer.apply { onPause() }
     }
 
     override fun onDestroy() {
-        mPlayer?.apply { onDestroy() }
+        mPlayer.apply { onDestroy() }
         super.onDestroy()
     }
 
@@ -121,7 +124,14 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
     }
 
     override fun intents(): Observable<out TrackIntent> {
-        return mLoadPublisher
+        return Observable.merge(
+                mLoadPublisher,
+                mCommandsPublisher
+        )
+    }
+
+    override fun getCommandsStream(): PublishSubject<TrackIntent.CommandPlayer> {
+        return mCommandsPublisher
     }
 
     override fun render(state: TrackViewState) {
@@ -133,15 +143,16 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
 
         // populate
         if (state.status == TrackViewState.Status.SUCCESS) {
-            Utils.log("CardsActivity RENDER ++ count ${state.items.size}")
+            Utils.log(TAG, "RENDER ++ count ${state.items.size}")
             state.items.forEach {
-                swipeView.addView(TrackItem(this, it, swipeView, this))
+                swipeView.addView(TrackItem(this, it, this))
             }
         } else {
-            Toast.makeText(this, "CardsActivity not ready: ${state.status} ", Toast.LENGTH_LONG).show()
+            "CardsActivity not ready: ${state.status} ".toast(this)
         }
 
         // todo render play button based on mediaplayer state
+        "CardsActivity RENDER ++ playerState: ${state.currentPlayerState}".toast(this)
     }
 
     private fun initViewModel(playlist: Playlist) {
@@ -161,11 +172,5 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
         viewModel.processIntents(intents())
     }
-
-    override fun onTrackCommand(model: TrackCard, command: PlayerInterface.Command) {
-        Utils.log("CardsActivity got command: $command --- playing")
-        mPlayer?.handleTrack(model, command)
-    }
-
 
 }

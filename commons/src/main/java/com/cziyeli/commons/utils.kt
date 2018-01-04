@@ -17,13 +17,21 @@ object Utils {
         Log.i(TAG, status)
     }
 
+    fun log(tag: String?, status: String) {
+        if (tag == null) {
+            log(status)
+        } else {
+            Log.i(TAG, "$tag -- $status")
+        }
+    }
+
     inline fun <reified T : Parcelable> createParcel(crossinline createFromParcel: (Parcel) -> T?)
             : Parcelable.Creator<T> = object : Parcelable.Creator<T> {
                 override fun createFromParcel(source: Parcel): T? = createFromParcel(source)
                 override fun newArray(size: Int): Array<out T?> = arrayOfNulls(size)
             }
 
-    // RESOURCE UTILS
+    // ======= RESOURCE UTILS =======
 
     fun setVisible(view: View, isVisible: Boolean) {
         val visibility = if (isVisible) View.VISIBLE else View.GONE

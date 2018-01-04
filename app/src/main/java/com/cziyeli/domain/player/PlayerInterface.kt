@@ -14,13 +14,16 @@ interface PlayerInterface {
 
     fun onResume()
 
-    fun handleTrack(track: TrackCard, command: Command) : Observable<TrackResult.CommandPlayerResult>
+    fun handlePlayerCommand(track: TrackCard, command: Command) : Observable<TrackResult.CommandPlayerResult>
 
     fun currentState() : State
 
     // valid commands to pass to the player
     enum class Command {
-        PAUSE_OR_RESUME, PLAY, STOP
+        PAUSE_OR_RESUME, // if paused, resume / if resumed, pause
+        PLAY, // start playing
+        RESET, // reset player to IDLE to allow setDataUri again
+        STOP // sets player to STOPPED, but can't setDataUri
     }
 
     enum class State {

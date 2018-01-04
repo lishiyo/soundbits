@@ -1,6 +1,5 @@
 package com.cziyeli.domain.playlists
 
-import com.cziyeli.commons.Utils
 import com.cziyeli.data.Repository
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
@@ -14,7 +13,6 @@ import javax.inject.Inject
  */
 class PlaylistActionProcessor @Inject constructor(private val repository: Repository,
                                                   private val schedulerProvider: BaseSchedulerProvider) {
-
     val combinedProcessor: ObservableTransformer<PlaylistAction, PlaylistResult> = ObservableTransformer { acts ->
         acts.publish { shared ->
             Observable.merge<PlaylistResult>(
@@ -29,14 +27,13 @@ class PlaylistActionProcessor @Inject constructor(private val repository: Reposi
         }
     }
 
-
     // ==== individual list of processors (action -> result) ====
     private val userPlaylistsProcessor : ObservableTransformer<PlaylistAction.UserPlaylists, PlaylistResult.UserPlaylists>
             = ObservableTransformer { action -> action.switchMap {
-                    act -> repository.fetchUserPlaylists(act.limit, act.offset)
+                    act -> repository
+                                .fetchUserPlaylists(act.limit, act.offset)
                                 .subscribeOn(schedulerProvider.io())
-                }.doOnNext { _ -> Utils.log("fetching user playlists")}
-                    .filter { resp -> resp.total > 0 } // check if we have playlists
+                }.filter { resp -> resp.total > 0 } // check if we have playlists
                     .map { resp ->
                         resp.items.map { Playlist.create(it) }
                     }

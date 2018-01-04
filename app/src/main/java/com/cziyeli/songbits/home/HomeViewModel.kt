@@ -136,11 +136,11 @@ class HomeViewModel @Inject constructor(
     }
 }
 
-data class HomeViewState(var status: Status = Status.NOT_LOGGED_IN,
+data class HomeViewState(var status: Status = Status.IDLE,
                          var error: Throwable? = null,
                          val playlists: MutableList<Playlist> = mutableListOf()) : MviViewState {
     enum class Status {
-        NOT_LOGGED_IN, LOADING, SUCCESS, ERROR
+        IDLE, LOADING, SUCCESS, ERROR
     }
 
 }

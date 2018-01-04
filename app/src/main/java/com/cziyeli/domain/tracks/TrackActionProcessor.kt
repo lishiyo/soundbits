@@ -19,6 +19,8 @@ import javax.inject.Singleton
 class TrackActionProcessor @Inject constructor(private val repository: Repository,
                                                private val schedulerProvider: BaseSchedulerProvider) {
 
+    private val TAG = TrackActionProcessor::class.simpleName
+
     @field:[Inject Named("Native")] lateinit var player: PlayerInterface
 
     val combinedProcessor: ObservableTransformer<TrackAction, TrackResult> = ObservableTransformer { acts ->
@@ -43,9 +45,7 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
             act -> repository
                 .fetchPlaylistTracks(act.ownerId, act.playlistId, act.fields, act.limit, act.offset)
                 .subscribeOn(schedulerProvider.io())
-                .onErrorResumeNext(Observable.empty()) // swallow error
-        }.doOnNext { _ -> Utils.log("fetching com.cziyeli.domain.tracks")}
-            .filter { resp -> resp.total > 0 }
+            }.filter { resp -> resp.total > 0 }
             .map { resp -> resp.items.map { it.track }}
             .map { tracks -> tracks.map { TrackCard.create(it) } }
             .observeOn(schedulerProvider.ui())
@@ -57,10 +57,9 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
 
     private val commandPlayerProcessor : ObservableTransformer<TrackAction.CommandPlayer, TrackResult.CommandPlayerResult> = ObservableTransformer {
         action -> action.switchMap {
-            act -> player.handleTrack(act.track, act.command)
-            .retry() // don't unsubscribe
+            act -> player.handlePlayerCommand(act.track, act.command)
         }.doOnNext {
-            act -> Utils.log("commandPlayer processing --- $act ")
+            act -> Utils.log(TAG, "commandPlayer processing --- $act ")
         }.retry() // don't unsubscribe
     }
 }

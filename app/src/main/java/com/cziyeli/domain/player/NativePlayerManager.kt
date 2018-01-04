@@ -24,6 +24,7 @@ class NativePlayerManager(@ForApplication val context: Context) :
         MediaPlayer.OnErrorListener,
         MediaPlayer.OnPreparedListener,
         PlayerInterface {
+    private val TAG = NativePlayerManager::class.simpleName
 
     // the actual player
     var mMediaPlayer: MediaPlayer? = null
@@ -38,9 +39,9 @@ class NativePlayerManager(@ForApplication val context: Context) :
     private val previewUrl: String?
             get() = currentTrack?.preview_url
 
-
-    override fun handleTrack(track: TrackCard, command: PlayerInterface.Command) : Observable<TrackResult.CommandPlayerResult> {
-        Utils.log("MEDIAPLAYER ++ handleTrack: $previewUrl ++ $command")
+    override fun handlePlayerCommand(track: TrackCard, command: PlayerInterface.Command)
+            : Observable<TrackResult.CommandPlayerResult> {
+        Utils.log(TAG,"handlePlayerCommand: $command for ${track.name}")
 
         createMediaPlayerIfNeeded()
 
@@ -48,16 +49,17 @@ class NativePlayerManager(@ForApplication val context: Context) :
 
         when (command) {
             PlayerInterface.Command.PLAY -> {
-                playAudio(previewUrl!!)
+                playNewTrack(previewUrl!!)
             }
             PlayerInterface.Command.PAUSE_OR_RESUME -> {
-                if (mMediaPlayer?.isPlaying == true) {
-                    pauseAudio()
-                } else {
-                    playAudio(previewUrl!!)
+                if (mMediaPlayer!!.isPlaying) {
+                    pauseAudio() // pause
+                } else { // play!
+                    mMediaPlayer!!.start() // not playing, resume
                 }
             }
-            PlayerInterface.Command.STOP -> mMediaPlayer?.stop()
+            PlayerInterface.Command.RESET -> relaxResources(false)
+            PlayerInterface.Command.STOP -> mMediaPlayer!!.stop()
         }
 
         notifyLoading()
@@ -93,28 +95,9 @@ class NativePlayerManager(@ForApplication val context: Context) :
                 setOnErrorListener(this@NativePlayerManager)
             }
 
+            Utils.log(TAG,"init MediaPlayer!")
         }
     }
-
-    fun playAudio(uri: String) {
-        mMediaPlayer?.apply {
-            setDataSource(uri)
-            prepareAsync()
-//            start()
-        }
-    }
-
-    fun pauseAudio() {
-        if (mMediaPlayer != null) {
-            mMediaPlayer!!.pause()
-            resultsSubject.onNext(
-                    TrackResult.CommandPlayerResult.createSuccess(currentTrack!!,
-                    currentState()))
-        } else {
-            notifyError("pauseAudio failed ++ mediaPlayer is NULL")
-        }
-    }
-
 
     override fun currentState(): PlayerInterface.State {
         return PlayerInterface.State.PREPARED // todo change
@@ -127,38 +110,53 @@ class NativePlayerManager(@ForApplication val context: Context) :
     }
 
     override fun onDestroy() { // backpressed
-        Utils.log("MEDIAPLAYER ++ onDestroy")
+        Utils.log(TAG, "MEDIAPLAYER ++ onDestroy")
         relaxResources(true)
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
-        Utils.log("MEDIAPLAYER ++ onCompletion")
-        relaxResources(true)
+        Utils.log(TAG, "MEDIAPLAYER ++ onCompletion")
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
-        Utils.log("MEDIAPLAYER ++ onError ++ $what")
+        Utils.log(TAG, "MEDIAPLAYER ++ onError ++ $what")
         notifyError("onError $what")
         relaxResources(false)
         return false
     }
 
     override fun onPrepared(mp: MediaPlayer?) {
-        Utils.log("MEDIAPLAYER ++ onPrepared ++ currentUri: $previewUrl")
-        startPlaying()
+        if (currentTrack != null && mMediaPlayer != null) {
+            Utils.log(TAG, "onPrepared SUCCESS ++ starting: $previewUrl")
+            mMediaPlayer!!.start() // starts with preview url
+            notifySuccess()
+        } else {
+            notifyError("onPrepared FAILED -- called with null track or player")
+        }
     }
 
     override fun onResume() {
-        Utils.log("MEDIAPLAYER ++ onResume ++ currentUri: $previewUrl")
-        startPlaying()
+        Utils.log(TAG, " ++ onResume ++ currentUri: $previewUrl")
     }
 
-    private fun startPlaying() {
-        if (currentTrack != null && mMediaPlayer != null) {
-            mMediaPlayer?.start() // starts with preview url
+    private fun playNewTrack(uri: String) {
+        mMediaPlayer?.apply {
+            if (isPlaying) {
+                Utils.log(TAG,"playNewTrack -- already Playing, resetting first")
+                reset()
+            }
+
+            setDataSource(uri) // if not idle, this will throw exception
+            prepareAsync()
+        }
+    }
+
+    private fun pauseAudio() {
+        if (mMediaPlayer != null) {
+            mMediaPlayer!!.pause()
             notifySuccess()
         } else {
-            notifyError("startPlaying FAILED -- called with null track or player")
+            notifyError("pauseAudio failed ++ mediaPlayer is NULL")
         }
     }
 
@@ -169,7 +167,7 @@ class NativePlayerManager(@ForApplication val context: Context) :
      * *            be released or not
      */
     private fun relaxResources(releaseMediaPlayer: Boolean) {
-        Utils.log("MEDIAPLAYER ++ relaxResources. releaseMediaPlayer= $releaseMediaPlayer")
+        Utils.log(TAG, "relaxResources -- releaseMediaPlayer= $releaseMediaPlayer")
 
         currentTrack = null
         mMediaPlayer?.apply {
@@ -181,9 +179,6 @@ class NativePlayerManager(@ForApplication val context: Context) :
             mMediaPlayer?.release()
             mMediaPlayer = null
         }
-
-        // notify listeners
-        notifySuccess()
     }
 
     private fun notifyLoading() {

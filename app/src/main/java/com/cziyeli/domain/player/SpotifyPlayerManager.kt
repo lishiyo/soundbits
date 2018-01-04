@@ -103,7 +103,7 @@ class SpotifyPlayerManager(val activity: Activity,
         }
     }
 
-    override fun handleTrack(track: TrackCard, command: PlayerInterface.Command) : Observable<TrackResult.CommandPlayerResult> {
+    override fun handlePlayerCommand(track: TrackCard, command: PlayerInterface.Command) : Observable<TrackResult.CommandPlayerResult> {
         Utils.log("Starting playback for $track with command: $command")
         when (command) {
             PlayerInterface.Command.PLAY -> mPlayer.playUri(mOperationCallback, track.preview_url, 0, 0)
