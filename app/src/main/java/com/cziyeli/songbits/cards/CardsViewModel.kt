@@ -160,7 +160,7 @@ data class TrackViewState(var status: Status = Status.IDLE,
                           val items: MutableList<TrackCard> = mutableListOf(),
                           var playlist: Playlist? = null,
                           var currentTrack: TrackCard? = null,
-                          var currentPlayerState: PlayerInterface.State = PlayerInterface.State.RELEASED) : MviViewState {
+                          var currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID) : MviViewState {
     enum class Status {
         IDLE, LOADING, SUCCESS, ERROR
     }

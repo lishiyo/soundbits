@@ -106,7 +106,7 @@ class SpotifyPlayerManager(val activity: Activity,
     override fun handlePlayerCommand(track: TrackCard, command: PlayerInterface.Command) : Observable<TrackResult.CommandPlayerResult> {
         Utils.log("Starting playback for $track with command: $command")
         when (command) {
-            PlayerInterface.Command.PLAY -> mPlayer.playUri(mOperationCallback, track.preview_url, 0, 0)
+            PlayerInterface.Command.PLAY_NEW -> mPlayer.playUri(mOperationCallback, track.preview_url, 0, 0)
             PlayerInterface.Command.PAUSE_OR_RESUME, PlayerInterface.Command.STOP -> if (shouldPausePlayer())
                 mPlayer.pause(mOperationCallback) else mPlayer.resume(mOperationCallback)
 

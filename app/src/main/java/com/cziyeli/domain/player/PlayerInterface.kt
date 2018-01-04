@@ -16,21 +16,21 @@ interface PlayerInterface {
 
     fun handlePlayerCommand(track: TrackCard, command: Command) : Observable<TrackResult.CommandPlayerResult>
 
+    // current player state
     fun currentState() : State
 
     // valid commands to pass to the player
     enum class Command {
         PAUSE_OR_RESUME, // if paused, resume / if resumed, pause
-        PLAY, // start playing
-        RESET, // reset player to IDLE to allow setDataUri again
-        STOP // sets player to STOPPED, but can't setDataUri
+        PLAY_NEW, // start playing a new track
+        END_TRACK, // reset player to IDLE to allow playing new track
+        STOP // sets player to STOPPED, must be for current track
     }
 
     enum class State {
-        PREPARED, // prepared and not playing yet
-        PAUSED, // prepared with a track but paused
-        PLAYING, // playing
-        NOT_PREPARED, // idle (from new/reset/start), not prepared yet
-        RELEASED // can no longer be used
+        NOT_PREPARED, // idle or initialized (from new/reset/start), not prepared yet
+        PAUSED, // prepared and ready to play but not playing
+        PLAYING, // currently playing
+        INVALID // released or null player
     }
 }

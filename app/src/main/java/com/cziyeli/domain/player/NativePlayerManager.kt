@@ -27,10 +27,16 @@ class NativePlayerManager(@ForApplication val context: Context) :
     private val TAG = NativePlayerManager::class.simpleName
 
     // the actual player
-    var mMediaPlayer: MediaPlayer? = null
+    private var mMediaPlayer: MediaPlayer? = null
+    private val audioConfig by lazy {
+        AudioAttributes.Builder()
+                .setContentType(CONTENT_TYPE_MUSIC)
+                .setLegacyStreamType(STREAM_MUSIC)
+                .build()
+    }
 
     // subject to publish results to
-    private val resultsSubject : PublishSubject<TrackResult.CommandPlayerResult> by lazy {
+    private val mTrackResultsPublisher: PublishSubject<TrackResult.CommandPlayerResult> by lazy {
         PublishSubject.create<TrackResult.CommandPlayerResult>()
     }
 
@@ -39,16 +45,20 @@ class NativePlayerManager(@ForApplication val context: Context) :
     private val previewUrl: String?
             get() = currentTrack?.preview_url
 
+    // If false, prepare/prepareAsync must be called again to get to the PreparedState
+    private var playerPrepared = false
+
     override fun handlePlayerCommand(track: TrackCard, command: PlayerInterface.Command)
             : Observable<TrackResult.CommandPlayerResult> {
         Utils.log(TAG,"handlePlayerCommand: $command for ${track.name}")
 
         createMediaPlayerIfNeeded()
 
+        // set the new track
         currentTrack = track
 
         when (command) {
-            PlayerInterface.Command.PLAY -> {
+            PlayerInterface.Command.PLAY_NEW -> {
                 playNewTrack(previewUrl!!)
             }
             PlayerInterface.Command.PAUSE_OR_RESUME -> {
@@ -58,13 +68,16 @@ class NativePlayerManager(@ForApplication val context: Context) :
                     mMediaPlayer!!.start() // not playing, resume
                 }
             }
-            PlayerInterface.Command.RESET -> relaxResources(false)
-            PlayerInterface.Command.STOP -> mMediaPlayer!!.stop()
+            PlayerInterface.Command.END_TRACK -> relaxResources(false)
+            PlayerInterface.Command.STOP -> {
+                mMediaPlayer!!.stop()
+                playerPrepared = false
+            }
         }
 
         notifyLoading()
 
-        return resultsSubject
+        return mTrackResultsPublisher
     }
 
     /**
@@ -81,10 +94,6 @@ class NativePlayerManager(@ForApplication val context: Context) :
                 // playing. If we don't do that, the CPU might go to sleep while the
                 // song is playing, causing playback to stop.
                 setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK)
-
-                val audioConfig = AudioAttributes.Builder()
-                        .setContentType(CONTENT_TYPE_MUSIC)
-                        .setLegacyStreamType(STREAM_MUSIC).build()
                 setAudioAttributes(audioConfig)
                 isLooping = true
 
@@ -100,22 +109,37 @@ class NativePlayerManager(@ForApplication val context: Context) :
     }
 
     override fun currentState(): PlayerInterface.State {
-        return PlayerInterface.State.PREPARED // todo change
+        return when {
+            // was released or not init'ed yet
+            mMediaPlayer == null -> PlayerInterface.State.INVALID
+            // definitely playing
+            mMediaPlayer!!.isPlaying -> PlayerInterface.State.PLAYING
+            // no track means not initialized so not prepared
+            (currentTrack == null || !playerPrepared) -> PlayerInterface.State.NOT_PREPARED
+            // player is prepared, but not playing
+            (!mMediaPlayer!!.isPlaying) -> PlayerInterface.State.PAUSED
+            // shouldn't get here
+            else -> PlayerInterface.State.INVALID
+        }
     }
 
     override fun onPause() {
+        Utils.log(TAG, "onPause")
         if (mMediaPlayer?.isPlaying == true) {
             pauseAudio()
         }
     }
 
-    override fun onDestroy() { // backpressed
+    override fun onDestroy() { // backpressed, finished activity etc
         Utils.log(TAG, "MEDIAPLAYER ++ onDestroy")
         relaxResources(true)
+
+        mTrackResultsPublisher.onComplete()
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
         Utils.log(TAG, "MEDIAPLAYER ++ onCompletion")
+        playerPrepared = false
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
@@ -128,6 +152,7 @@ class NativePlayerManager(@ForApplication val context: Context) :
     override fun onPrepared(mp: MediaPlayer?) {
         if (currentTrack != null && mMediaPlayer != null) {
             Utils.log(TAG, "onPrepared SUCCESS ++ starting: $previewUrl")
+            playerPrepared = true
             mMediaPlayer!!.start() // starts with preview url
             notifySuccess()
         } else {
@@ -136,14 +161,19 @@ class NativePlayerManager(@ForApplication val context: Context) :
     }
 
     override fun onResume() {
-        Utils.log(TAG, " ++ onResume ++ currentUri: $previewUrl")
+        Utils.log(TAG, "onResume ++ ${currentTrack?.name} still prepared? $playerPrepared")
+        mMediaPlayer?.apply {
+            if (currentTrack != null && playerPrepared) {
+                start()
+            }
+        }
     }
 
     private fun playNewTrack(uri: String) {
         mMediaPlayer?.apply {
             if (isPlaying) {
-                Utils.log(TAG,"playNewTrack -- already Playing, resetting first")
-                reset()
+                Utils.log(TAG,"playNewTrack -- already playing, resetting first")
+                refreshPlayer()
             }
 
             setDataSource(uri) // if not idle, this will throw exception
@@ -161,7 +191,9 @@ class NativePlayerManager(@ForApplication val context: Context) :
     }
 
     /**
-     * Releases resources used by the service for playback. This includes the
+     * Resets the mediaPlayer and nullifies the track.
+     *
+     * If releaseMediaPlayer = Releases resources used by the service for playback. This includes the
      * "foreground service" status, the wake locks and possibly the MediaPlayer.
      * @param releaseMediaPlayer Indicates whether the Media Player should also
      * *            be released or not
@@ -170,9 +202,8 @@ class NativePlayerManager(@ForApplication val context: Context) :
         Utils.log(TAG, "relaxResources -- releaseMediaPlayer= $releaseMediaPlayer")
 
         currentTrack = null
-        mMediaPlayer?.apply {
-            reset()
-        }
+
+        refreshPlayer()
 
         // stop and release the Media Player, if it's available
         if (releaseMediaPlayer) {
@@ -181,16 +212,27 @@ class NativePlayerManager(@ForApplication val context: Context) :
         }
     }
 
+    private fun refreshPlayer() {
+        // don't nullify out the track, but reset the player with args
+        mMediaPlayer?.apply {
+            reset()
+            playerPrepared = false
+            isLooping = true
+        }
+    }
+
+    // ======== PUBLISH TRACK RESULTS=====
+
     private fun notifyLoading() {
-        resultsSubject.onNext(TrackResult.CommandPlayerResult.createLoading(currentTrack!!, currentState()))
+        mTrackResultsPublisher.onNext(TrackResult.CommandPlayerResult.createLoading(currentTrack!!, currentState()))
     }
 
     private fun notifySuccess() {
-        resultsSubject.onNext(TrackResult.CommandPlayerResult.createSuccess(currentTrack!!, currentState()))
+        mTrackResultsPublisher.onNext(TrackResult.CommandPlayerResult.createSuccess(currentTrack!!, currentState()))
     }
 
     private fun notifyError(message: String) {
-        resultsSubject.onNext(TrackResult.CommandPlayerResult.createError(
+        mTrackResultsPublisher.onNext(TrackResult.CommandPlayerResult.createError(
                 Error(message),
                 currentTrack,
                 currentState())

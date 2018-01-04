@@ -152,7 +152,7 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         }
 
         // todo render play button based on mediaplayer state
-        "CardsActivity RENDER ++ playerState: ${state.currentPlayerState}".toast(this)
+        Utils.log(TAG, "RENDER ++ playerState: ${state.currentPlayerState}")
     }
 
     private fun initViewModel(playlist: Playlist) {

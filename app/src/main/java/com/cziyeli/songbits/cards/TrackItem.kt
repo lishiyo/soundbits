@@ -47,7 +47,7 @@ class TrackItem(private val context: Context,
         // a card comes on top of the stack
         Utils.log(TAG, "onSwipeHeadCard: ${model.name}")
         listener.getCommandsStream().onNext(
-                TrackIntent.CommandPlayer.create(PlayerInterface.Command.PLAY, model))
+                TrackIntent.CommandPlayer.create(PlayerInterface.Command.PLAY_NEW, model))
     }
 
     @Click(R.id.image)
@@ -61,7 +61,7 @@ class TrackItem(private val context: Context,
     private fun onSwipedOut() {
         Utils.log(TAG, "onSwipedOut (rejected) ")
         listener.getCommandsStream().onNext(
-                TrackIntent.CommandPlayer.create(PlayerInterface.Command.RESET, model))
+                TrackIntent.CommandPlayer.create(PlayerInterface.Command.END_TRACK, model))
     }
 
     @SwipeCancelState
@@ -73,7 +73,7 @@ class TrackItem(private val context: Context,
     private fun onSwipeIn() {
         Utils.log(TAG, "onSwipeIn (accepted) ")
         listener.getCommandsStream().onNext(
-                TrackIntent.CommandPlayer.create(PlayerInterface.Command.RESET, model))
+                TrackIntent.CommandPlayer.create(PlayerInterface.Command.END_TRACK, model))
     }
 
     @SwipeInState
