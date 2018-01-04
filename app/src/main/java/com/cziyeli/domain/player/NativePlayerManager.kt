@@ -1,7 +1,9 @@
 package com.cziyeli.domain.player
 
 import android.content.Context
-import android.media.AudioManager
+import android.media.AudioAttributes
+import android.media.AudioAttributes.CONTENT_TYPE_MUSIC
+import android.media.AudioManager.STREAM_MUSIC
 import android.media.MediaPlayer
 import android.os.PowerManager
 import com.cziyeli.commons.Utils
@@ -19,8 +21,18 @@ class NativePlayerManager(@ForApplication val context: Context) :
         MediaPlayer.OnPreparedListener,
         PlayerInterface {
 
+
+    var mMediaPlayer: MediaPlayer? = null
+
+    // The current track to play.
+    private var currentUri: String? = null
+
+    init {
+
+    }
+
     override fun handleTrack(uri: String, command: PlayerInterface.Command) {
-        Utils.log("handleTrack: $uri ++ $command")
+        Utils.log("MEDIAPLAYER ++ handleTrack: $uri ++ $command")
 
         createMediaPlayerIfNeeded()
 
@@ -40,8 +52,6 @@ class NativePlayerManager(@ForApplication val context: Context) :
 
     }
 
-    var mMediaPlayer: MediaPlayer? = null
-
     /**
      * Makes sure the media player exists and has been reset. This will create
      * the media player if needed, or reset the existing media player if one
@@ -57,7 +67,11 @@ class NativePlayerManager(@ForApplication val context: Context) :
                 // song is playing, causing playback to stop.
                 setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK)
 
-                setAudioStreamType(AudioManager.STREAM_MUSIC);
+                val audioConfig = AudioAttributes.Builder()
+                        .setContentType(CONTENT_TYPE_MUSIC)
+                        .setLegacyStreamType(STREAM_MUSIC).build()
+                setAudioAttributes(audioConfig)
+                isLooping = true
 
                 // we want the media player to notify us when it's ready preparing,
                 // and when it's done playing:
@@ -70,10 +84,11 @@ class NativePlayerManager(@ForApplication val context: Context) :
     }
 
     fun playAudio(uri: String) {
+        currentUri = uri
         mMediaPlayer?.apply {
             setDataSource(uri)
             prepareAsync()
-            start()
+//            start()
         }
     }
 
@@ -88,11 +103,15 @@ class NativePlayerManager(@ForApplication val context: Context) :
      * *            be released or not
      */
     private fun relaxResources(releaseMediaPlayer: Boolean) {
-        Utils.log("relaxResources. releaseMediaPlayer= $releaseMediaPlayer")
+        Utils.log("MEDIAPLAYER ++ relaxResources. releaseMediaPlayer= $releaseMediaPlayer")
+
+        currentUri = null
+        mMediaPlayer?.apply {
+            reset()
+        }
 
         // stop and release the Media Player, if it's available
-        if (releaseMediaPlayer && mMediaPlayer != null) {
-            mMediaPlayer?.reset()
+        if (releaseMediaPlayer) {
             mMediaPlayer?.release()
             mMediaPlayer = null
         }
@@ -105,24 +124,33 @@ class NativePlayerManager(@ForApplication val context: Context) :
     }
 
     override fun onDestroy() { // backpressed
+        Utils.log("MEDIAPLAYER ++ onDestroy")
         relaxResources(true)
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
+        Utils.log("MEDIAPLAYER ++ onCompletion")
         relaxResources(true)
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
+        Utils.log("MEDIAPLAYER ++ onError ++ $what")
+        relaxResources(false)
         return false
     }
 
     override fun onPrepared(mp: MediaPlayer?) {
-        Utils.log("onPrepared ++ ")
-        mp?.start()
+        Utils.log("MEDIAPLAYER ++ onPrepared ++ currentUri: $currentUri")
+        currentUri?.let {
+            mp?.start() // start playing if we have one
+        }
     }
 
     override fun onResume() {
-        Utils.log("onResume")
+        Utils.log("MEDIAPLAYER ++ onResume ++ currentUri: $currentUri")
+        currentUri?.let {
+            mMediaPlayer?.start()
+        }
     }
 
 }

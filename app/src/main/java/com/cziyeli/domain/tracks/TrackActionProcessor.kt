@@ -2,6 +2,7 @@ package com.cziyeli.domain.tracks
 
 import com.cziyeli.commons.Utils
 import com.cziyeli.data.Repository
+import com.cziyeli.domain.player.SpotifyPlayerManager
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -15,7 +16,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class TrackActionProcessor @Inject constructor(private val repository: Repository,
-                                               private val schedulerProvider: BaseSchedulerProvider) {
+                                               private val schedulerProvider: BaseSchedulerProvider,
+                                               private val cardsViewModel: TrackViewModel) {
 
     val combinedProcessor: ObservableTransformer<TrackAction, TrackResult> = ObservableTransformer { acts ->
         acts.publish { shared ->
@@ -48,11 +50,8 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
             .startWith(TrackResult.TrackCards.createLoading())
     }
 
-//    val createPlayerProcessor : ObservableTransformer<TrackAction.CreatePlayer, TrackResult.CreatePlayer> = ObservableTransformer {
-//        action -> action
-//            .switchMap { act -> {
-//                val manager = SpotifyPlayerManager(act.activity, act.accessToken)
-//                TrackResult.CreatePlayer.createSuccess(manager)
-//            }}
-//    }
+    val createPlayerProcessor : ObservableTransformer<TrackAction.CommandPlayer, TrackResult.CommandPlayerResult> = ObservableTransformer {
+        action -> action
+            .switchMap
+    }
 }
