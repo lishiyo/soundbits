@@ -17,6 +17,7 @@ import javax.inject.Inject
  */
 class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
                                            private val schedulerProvider: BaseSchedulerProvider) {
+    private val TAG = RemoteDataSource::class.simpleName
 
     fun fetchUserPlaylists(limit: Int = 20, offset: Int = 0): Observable<Pager<PlaylistSimple>> {
         return Observable.create<Pager<PlaylistSimple>>({ emitter ->
@@ -25,12 +26,11 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
 
             api.service.getMyPlaylists(params, object : Callback<Pager<PlaylistSimple>> {
                 override fun success(pagedResponse: Pager<PlaylistSimple>?, response: Response?) {
-                    Utils.log("got playlists! total: ${pagedResponse?.total}")
                     emitter.onNext(pagedResponse)
                 }
 
                 override fun failure(error: RetrofitError?) {
-                    Utils.log("fetch playlists error: ${error?.localizedMessage}")
+                    Utils.log(TAG, "fetch playlists error: ${error?.localizedMessage}")
                     emitter.onError(Throwable(error?.localizedMessage))
                 }
             })
@@ -50,12 +50,11 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
 
             api.service.getPlaylistTracks(ownerId, playlistId, params, object : Callback<Pager<PlaylistTrack>> {
                 override fun success(pagedResponse: Pager<PlaylistTrack>?, response: Response?) {
-                    Utils.log("api ++ getPlaylistTracks SUCCESS ++ total: ${pagedResponse?.total}")
                     emitter.onNext(pagedResponse)
                 }
 
                 override fun failure(error: RetrofitError?) {
-                    Utils.log("api ++ getPlaylistTracks error: ${error?.localizedMessage}")
+                    Utils.log(TAG, "api ++ getPlaylistTracks error: ${error?.localizedMessage}")
                     emitter.onError(Throwable(error?.localizedMessage))
                 }
             })

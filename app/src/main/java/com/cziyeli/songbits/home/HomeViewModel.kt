@@ -15,7 +15,7 @@ import io.reactivex.subjects.PublishSubject
 import lishiyo.kotlin_arch.mvibase.MviIntent
 import lishiyo.kotlin_arch.mvibase.MviViewModel
 import lishiyo.kotlin_arch.mvibase.MviViewState
-import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
+import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
 /**
@@ -23,10 +23,10 @@ import javax.inject.Inject
  */
 class HomeViewModel @Inject constructor(
         val repository: RepositoryImpl,
-        actionProcessor: PlaylistActionProcessor
+        actionProcessor: PlaylistActionProcessor,
+        schedulerProvider: BaseSchedulerProvider
 ) : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, HomeViewState> {
-
-    val schedulerProvider = SchedulerProvider
+    private val TAG = HomeViewModel::class.simpleName
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -51,7 +51,6 @@ class HomeViewModel @Inject constructor(
 
     // Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<HomeViewState, PlaylistResult, HomeViewState> = BiFunction { previousState, result ->
-        Utils.log("reducer ++ result: ${result.javaClass.simpleName} with status: ${result.status}")
         when (result) {
             is PlaylistResult.UserPlaylists -> return@BiFunction processUserPlaylists(previousState, result)
             else -> return@BiFunction previousState
@@ -63,12 +62,12 @@ class HomeViewModel @Inject constructor(
         val observable: Observable<HomeViewState> = intentsSubject
                 .subscribeOn(schedulerProvider.io())
                 .observeOn(schedulerProvider.ui())
-                .doOnSubscribe{ Utils.log("subscribed!") }
-                .doOnDispose{ Utils.log( "disposed!") }
-                .doOnTerminate { Utils.log( "terminated!") }
+                .doOnSubscribe{ Utils.log(TAG, "subscribed!") }
+                .doOnDispose{ Utils.log( TAG, "disposed!") }
+                .doOnTerminate { Utils.log( TAG, "terminated!") }
                 .compose(intentFilter)
                 .map{ it -> actionFromIntent(it)}
-                .doOnNext { intent -> Utils.log("ViewModel ++ intentsSubject hitActionProcessor: ${intent.javaClass.name}") }
+                .doOnNext { intent -> Utils.log(TAG, "intentsSubject hitActionProcessor: ${intent.javaClass.simpleName}") }
                 .compose(actionProcessor.combinedProcessor)
                 .scan(HomeViewState(), reducer)
                 // Emit the last one event of the stream on subscription
@@ -83,7 +82,7 @@ class HomeViewModel @Inject constructor(
                 observable.subscribe({ viewState ->
                     liveViewState.postValue(viewState) // should be on main thread (if worker, use postValue)
                 }, { err ->
-                    Utils.log("ViewModel ++ ERROR " + err.localizedMessage)
+                    Utils.log(TAG, err.localizedMessage)
                 })
         )
     }

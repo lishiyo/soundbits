@@ -17,11 +17,10 @@ import lishiyo.kotlin_arch.mvibase.MviView
  */
 @Layout(R.layout.load_more_view)
 class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderView) : MviView<HomeIntent, HomeViewState> {
-
+    private val TAG = InfinitePlaylistsAdapter::class.simpleName
     private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadPlaylists>()
 
     override fun render(state: HomeViewState) {
-        Utils.log("InfinitePlaylists render: ${state.status}")
         var reachedEnd = state.status != HomeViewState.Status.LOADING && state.status != HomeViewState.Status.SUCCESS
         if (state.status == HomeViewState.Status.SUCCESS) {
             if (state.playlists.isNotEmpty()) {
@@ -43,7 +42,7 @@ class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderVie
         }
 
         if (reachedEnd) { // error, not-logged-in
-            Utils.log("playlistsAdapter RENDER ++ reached end with state: ${state.status}")
+            Utils.log(TAG,"playlistsAdapter RENDER ++ reached end with state: ${state.status}")
             mLoadMoreView.noMoreToLoad()
         }
     }
@@ -54,7 +53,7 @@ class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderVie
 
     @LoadMore
     private fun onLoadMore() {
-        Utils.log("playlistAdapter onLoadMore ++ currentCount: ${mLoadMoreView.viewCount}")
+        Utils.log(TAG, "playlistAdapter onLoadMore ++ currentCount: ${mLoadMoreView.viewCount}")
 
         // post intent to load playlists
         mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create(offset = mLoadMoreView.viewCount))

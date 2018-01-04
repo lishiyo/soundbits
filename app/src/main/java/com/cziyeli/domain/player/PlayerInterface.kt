@@ -14,6 +14,7 @@ interface PlayerInterface {
 
     fun onResume()
 
+    // main function to interact with the player
     fun handlePlayerCommand(track: TrackCard, command: Command) : Observable<TrackResult.CommandPlayerResult>
 
     // current player state
@@ -27,6 +28,7 @@ interface PlayerInterface {
         STOP // sets player to STOPPED, must be for current track
     }
 
+    // player states to pass back to UI to render
     enum class State {
         NOT_PREPARED, // idle or initialized (from new/reset/start), not prepared yet
         PAUSED, // prepared and ready to play but not playing

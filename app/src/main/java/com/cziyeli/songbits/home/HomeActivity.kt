@@ -31,6 +31,7 @@ import javax.inject.Inject
  * Created by connieli on 12/31/17.
  */
 class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeIntent, HomeViewState> {
+    private val TAG = HomeActivity::class.simpleName
 
     @Inject lateinit var api: SpotifyApi
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -78,7 +79,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     }
 
     override fun render(state: HomeViewState) {
-        Utils.log("RENDER ++ state: ${state.status}")
+        Utils.log(TAG, "RENDER ++ state: ${state.status}")
         Utils.setVisible(login_button, !isLoggedIn())
 
         // render subviews
@@ -109,16 +110,15 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
     fun onLoginButtonClicked(view: View) {
         if (!isLoggedIn()) {
-            Utils.log("Logging in")
+            Utils.log(TAG, "Logging in")
             openLoginWindow()
         } else {
-            Utils.log("Already logged in")
+            Utils.log(TAG, "Already logged in")
         }
     }
 
     fun onTestButtonClicked(view: View) {
         if (!isLoggedIn()) {
-            Utils.log("Logging in first")
             openLoginWindow()
         } else {
             mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create())
@@ -190,26 +190,26 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     //
 
     override fun onLoggedIn() {
-        Utils.log("Login complete")
+        Utils.log(TAG, "Login complete")
         loggedInFlag = true
     }
 
     override fun onLoggedOut() {
-        Utils.log("Logout complete")
+        Utils.log(TAG, "Logout complete")
         loggedInFlag = false
     }
 
     override fun onLoginFailed(error: Error) {
-        Utils.log("Login error " + error)
+        Utils.log(TAG, "Login error " + error)
         loggedInFlag = false
     }
 
     override fun onTemporaryError() {
-        Utils.log("Temporary error occurred")
+        Utils.log(TAG, "Temporary error occurred")
     }
 
     override fun onConnectionMessage(message: String) {
-        Utils.log("Incoming connection message: " + message)
+        Utils.log(TAG, "Incoming connection message: " + message)
     }
 
     //     _         _   _                _   _           _   _
@@ -242,7 +242,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
                 AuthenticationResponse.Type.ERROR -> Utils.log("Auth error: " + response.error)
 
                 // Most likely auth flow was cancelled
-                else -> Utils.log("Auth result: " + response.type)
+                else -> Utils.log(TAG, "Auth result: " + response.type)
             }
         }
     }
@@ -254,7 +254,8 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         accessToken = authResponse.accessToken
         val nextExpirationTime = System.currentTimeMillis() / 1000 + authResponse.expiresIn // 1 hour
         expirationCutoff = nextExpirationTime
-        Utils.log("Got authentication token: $authResponse.accessToken ++ nextExpirationTime: $nextExpirationTime")
+
+        Utils.log(TAG, "Got authentication token: $authResponse.accessToken ++ nextExpirationTime: $nextExpirationTime")
     }
 
 }

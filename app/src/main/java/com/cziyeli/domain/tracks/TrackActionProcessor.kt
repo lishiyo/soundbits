@@ -59,7 +59,7 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
         action -> action.switchMap {
             act -> player.handlePlayerCommand(act.track, act.command)
         }.doOnNext {
-            act -> Utils.log(TAG, "commandPlayer processing --- $act ")
+            act -> Utils.log(TAG, "commandPlayer processing --- ${act::class.simpleName}")
         }.retry() // don't unsubscribe
     }
 }

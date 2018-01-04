@@ -16,7 +16,7 @@ import io.reactivex.subjects.PublishSubject
 import lishiyo.kotlin_arch.mvibase.MviIntent
 import lishiyo.kotlin_arch.mvibase.MviViewModel
 import lishiyo.kotlin_arch.mvibase.MviViewState
-import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
+import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
 /**
@@ -24,11 +24,10 @@ import javax.inject.Inject
  */
 class CardsViewModel @Inject constructor(
         val repository: RepositoryImpl,
-        actionProcessor: TrackActionProcessor
+        actionProcessor: TrackActionProcessor,
+        schedulerProvider: BaseSchedulerProvider
 ): ViewModel(), LifecycleObserver, MviViewModel<TrackIntent, TrackViewState> {
     private val TAG = CardsViewModel::class.simpleName
-
-    val schedulerProvider = SchedulerProvider // TODO inject this
 
     private val compositeDisposable = CompositeDisposable()
 
