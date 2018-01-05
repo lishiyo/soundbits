@@ -23,7 +23,7 @@ import javax.inject.Inject
  * Created by connieli on 1/1/18.
  */
 class CardsViewModel @Inject constructor(
-        val repository: RepositoryImpl,
+        private val repository: RepositoryImpl,
         actionProcessor: TrackActionProcessor,
         schedulerProvider: BaseSchedulerProvider
 ): ViewModel(), LifecycleObserver, MviViewModel<TrackIntent, TrackViewState> {
