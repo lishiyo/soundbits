@@ -83,7 +83,11 @@ dependencies {
     implementation "com.spotify.android:auth:$rootProject.ext.spotifyAuthVersion"
     // This library handles music playback
     implementation "com.spotify.sdk:$rootProject.ext.spotifySdkVersion"
+    // The spotify web api
     implementation "com.github.kaaes:spotify-web-api-android:$rootProject.ext.spotifyWebApiVersion"
+
+    // A music streaming lib
+    implementation "com.github.dibakarece:dmaudiostreamer:$rootProject.ext.dmAudioStreamerVersion"
 
     // lifecycle and room
     implementation "android.arch.lifecycle:extensions:$rootProject.ext.archVersion"
