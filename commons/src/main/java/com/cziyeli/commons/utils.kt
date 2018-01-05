@@ -25,6 +25,11 @@ object Utils {
         }
     }
 
+    fun mLog(tag: String?, methodName: String?, vararg extras: String?) {
+        val message = "${methodName ?: ""} -- ${extras.joinToString(postfix = ": ")}"
+        log(tag, message)
+    }
+
     inline fun <reified T : Parcelable> createParcel(crossinline createFromParcel: (Parcel) -> T?)
             : Parcelable.Creator<T> = object : Parcelable.Creator<T> {
                 override fun createFromParcel(source: Parcel): T? = createFromParcel(source)
