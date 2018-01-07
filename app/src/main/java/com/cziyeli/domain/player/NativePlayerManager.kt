@@ -8,7 +8,7 @@ import android.media.MediaPlayer
 import android.os.PowerManager
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.di.ForApplication
-import com.cziyeli.domain.tracks.TrackCard
+import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.tracks.TrackResult
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -41,14 +41,14 @@ class NativePlayerManager(@ForApplication val context: Context) :
     }
 
     // The current track to play.
-    private var currentTrack: TrackCard? = null
+    private var currentTrack: TrackModel? = null
     private val previewUrl: String?
             get() = currentTrack?.preview_url
 
     // If false, prepare/prepareAsync must be called again to get to the PreparedState
     private var playerPrepared = false
 
-    override fun handlePlayerCommand(track: TrackCard, command: PlayerInterface.Command)
+    override fun handlePlayerCommand(track: TrackModel, command: PlayerInterface.Command)
             : Observable<TrackResult.CommandPlayerResult> {
         Utils.log(TAG,"handlePlayerCommand: $command for ${track.name}")
 

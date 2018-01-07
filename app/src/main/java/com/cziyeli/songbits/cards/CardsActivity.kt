@@ -28,7 +28,7 @@ import javax.inject.Named
 /**
  * Created by connieli on 1/1/18.
  */
-class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>, TrackItem.TrackListener {
+class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>, TrackCardView.TrackListener {
 
     companion object {
         const val PLAYLIST = "playlist"
@@ -46,8 +46,11 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
 
     // intents
     private val mLoadPublisher = PublishSubject.create<TrackIntent.ScreenOpened>()
-    private val mCommandsPublisher : PublishSubject<TrackIntent.CommandPlayer> by lazy {
+    private val mPlayerPublisher: PublishSubject<TrackIntent.CommandPlayer> by lazy {
         PublishSubject.create<TrackIntent.CommandPlayer>()
+    }
+    private val mTrackPrefPublisher : PublishSubject<TrackIntent.ChangeTrackPref> by lazy {
+        PublishSubject.create<TrackIntent.ChangeTrackPref>()
     }
 
     // player
@@ -126,12 +129,16 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
     override fun intents(): Observable<out TrackIntent> {
         return Observable.merge(
                 mLoadPublisher,
-                mCommandsPublisher
+                mPlayerPublisher
         )
     }
 
-    override fun getCommandsStream(): PublishSubject<TrackIntent.CommandPlayer> {
-        return mCommandsPublisher
+    override fun getPlayerIntents(): PublishSubject<TrackIntent.CommandPlayer> {
+        return mPlayerPublisher
+    }
+
+    override fun getTrackIntents(): PublishSubject<TrackIntent.ChangeTrackPref> {
+        return mTrackPrefPublisher
     }
 
     override fun render(state: TrackViewState) {
@@ -145,7 +152,7 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         if (state.status == TrackViewState.Status.SUCCESS) {
             Utils.log(TAG, "RENDER ++ count ${state.items.size}")
             state.items.forEach {
-                swipeView.addView(TrackItem(this, it, this))
+                swipeView.addView(TrackCardView(this, it, this))
             }
         } else {
             "CardsActivity not ready: ${state.status} ".toast(this)

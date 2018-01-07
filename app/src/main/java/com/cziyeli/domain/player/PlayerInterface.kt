@@ -1,6 +1,6 @@
 package com.cziyeli.domain.player
 
-import com.cziyeli.domain.tracks.TrackCard
+import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.tracks.TrackResult
 import io.reactivex.Observable
 
@@ -15,7 +15,7 @@ interface PlayerInterface {
     fun onResume()
 
     // main function to interact with the player
-    fun handlePlayerCommand(track: TrackCard, command: Command) : Observable<TrackResult.CommandPlayerResult>
+    fun handlePlayerCommand(track: TrackModel, command: Command) : Observable<TrackResult.CommandPlayerResult>
 
     // current player state
     fun currentState() : State

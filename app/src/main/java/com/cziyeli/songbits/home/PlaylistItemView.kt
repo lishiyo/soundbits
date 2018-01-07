@@ -19,7 +19,7 @@ import com.mindorks.placeholderview.annotations.View
  * Created by connieli on 1/1/18.
  */
 @Layout(R.layout.playlists_item_square)
-class PlaylistItem(val context: Context, private var playlist: Playlist?) {
+class PlaylistItemView(val context: Context, private var playlist: Playlist?) {
 
     @View(R.id.playlist_name)
     private lateinit var name: TextView

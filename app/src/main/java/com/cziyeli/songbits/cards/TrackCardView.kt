@@ -4,7 +4,7 @@ import android.content.Context
 import android.widget.TextView
 import com.cziyeli.commons.Utils
 import com.cziyeli.domain.player.PlayerInterface
-import com.cziyeli.domain.tracks.TrackCard
+import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.facebook.drawee.view.SimpleDraweeView
 import com.mindorks.placeholderview.annotations.Click
@@ -15,15 +15,16 @@ import com.mindorks.placeholderview.annotations.swipe.*
 import io.reactivex.subjects.PublishSubject
 
 /**
- * Displays a "card" view of a track.
+ * Displays a "card" view of a track for swiping.
+ *
  * Created by connieli on 1/2/18.
  */
 @Layout(R.layout.cards_track_view)
-class TrackItem(private val context: Context,
-                private val model: TrackCard,
-                private val listener: TrackListener) {
+class TrackCardView(private val context: Context,
+                    private val model: TrackModel,
+                    private val listener: TrackListener) {
 
-    private val TAG = TrackItem::class.simpleName
+    private val TAG = TrackCardView::class.simpleName
 
     @View(R.id.image)
     private lateinit var imageView: SimpleDraweeView
@@ -39,29 +40,46 @@ class TrackItem(private val context: Context,
         trackName.text = model.name
         artistName.text = model.artist?.name
         imageView.setImageURI(model.coverImage?.url)
+
         Utils.log(TAG, "onResolved: ${model.name}") // on average will load 3
     }
 
     @SwipeHead
     private fun onSwipeHeadCard() {
-        // a card comes on top of the stack
+        // a card comes on top of the stack (follows onResolved)
         Utils.log(TAG, "onSwipeHeadCard: ${model.name}")
-        listener.getCommandsStream().onNext(
+
+        // immediately start playing
+        listener.getPlayerIntents().onNext(
                 TrackIntent.CommandPlayer.create(PlayerInterface.Command.PLAY_NEW, model))
+
+        // 'undo' clears liked/disliked pref
+        listener.getTrackIntents().onNext(
+                TrackIntent.ChangeTrackPref.clear(model)
+        )
     }
 
     @Click(R.id.image)
     private fun onClick() {
         Utils.log(TAG, "onClick image")
-        listener.getCommandsStream().onNext(
+
+        // pause/resume
+        listener.getPlayerIntents().onNext(
                 TrackIntent.CommandPlayer.create(PlayerInterface.Command.PAUSE_OR_RESUME, model))
     }
 
     @SwipeOut
     private fun onSwipedOut() {
-        Utils.log(TAG, "onSwipedOut (rejected) ")
-        listener.getCommandsStream().onNext(
+        Utils.log(TAG, "onSwipedOut (rejected): ${model.name}")
+
+        // stop playing this track
+        listener.getPlayerIntents().onNext(
                 TrackIntent.CommandPlayer.create(PlayerInterface.Command.END_TRACK, model))
+
+        // add this track to the Pass list
+        listener.getTrackIntents().onNext(
+                TrackIntent.ChangeTrackPref.dislike(model)
+        )
     }
 
     @SwipeCancelState
@@ -71,9 +89,15 @@ class TrackItem(private val context: Context,
 
     @SwipeIn
     private fun onSwipeIn() {
-        Utils.log(TAG, "onSwipeIn (accepted) ")
-        listener.getCommandsStream().onNext(
+        Utils.log(TAG, "onSwipeIn (accepted): ${model.name}")
+
+        listener.getPlayerIntents().onNext(
                 TrackIntent.CommandPlayer.create(PlayerInterface.Command.END_TRACK, model))
+
+        // add this track to the Liked list
+        listener.getTrackIntents().onNext(
+                TrackIntent.ChangeTrackPref.like(model)
+        )
     }
 
     @SwipeInState
@@ -87,6 +111,10 @@ class TrackItem(private val context: Context,
     }
 
     interface TrackListener {
-        fun getCommandsStream(): PublishSubject<TrackIntent.CommandPlayer>
+        // emit events to the audio player
+        fun getPlayerIntents(): PublishSubject<TrackIntent.CommandPlayer>
+
+        // emit like/dislike events
+        fun getTrackIntents(): PublishSubject<TrackIntent.ChangeTrackPref>
     }
 }

@@ -1,7 +1,7 @@
 package com.cziyeli.songbits.cards
 
 import com.cziyeli.domain.player.PlayerInterface
-import com.cziyeli.domain.tracks.TrackCard
+import com.cziyeli.domain.tracks.TrackModel
 import lishiyo.kotlin_arch.mvibase.MviIntent
 
 /**
@@ -27,15 +27,29 @@ sealed class TrackIntent : MviIntent {
         }
     }
 
-    // command the player to do something with a track
+    // command the player to play/pause/stop a track
     class CommandPlayer(val command: PlayerInterface.Command,
-                        val track: TrackCard) : TrackIntent() {
+                        val track: TrackModel) : TrackIntent() {
         companion object {
-            fun create(command: PlayerInterface.Command, track: TrackCard) : CommandPlayer {
+            fun create(command: PlayerInterface.Command, track: TrackModel) : CommandPlayer {
                 return CommandPlayer(command, track)
             }
         }
     }
 
-    // destroy player
+    // like or dislike a track
+    class ChangeTrackPref(val track: TrackModel,
+                          val pref: TrackModel.Pref) {
+        companion object {
+            fun like(track: TrackModel) : ChangeTrackPref {
+                return ChangeTrackPref(track, TrackModel.Pref.LIKED)
+            }
+            fun dislike(track: TrackModel) : ChangeTrackPref {
+                return ChangeTrackPref(track, TrackModel.Pref.DISLIKED)
+            }
+            fun clear(track: TrackModel) : ChangeTrackPref {
+                return ChangeTrackPref(track, TrackModel.Pref.UNSEEN)
+            }
+        }
+    }
 }

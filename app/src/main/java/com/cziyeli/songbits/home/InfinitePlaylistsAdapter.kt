@@ -31,7 +31,7 @@ class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderVie
                 Utils.log("playlistAdapter RENDER ++ currentCount: $currentCount ++ got newPlaylists: ${newPlaylists!!.size}")
 
                 newPlaylists.forEach{
-                    mLoadMoreView.addView<PlaylistItem>(PlaylistItem(mLoadMoreView.context, it))
+                    mLoadMoreView.addView<PlaylistItemView>(PlaylistItemView(mLoadMoreView.context, it))
                 }
 
                 mLoadMoreView.loadingDone() // finished populating adapter

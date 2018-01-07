@@ -7,7 +7,7 @@ import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.tracks.TrackAction
 import com.cziyeli.domain.tracks.TrackActionProcessor
-import com.cziyeli.domain.tracks.TrackCard
+import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.tracks.TrackResult
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -39,9 +39,8 @@ class CardsViewModel @Inject constructor(
 
     // Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<TrackViewState, TrackResult, TrackViewState> = BiFunction { previousState, result ->
-        Utils.log(TAG, "reducer ++ result: ${result.javaClass.simpleName} with status: ${result.status}")
         when (result) {
-            is TrackResult.TrackCards -> return@BiFunction processTrackCards(previousState, result)
+            is TrackResult.LoadTrackCards -> return@BiFunction processTrackCards(previousState, result)
             is TrackResult.CommandPlayerResult -> return@BiFunction processPlayerCommand(previousState, result)
             else -> return@BiFunction previousState
         }
@@ -110,7 +109,7 @@ class CardsViewModel @Inject constructor(
 
     // ===== Individual reducers ======
 
-    private fun processTrackCards(previousState: TrackViewState, result: TrackResult.TrackCards): TrackViewState {
+    private fun processTrackCards(previousState: TrackViewState, result: TrackResult.LoadTrackCards): TrackViewState {
         val newState = previousState.copy()
         newState.error = null
 
@@ -156,9 +155,9 @@ class CardsViewModel @Inject constructor(
 
 data class TrackViewState(var status: Status = Status.IDLE,
                           var error: Throwable? = null,
-                          val items: MutableList<TrackCard> = mutableListOf(),
+                          val items: MutableList<TrackModel> = mutableListOf(),
                           var playlist: Playlist? = null,
-                          var currentTrack: TrackCard? = null,
+                          var currentTrack: TrackModel? = null,
                           var currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID) : MviViewState {
     enum class Status {
         IDLE, LOADING, SUCCESS, ERROR

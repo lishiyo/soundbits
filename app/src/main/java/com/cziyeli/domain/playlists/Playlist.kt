@@ -21,7 +21,7 @@ data class Playlist(val id: String,
                     val images: List<CoverImage>?,
                     val tracks: PlaylistTracksInformation?) : Parcelable {
 
-    // num com.cziyeli.domain.tracks in this playlist
+    // num [Track]s in this playlist
     val tracksCount: Int
         get() = tracks?.total ?: 0
 
@@ -66,7 +66,8 @@ data class Playlist(val id: String,
     }
 }
 
-data class Owner(val id: String, val uri: String, val display_name: String? = null) : Parcelable {
+// Playlist owner ex 'Spotify'
+data class Owner(val id: String, private val uri: String, val display_name: String? = null) : Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.readString(),
             parcel.readString(),

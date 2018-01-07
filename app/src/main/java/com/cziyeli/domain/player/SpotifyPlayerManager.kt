@@ -10,7 +10,7 @@ import android.net.ConnectivityManager
 import android.widget.Toast
 import com.cziyeli.commons.SPOTIFY_CLIENT_ID
 import com.cziyeli.commons.Utils
-import com.cziyeli.domain.tracks.TrackCard
+import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.tracks.TrackResult
 import com.spotify.sdk.android.player.*
 import io.reactivex.Observable
@@ -103,7 +103,7 @@ class SpotifyPlayerManager(val activity: Activity,
         }
     }
 
-    override fun handlePlayerCommand(track: TrackCard, command: PlayerInterface.Command) : Observable<TrackResult.CommandPlayerResult> {
+    override fun handlePlayerCommand(track: TrackModel, command: PlayerInterface.Command) : Observable<TrackResult.CommandPlayerResult> {
         Utils.log("Starting playback for $track with command: $command")
         when (command) {
             PlayerInterface.Command.PLAY_NEW -> mPlayer.playUri(mOperationCallback, track.preview_url, 0, 0)

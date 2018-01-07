@@ -29,9 +29,9 @@ sealed class TrackAction : MviAction {
 
     // command the player to do something with a track
     class CommandPlayer(val command: PlayerInterface.Command,
-                        val track: TrackCard) : TrackAction() {
+                        val track: TrackModel) : TrackAction() {
         companion object {
-            fun create(command: PlayerInterface.Command, track: TrackCard) : CommandPlayer {
+            fun create(command: PlayerInterface.Command, track: TrackModel) : CommandPlayer {
                 return CommandPlayer(command, track)
             }
         }

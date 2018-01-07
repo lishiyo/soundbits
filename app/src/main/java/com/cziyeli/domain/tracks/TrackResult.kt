@@ -12,41 +12,57 @@ sealed class TrackResult(var status: Status = Status.IDLE, var error: Throwable?
         LOADING, SUCCESS, FAILURE, IDLE
     }
 
-    class TrackCards(status: Status, error: Throwable?, val items: List<TrackCard> = Collections.emptyList())
+    class LoadTrackCards(status: Status, error: Throwable?, val items: List<TrackModel> = Collections.emptyList())
         : TrackResult(status, error) {
         companion object {
-            fun createSuccess(items: List<TrackCard>) : TrackCards {
-                return TrackCards(Status.SUCCESS, null, items)
+            fun createSuccess(items: List<TrackModel>) : LoadTrackCards {
+                return LoadTrackCards(Status.SUCCESS, null, items)
             }
-            fun createError(throwable: Throwable) : TrackCards {
-                return TrackCards(Status.FAILURE, throwable)
+            fun createError(throwable: Throwable) : LoadTrackCards {
+                return LoadTrackCards(Status.FAILURE, throwable)
             }
-            fun createLoading(): TrackCards {
-                return TrackCards(Status.LOADING, null)
+            fun createLoading(): LoadTrackCards {
+                return LoadTrackCards(Status.LOADING, null)
             }
         }
     }
 
     class CommandPlayerResult(status: Status,
                               error: Throwable?,
-                              val currentTrack: TrackCard?,
+                              val currentTrack: TrackModel?,
                               val currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED)
         : TrackResult(status, error) {
         companion object {
-            fun createSuccess(currentTrack: TrackCard,
+            fun createSuccess(currentTrack: TrackModel,
                               currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED) :
                     CommandPlayerResult {
                 return CommandPlayerResult(Status.SUCCESS, null, currentTrack, currentPlayerState)
             }
             fun createError(throwable: Throwable,
-                            currentTrack: TrackCard?,
+                            currentTrack: TrackModel?,
                             currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED) : CommandPlayerResult {
                 return CommandPlayerResult(Status.FAILURE, throwable, currentTrack, currentPlayerState)
             }
-            fun createLoading(currentTrack: TrackCard,
+            fun createLoading(currentTrack: TrackModel,
                               currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED): CommandPlayerResult {
                 return CommandPlayerResult(Status.LOADING, null, currentTrack, currentPlayerState)
             }
+        }
+    }
+
+    class ChangePrefResult(status: Status,
+                                error: Throwable?,
+                                val currentTrack: TrackModel?,
+                                val pref: TrackModel.Pref?)
+        : TrackResult(status, error) {
+        fun createSuccess(currentTrack: TrackModel,
+                          pref: TrackModel.Pref) : ChangePrefResult {
+            return ChangePrefResult(Status.SUCCESS, null, currentTrack, pref)
+        }
+        fun createError(throwable: Throwable,
+                        currentTrack: TrackModel?) : ChangePrefResult {
+            // roll back to the original pref
+            return ChangePrefResult(Status.FAILURE, throwable, currentTrack, currentTrack?.pref)
         }
     }
 }

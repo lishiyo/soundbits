@@ -26,7 +26,7 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
     val combinedProcessor: ObservableTransformer<TrackAction, TrackResult> = ObservableTransformer { acts ->
         acts.publish { shared ->
             Observable.merge<TrackResult>(
-                    shared.ofType<TrackAction.LoadTrackCards>(TrackAction.LoadTrackCards::class.java).compose(trackCardsProcessor),
+                    shared.ofType<TrackAction.LoadTrackCards>(TrackAction.LoadTrackCards::class.java).compose(mLoadTrackCardsProcessor),
                     shared.ofType<TrackAction.CommandPlayer>(TrackAction.CommandPlayer::class.java).compose(commandPlayerProcessor)
             ).mergeWith(
                     // Error for not implemented actions
@@ -40,18 +40,19 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
     }
 
     // ==== individual list of processors (action -> result) ====
-    val trackCardsProcessor : ObservableTransformer<TrackAction.LoadTrackCards, TrackResult.TrackCards> = ObservableTransformer {
+
+    private val mLoadTrackCardsProcessor: ObservableTransformer<TrackAction.LoadTrackCards, TrackResult.LoadTrackCards> = ObservableTransformer {
         action -> action.switchMap {
             act -> repository
                 .fetchPlaylistTracks(act.ownerId, act.playlistId, act.fields, act.limit, act.offset)
                 .subscribeOn(schedulerProvider.io())
             }.filter { resp -> resp.total > 0 }
             .map { resp -> resp.items.map { it.track }}
-            .map { tracks -> tracks.map { TrackCard.create(it) } }
+            .map { tracks -> tracks.map { TrackModel.create(it) } }
             .observeOn(schedulerProvider.ui())
-            .map { trackCards -> TrackResult.TrackCards.createSuccess(trackCards) }
-            .onErrorReturn { err -> TrackResult.TrackCards.createError(err) }
-            .startWith(TrackResult.TrackCards.createLoading())
+            .map { trackCards -> TrackResult.LoadTrackCards.createSuccess(trackCards) }
+            .onErrorReturn { err -> TrackResult.LoadTrackCards.createError(err) }
+            .startWith(TrackResult.LoadTrackCards.createLoading())
             .retry() // don't unsubscribe
     }
 
