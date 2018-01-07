@@ -36,7 +36,7 @@ class NativePlayerManager(@ForApplication val context: Context) :
     }
 
     // subject to publish results to
-    private val mTrackResultsPublisher: PublishSubject<TrackResult.CommandPlayerResult> by lazy {
+    private val mPlayerResultsPublisher: PublishSubject<TrackResult.CommandPlayerResult> by lazy {
         PublishSubject.create<TrackResult.CommandPlayerResult>()
     }
 
@@ -77,7 +77,7 @@ class NativePlayerManager(@ForApplication val context: Context) :
 
         notifyLoading()
 
-        return mTrackResultsPublisher
+        return mPlayerResultsPublisher
     }
 
     /**
@@ -132,9 +132,13 @@ class NativePlayerManager(@ForApplication val context: Context) :
 
     override fun onDestroy() { // backpressed, finished activity etc
         Utils.log(TAG, "MEDIAPLAYER ++ onDestroy")
+        if (mMediaPlayer?.isPlaying == true) {
+            mMediaPlayer?.stop()
+        }
+
         relaxResources(true)
 
-        mTrackResultsPublisher.onComplete()
+        mPlayerResultsPublisher.onComplete()
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
@@ -224,15 +228,15 @@ class NativePlayerManager(@ForApplication val context: Context) :
     // ======== PUBLISH TRACK RESULTS=====
 
     private fun notifyLoading() {
-        mTrackResultsPublisher.onNext(TrackResult.CommandPlayerResult.createLoading(currentTrack!!, currentState()))
+        mPlayerResultsPublisher.onNext(TrackResult.CommandPlayerResult.createLoading(currentTrack!!, currentState()))
     }
 
     private fun notifySuccess() {
-        mTrackResultsPublisher.onNext(TrackResult.CommandPlayerResult.createSuccess(currentTrack!!, currentState()))
+        mPlayerResultsPublisher.onNext(TrackResult.CommandPlayerResult.createSuccess(currentTrack!!, currentState()))
     }
 
     private fun notifyError(message: String) {
-        mTrackResultsPublisher.onNext(TrackResult.CommandPlayerResult.createError(
+        mPlayerResultsPublisher.onNext(TrackResult.CommandPlayerResult.createError(
                 Error(message),
                 currentTrack,
                 currentState())
