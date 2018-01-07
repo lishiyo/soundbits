@@ -169,9 +169,9 @@ class CardsViewModel @Inject constructor(
                 track!!.pref = result.pref!!
                 Utils.mLog(TAG, "processTrackChange ${track.name}",
                         "pref: ", track!!.pref.toString(),
-                        "currentLikes: ", newState.currentLikes.count().toString(),
-                        "currentDislikes: ", newState.currentDislikes.count().toString(),
-                        "unseen: ", newState.unseen.count().toString())
+                        "currentLikes: ", newState.currentLikes.size.toString(),
+                        "currentDislikes: ", newState.currentDislikes.size.toString(),
+                        "unseen: ", newState.unseen.size.toString())
             }
             TrackResult.Status.FAILURE -> {
                 newState.status = TrackViewState.Status.ERROR
@@ -198,6 +198,9 @@ data class TrackViewState(var status: Status = Status.IDLE,
 
     val unseen: MutableList<TrackModel>
         get() = (allTracks - (currentLikes + currentDislikes)).toMutableList()
+
+    val reachedEnd: Boolean
+        get() = status == Status.SUCCESS && unseen.size == 0 && allTracks.size > 0
 
     enum class Status {
         IDLE, LOADING, SUCCESS, ERROR

@@ -128,4 +128,7 @@ dependencies {
 
     // Placeholder view
     implementation "com.mindorks:placeholderview:$rootProject.ext.placeholderViewVersion"
+
+    // Animation
+    implementation "com.wang.avi:library:$rootProject.ext.AVLVersion"
 }

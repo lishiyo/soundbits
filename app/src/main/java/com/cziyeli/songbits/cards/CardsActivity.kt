@@ -8,6 +8,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
+import android.view.ViewGroup
+import android.view.ViewStub
+import android.widget.TextView
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.toast
 import com.cziyeli.domain.player.PlayerInterface
@@ -16,6 +19,7 @@ import com.cziyeli.songbits.R
 import com.mindorks.placeholderview.SwipeDecor
 import com.mindorks.placeholderview.SwipePlaceHolderView
 import com.mindorks.placeholderview.SwipeViewBuilder
+import com.wang.avi.AVLoadingIndicatorView
 import dagger.android.AndroidInjection
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -55,6 +59,8 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
 
     // player
     @Inject @field:Named("Native") lateinit var mPlayer: PlayerInterface
+
+    var summaryShown : Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -101,17 +107,20 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         val builder: SwipeViewBuilder<SwipePlaceHolderView> = swipeView.getBuilder()
         builder.setDisplayViewCount(3)
                 .setIsUndoEnabled(true)
-                .setHeightSwipeDistFactor(10f)
-                .setWidthSwipeDistFactor(5f)
+                .setHeightSwipeDistFactor(20f)
+                .setWidthSwipeDistFactor(15f)
                 .setSwipeDecor(SwipeDecor()
-                .setViewWidth(windowSize.x)
-                .setViewHeight(windowSize.y - bottomMargin)
-                .setViewGravity(Gravity.TOP)
-                .setPaddingTop(20)
-                .setRelativeScale(0.01f)
-                .setSwipeMaxChangeAngle(2f)
-                .setSwipeInMsgLayoutId(R.layout.tinder_swipe_in_msg_view)
-                .setSwipeOutMsgLayoutId(R.layout.tinder_swipe_out_msg_view))
+                        .setViewWidth(windowSize.x)
+                        .setViewHeight(windowSize.y - bottomMargin)
+                        .setViewGravity(Gravity.TOP)
+                        .setPaddingTop(20)
+                        .setRelativeScale(0.01f)
+                        .setSwipeMaxChangeAngle(1f)
+//                        .setSwipeInMsgLayoutId(R.layout.tinder_swipe_in_msg_view)
+//                        .setSwipeOutMsgLayoutId(R.layout.tinder_swipe_out_msg_view)
+                        .setSwipeAnimFactor(1f)
+                        .setSwipeAnimTime(100)
+                )
 
         discardBtn.setOnClickListener({
             swipeView.doSwipe(false)
@@ -151,7 +160,6 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
 
         // populate
         if (state.status == TrackViewState.Status.SUCCESS) {
-            Utils.log(TAG, "RENDER ++ count ${state.allTracks.size}")
             state.allTracks.forEach {
                 swipeView.addView(TrackCardView(this, it, this))
             }
@@ -159,8 +167,40 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
             "CardsActivity not ready: ${state.status} ".toast(this)
         }
 
-        // todo render play button based on mediaplayer state
-        Utils.log(TAG, "RENDER ++ playerState: ${state.currentPlayerState}")
+        // todo: render play button based on mediaplayer state
+//        Utils.mLog(TAG, "render",
+//                "playerState", "${state.currentPlayerState}",
+//                "reachedEnd? ", state.reachedEnd.toString(),
+//                "likedCount: ", state.currentLikes.size.toString(),
+//                "dislikedCount: ", state.currentDislikes.size.toString())
+
+        if (!summaryShown && state.reachedEnd) {
+            showSummary(state)
+        }
+    }
+
+    // show the summary layout
+    private fun showSummary(state: TrackViewState) {
+        summaryShown = true
+
+        // if we're at the end, hide cards and show summary
+        (swipeView.parent as ViewGroup).removeView(swipeView)
+        (buttons_row.parent as ViewGroup).removeView(buttons_row)
+
+        val stub = findViewById<ViewStub>(R.id.summary_stub)
+        val summaryContainer = stub.inflate()
+        Utils.setVisible(stub, true)
+
+        // bind summary
+        val title = "Liked ${state.currentLikes.size} and disliked ${state.currentDislikes.size} " +
+                "out of ${state.allTracks.size} tracks!"
+        val titleView = summaryContainer.findViewById<TextView>(R.id.title)
+        titleView.text = title
+        val progressView = summaryContainer.findViewById<AVLoadingIndicatorView>(R.id.progress)
+        progressView.smoothToShow()
+
+        // TODO: get the tracksdata
+        // when that comes back, hide the progressView and show the track stats/card
     }
 
     private fun initViewModel(playlist: Playlist) {

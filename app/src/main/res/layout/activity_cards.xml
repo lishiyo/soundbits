@@ -6,6 +6,7 @@
 	android:layout_height="match_parent"
 	android:background="@android:color/darker_gray">
 	<LinearLayout
+		android:id="@+id/buttons_row"
 		android:layout_width="match_parent"
 		android:layout_height="80dp"
 		android:layout_gravity="bottom"
@@ -34,4 +35,11 @@
 		android:id="@+id/swipeView"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"/>
+
+	<ViewStub
+		android:id="@+id/summary_stub"
+		android:inflatedId="@+id/summary_container"
+		android:layout="@layout/layout_summary"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent" />
 </FrameLayout>

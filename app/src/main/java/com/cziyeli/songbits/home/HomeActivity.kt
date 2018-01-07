@@ -81,6 +81,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
     override fun render(state: HomeViewState) {
         Utils.setVisible(login_button, !isLoggedIn())
+        Utils.setVisible(test_button, isLoggedIn())
 
         // render subviews
         playlistsAdapter.render(state)
@@ -196,6 +197,8 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         accessToken = authResponse.accessToken
         val nextExpirationTime = System.currentTimeMillis() / 1000 + authResponse.expiresIn // 1 hour
         nextExpirationSeconds = nextExpirationTime
+
+        Utils.setVisible(login_button, false)
 
         Utils.log(TAG, "Got authentication token: $authResponse.accessToken ++ nextExpirationTime: $nextExpirationTime")
     }

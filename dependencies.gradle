@@ -15,4 +15,5 @@ ext {
     placeholderViewVersion = '0.7.2'
     frescoVersion = '1.7.1'
     glideVersion = '4.4.0'
+    AVLVersion = '2.1.3'
 }

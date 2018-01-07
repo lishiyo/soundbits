@@ -4,6 +4,7 @@ import com.cziyeli.commons.di.PerActivity
 import com.cziyeli.songbits.MainActivity
 import com.cziyeli.songbits.cards.CardsActivity
 import com.cziyeli.songbits.cards.di.CardsActivitySubComponent
+import com.cziyeli.songbits.cards.summary.SummaryActivity
 import com.cziyeli.songbits.home.HomeActivity
 import com.cziyeli.songbits.home.di.HomeActivitySubComponent
 import dagger.Module
@@ -31,4 +32,8 @@ abstract class ActivitiesModule {
     @PerActivity
     @ContributesAndroidInjector
     abstract fun provideCardsActivity(): CardsActivity
+
+    @PerActivity
+    @ContributesAndroidInjector
+    abstract fun provideSummaryActivity(): SummaryActivity
 }

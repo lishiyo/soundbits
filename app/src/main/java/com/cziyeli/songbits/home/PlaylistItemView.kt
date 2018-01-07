@@ -47,7 +47,7 @@ class PlaylistItemView(val context: Context, private var playlist: Playlist?) {
        playlist?.let {
            name.text = it.name
            ownerName.text = it.owner.display_name
-           tracksCount.text = it.tracksCount.toString()
+           tracksCount.text = "${it.totalTracksCount}"
 
            imageView.setImageURI(it.coverImage?.url)
        }

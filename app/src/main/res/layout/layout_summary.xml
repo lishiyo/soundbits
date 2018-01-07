@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--<merge-->
+	<!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+	<!--xmlns:app="http://schemas.android.com/apk/res-auto">-->
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<TextView
+		android:id="@+id/title"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="10dp"
+		android:textSize="14sp"
+		android:typeface="sans"
+		android:textStyle="normal"/>
+
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<!-- progress indicator -->
+		<com.wang.avi.AVLoadingIndicatorView
+			android:id="@+id/progress"
+			android:layout_width="50dp"
+			android:layout_height="wrap_content"
+			style="@style/AVLoadingIndicatorView"
+			android:layout_gravity="center"
+			android:gravity="center"
+			android:visibility="visible"
+			app:indicatorName="LineScalePulseOutIndicator"
+			app:indicatorColor="@color/colorAccent"
+			/>
+
+		<!-- show card/stats -->
+		<RelativeLayout
+			android:id="@+id/stats_container"
+			android:visibility="gone"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+
+			<TextView
+				android:id="@+id/stats_summary"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:textSize="14sp"
+				android:typeface="sans"
+				android:textStyle="normal"/>
+
+		</RelativeLayout>
+
+	</FrameLayout>
+
+</LinearLayout>
+<!--</merge>-->
