@@ -52,4 +52,5 @@ sealed class TrackIntent : MviIntent {
             }
         }
     }
+
 }

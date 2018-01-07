@@ -7,64 +7,63 @@ import java.util.*
 /**
  * Created by connieli on 1/1/18.
  */
-sealed class TrackResult(var status: Status = Status.IDLE, var error: Throwable? = null) : MviResult {
-    enum class Status {
-        LOADING, SUCCESS, FAILURE, IDLE
-    }
+sealed class TrackResult(var status: MviResult.Status = MviResult.Status.IDLE, var error: Throwable? = null) : MviResult {
 
-    class LoadTrackCards(status: Status, error: Throwable?, val items: List<TrackModel> = Collections.emptyList())
-        : TrackResult(status, error) {
+    class LoadTrackCards(status: MviResult.Status, error: Throwable?,
+                         val items: List<TrackModel> = Collections.emptyList()
+    ) : TrackResult(status, error) {
         companion object {
             fun createSuccess(items: List<TrackModel>) : LoadTrackCards {
-                return LoadTrackCards(Status.SUCCESS, null, items)
+                return LoadTrackCards(MviResult.Status.SUCCESS, null, items)
             }
             fun createError(throwable: Throwable) : LoadTrackCards {
-                return LoadTrackCards(Status.FAILURE, throwable)
+                return LoadTrackCards(MviResult.Status.FAILURE, throwable)
             }
             fun createLoading(): LoadTrackCards {
-                return LoadTrackCards(Status.LOADING, null)
+                return LoadTrackCards(MviResult.Status.LOADING, null)
             }
         }
     }
 
-    class CommandPlayerResult(status: Status,
+    class CommandPlayerResult(status: MviResult.Status,
                               error: Throwable?,
                               val currentTrack: TrackModel?,
-                              val currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED)
-        : TrackResult(status, error) {
+                              val currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED
+    ) : TrackResult(status, error) {
         companion object {
             fun createSuccess(currentTrack: TrackModel,
                               currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED) :
                     CommandPlayerResult {
-                return CommandPlayerResult(Status.SUCCESS, null, currentTrack, currentPlayerState)
+                return CommandPlayerResult(MviResult.Status.SUCCESS, null, currentTrack, currentPlayerState)
             }
             fun createError(throwable: Throwable,
                             currentTrack: TrackModel?,
                             currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED) : CommandPlayerResult {
-                return CommandPlayerResult(Status.FAILURE, throwable, currentTrack, currentPlayerState)
+                return CommandPlayerResult(MviResult.Status.FAILURE, throwable, currentTrack, currentPlayerState)
             }
             fun createLoading(currentTrack: TrackModel,
                               currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED): CommandPlayerResult {
-                return CommandPlayerResult(Status.LOADING, null, currentTrack, currentPlayerState)
+                return CommandPlayerResult(MviResult.Status.LOADING, null, currentTrack, currentPlayerState)
             }
         }
     }
 
-    class ChangePrefResult(status: Status,
-                                error: Throwable?,
-                                val currentTrack: TrackModel?,
-                                val pref: TrackModel.Pref?)
-        : TrackResult(status, error) {
+    class ChangePrefResult(status: MviResult.Status,
+                           error: Throwable?,
+                           val currentTrack: TrackModel?,
+                           val pref: TrackModel.Pref?
+    ) : TrackResult(status, error) {
         companion object {
             fun createSuccess(currentTrack: TrackModel,
                               pref: TrackModel.Pref) : ChangePrefResult {
-                return ChangePrefResult(Status.SUCCESS, null, currentTrack, pref)
+                return ChangePrefResult(MviResult.Status.SUCCESS, null, currentTrack, pref)
             }
             fun createError(throwable: Throwable,
                             currentTrack: TrackModel? = null) : ChangePrefResult {
                 // roll back to the original pref
-                return ChangePrefResult(Status.FAILURE, throwable, currentTrack, currentTrack?.pref)
+                return ChangePrefResult(MviResult.Status.FAILURE, throwable, currentTrack, currentTrack?.pref)
             }
         }
     }
+
 }

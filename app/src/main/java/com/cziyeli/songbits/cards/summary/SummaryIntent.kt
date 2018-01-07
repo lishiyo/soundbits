@@ -7,6 +7,16 @@ import lishiyo.kotlin_arch.mvibase.MviIntent
  */
 sealed class SummaryIntent : MviIntent {
 
+
+    // calculate stats for a bunch of tracks => transform to domain model TrackListStats
+    class LoadStats(val trackIds: List<String>) : SummaryIntent() {
+        companion object {
+            fun create(trackIds: List<String>) : LoadStats {
+                return LoadStats(trackIds)
+            }
+        }
+    }
+
     // create pending PlaylistCard on open <- return PlaylistStats
 
     // create playlist out of liked -> hit db and spotify api

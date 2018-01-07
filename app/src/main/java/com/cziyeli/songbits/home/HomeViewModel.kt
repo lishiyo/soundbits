@@ -119,14 +119,14 @@ class HomeViewModel @Inject constructor(
 
         when (result.status) {
             PlaylistResult.Status.LOADING -> {
-                newState.status = HomeViewState.Status.LOADING
+                newState.status = MviViewState.Status.LOADING
             }
             PlaylistResult.Status.SUCCESS, PlaylistResult.Status.IDLE -> {
-                newState.status = HomeViewState.Status.SUCCESS
+                newState.status = MviViewState.Status.SUCCESS
                 newState.playlists.addAll(result.playlists)
             }
             PlaylistResult.Status.FAILURE -> {
-                newState.status = HomeViewState.Status.ERROR
+                newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
         }
@@ -135,11 +135,6 @@ class HomeViewModel @Inject constructor(
     }
 }
 
-data class HomeViewState(var status: Status = Status.IDLE,
+data class HomeViewState(var status: MviViewState.Status = MviViewState.Status.IDLE,
                          var error: Throwable? = null,
-                         val playlists: MutableList<Playlist> = mutableListOf()) : MviViewState {
-    enum class Status {
-        IDLE, LOADING, SUCCESS, ERROR
-    }
-
-}
+                         val playlists: MutableList<Playlist> = mutableListOf()) : MviViewState

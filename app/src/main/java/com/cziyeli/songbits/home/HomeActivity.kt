@@ -57,7 +57,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        // init the allTracks view
+        // initWith the allTracks view
         playlistsAdapter = InfinitePlaylistsAdapter(playlists_container)
         playlists_container.setLoadMoreResolver(playlistsAdapter)
 

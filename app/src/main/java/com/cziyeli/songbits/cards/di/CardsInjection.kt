@@ -2,6 +2,7 @@ package com.cziyeli.songbits.cards.di
 
 import android.app.Activity
 import com.cziyeli.data.Repository
+import com.cziyeli.domain.stats.SummaryActionProcessor
 import com.cziyeli.domain.tracks.TrackActionProcessor
 import com.cziyeli.songbits.cards.CardsActivity
 import com.cziyeli.songbits.di.AppModule
@@ -17,24 +18,16 @@ import javax.inject.Singleton
 /**
  * Created by connieli on 1/1/18.
  */
-
 @Module(includes = [ViewModelsModule::class, AppModule::class])
 class CardsModule {
 
     @Provides
     @Singleton
-    fun provideActionProcessor(repo: Repository,
-                               schedulerProvider: BaseSchedulerProvider)
-            : TrackActionProcessor {
+    fun provideTrackActionProcessor(repo: Repository,
+                                    schedulerProvider: BaseSchedulerProvider): TrackActionProcessor {
         return TrackActionProcessor(repo, schedulerProvider)
     }
 
-
-//    @Provides
-//    @PerActivity
-//    fun provideSpotifyPlayerManager(@Named("ActivityContext") activity: Activity, accessToken: String) : SpotifyPlayerManager {
-//        return SpotifyPlayerManager(activity, accessToken)
-//    }
 
     @Provides
     @Named("ActivityContext")
@@ -42,10 +35,25 @@ class CardsModule {
         return cardsActivity
     }
 
+//    @Provides
+//    @PerActivity
+//    fun provideSpotifyPlayerManager(@Named("ActivityContext") activity: Activity, accessToken: String) : SpotifyPlayerManager {
+//        return SpotifyPlayerManager(activity, accessToken)
+//    }
 }
 
+@Module(includes = [ViewModelsModule::class, AppModule::class])
+class SummaryModule {
 
-@Subcomponent(modules = [CardsModule::class])
+    @Provides
+    @Singleton
+    fun provideActionProcessor(repo: Repository,
+                               schedulerProvider: BaseSchedulerProvider): SummaryActionProcessor {
+        return SummaryActionProcessor(repo, schedulerProvider)
+    }
+}
+
+@Subcomponent(modules = [CardsModule::class, SummaryModule::class])
 interface CardsActivitySubComponent : AndroidInjector<CardsActivity> {
 
     @Subcomponent.Builder

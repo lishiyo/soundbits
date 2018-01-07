@@ -10,21 +10,23 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.ViewStub
-import android.widget.TextView
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.toast
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.cards.summary.SummaryLayout
+import com.cziyeli.songbits.cards.summary.SummaryViewModel
+import com.cziyeli.songbits.cards.summary.SummaryViewState
 import com.mindorks.placeholderview.SwipeDecor
 import com.mindorks.placeholderview.SwipePlaceHolderView
 import com.mindorks.placeholderview.SwipeViewBuilder
-import com.wang.avi.AVLoadingIndicatorView
 import dagger.android.AndroidInjection
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_cards.*
 import lishiyo.kotlin_arch.mvibase.MviView
+import lishiyo.kotlin_arch.mvibase.MviViewState
 import org.jetbrains.anko.intentFor
 import javax.inject.Inject
 import javax.inject.Named
@@ -60,7 +62,13 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
     // player
     @Inject @field:Named("Native") lateinit var mPlayer: PlayerInterface
 
-    var summaryShown : Boolean = false
+    private var summaryShown : Boolean = false
+    private val summaryLayout: SummaryLayout by lazy {
+        val stub = findViewById<ViewStub>(R.id.summary_stub)
+        val view = stub.inflate() as SummaryLayout
+        Utils.setVisible(view, false)
+        view
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -71,7 +79,7 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         // parse out the intent bundle
         val playlist = intent.extras.get(PLAYLIST) as Playlist
 
-        // init the placeholder view
+        // initWith the placeholder view
         initSwipeView()
 
         // bind the view model after all views are done
@@ -152,14 +160,14 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
     }
 
     override fun render(state: TrackViewState) {
-        val show = state.status == TrackViewState.Status.SUCCESS && state.allTracks.isNotEmpty()
+        val show = state.status == MviViewState.Status.SUCCESS && state.allTracks.isNotEmpty()
         Utils.setVisible(discardBtn, show)
         Utils.setVisible(likeBtn, show)
         Utils.setVisible(undoBtn, show)
         Utils.setVisible(swipeView, show)
 
         // populate
-        if (state.status == TrackViewState.Status.SUCCESS) {
+        if (state.status == MviViewState.Status.SUCCESS) {
             state.allTracks.forEach {
                 swipeView.addView(TrackCardView(this, it, this))
             }
@@ -175,9 +183,11 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
 //                "dislikedCount: ", state.currentDislikes.size.toString())
 
         if (!summaryShown && state.reachedEnd) {
+            mPlayer.apply { onDestroy() } // release the player!
             showSummary(state)
         }
     }
+
 
     // show the summary layout
     private fun showSummary(state: TrackViewState) {
@@ -187,20 +197,11 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         (swipeView.parent as ViewGroup).removeView(swipeView)
         (buttons_row.parent as ViewGroup).removeView(buttons_row)
 
-        val stub = findViewById<ViewStub>(R.id.summary_stub)
-        val summaryContainer = stub.inflate()
-        Utils.setVisible(stub, true)
+        Utils.setVisible(summaryLayout, true)
 
-        // bind summary
-        val title = "Liked ${state.currentLikes.size} and disliked ${state.currentDislikes.size} " +
-                "out of ${state.allTracks.size} tracks!"
-        val titleView = summaryContainer.findViewById<TextView>(R.id.title)
-        titleView.text = title
-        val progressView = summaryContainer.findViewById<AVLoadingIndicatorView>(R.id.progress)
-        progressView.smoothToShow()
-
-        // TODO: get the tracksdata
-        // when that comes back, hide the progressView and show the track stats/card
+        // create the layout with the initial view state
+        val summaryViewModel = ViewModelProviders.of(this, viewModelFactory).get(SummaryViewModel::class.java)
+        summaryLayout.initWith(this, SummaryViewState.create(state), summaryViewModel)
     }
 
     private fun initViewModel(playlist: Playlist) {

@@ -4,6 +4,7 @@ import com.cziyeli.data.local.RoomDataSource
 import com.cziyeli.data.remote.RemoteDataSource
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
+import kaaes.spotify.webapi.android.models.AudioFeaturesTracks
 import kaaes.spotify.webapi.android.models.Pager
 import kaaes.spotify.webapi.android.models.PlaylistSimple
 import kaaes.spotify.webapi.android.models.PlaylistTrack
@@ -30,4 +31,7 @@ class RepositoryImpl @Inject constructor(
         return remoteDataSource.fetchPlaylistTracks(ownerId, playlistId, fields, limit, offset)
     }
 
+    override fun fetchTracksData(trackIds: List<String>) : Observable<AudioFeaturesTracks> {
+        return remoteDataSource.fetchTracksData(trackIds)
+    }
 }

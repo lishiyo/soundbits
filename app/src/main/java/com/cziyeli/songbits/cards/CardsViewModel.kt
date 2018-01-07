@@ -14,6 +14,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.PublishSubject
 import lishiyo.kotlin_arch.mvibase.MviIntent
+import lishiyo.kotlin_arch.mvibase.MviResult
 import lishiyo.kotlin_arch.mvibase.MviViewModel
 import lishiyo.kotlin_arch.mvibase.MviViewState
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -118,15 +119,15 @@ class CardsViewModel @Inject constructor(
         newState.error = null
 
         when (result.status) {
-            TrackResult.Status.LOADING -> {
-                newState.status = TrackViewState.Status.LOADING
+            MviResult.Status.LOADING -> {
+                newState.status = MviViewState.Status.LOADING
             }
-            TrackResult.Status.SUCCESS -> {
-                newState.status = TrackViewState.Status.SUCCESS
+            MviResult.Status.SUCCESS -> {
+                newState.status = MviViewState.Status.SUCCESS
                 newState.allTracks.addAll(result.items.filter { it.isRenderable() })
             }
-            TrackResult.Status.FAILURE -> {
-                newState.status = TrackViewState.Status.ERROR
+            MviResult.Status.FAILURE -> {
+                newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
         }
@@ -141,14 +142,14 @@ class CardsViewModel @Inject constructor(
         newState.currentPlayerState = result.currentPlayerState
 
         when (result.status) {
-            TrackResult.Status.LOADING -> {
-                newState.status = TrackViewState.Status.LOADING
+            MviResult.Status.LOADING -> {
+                newState.status = MviViewState.Status.LOADING
             }
-            TrackResult.Status.SUCCESS -> {
-                newState.status = TrackViewState.Status.SUCCESS
+            MviResult.Status.SUCCESS -> {
+                newState.status = MviViewState.Status.SUCCESS
             }
-            TrackResult.Status.FAILURE -> {
-                newState.status = TrackViewState.Status.ERROR
+            MviResult.Status.FAILURE -> {
+                newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
         }
@@ -160,8 +161,8 @@ class CardsViewModel @Inject constructor(
         val newState = previousState.copy()
 
         when (result.status) {
-            TrackResult.Status.SUCCESS -> {
-                newState.status = TrackViewState.Status.SUCCESS
+            MviResult.Status.SUCCESS -> {
+                newState.status = MviViewState.Status.SUCCESS
                 newState.error = null
                 newState.currentTrack = result.currentTrack
 
@@ -173,8 +174,8 @@ class CardsViewModel @Inject constructor(
                         "currentDislikes: ", newState.currentDislikes.size.toString(),
                         "unseen: ", newState.unseen.size.toString())
             }
-            TrackResult.Status.FAILURE -> {
-                newState.status = TrackViewState.Status.ERROR
+            MviResult.Status.FAILURE -> {
+                newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
         }
@@ -183,12 +184,13 @@ class CardsViewModel @Inject constructor(
     }
 }
 
-data class TrackViewState(var status: Status = Status.IDLE,
+data class TrackViewState(var status: MviViewState.Status = MviViewState.Status.IDLE,
                           var error: Throwable? = null,
                           val allTracks: MutableList<TrackModel> = mutableListOf(),
                           var playlist: Playlist? = null,
                           var currentTrack: TrackModel? = null,
-                          var currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID) : MviViewState {
+                          var currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID
+) : MviViewState {
 
     val currentLikes: MutableList<TrackModel>
         get() = allTracks.filter { it.pref == TrackModel.Pref.LIKED }.toMutableList()
@@ -200,9 +202,7 @@ data class TrackViewState(var status: Status = Status.IDLE,
         get() = (allTracks - (currentLikes + currentDislikes)).toMutableList()
 
     val reachedEnd: Boolean
-        get() = status == Status.SUCCESS && unseen.size == 0 && allTracks.size > 0
+        get() = status == MviViewState.Status.SUCCESS && unseen.size == 0 && allTracks.size > 0
 
-    enum class Status {
-        IDLE, LOADING, SUCCESS, ERROR
-    }
 }
+

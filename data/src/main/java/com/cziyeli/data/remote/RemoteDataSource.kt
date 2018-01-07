@@ -3,6 +3,7 @@ package com.cziyeli.data.remote
 import com.cziyeli.commons.Utils
 import io.reactivex.Observable
 import kaaes.spotify.webapi.android.SpotifyApi
+import kaaes.spotify.webapi.android.models.AudioFeaturesTracks
 import kaaes.spotify.webapi.android.models.Pager
 import kaaes.spotify.webapi.android.models.PlaylistSimple
 import kaaes.spotify.webapi.android.models.PlaylistTrack
@@ -55,6 +56,23 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
 
                 override fun failure(error: RetrofitError?) {
                     Utils.log(TAG, "api ++ getPlaylistTracks error: ${error?.localizedMessage}")
+                    emitter.onError(Throwable(error?.localizedMessage))
+                }
+            })
+        })
+    }
+
+    fun fetchTracksData(trackIds: List<String>) : Observable<AudioFeaturesTracks> {
+        return Observable.create<AudioFeaturesTracks>({ emitter ->
+            val params = trackIds.joinToString(separator = ",")
+            api.service.getTracksAudioFeatures(params, object : Callback<AudioFeaturesTracks> {
+                override fun success(resp: AudioFeaturesTracks?, response: Response?) {
+                    Utils.mLog(TAG, "fetchTracksData", "success!")
+                    emitter.onNext(resp)
+                }
+
+                override fun failure(error: RetrofitError?) {
+                    Utils.mLog(TAG, "fetchTracksData", "error", error?.localizedMessage)
                     emitter.onError(Throwable(error?.localizedMessage))
                 }
             })

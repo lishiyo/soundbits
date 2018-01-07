@@ -8,6 +8,7 @@ import com.mindorks.placeholderview.annotations.infinite.LoadMore
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import lishiyo.kotlin_arch.mvibase.MviView
+import lishiyo.kotlin_arch.mvibase.MviViewState
 
 
 /**
@@ -21,14 +22,12 @@ class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderVie
     private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadPlaylists>()
 
     override fun render(state: HomeViewState) {
-        var reachedEnd = state.status != HomeViewState.Status.LOADING && state.status != HomeViewState.Status.SUCCESS
-        if (state.status == HomeViewState.Status.SUCCESS) {
+        var reachedEnd = state.status != MviViewState.Status.LOADING && state.status != MviViewState.Status.SUCCESS
+        if (state.status == MviViewState.Status.SUCCESS) {
             if (state.playlists.isNotEmpty()) {
                 val currentCount = Math.max(0, mLoadMoreView.viewCount)
                 val playlists = state.playlists
                 val newPlaylists = playlists.subList(currentCount, playlists.size)
-
-                Utils.log("playlistAdapter RENDER ++ currentCount: $currentCount ++ got newPlaylists: ${newPlaylists!!.size}")
 
                 newPlaylists.forEach{
                     mLoadMoreView.addView<PlaylistItemView>(PlaylistItemView(mLoadMoreView.context, it))
