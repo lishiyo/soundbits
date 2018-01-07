@@ -9,9 +9,11 @@ sealed class SummaryIntent : MviIntent {
 
     // create pending PlaylistCard on open <- return PlaylistStats
 
-    // create playlist out of liked/add to a playlist
+    // create playlist out of liked -> hit db and spotify api
 
-    // save liked and keep surfing other playlists
+    // add to an existing playlist -> hit db and spotify
+
+    // save liked and keep surfing other playlists -> hit db
 
     // review Discard pile
 
