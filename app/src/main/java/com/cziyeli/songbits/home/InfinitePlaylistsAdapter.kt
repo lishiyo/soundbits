@@ -36,7 +36,7 @@ class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderVie
 
                 mLoadMoreView.loadingDone() // finished populating adapter
             } else {
-                // if successful and items are empty, then we've reached end
+                // if successful and allTracks are empty, then we've reached end
                 reachedEnd = true
             }
         }

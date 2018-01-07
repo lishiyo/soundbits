@@ -36,4 +36,13 @@ sealed class TrackAction : MviAction {
             }
         }
     }
+
+    class ChangeTrackPref(val track: TrackModel,
+                          val pref: TrackModel.Pref) : TrackAction() {
+        companion object {
+            fun create(track: TrackModel, pref: TrackModel.Pref) : ChangeTrackPref {
+                return ChangeTrackPref(track, pref)
+            }
+        }
+    }
 }

@@ -14,7 +14,7 @@ import com.mindorks.placeholderview.annotations.View
 
 
 /**
- * Item view for the items
+ * Item view for the allTracks
  *
  * Created by connieli on 1/1/18.
  */
@@ -26,6 +26,9 @@ class PlaylistItemView(val context: Context, private var playlist: Playlist?) {
 
     @View(R.id.playlist_owner)
     private lateinit var ownerName: TextView
+
+    @View(R.id.tracks_count)
+    private lateinit var tracksCount: TextView
 
     @View(R.id.playlist_image)
     private lateinit var imageView: SimpleDraweeView
@@ -43,7 +46,8 @@ class PlaylistItemView(val context: Context, private var playlist: Playlist?) {
     private fun onResolved() {
        playlist?.let {
            name.text = it.name
-           ownerName.text = it.owner?.display_name
+           ownerName.text = it.owner.display_name
+           tracksCount.text = it.tracksCount.toString()
 
            imageView.setImageURI(it.coverImage?.url)
        }

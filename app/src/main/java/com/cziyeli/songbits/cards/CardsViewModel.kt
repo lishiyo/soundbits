@@ -42,6 +42,7 @@ class CardsViewModel @Inject constructor(
         when (result) {
             is TrackResult.LoadTrackCards -> return@BiFunction processTrackCards(previousState, result)
             is TrackResult.CommandPlayerResult -> return@BiFunction processPlayerCommand(previousState, result)
+            is TrackResult.ChangePrefResult -> return@BiFunction processTrackChangePref(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -81,6 +82,9 @@ class CardsViewModel @Inject constructor(
             is TrackIntent.CommandPlayer -> TrackAction.CommandPlayer.create(
                     intent.command, intent.track
             )
+            is TrackIntent.ChangeTrackPref -> TrackAction.ChangeTrackPref.create(
+                    intent.track, intent.pref
+            )
             else -> TrackAction.None // no-op all other events
         }
     }
@@ -119,7 +123,7 @@ class CardsViewModel @Inject constructor(
             }
             TrackResult.Status.SUCCESS -> {
                 newState.status = TrackViewState.Status.SUCCESS
-                newState.items.addAll(result.items.filter { it.isRenderable() })
+                newState.allTracks.addAll(result.items.filter { it.isRenderable() })
             }
             TrackResult.Status.FAILURE -> {
                 newState.status = TrackViewState.Status.ERROR
@@ -151,14 +155,50 @@ class CardsViewModel @Inject constructor(
 
         return newState
     }
+
+    private fun processTrackChangePref(previousState: TrackViewState, result: TrackResult.ChangePrefResult) : TrackViewState {
+        val newState = previousState.copy()
+
+        when (result.status) {
+            TrackResult.Status.SUCCESS -> {
+                newState.status = TrackViewState.Status.SUCCESS
+                newState.error = null
+                newState.currentTrack = result.currentTrack
+
+                val track = newState.allTracks.find { el -> el.id == newState.currentTrack?.id }
+                track!!.pref = result.pref!!
+                Utils.mLog(TAG, "processTrackChange ${track.name}",
+                        "pref: ", track!!.pref.toString(),
+                        "currentLikes: ", newState.currentLikes.count().toString(),
+                        "currentDislikes: ", newState.currentDislikes.count().toString(),
+                        "unseen: ", newState.unseen.count().toString())
+            }
+            TrackResult.Status.FAILURE -> {
+                newState.status = TrackViewState.Status.ERROR
+                newState.error = result.error
+            }
+        }
+
+        return newState
+    }
 }
 
 data class TrackViewState(var status: Status = Status.IDLE,
                           var error: Throwable? = null,
-                          val items: MutableList<TrackModel> = mutableListOf(),
+                          val allTracks: MutableList<TrackModel> = mutableListOf(),
                           var playlist: Playlist? = null,
                           var currentTrack: TrackModel? = null,
                           var currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID) : MviViewState {
+
+    val currentLikes: MutableList<TrackModel>
+        get() = allTracks.filter { it.pref == TrackModel.Pref.LIKED }.toMutableList()
+
+    val currentDislikes: MutableList<TrackModel>
+        get() = allTracks.filter { it.pref == TrackModel.Pref.DISLIKED }.toMutableList()
+
+    val unseen: MutableList<TrackModel>
+        get() = (allTracks - (currentLikes + currentDislikes)).toMutableList()
+
     enum class Status {
         IDLE, LOADING, SUCCESS, ERROR
     }

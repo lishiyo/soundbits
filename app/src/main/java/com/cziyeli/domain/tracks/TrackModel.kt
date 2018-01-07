@@ -16,7 +16,7 @@ data class TrackModel(val name: String,
                       val album: TrackAlbum,
                       val is_playable: Boolean?,
                       val popularity: Int?,
-                      val pref: Pref = Pref.UNSEEN
+                      var pref: Pref = Pref.UNSEEN
 ) {
     enum class Pref {
         LIKED, // user liked this track

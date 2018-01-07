@@ -55,14 +55,16 @@ sealed class TrackResult(var status: Status = Status.IDLE, var error: Throwable?
                                 val currentTrack: TrackModel?,
                                 val pref: TrackModel.Pref?)
         : TrackResult(status, error) {
-        fun createSuccess(currentTrack: TrackModel,
-                          pref: TrackModel.Pref) : ChangePrefResult {
-            return ChangePrefResult(Status.SUCCESS, null, currentTrack, pref)
-        }
-        fun createError(throwable: Throwable,
-                        currentTrack: TrackModel?) : ChangePrefResult {
-            // roll back to the original pref
-            return ChangePrefResult(Status.FAILURE, throwable, currentTrack, currentTrack?.pref)
+        companion object {
+            fun createSuccess(currentTrack: TrackModel,
+                              pref: TrackModel.Pref) : ChangePrefResult {
+                return ChangePrefResult(Status.SUCCESS, null, currentTrack, pref)
+            }
+            fun createError(throwable: Throwable,
+                            currentTrack: TrackModel? = null) : ChangePrefResult {
+                // roll back to the original pref
+                return ChangePrefResult(Status.FAILURE, throwable, currentTrack, currentTrack?.pref)
+            }
         }
     }
 }

@@ -129,7 +129,8 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
     override fun intents(): Observable<out TrackIntent> {
         return Observable.merge(
                 mLoadPublisher,
-                mPlayerPublisher
+                mPlayerPublisher,
+                mTrackPrefPublisher
         )
     }
 
@@ -142,7 +143,7 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
     }
 
     override fun render(state: TrackViewState) {
-        val show = state.status == TrackViewState.Status.SUCCESS && state.items.isNotEmpty()
+        val show = state.status == TrackViewState.Status.SUCCESS && state.allTracks.isNotEmpty()
         Utils.setVisible(discardBtn, show)
         Utils.setVisible(likeBtn, show)
         Utils.setVisible(undoBtn, show)
@@ -150,8 +151,8 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
 
         // populate
         if (state.status == TrackViewState.Status.SUCCESS) {
-            Utils.log(TAG, "RENDER ++ count ${state.items.size}")
-            state.items.forEach {
+            Utils.log(TAG, "RENDER ++ count ${state.allTracks.size}")
+            state.allTracks.forEach {
                 swipeView.addView(TrackCardView(this, it, this))
             }
         } else {

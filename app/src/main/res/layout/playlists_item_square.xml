@@ -50,8 +50,19 @@
 				android:textSize="16sp"
 				android:typeface="sans"
 				android:textStyle="normal"/>
+
 			<TextView
 				android:id="@+id/playlist_owner"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="10dp"
+				android:textColor="@android:color/white"
+				android:textSize="12sp"
+				android:typeface="sans"
+				android:textStyle="normal"/>
+
+			<TextView
+				android:id="@+id/tracks_count"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="10dp"

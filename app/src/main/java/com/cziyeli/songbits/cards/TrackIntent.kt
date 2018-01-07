@@ -39,7 +39,7 @@ sealed class TrackIntent : MviIntent {
 
     // like or dislike a track
     class ChangeTrackPref(val track: TrackModel,
-                          val pref: TrackModel.Pref) {
+                          val pref: TrackModel.Pref) : TrackIntent() {
         companion object {
             fun like(track: TrackModel) : ChangeTrackPref {
                 return ChangeTrackPref(track, TrackModel.Pref.LIKED)

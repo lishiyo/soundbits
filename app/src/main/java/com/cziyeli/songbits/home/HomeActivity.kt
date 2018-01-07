@@ -25,7 +25,7 @@ import javax.inject.Inject
 
 /**
  * Main screen:
- * - Show user's items
+ * - Show user's allTracks
  * - show current liked and discard piles
  *
  * Created by connieli on 12/31/17.
@@ -37,7 +37,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
 
     // check if logged in by shared prefs and in-memory
-    private var expirationCutoff: Long by bindSharedPreference(this, LOGIN_EXPIRATION, 0)
+    private var nextExpirationSeconds: Long by bindSharedPreference(this, LOGIN_EXPIRATION, 0)
     private var accessToken: String by bindSharedPreference(this, AUTH_TOKEN, "")
     private var loggedInFlag: Boolean = false
 
@@ -57,7 +57,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        // init the items view
+        // init the allTracks view
         playlistsAdapter = InfinitePlaylistsAdapter(playlists_container)
         playlists_container.setLoadMoreResolver(playlistsAdapter)
 
@@ -65,6 +65,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         initViewModel()
 
         if (isLoggedIn()) {
+            Utils.log(TAG, "isLoggedIn already ++ ${(System.currentTimeMillis() / 1000) < nextExpirationSeconds}")
             api.setAccessToken(accessToken)
             mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create())
         }
@@ -79,7 +80,6 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     }
 
     override fun render(state: HomeViewState) {
-        Utils.log(TAG, "RENDER ++ state: ${state.status}")
         Utils.setVisible(login_button, !isLoggedIn())
 
         // render subviews
@@ -87,7 +87,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     }
 
     private fun isLoggedIn(): Boolean {
-        return !accessToken.isEmpty() && (loggedInFlag || (System.currentTimeMillis() / 1000) < expirationCutoff)
+        return !accessToken.isEmpty() && (loggedInFlag || (System.currentTimeMillis() / 1000) < nextExpirationSeconds)
     }
 
     private fun initViewModel() {
@@ -105,7 +105,6 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
         // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
         viewModel.processIntents(intents())
-
     }
 
     fun onLoginButtonClicked(view: View) {
@@ -124,63 +123,6 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
             mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create())
         }
     }
-
-//    fun testUserPlaylists(authedApi: SpotifyApi) {
-//        // get all the user's items
-//        authedApi.service.getMyPlaylists(object : Callback<Pager<PlaylistSimple>> {
-//            override fun success(pagedResponse: Pager<PlaylistSimple>?, response: Response?) {
-//                Utils.log("got items! total: $pagedResponse.total")
-////                pagedResponse?.items?.take(5)?.forEach {
-////                    Utils.log("playlist id: ${it.id} ++ ${it.name} ++ ${it.owner}")
-////                }
-//
-//                pagedResponse?.items?.get(0)?.let {
-//                    testPlaylistTracks(authedApi, it.owner.id, it.id)
-//                }
-//            }
-//
-//            override fun failure(error: RetrofitError?) {
-//                Utils.log("fetch items error: ${error?.localizedMessage}")
-//            }
-//        })
-//    }
-//
-//    fun testPlaylistTracks(authedApi: SpotifyApi, ownerId: String, playlistId: String) {
-//        // get all the com.cziyeli.domain.tracks in a playlist
-//        authedApi.service.getPlaylistTracks(ownerId, playlistId, object : Callback<Pager<PlaylistTrack>> {
-//            override fun failure(error: RetrofitError?) {
-//                Utils.log("get playlist com.cziyeli.domain.tracks error: ${error?.localizedMessage}")
-//            }
-//
-//            override fun success(pagedResponse: Pager<PlaylistTrack>?, response: Response?) {
-//                Utils.log("got playlist com.cziyeli.domain.tracks! total: ${pagedResponse?.items?.size}")
-////                Utils.log("first track: ${pagedResponse?.items?.get(0)?.track.toString()}")
-//
-//                pagedResponse?.items?.let {
-//                    Utils.log("total num with previewUrls: ${countPreviewUrls(it)}")
-//                }
-//            }
-//        })
-//    }
-//
-//    private fun countPreviewUrls(com.cziyeli.domain.tracks: List<PlaylistTrack>): Int {
-//        val previewUrls = com.cziyeli.domain.tracks.map { it.track?.preview_url }.filter { it != null && !it.isEmpty() }
-//        return previewUrls.size
-//    }
-//
-//    fun testApi(authedApi: SpotifyApi) {
-//        val spotify = authedApi.service
-//
-//        spotify.getAlbum("2dIGnmEIy1WZIcZCFSj6i8", object : Callback<Album> {
-//            override fun success(album: Album?, response: retrofit.client.Response) {
-//                Utils.log("Album success: $album.name")
-//            }
-//
-//            override fun failure(error: RetrofitError) {
-//                Utils.log("Album failure: $error.toString()")
-//            }
-//        })
-//    }
 
     //   ____      _ _ _                _      __  __      _   _               _
     //  / ___|__ _| | | |__   __ _  ___| | __ |  \/  | ___| |_| |__   ___   __| |___
@@ -253,7 +195,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         api.setAccessToken(authResponse.accessToken)
         accessToken = authResponse.accessToken
         val nextExpirationTime = System.currentTimeMillis() / 1000 + authResponse.expiresIn // 1 hour
-        expirationCutoff = nextExpirationTime
+        nextExpirationSeconds = nextExpirationTime
 
         Utils.log(TAG, "Got authentication token: $authResponse.accessToken ++ nextExpirationTime: $nextExpirationTime")
     }

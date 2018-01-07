@@ -27,7 +27,8 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
         acts.publish { shared ->
             Observable.merge<TrackResult>(
                     shared.ofType<TrackAction.LoadTrackCards>(TrackAction.LoadTrackCards::class.java).compose(mLoadTrackCardsProcessor),
-                    shared.ofType<TrackAction.CommandPlayer>(TrackAction.CommandPlayer::class.java).compose(commandPlayerProcessor)
+                    shared.ofType<TrackAction.CommandPlayer>(TrackAction.CommandPlayer::class.java).compose(commandPlayerProcessor),
+                    shared.ofType<TrackAction.ChangeTrackPref>(TrackAction.ChangeTrackPref::class.java).compose(changePrefProcessor)
             ).mergeWith(
                     // Error for not implemented actions
                     shared.filter { v ->
@@ -35,7 +36,9 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
                     }.flatMap { w ->
                         Observable.error<TrackResult>(IllegalArgumentException("Unknown Action type: " + w))
                     }
-            ).retry() // don't ever unsubscribe
+            ).doOnNext {
+                Utils.log(TAG, "commandPlayer processing --- ${it::class.simpleName}")
+            }.retry() // don't ever unsubscribe
         }
     }
 
@@ -56,11 +59,19 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
             .retry() // don't unsubscribe
     }
 
+    // play, pause, stop the audio player
     private val commandPlayerProcessor : ObservableTransformer<TrackAction.CommandPlayer, TrackResult.CommandPlayerResult> = ObservableTransformer {
         action -> action.switchMap {
             act -> player.handlePlayerCommand(act.track, act.command)
-        }.doOnNext {
-            act -> Utils.log(TAG, "commandPlayer processing --- ${act::class.simpleName}")
         }.retry() // don't unsubscribe
+    }
+
+    // like, dislike, undo track
+    private val changePrefProcessor : ObservableTransformer<TrackAction.ChangeTrackPref, TrackResult.ChangePrefResult> = ObservableTransformer {
+        action -> action
+            .map { act -> act.track.copy(pref = act.pref) } // return new for immutability
+            .map { TrackResult.ChangePrefResult.createSuccess(it, it.pref) }
+            .onErrorReturn { err -> TrackResult.ChangePrefResult.createError(err)}
+            .retry()
     }
 }
