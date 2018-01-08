@@ -10,6 +10,8 @@ import com.cziyeli.domain.player.NativePlayerManager
 import com.cziyeli.domain.player.PlayerInterface
 import dagger.Module
 import dagger.Provides
+import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
+import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -37,8 +39,13 @@ class AppModule(private val application: App) {
     @Provides
     @Singleton
     @Named("Native")
-    fun provideNativePlayer(@ForApplication context: Context) : PlayerInterface {
+    fun provideNativePlayer(@ForApplication context: Context): PlayerInterface {
         return NativePlayerManager(context)
     }
+
+    @Provides
+    @Singleton
+    fun provideSchedulerProvider(): BaseSchedulerProvider = SchedulerProvider
+
 }
 

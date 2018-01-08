@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.cziyeli.commons.Utils
 import com.cziyeli.songbits.R
 import com.wang.avi.AVLoadingIndicatorView
 import io.reactivex.Observable
@@ -24,6 +25,7 @@ import lishiyo.kotlin_arch.mvibase.MviViewState
 class SummaryLayout @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr), MviView<SummaryIntent, SummaryViewState> {
+    private val TAG = SummaryLayout::class.simpleName
 
     // view models
     private lateinit var viewModel: SummaryViewModel
@@ -31,40 +33,33 @@ class SummaryLayout @JvmOverloads constructor(
     // fire off intents
     private val mStatsPublisher = PublishSubject.create<SummaryIntent.LoadStats>()
 
-    // lifecycle/viewmodel owner of this layout
-    private lateinit var mOwnerActivity: FragmentActivity
-
     // views
     lateinit var rootView: ViewGroup
     lateinit var titleView: TextView
     lateinit var progressView: AVLoadingIndicatorView
 
     // create with initial state from previous screen
-    fun initWith(context: FragmentActivity, initialState: SummaryViewState, viewModelFromActivity: SummaryViewModel) {
+    fun initWith(context: FragmentActivity, viewModelFromActivity: SummaryViewModel, initialViewState: SummaryViewState) {
         // setup views
-        mOwnerActivity = context
         rootView = inflate(context, R.layout.layout_summary, this) as ViewGroup
         titleView = findViewById(R.id.title)
         progressView = findViewById(R.id.progress)
 
-        // bind the view model
+        // Bind the view model
         viewModel = viewModelFromActivity
-
+        // Bind ViewModel to merged intents stream
+        viewModel.processIntents(intents())
         // add viewmodel as an observer of this fragment lifecycle
         viewModel.let { context.lifecycle.addObserver(it) }
         // Subscribe to the viewmodel states with LiveData, not Rx
-        viewModel.states().observe(mOwnerActivity, Observer { state ->
+        viewModel.states().observe(context, Observer { state ->
             state?.let {
                 this.render(state)
             }
         })
 
-        // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
-        viewModel.processIntents(intents())
-        viewModel.setUp(initialState) // should trigger render with initial state
-
         // immediately fetch with the like ids
-        mStatsPublisher.onNext(SummaryIntent.LoadStats.create(initialState.currentLikeIds))
+        mStatsPublisher.onNext(SummaryIntent.LoadStats.create(initialViewState.trackIdsToFetch()))
     }
 
     override fun intents(): Observable<out SummaryIntent> {
@@ -85,6 +80,7 @@ class SummaryLayout @JvmOverloads constructor(
         // TODO: get the tracks stats
         // when that comes back, hide the progressView and show the track stats/card
 
+        Utils.mLog(TAG, "render", "stats", state.stats.toString())
     }
 
 }

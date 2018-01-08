@@ -1,6 +1,7 @@
 package com.cziyeli.songbits.cards.di
 
 import android.app.Activity
+import com.cziyeli.commons.di.UtilsModule
 import com.cziyeli.data.Repository
 import com.cziyeli.domain.stats.SummaryActionProcessor
 import com.cziyeli.domain.tracks.TrackActionProcessor
@@ -53,7 +54,7 @@ class SummaryModule {
     }
 }
 
-@Subcomponent(modules = [CardsModule::class, SummaryModule::class])
+@Subcomponent(modules = [CardsModule::class, SummaryModule::class, UtilsModule::class])
 interface CardsActivitySubComponent : AndroidInjector<CardsActivity> {
 
     @Subcomponent.Builder

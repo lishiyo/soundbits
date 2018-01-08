@@ -60,6 +60,11 @@ class TrackListStats(val apiModel: AudioFeaturesTracks) {
         get() = calculateAvgDanceability(trackStats)
 
     companion object {
+
+        fun create(apiModel: AudioFeaturesTracks) : TrackListStats {
+            return TrackListStats(apiModel)
+        }
+
         fun calculateAvgDanceability(tracks: List<TrackStats>) : Double {
             val count = tracks.size
             return tracks.map { it.danceability }

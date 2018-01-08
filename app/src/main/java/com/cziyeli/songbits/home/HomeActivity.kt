@@ -198,7 +198,9 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         val nextExpirationTime = System.currentTimeMillis() / 1000 + authResponse.expiresIn // 1 hour
         nextExpirationSeconds = nextExpirationTime
 
+        // rerender! TODO: do via intent
         Utils.setVisible(login_button, false)
+        Utils.setVisible(test_button, true)
 
         Utils.log(TAG, "Got authentication token: $authResponse.accessToken ++ nextExpirationTime: $nextExpirationTime")
     }

@@ -14,6 +14,7 @@ import com.cziyeli.commons.Utils
 import com.cziyeli.commons.toast
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
+import com.cziyeli.domain.stats.SummaryActionProcessor
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.cards.summary.SummaryLayout
 import com.cziyeli.songbits.cards.summary.SummaryViewModel
@@ -27,6 +28,7 @@ import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_cards.*
 import lishiyo.kotlin_arch.mvibase.MviView
 import lishiyo.kotlin_arch.mvibase.MviViewState
+import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import org.jetbrains.anko.intentFor
 import javax.inject.Inject
 import javax.inject.Named
@@ -46,6 +48,10 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
     }
 
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject lateinit var summaryActionProcessor : SummaryActionProcessor
+    // player
+    @Inject @field:Named("Native") lateinit var mPlayer: PlayerInterface
+    val schedulerProvider = SchedulerProvider
 
     // view models
     private lateinit var viewModel: CardsViewModel
@@ -58,9 +64,6 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
     private val mTrackPrefPublisher : PublishSubject<TrackIntent.ChangeTrackPref> by lazy {
         PublishSubject.create<TrackIntent.ChangeTrackPref>()
     }
-
-    // player
-    @Inject @field:Named("Native") lateinit var mPlayer: PlayerInterface
 
     private var summaryShown : Boolean = false
     private val summaryLayout: SummaryLayout by lazy {
@@ -126,8 +129,8 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
                         .setSwipeMaxChangeAngle(1f)
 //                        .setSwipeInMsgLayoutId(R.layout.tinder_swipe_in_msg_view)
 //                        .setSwipeOutMsgLayoutId(R.layout.tinder_swipe_out_msg_view)
-                        .setSwipeAnimFactor(1f)
-                        .setSwipeAnimTime(100)
+                        .setSwipeAnimFactor(0.5f)
+                        .setSwipeAnimTime(200)
                 )
 
         discardBtn.setOnClickListener({
@@ -166,8 +169,8 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         Utils.setVisible(undoBtn, show)
         Utils.setVisible(swipeView, show)
 
-        // populate
-        if (state.status == MviViewState.Status.SUCCESS) {
+        // populate if first time
+        if (state.status == MviViewState.Status.SUCCESS && swipeView.childCount == 0) {
             state.allTracks.forEach {
                 swipeView.addView(TrackCardView(this, it, this))
             }
@@ -176,12 +179,6 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         }
 
         // todo: render play button based on mediaplayer state
-//        Utils.mLog(TAG, "render",
-//                "playerState", "${state.currentPlayerState}",
-//                "reachedEnd? ", state.reachedEnd.toString(),
-//                "likedCount: ", state.currentLikes.size.toString(),
-//                "dislikedCount: ", state.currentDislikes.size.toString())
-
         if (!summaryShown && state.reachedEnd) {
             mPlayer.apply { onDestroy() } // release the player!
             showSummary(state)
@@ -200,8 +197,10 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         Utils.setVisible(summaryLayout, true)
 
         // create the layout with the initial view state
-        val summaryViewModel = ViewModelProviders.of(this, viewModelFactory).get(SummaryViewModel::class.java)
-        summaryLayout.initWith(this, SummaryViewState.create(state), summaryViewModel)
+//        val summaryViewModel = ViewModelProviders.of(this, viewModelFactory).get(SummaryViewModel::class.java)
+        val initialState = SummaryViewState.create(state)
+        val summaryViewModel = SummaryViewModel(summaryActionProcessor, schedulerProvider, initialState)
+        summaryLayout.initWith(this, summaryViewModel, initialState)
     }
 
     private fun initViewModel(playlist: Playlist) {

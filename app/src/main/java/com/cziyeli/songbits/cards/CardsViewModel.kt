@@ -49,7 +49,6 @@ class CardsViewModel @Inject constructor(
     }
 
     init {
-
         // create observable to push into states live data
         val observable: Observable<TrackViewState> = intentsSubject
                 .subscribeOn(schedulerProvider.io())
