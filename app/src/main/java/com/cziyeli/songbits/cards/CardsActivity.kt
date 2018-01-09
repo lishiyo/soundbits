@@ -14,7 +14,7 @@ import com.cziyeli.commons.Utils
 import com.cziyeli.commons.toast
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
-import com.cziyeli.domain.stats.SummaryActionProcessor
+import com.cziyeli.domain.summary.SummaryActionProcessor
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.cards.summary.SummaryLayout
 import com.cziyeli.songbits.cards.summary.SummaryViewModel

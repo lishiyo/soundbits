@@ -9,7 +9,7 @@ import android.arch.persistence.room.PrimaryKey
  *
  * Created by connieli on 1/1/18.
  */
-@Entity(tableName = "Track")
+@Entity(tableName = "Tracks")
 class TrackEntity {
 
     @PrimaryKey(autoGenerate = true)
@@ -37,8 +37,8 @@ class TrackEntity {
     var liked: Boolean = false
 
     @ColumnInfo(name = "cleared")
-    val cleared: Boolean = false // if cleared, don't show to user anymore
+    var cleared: Boolean = false // if cleared, don't show to user anymore
 
     @ColumnInfo(name = "playlist_id")
-    val playlistId: String? = null // playlist this comes from if available
+    var playlistId: String? = null // playlist this comes from if available
 }

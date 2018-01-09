@@ -4,10 +4,10 @@ import android.arch.lifecycle.*
 import com.cziyeli.commons.SingleLiveEvent
 import com.cziyeli.commons.Utils
 import com.cziyeli.domain.playlists.Playlist
-import com.cziyeli.domain.stats.SummaryAction
-import com.cziyeli.domain.stats.SummaryActionProcessor
-import com.cziyeli.domain.stats.SummaryResult
-import com.cziyeli.domain.stats.TrackListStats
+import com.cziyeli.domain.summary.SummaryAction
+import com.cziyeli.domain.summary.SummaryActionProcessor
+import com.cziyeli.domain.summary.SummaryResult
+import com.cziyeli.domain.summary.TrackListStats
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.cards.TrackViewState
 import io.reactivex.Observable

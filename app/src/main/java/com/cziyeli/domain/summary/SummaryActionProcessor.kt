@@ -1,4 +1,4 @@
-package com.cziyeli.domain.stats
+package com.cziyeli.domain.summary
 
 import com.cziyeli.commons.Utils
 import com.cziyeli.data.Repository
@@ -36,7 +36,7 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
     private val mLoadStatsProcessor: ObservableTransformer<SummaryAction.LoadStats, SummaryResult.LoadStatsResult> = ObservableTransformer {
         action -> action.switchMap {
             act -> repository
-                .fetchTracksData(act.trackIds)
+                .fetchTracksStats(Repository.Source.REMOTE, act.trackIds)
                 .subscribeOn(schedulerProvider.io())
             }.map { resp -> TrackListStats.create(resp) }
             .observeOn(schedulerProvider.ui())

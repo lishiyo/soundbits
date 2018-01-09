@@ -67,12 +67,12 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
             val params = trackIds.joinToString(separator = ",")
             api.service.getTracksAudioFeatures(params, object : Callback<AudioFeaturesTracks> {
                 override fun success(resp: AudioFeaturesTracks?, response: Response?) {
-                    Utils.mLog(TAG, "fetchTracksData", "success!")
+                    Utils.mLog(TAG, "fetchTracksStats", "success!")
                     emitter.onNext(resp)
                 }
 
                 override fun failure(error: RetrofitError?) {
-                    Utils.mLog(TAG, "fetchTracksData", "error", error?.localizedMessage)
+                    Utils.mLog(TAG, "fetchTracksStats", "error", error?.localizedMessage)
                     emitter.onError(Throwable(error?.localizedMessage))
                 }
             })

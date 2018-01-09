@@ -1,5 +1,6 @@
 package com.cziyeli.songbits.cards.summary
 
+import com.cziyeli.domain.tracks.TrackModel
 import lishiyo.kotlin_arch.mvibase.MviIntent
 
 /**

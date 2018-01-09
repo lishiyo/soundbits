@@ -31,7 +31,7 @@ class PlaylistActionProcessor @Inject constructor(private val repository: Reposi
     private val userPlaylistsProcessor : ObservableTransformer<PlaylistAction.UserPlaylists, PlaylistResult.UserPlaylists>
             = ObservableTransformer { action -> action.switchMap {
                     act -> repository
-                                .fetchUserPlaylists(act.limit, act.offset)
+                                .fetchUserPlaylists(Repository.Source.REMOTE, act.limit, act.offset)
                                 .subscribeOn(schedulerProvider.io())
                 }.filter { resp -> resp.total > 0 } // check if we have playlists
                     .map { resp ->

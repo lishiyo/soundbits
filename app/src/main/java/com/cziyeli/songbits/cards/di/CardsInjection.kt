@@ -3,7 +3,7 @@ package com.cziyeli.songbits.cards.di
 import android.app.Activity
 import com.cziyeli.commons.di.UtilsModule
 import com.cziyeli.data.Repository
-import com.cziyeli.domain.stats.SummaryActionProcessor
+import com.cziyeli.domain.summary.SummaryActionProcessor
 import com.cziyeli.domain.tracks.TrackActionProcessor
 import com.cziyeli.songbits.cards.CardsActivity
 import com.cziyeli.songbits.di.AppModule

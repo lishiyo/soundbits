@@ -4,7 +4,7 @@ import android.content.Context
 import com.cziyeli.commons.di.ForApplication
 import com.cziyeli.data.Repository
 import com.cziyeli.data.RepositoryImpl
-import com.cziyeli.data.local.RoomDataSource
+import com.cziyeli.data.local.TracksDatabase
 import com.cziyeli.data.remote.RemoteDataSource
 import com.cziyeli.domain.player.NativePlayerManager
 import com.cziyeli.domain.player.PlayerInterface
@@ -32,7 +32,7 @@ class AppModule(private val application: App) {
 
     @Provides
     @Singleton
-    fun provideRepository(local: RoomDataSource, remote: RemoteDataSource): Repository {
+    fun provideRepository(local: TracksDatabase, remote: RemoteDataSource): Repository {
         return RepositoryImpl(local, remote)
     }
 

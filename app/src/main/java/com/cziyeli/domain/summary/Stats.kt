@@ -1,4 +1,4 @@
-package com.cziyeli.domain.stats
+package com.cziyeli.domain.summary
 
 import com.cziyeli.domain.tracks.TrackModel
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack

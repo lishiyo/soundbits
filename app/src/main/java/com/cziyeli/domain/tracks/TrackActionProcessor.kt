@@ -47,7 +47,7 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
     private val mLoadTrackCardsProcessor: ObservableTransformer<TrackAction.LoadTrackCards, TrackResult.LoadTrackCards> = ObservableTransformer {
         action -> action.switchMap {
             act -> repository
-                .fetchPlaylistTracks(act.ownerId, act.playlistId, act.fields, act.limit, act.offset)
+                .fetchPlaylistTracks(Repository.Source.REMOTE, act.ownerId, act.playlistId, act.fields, act.limit, act.offset)
                 .subscribeOn(schedulerProvider.io())
             }.filter { resp -> resp.total > 0 }
             .map { resp -> resp.items.map { it.track }}
