@@ -12,7 +12,7 @@ import kaaes.spotify.webapi.android.models.AudioFeaturesTracks
  *
  * Created by connieli on 1/6/18.
  */
-class TrackStats(val apiModel: AudioFeaturesTrack) {
+data class TrackStats(val apiModel: AudioFeaturesTrack) {
 
     val id: String
         get() = apiModel.id
@@ -47,20 +47,21 @@ class TrackStats(val apiModel: AudioFeaturesTrack) {
 
 // Stats of a list of tracks
 // Wraps [AudioFeaturesTracks]
-class TrackListStats(val apiModel: AudioFeaturesTracks) {
+data class TrackListStats(val apiModel: AudioFeaturesTracks) {
 
     // corresponding list of track ids
-    val trackIds: List<String>
-        get() = apiModel.audio_features.map { it.id }
+    var trackIds: List<String> = apiModel.audio_features.map { it.id }
 
-    val trackStats: List<TrackStats>
-        get() = apiModel.audio_features.map { TrackStats(it) }
+    var trackStats: List<TrackStats> = apiModel.audio_features.map { TrackStats(it) }
 
-    val avgDanceability: Double
-        get() = calculateAvgDanceability(trackStats)
+    val avgDanceability by lazy { calculateAvgDanceability(trackStats) }
+
+    fun printSummary() : String {
+        // test this was correct
+        return "${trackStats.size} tracks: ${trackStats.map{it.danceability}.joinToString()} for avgDanceability: $avgDanceability"
+    }
 
     companion object {
-
         fun create(apiModel: AudioFeaturesTracks) : TrackListStats {
             return TrackListStats(apiModel)
         }

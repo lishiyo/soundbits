@@ -8,10 +8,12 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.cziyeli.commons.Utils
+import com.cziyeli.commons.toast
 import com.cziyeli.songbits.R
 import com.wang.avi.AVLoadingIndicatorView
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import kotlinx.android.synthetic.main.layout_summary.view.*
 import lishiyo.kotlin_arch.mvibase.MviView
 import lishiyo.kotlin_arch.mvibase.MviViewState
 
@@ -71,16 +73,19 @@ class SummaryLayout @JvmOverloads constructor(
                 "out of ${state.allTracks.size} tracks!"
         titleView.text = title // for debugging
 
-        if (state.status == MviViewState.Status.SUCCESS) {
-            progressView.smoothToHide()
-        } else {
-            progressView.smoothToShow()
+        val showResults = state.status == MviViewState.Status.SUCCESS || state.status == MviViewState.Status.ERROR
+        Utils.setVisible(stats_container, showResults)
+
+        when (state.status) {
+            MviViewState.Status.SUCCESS -> {
+                progressView.smoothToHide()
+                stats_summary.text = "stats: ${state.stats?.printSummary()}"
+            }
+            MviViewState.Status.ERROR -> {
+                "error in fetching stats: ${state.error?.localizedMessage}".toast(context)
+            }
+            else -> progressView.smoothToShow()
         }
-
-        // TODO: get the tracks stats
-        // when that comes back, hide the progressView and show the track stats/card
-
-        Utils.mLog(TAG, "render", "stats", state.stats.toString())
     }
 
 }

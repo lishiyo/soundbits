@@ -4,16 +4,19 @@ import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey
 
-
-
 /**
+ * Represents a [TrackModel] in the database.
+ *
  * Created by connieli on 1/1/18.
  */
-@Entity(tableName = "com.cziyeli.domain.tracks")
+@Entity(tableName = "Track")
 class TrackEntity {
 
     @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
+    val uid: Long = -1 // id inside database
+
+    @ColumnInfo(name = "track_id", index = true)
+    var trackId: Int = 0 // actual track id
 
     @ColumnInfo(name = "name")
     var name: String? = null
@@ -24,16 +27,16 @@ class TrackEntity {
     @ColumnInfo(name = "uri")
     var uri: String? = null
 
-    @ColumnInfo(name = "href")
-    var href: String? = null
-
     @ColumnInfo(name = "preview_url")
     var previewUrl: String? = null
 
     @ColumnInfo(name = "popularity")
     var popularity: Int = 0
 
-    @ColumnInfo(name = "liked")
+    @ColumnInfo(name = "liked") // main pref
     var liked: Boolean = false
+
+    @ColumnInfo(name = "cleared")
+    val cleared: Boolean = false // if cleared, don't show to user anymore
 
 }

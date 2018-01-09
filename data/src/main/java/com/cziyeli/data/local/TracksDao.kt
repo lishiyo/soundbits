@@ -3,9 +3,10 @@ package com.cziyeli.data.local
 import android.arch.persistence.room.Dao
 
 /**
+ * Holds the likes/dislikes stash.
+ *
  * Created by connieli on 12/31/17.
  */
-
 @Dao
 interface RoomDao {
 

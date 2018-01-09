@@ -83,7 +83,7 @@ class SummaryViewModel @Inject constructor(
     // transform intent -> action
     private fun actionFromIntent(intent: MviIntent) : SummaryAction {
         return when(intent) {
-            is SummaryIntent.LoadStats -> SummaryAction.LoadStats.create(intent.trackIds)
+            is SummaryIntent.LoadStats -> SummaryAction.LoadStats(intent.trackIds)
             else -> SummaryAction.None // no-op all other events
         }
     }
