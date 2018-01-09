@@ -61,7 +61,7 @@ class SummaryLayout @JvmOverloads constructor(
         })
 
         // immediately fetch with the like ids
-        mStatsPublisher.onNext(SummaryIntent.LoadStats.create(initialViewState.trackIdsToFetch()))
+        mStatsPublisher.onNext(SummaryIntent.LoadStats(initialViewState.trackIdsToFetch()))
     }
 
     override fun intents(): Observable<out SummaryIntent> {

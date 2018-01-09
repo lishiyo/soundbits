@@ -14,13 +14,13 @@ import android.content.Context
         exportSchema = false)
 abstract class RoomDataSource : RoomDatabase() {
 
-    abstract fun tracksDao(): RoomDao
+    abstract fun tracksDao(): TracksDao
 
     companion object {
         fun buildPersistentDatabase(context: Context): RoomDataSource = Room.databaseBuilder(
                 context.applicationContext,
                 RoomDataSource::class.java,
-                RoomContract.DATABASE_APPLICATION
+                TracksContract.DATABASE_APPLICATION
         ).build()
     }
 }

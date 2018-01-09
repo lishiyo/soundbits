@@ -24,10 +24,12 @@ sealed class SummaryAction : MviAction {
     // https://developer.spotify.com/web-api/console/post-playlist-tracks/
     class AddTracksPlaylist(val ownerId: Int,
                             val playlistId: String,
-                            val spotifyUris: List<String> // these are URIs, not ids!
+                            val tracks: List<TrackModel> // map to uris
     ) : SummaryAction()
 
     // Save tracks to local database
-    class SaveTracksLocal(val tracks: List<TrackModel>) : SummaryAction()
+    class SaveTracksLocal(val tracks: List<TrackModel>,
+                          val playlistId: String? = null
+    ) : SummaryAction()
 
 }

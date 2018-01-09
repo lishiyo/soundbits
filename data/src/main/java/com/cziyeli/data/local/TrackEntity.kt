@@ -13,7 +13,7 @@ import android.arch.persistence.room.PrimaryKey
 class TrackEntity {
 
     @PrimaryKey(autoGenerate = true)
-    val uid: Long = -1 // id inside database
+    var id: Long? = null // id inside database
 
     @ColumnInfo(name = "track_id", index = true)
     var trackId: Int = 0 // actual track id
@@ -39,4 +39,6 @@ class TrackEntity {
     @ColumnInfo(name = "cleared")
     val cleared: Boolean = false // if cleared, don't show to user anymore
 
+    @ColumnInfo(name = "playlist_id")
+    val playlistId: String? = null // playlist this comes from if available
 }

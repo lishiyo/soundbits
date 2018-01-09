@@ -3,7 +3,7 @@ package com.cziyeli.data.local
 /**
  * Created by connieli on 12/31/17.
  */
-class RoomContract {
+class TracksContract {
 
     companion object {
 
