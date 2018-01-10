@@ -186,15 +186,6 @@ class CardsViewModel @Inject constructor(
 
 }
 
-class CardsViewModelFactory(val repository: RepositoryImpl,
-                            val actionProcessor: TrackActionProcessor,
-                            val schedulerProvider: BaseSchedulerProvider,
-                            val playlist: Playlist) : ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return CardsViewModel(repository, actionProcessor, schedulerProvider, playlist) as T
-    }
-}
-
 data class TrackViewState(var status: MviViewState.Status = MviViewState.Status.IDLE,
                           var error: Throwable? = null,
                           val allTracks: MutableList<TrackModel> = mutableListOf(),

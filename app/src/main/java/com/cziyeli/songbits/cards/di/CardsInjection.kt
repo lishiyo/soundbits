@@ -1,6 +1,7 @@
 package com.cziyeli.songbits.cards.di
 
 import android.app.Activity
+import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import com.cziyeli.commons.di.PerActivity
 import com.cziyeli.data.Repository
@@ -9,7 +10,7 @@ import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.SummaryActionProcessor
 import com.cziyeli.domain.tracks.TrackActionProcessor
 import com.cziyeli.songbits.cards.CardsActivity
-import com.cziyeli.songbits.cards.CardsViewModelFactory
+import com.cziyeli.songbits.cards.CardsViewModel
 import com.cziyeli.songbits.di.AppModule
 import com.cziyeli.songbits.di.viewModels.ViewModelsModule
 import dagger.Module
@@ -42,10 +43,9 @@ class CardsModule {
     @Provides
     @PerActivity
     fun providePlaylist(activity: CardsActivity): com.cziyeli.domain.playlists.Playlist {
-        return activity.playlist
+        return activity.playlist // call inject after binding this in CardsActivity!
     }
 
-    // See https://github.com/googlesamples/android-architecture-components/issues/207
     @Provides
     @PerActivity
     @Named("CardsViewModel")
@@ -59,6 +59,16 @@ class CardsModule {
                 schedulerProvider,
                 playlist
         )
+    }
+}
+
+// See https://github.com/googlesamples/android-architecture-components/issues/207
+class CardsViewModelFactory(val repository: RepositoryImpl,
+                            val actionProcessor: TrackActionProcessor,
+                            val schedulerProvider: BaseSchedulerProvider,
+                            val playlist: Playlist) : ViewModelProvider.Factory {
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return CardsViewModel(repository, actionProcessor, schedulerProvider, playlist) as T
     }
 }
 
