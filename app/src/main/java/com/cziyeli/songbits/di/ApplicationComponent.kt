@@ -1,6 +1,7 @@
 package com.cziyeli.songbits.di
 
 import com.cziyeli.commons.di.UtilsModule
+import com.cziyeli.data.local.TracksDatabase
 import com.cziyeli.songbits.di.viewModels.ViewModelsModule
 import dagger.Component
 import dagger.android.AndroidInjectionModule
@@ -24,6 +25,9 @@ interface ApplicationComponent {
     // injection targets
     fun inject(application: App)
 
+    // downstream components need these exposed
+    // the method name does not matter, only the return type
+    fun tracksDatabase() : TracksDatabase
 }
 
 

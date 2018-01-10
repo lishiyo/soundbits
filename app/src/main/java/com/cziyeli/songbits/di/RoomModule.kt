@@ -22,7 +22,7 @@ class RoomModule {
 
     @Provides
     @Singleton
-    fun providesWeatherDAO(database: TracksDatabase) : TracksDao {
+    fun providesTracksDao(database: TracksDatabase) : TracksDao {
         return database.tracksDao()
     }
 

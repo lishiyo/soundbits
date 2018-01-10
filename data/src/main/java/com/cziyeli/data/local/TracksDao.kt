@@ -2,6 +2,7 @@ package com.cziyeli.data.local
 
 import android.arch.persistence.room.*
 import io.reactivex.Flowable
+import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 
 /**
  * Dao to access the likes/dislikes database - includes all tracks ever seen.
@@ -9,44 +10,47 @@ import io.reactivex.Flowable
  * Created by connieli on 12/31/17.
  */
 @Dao
-interface TracksDao {
+abstract class TracksDao {
 
     @Query("SELECT * FROM Tracks WHERE id = :id")
-    fun getTrackById(id: String): Flowable<TrackEntity> // local id
+    abstract fun getTrackById(id: String): Flowable<TrackEntity> // local id
 
     @Query("SELECT * FROM Tracks WHERE track_id = :trackId")
-    fun getTrackByTrackId(trackId: String): Flowable<TrackEntity>
+    abstract fun getTrackByTrackId(trackId: String): Flowable<TrackEntity>
 
     @Query("SELECT * FROM Tracks WHERE track_id = :playlistId")
-    fun getTracksByPlaylistId(playlistId: String): Flowable<List<TrackEntity>>
+    abstract fun getTracksByPlaylistId(playlistId: String): Flowable<List<TrackEntity>>
 
     @Query("SELECT * FROM Tracks WHERE cleared = 0 LIMIT :limit")
-    fun getVisibleTracks(limit: Int): Flowable<List<TrackEntity>>
+    abstract fun getVisibleTracks(limit: Int): Flowable<List<TrackEntity>>
 
     @Query("SELECT * FROM Tracks WHERE cleared = 0 AND liked = 1 LIMIT :limit")
-    fun getLikedTracks(limit: Int): Flowable<List<TrackEntity>>
+    abstract fun getLikedTracks(limit: Int): Flowable<List<TrackEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveTrack(track: TrackEntity): Long // return row of the insertion
+    abstract fun saveTrack(track: TrackEntity)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun saveTracks(tracks: List<TrackEntity>): List<Long>
+    abstract fun saveTracks(tracks: List<TrackEntity>)
 
     @Update()
-    fun updateTrack(track: TrackEntity): Int // returns total num affected
+    abstract fun updateTrack(track: TrackEntity)
 
     @Delete
-    fun deleteTrack(track: TrackEntity): Int // shouldn't need this
-
+    abstract fun deleteTrack(track: TrackEntity)
 
     /////////////////////////////////////
     /////////////// DEBUGGING ///////////
     /////////////////////////////////////
 
     @Query("DELETE FROM Tracks")
-    fun nuke(): Int // wipe out the database!
+    abstract fun nuke() // wipe out the database!
 
     @Query("SELECT * FROM Tracks")
-    fun queryAll(): Flowable<List<TrackEntity>>
+    protected abstract fun queryAll(): Flowable<List<TrackEntity>>
+
+    fun queryAllDistinct(): Flowable<List<TrackEntity>> {
+        return queryAll().distinctUntilChanged().subscribeOn(SchedulerProvider.io())
+    }
 }
 

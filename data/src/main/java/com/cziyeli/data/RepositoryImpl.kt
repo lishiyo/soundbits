@@ -5,12 +5,12 @@ import com.cziyeli.data.local.TrackEntity
 import com.cziyeli.data.local.TracksDatabase
 import com.cziyeli.data.remote.RemoteDataSource
 import io.reactivex.Observable
-import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks
 import kaaes.spotify.webapi.android.models.Pager
 import kaaes.spotify.webapi.android.models.PlaylistSimple
 import kaaes.spotify.webapi.android.models.PlaylistTrack
+import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -43,9 +43,10 @@ class RepositoryImpl @Inject constructor(
     // ====== LOCAL ======
     ///////////////////////
 
-    override fun saveTracksLocal(tracks: List<TrackEntity>) : Single<List<Long>> {
-        val inserted = tracksDatabase.tracksDao().saveTracks(tracks)
-        return if (inserted.isNotEmpty()) Single.just(inserted) else Single.error(Throwable("nothing inserted to db"))
+    override fun saveTracksLocal(tracks: List<TrackEntity>) {
+        Observable.just(tracks)
+                .subscribeOn(SchedulerProvider.io())
+                .subscribe { tracksDatabase.tracksDao().saveTracks(it) }
     }
 
     ///////////////////////
@@ -71,17 +72,20 @@ class RepositoryImpl @Inject constructor(
     ///////////////////////
 
     override fun debug(limit: Int) {
-        tracksDatabase.tracksDao().queryAll().subscribe({ tracks ->
-            val str = if (limit > 0) {
-                tracks.take(limit).joinToString(",")
-            } else {
-                tracks.joinToString(",")
-            }
+        tracksDatabase.tracksDao()
+                .queryAllDistinct()
+                .subscribeOn(SchedulerProvider.io())
+                .subscribe({ tracks ->
+                    val str = if (limit > 0) {
+                        tracks.take(limit).joinToString("\n")
+                    } else {
+                        tracks.joinToString("\n")
+                    }
 
-            Utils.mLog(TAG, "dumpDatabase", "SUCCESS", str)
-        }, {
-            Utils.mLog(TAG, "dumpDatabase", "ERR", it.localizedMessage)
-        })
+                    Utils.mLog(TAG, "debug", "SUCCESS", str)
+                }, {
+                    Utils.mLog(TAG, "debug", "ERR", it.localizedMessage)
+                })
     }
 
     companion object {

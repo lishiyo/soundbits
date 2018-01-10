@@ -8,6 +8,8 @@ import com.facebook.stetho.Stetho
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
+import io.reactivex.Observable
+import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import javax.inject.Inject
 
 /**
@@ -16,6 +18,12 @@ import javax.inject.Inject
 class App : Application(), HasActivityInjector {
     companion object {
         lateinit var appComponent: ApplicationComponent
+
+        fun nukeDatabase() {
+            Observable.just(appComponent.tracksDatabase())
+                    .subscribeOn(SchedulerProvider.io())
+                    .subscribe { db -> db.tracksDao().nuke() }
+        }
     }
 
     @Inject lateinit var activityInjector: DispatchingAndroidInjector<Activity>
@@ -41,4 +49,5 @@ class App : Application(), HasActivityInjector {
     override fun activityInjector(): AndroidInjector<Activity> {
         return activityInjector
     }
+
 }

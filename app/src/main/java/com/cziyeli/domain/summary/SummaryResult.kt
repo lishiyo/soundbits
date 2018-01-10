@@ -1,6 +1,7 @@
 package com.cziyeli.domain.summary
 
 import com.cziyeli.commons.Utils
+import com.cziyeli.domain.tracks.TrackModel
 import lishiyo.kotlin_arch.mvibase.MviResult
 
 /**
@@ -32,15 +33,16 @@ sealed class SummaryResult(var status: MviResult.Status = MviResult.Status.IDLE,
 
     class SaveTracks(status: MviResult.Status,
                      error: Throwable?,
-                     val insertedRows: List<Long>? = null,
+                     val insertedTracks: List<TrackModel>? = null,
                      val playlistId: String? = null
     ) : SummaryResult(status, error) {
         companion object {
-            fun createSuccess(insertedRows: List<Long>, playlistId: String? = null) : SaveTracks {
-                Utils.log(TAG, "SaveAllTracks --- createSuccess! size: ${insertedRows.size}")
-                return SaveTracks(MviResult.Status.SUCCESS, null, insertedRows, playlistId)
+            fun createSuccess(insertedTracks: List<TrackModel>, playlistId: String? = null) : SaveTracks {
+                Utils.log(TAG, "SaveAllTracks --- createSuccess! size: ${insertedTracks.size} for ${playlistId}")
+                return SaveTracks(MviResult.Status.SUCCESS, null, insertedTracks, playlistId)
             }
             fun createError(throwable: Throwable) : SaveTracks {
+                Utils.log(TAG, "SaveAllTracks --- createError! ${throwable.localizedMessage}")
                 return SaveTracks(MviResult.Status.FAILURE, throwable)
             }
             fun createLoading(): SaveTracks {

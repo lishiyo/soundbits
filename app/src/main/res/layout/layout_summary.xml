@@ -69,6 +69,13 @@
 
 		</LinearLayout>
 
-	</FrameLayout>
+	<Button
+		android:id="@+id/nuke"
+		android:background="@android:color/holo_red_dark"
+		android:text="NUKE DATABASE"
+		android:layout_gravity="bottom|center_horizontal"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" />
 
+	</FrameLayout>
 </com.cziyeli.songbits.cards.summary.SummaryLayout>

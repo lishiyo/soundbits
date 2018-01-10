@@ -2,7 +2,6 @@ package com.cziyeli.data
 
 import com.cziyeli.data.local.TrackEntity
 import io.reactivex.Observable
-import io.reactivex.Single
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks
 import kaaes.spotify.webapi.android.models.Pager
 import kaaes.spotify.webapi.android.models.PlaylistSimple
@@ -40,5 +39,5 @@ interface Repository {
     ) : Observable<AudioFeaturesTracks>
 
     // Save tracks to database (local only)
-    fun saveTracksLocal(tracks: List<TrackEntity>) : Single<List<Long>>
+    fun saveTracksLocal(tracks: List<TrackEntity>)
 }

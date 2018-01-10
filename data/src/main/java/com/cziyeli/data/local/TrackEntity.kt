@@ -45,4 +45,8 @@ class TrackEntity(
 
         @ColumnInfo(name = "cover_image_url")
         var coverImageUrl: String? = null // corresponds to trackModel.coverImage.url
-)
+) {
+        override fun toString(): String {
+                return "[$id: $name - playlistId: $playlistId - liked: $liked -- cleared: $cleared]"
+        }
+}

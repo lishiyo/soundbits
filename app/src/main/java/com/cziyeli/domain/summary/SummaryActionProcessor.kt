@@ -49,14 +49,11 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
     }
 
     private val mSaveTracksProcessor: ObservableTransformer<SummaryAction.SaveTracks, SummaryResult.SaveTracks> = ObservableTransformer {
-        action -> action.switchMap {
-            act -> repository.saveTracksLocal(mapNewTracks(act)).toObservable() // emits the single then completes
-        }.map { resp -> SummaryResult.SaveTracks.createSuccess(resp) }
+        action -> action
+            .doOnNext { repository.saveTracksLocal(mapNewTracks(it)) }
+            .map { act -> SummaryResult.SaveTracks.createSuccess(act.tracks, act.playlistId) }
             .observeOn(schedulerProvider.ui())
-            .doOnComplete {
-                Utils.log(TAG, "saveTracksProcess complete!")
-                repository.debug() // dump the database
-            }
+            .doOnNext { repository.debug() }
             .onErrorReturn { err -> SummaryResult.SaveTracks.createError(err) }
             .startWith(SummaryResult.SaveTracks.createLoading())
             .retry() // don't unsubscribe

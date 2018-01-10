@@ -28,8 +28,8 @@ import javax.inject.Inject
  */
 
 class SummaryViewModel @Inject constructor(
-        actionProcessor: SummaryActionProcessor,
-        schedulerProvider: BaseSchedulerProvider
+        val actionProcessor: SummaryActionProcessor,
+        val schedulerProvider: BaseSchedulerProvider
 ) : ViewModel(), LifecycleObserver, MviViewModel<SummaryIntent, SummaryViewState> {
     private val TAG = SummaryViewModel::class.simpleName
 
@@ -67,7 +67,7 @@ class SummaryViewModel @Inject constructor(
                 .map{ it -> actionFromIntent(it)}
                 .filter { act -> act != SummaryAction.None }
                 .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject",
-                        "hitActionProcessor", "${intent.javaClass.name}") }
+                        "hitActionProcessor", intent.javaClass.name) }
                 .compose(actionProcessor.combinedProcessor)
                 .scan(initialViewState, reducer)
 
@@ -122,8 +122,8 @@ class SummaryViewModel @Inject constructor(
             }
             MviResult.Status.SUCCESS -> {
                 newState.status = MviViewState.Status.SUCCESS
-                Utils.mLog(TAG, "processSaveResult SUCCESS", "inserted rows: ",
-                        "${result.insertedRows} for playlist: ${result.playlistId}")
+                Utils.mLog(TAG, "processSaveResult SUCCESS", "insertedTracks: ",
+                        "${result.insertedTracks!!.size} for playlist: ${result.playlistId}")
             }
             MviResult.Status.FAILURE -> {
                 newState.status = MviViewState.Status.ERROR

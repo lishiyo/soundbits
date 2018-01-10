@@ -10,6 +10,7 @@ import android.widget.TextView
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.toast
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.di.App
 import com.wang.avi.AVLoadingIndicatorView
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -61,13 +62,16 @@ class SummaryLayout @JvmOverloads constructor(
             }
         })
 
-        Utils.mLog(TAG, "initWith", "initialViewState", initialViewState.toString())
-
         // immediately fetch stats of the like ids
         mStatsPublisher.onNext(SummaryIntent.LoadStats(initialViewState.trackIdsToFetch()))
 
         action_save_to_database.setOnClickListener {
             mUserSavePublisher.onNext(SummaryIntent.SaveAllTracks(initialViewState.allTracks, initialViewState.playlist!!.id))
+        }
+
+        nuke.setOnClickListener {
+            App.nukeDatabase()
+            "NUKED!".toast(context)
         }
     }
 
