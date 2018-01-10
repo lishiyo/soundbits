@@ -33,9 +33,10 @@
 			/>
 
 		<!-- show card/stats -->
-		<RelativeLayout
+		<LinearLayout
 			android:id="@+id/stats_container"
 			android:visibility="gone"
+			android:orientation="vertical"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
 
@@ -48,7 +49,25 @@
 				android:typeface="sans"
 				android:textStyle="normal"/>
 
-		</RelativeLayout>
+			<Button
+				android:id="@+id/action_create_playlist"
+				android:text="create playlist out of your likes"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+
+			<Button
+				android:id="@+id/action_save_to_database"
+				android:text="stash your likes and keep surfing"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+
+			<Button
+				android:id="@+id/action_review_tracks"
+				android:text="review your selections"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+
+		</LinearLayout>
 
 	</FrameLayout>
 

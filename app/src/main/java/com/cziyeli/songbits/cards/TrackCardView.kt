@@ -2,7 +2,6 @@ package com.cziyeli.songbits.cards
 
 import android.content.Context
 import android.widget.TextView
-import com.cziyeli.commons.Utils
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
@@ -41,13 +40,13 @@ class TrackCardView(private val context: Context,
         artistName.text = model.artist?.name
         imageView.setImageURI(model.coverImage?.url)
 
-        Utils.log(TAG, "onResolved: ${model.name}") // on average will load 3
+//        Utils.log(TAG, "onResolved: ${model.name}") // on average will load 3
     }
 
     @SwipeHead
     private fun onSwipeHeadCard() {
         // a card comes on top of the stack (follows onResolved)
-        Utils.log(TAG, "onSwipeHeadCard: ${model.name}")
+//        Utils.log(TAG, "onSwipeHeadCard: ${model.name}")
 
         // immediately start playing
         listener.getPlayerIntents().onNext(
@@ -61,8 +60,6 @@ class TrackCardView(private val context: Context,
 
     @Click(R.id.image)
     private fun onClick() {
-        Utils.log(TAG, "onClick image")
-
         // pause/resume
         listener.getPlayerIntents().onNext(
                 TrackIntent.CommandPlayer.create(PlayerInterface.Command.PAUSE_OR_RESUME, model))
@@ -70,7 +67,7 @@ class TrackCardView(private val context: Context,
 
     @SwipeOut
     private fun onSwipedOut() {
-        Utils.log(TAG, "onSwipedOut (rejected): ${model.name}")
+//        Utils.log(TAG, "onSwipedOut (rejected): ${model.name}")
 
         // stop playing this track
         listener.getPlayerIntents().onNext(
@@ -89,7 +86,7 @@ class TrackCardView(private val context: Context,
 
     @SwipeIn
     private fun onSwipeIn() {
-        Utils.log(TAG, "onSwipeIn (accepted): ${model.name}")
+//        Utils.log(TAG, "onSwipeIn (accepted): ${model.name}")
 
         listener.getPlayerIntents().onNext(
                 TrackIntent.CommandPlayer.create(PlayerInterface.Command.END_TRACK, model))

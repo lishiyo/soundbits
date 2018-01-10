@@ -59,7 +59,7 @@ class CardsViewModel @Inject constructor(
                 .map{ it -> actionFromIntent(it)}
                 .doOnNext { intent -> Utils.log(TAG, "ViewModel ++ intentsSubject hitActionProcessor: ${intent.javaClass.name}") }
                 .compose(actionProcessor.combinedProcessor)
-                .scan(TrackViewState(), reducer)
+                .scan(liveViewState.value ?: TrackViewState(), reducer)
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
@@ -186,7 +186,7 @@ class CardsViewModel @Inject constructor(
 data class TrackViewState(var status: MviViewState.Status = MviViewState.Status.IDLE,
                           var error: Throwable? = null,
                           val allTracks: MutableList<TrackModel> = mutableListOf(),
-                          var playlist: Playlist? = null,
+                          var playlist: Playlist,
                           var currentTrack: TrackModel? = null,
                           var currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID
 ) : MviViewState {
@@ -203,5 +203,8 @@ data class TrackViewState(var status: MviViewState.Status = MviViewState.Status.
     val reachedEnd: Boolean
         get() = status == MviViewState.Status.SUCCESS && unseen.size == 0 && allTracks.size > 0
 
+    override fun toString(): String {
+        return "allTracks: ${allTracks.size} -- playlist: ${playlist.id} -- currentTrack: ${currentTrack?.name}"
+    }
 }
 

@@ -34,6 +34,7 @@ class SummaryLayout @JvmOverloads constructor(
 
     // fire off intents
     private val mStatsPublisher = PublishSubject.create<SummaryIntent.LoadStats>()
+    private val mUserSavePublisher = PublishSubject.create<SummaryIntent.SaveAllTracks>()
 
     // views
     lateinit var rootView: ViewGroup
@@ -60,12 +61,21 @@ class SummaryLayout @JvmOverloads constructor(
             }
         })
 
-        // immediately fetch with the like ids
+        Utils.mLog(TAG, "initWith", "initialViewState", initialViewState.toString())
+
+        // immediately fetch stats of the like ids
         mStatsPublisher.onNext(SummaryIntent.LoadStats(initialViewState.trackIdsToFetch()))
+
+        action_save_to_database.setOnClickListener {
+            mUserSavePublisher.onNext(SummaryIntent.SaveAllTracks(initialViewState.allTracks, initialViewState.playlist!!.id))
+        }
     }
 
     override fun intents(): Observable<out SummaryIntent> {
-        return mStatsPublisher
+        return Observable.merge(
+                mStatsPublisher,
+                mUserSavePublisher
+        )
     }
 
     override fun render(state: SummaryViewState) {

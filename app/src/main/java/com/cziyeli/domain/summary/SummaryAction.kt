@@ -28,8 +28,8 @@ sealed class SummaryAction : MviAction {
     ) : SummaryAction()
 
     // Save tracks to local database
-    class SaveTracksLocal(val tracks: List<TrackModel>,
-                          val playlistId: String? = null
+    class SaveTracks(val tracks: List<TrackModel>,
+                     val playlistId: String
     ) : SummaryAction()
 
 }

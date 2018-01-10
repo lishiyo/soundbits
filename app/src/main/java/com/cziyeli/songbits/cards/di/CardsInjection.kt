@@ -1,6 +1,7 @@
 package com.cziyeli.songbits.cards.di
 
 import android.app.Activity
+import com.cziyeli.commons.di.PerActivity
 import com.cziyeli.commons.di.UtilsModule
 import com.cziyeli.data.Repository
 import com.cziyeli.domain.summary.SummaryActionProcessor
@@ -34,6 +35,12 @@ class CardsModule {
     @Named("ActivityContext")
     fun provideActivityContext(cardsActivity: CardsActivity): Activity {
         return cardsActivity
+    }
+
+    @Provides
+    @PerActivity
+    fun providePlaylistId(@Named("ActivityContext") cardsActivity: CardsActivity) : com.cziyeli.domain.playlists.Playlist {
+        return cardsActivity.playlist
     }
 
 //    @Provides

@@ -65,6 +65,8 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         PublishSubject.create<TrackIntent.ChangeTrackPref>()
     }
 
+    lateinit var playlist: Playlist
+
     private var summaryShown : Boolean = false
     private val summaryLayout: SummaryLayout by lazy {
         val stub = findViewById<ViewStub>(R.id.summary_stub)
@@ -74,13 +76,13 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cards)
 
         // parse out the intent bundle
-        val playlist = intent.extras.get(PLAYLIST) as Playlist
+        playlist = intent.extras.get(PLAYLIST) as Playlist
+
+        AndroidInjection.inject(this)
 
         // initWith the placeholder view
         initSwipeView()
@@ -178,6 +180,8 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
             "CardsActivity not ready: ${state.status} ".toast(this)
         }
 
+        Utils.mLog(TAG, "render!", "state", state.toString())
+
         // todo: render play button based on mediaplayer state
         if (!summaryShown && state.reachedEnd) {
             mPlayer.apply { onDestroy() } // release the player!
@@ -197,7 +201,6 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         Utils.setVisible(summaryLayout, true)
 
         // create the layout with the initial view state
-//        val summaryViewModel = ViewModelProviders.of(this, viewModelFactory).get(SummaryViewModel::class.java)
         val initialState = SummaryViewState.create(state)
         val summaryViewModel = SummaryViewModel(summaryActionProcessor, schedulerProvider, initialState)
         summaryLayout.initWith(this, summaryViewModel, initialState)

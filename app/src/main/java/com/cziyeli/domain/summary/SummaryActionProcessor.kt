@@ -2,6 +2,8 @@ package com.cziyeli.domain.summary
 
 import com.cziyeli.commons.Utils
 import com.cziyeli.data.Repository
+import com.cziyeli.data.local.TrackEntity
+import com.cziyeli.domain.tracks.TrackModel
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -20,7 +22,7 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
         acts.publish { shared ->
             Observable.merge<SummaryResult>(
                     shared.ofType<SummaryAction.LoadStats>(SummaryAction.LoadStats::class.java).compose(mLoadStatsProcessor),
-                    Observable.empty()
+                    shared.ofType<SummaryAction.SaveTracks>(SummaryAction.SaveTracks::class.java).compose(mSaveTracksProcessor)
             ).mergeWith(
                     // Error for not implemented actions
                     shared.filter { v -> (v !is SummaryAction)
@@ -44,5 +46,36 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
             .onErrorReturn { err -> SummaryResult.LoadStatsResult.createError(err) }
             .startWith(SummaryResult.LoadStatsResult.createLoading())
             .retry() // don't unsubscribe
+    }
+
+    private val mSaveTracksProcessor: ObservableTransformer<SummaryAction.SaveTracks, SummaryResult.SaveTracks> = ObservableTransformer {
+        action -> action.switchMap {
+            act -> repository.saveTracksLocal(mapNewTracks(act)).toObservable() // emits the single then completes
+        }.map { resp -> SummaryResult.SaveTracks.createSuccess(resp) }
+            .observeOn(schedulerProvider.ui())
+            .doOnComplete {
+                Utils.log(TAG, "saveTracksProcess complete!")
+                repository.debug() // dump the database
+            }
+            .onErrorReturn { err -> SummaryResult.SaveTracks.createError(err) }
+            .startWith(SummaryResult.SaveTracks.createLoading())
+            .retry() // don't unsubscribe
+    }
+
+    private fun mapNewTracks(act: SummaryAction.SaveTracks) : List<TrackEntity> {
+        return act.tracks.map {
+            TrackEntity(
+                    trackId = it.id,
+                    name = it.name,
+                    uri = it.uri,
+                    previewUrl = it.preview_url,
+                    liked = it.pref == TrackModel.Pref.LIKED,
+                    cleared = false,
+                    playlistId = act.playlistId,
+                    artistName = it.artist?.name,
+                    popularity = it.popularity,
+                    coverImageUrl = it.coverImage?.url
+            )
+        }
     }
 }

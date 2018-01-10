@@ -2,6 +2,7 @@ package com.cziyeli.data
 
 import com.cziyeli.data.local.TrackEntity
 import io.reactivex.Observable
+import io.reactivex.Single
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks
 import kaaes.spotify.webapi.android.models.Pager
 import kaaes.spotify.webapi.android.models.PlaylistSimple
@@ -16,6 +17,8 @@ interface Repository {
     enum class Source {
         LOCAL, REMOTE
     }
+
+    fun debug(limit: Int = -1)
 
     // get current user's playlists
     fun fetchUserPlaylists(source: Repository.Source = Source.REMOTE,
@@ -36,6 +39,6 @@ interface Repository {
                          trackIds: List<String>
     ) : Observable<AudioFeaturesTracks>
 
-    // 1 - save track entities to db as liked
-    fun saveTracksLocal(tracks: List<TrackEntity>) : List<Long>
+    // Save tracks to database (local only)
+    fun saveTracksLocal(tracks: List<TrackEntity>) : Single<List<Long>>
 }

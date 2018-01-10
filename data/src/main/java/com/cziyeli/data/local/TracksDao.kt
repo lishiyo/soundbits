@@ -38,17 +38,15 @@ interface TracksDao {
     @Delete
     fun deleteTrack(track: TrackEntity): Int // shouldn't need this
 
+
+    /////////////////////////////////////
+    /////////////// DEBUGGING ///////////
+    /////////////////////////////////////
+
     @Query("DELETE FROM Tracks")
     fun nuke(): Int // wipe out the database!
 
-//    @Query(RoomContract.SELECT_CURRENCIES_COUNT)
-//    fun getCurrenciesTotal(): Flowable<Int>
-//
-//    @Insert
-//    fun insertAll(currencies: List<CurrencyEntity>)
-//
-//    @Query(RoomContract.SELECT_CURRENCIES)
-//    fun getAllCurrencies(): Flowable<List<CurrencyEntity>>
-
+    @Query("SELECT * FROM Tracks")
+    fun queryAll(): Flowable<List<TrackEntity>>
 }
 

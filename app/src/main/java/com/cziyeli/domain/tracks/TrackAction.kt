@@ -37,6 +37,7 @@ sealed class TrackAction : MviAction {
         }
     }
 
+    // like/dislike a track
     class ChangeTrackPref(val track: TrackModel,
                           val pref: TrackModel.Pref) : TrackAction() {
         companion object {

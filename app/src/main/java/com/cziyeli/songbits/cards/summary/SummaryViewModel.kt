@@ -84,6 +84,7 @@ class SummaryViewModel @Inject constructor(
     private fun actionFromIntent(intent: MviIntent) : SummaryAction {
         return when(intent) {
             is SummaryIntent.LoadStats -> SummaryAction.LoadStats(intent.trackIds)
+            is SummaryIntent.SaveAllTracks -> SummaryAction.SaveTracks(intent.tracks, intent.playlistId)
             else -> SummaryAction.None // no-op all other events
         }
     }
@@ -101,6 +102,28 @@ class SummaryViewModel @Inject constructor(
             MviResult.Status.SUCCESS -> {
                 newState.status = MviViewState.Status.SUCCESS
                 newState.stats = result.trackStats
+            }
+            MviResult.Status.FAILURE -> {
+                newState.status = MviViewState.Status.ERROR
+                newState.error = result.error
+            }
+        }
+
+        return newState
+    }
+
+    private fun processSaveResult(previousState: SummaryViewState, result: SummaryResult.SaveTracks) : SummaryViewState {
+        val newState = previousState.copy()
+        newState.error = null
+
+        when (result.status) {
+            MviResult.Status.LOADING -> {
+                newState.status = MviViewState.Status.LOADING
+            }
+            MviResult.Status.SUCCESS -> {
+                newState.status = MviViewState.Status.SUCCESS
+                Utils.mLog(TAG, "processSaveResult SUCCESS", "inserted rows: ",
+                        "${result.insertedRows} for playlist: ${result.playlistId}")
             }
             MviResult.Status.FAILURE -> {
                 newState.status = MviViewState.Status.ERROR
@@ -137,7 +160,7 @@ class SummaryViewModel @Inject constructor(
 data class SummaryViewState(var status: MviViewState.Status = MviViewState.Status.IDLE,
                             var error: Throwable? = null,
                             val allTracks: List<TrackModel> = listOf(),
-                            var playlist: Playlist? = null, // relevant playlist if coming from one
+                            var playlist: Playlist, // relevant playlist if coming from one
                             var stats: TrackListStats? = null // main model
 ) : MviViewState {
     val currentLikes: MutableList<TrackModel>
@@ -157,11 +180,15 @@ data class SummaryViewState(var status: MviViewState.Status = MviViewState.Statu
         return SummaryViewState(this.status, this.error, this.allTracks.toList(), this.playlist, this.stats)
     }
 
+    override fun toString(): String {
+        return "allTracks: ${allTracks.size} -- playlist: ${playlist.id} -- status: ${status}"
+    }
+
     companion object {
         fun create(state: TrackViewState) : SummaryViewState {
             return SummaryViewState(
                     allTracks = state.allTracks,
-                    playlist = state.playlist
+                    playlist = state.playlist!! // we require a playlist here
             )
         }
     }

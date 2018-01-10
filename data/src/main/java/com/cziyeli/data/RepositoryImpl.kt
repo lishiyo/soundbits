@@ -1,9 +1,11 @@
 package com.cziyeli.data
 
+import com.cziyeli.commons.Utils
 import com.cziyeli.data.local.TrackEntity
 import com.cziyeli.data.local.TracksDatabase
 import com.cziyeli.data.remote.RemoteDataSource
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks
 import kaaes.spotify.webapi.android.models.Pager
@@ -41,8 +43,9 @@ class RepositoryImpl @Inject constructor(
     // ====== LOCAL ======
     ///////////////////////
 
-    override fun saveTracksLocal(tracks: List<TrackEntity>) : List<Long> {
-        return tracksDatabase.tracksDao().saveTracks(tracks)
+    override fun saveTracksLocal(tracks: List<TrackEntity>) : Single<List<Long>> {
+        val inserted = tracksDatabase.tracksDao().saveTracks(tracks)
+        return if (inserted.isNotEmpty()) Single.just(inserted) else Single.error(Throwable("nothing inserted to db"))
     }
 
     ///////////////////////
@@ -60,5 +63,28 @@ class RepositoryImpl @Inject constructor(
 
     private fun fetchTracksDataRemote(trackIds: List<String>) : Observable<AudioFeaturesTracks> {
         return remoteDataSource.fetchTracksData(trackIds)
+    }
+
+
+    ///////////////////////
+    // ====== DEBUG ======
+    ///////////////////////
+
+    override fun debug(limit: Int) {
+        tracksDatabase.tracksDao().queryAll().subscribe({ tracks ->
+            val str = if (limit > 0) {
+                tracks.take(limit).joinToString(",")
+            } else {
+                tracks.joinToString(",")
+            }
+
+            Utils.mLog(TAG, "dumpDatabase", "SUCCESS", str)
+        }, {
+            Utils.mLog(TAG, "dumpDatabase", "ERR", it.localizedMessage)
+        })
+    }
+
+    companion object {
+        val TAG = RepositoryImpl.javaClass.simpleName
     }
 }
