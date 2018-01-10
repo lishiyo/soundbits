@@ -82,9 +82,9 @@ class RepositoryImpl @Inject constructor(
                         tracks.joinToString("\n")
                     }
 
-                    Utils.mLog(TAG, "debug", "SUCCESS", str)
+                    Utils.mLog(TAG, "debug", "SUCCESS -- TOTAL: ${tracks.size} \n", str)
                 }, {
-                    Utils.mLog(TAG, "debug", "ERR", it.localizedMessage)
+                    Utils.mLog(TAG, "debug", "ERR \n", it.localizedMessage)
                 })
     }
 
