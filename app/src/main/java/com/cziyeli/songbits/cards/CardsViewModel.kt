@@ -20,20 +20,27 @@ import lishiyo.kotlin_arch.mvibase.MviViewState
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
+
+
 /**
  * Created by connieli on 1/1/18.
  */
 class CardsViewModel @Inject constructor(
         private val repository: RepositoryImpl,
         actionProcessor: TrackActionProcessor,
-        schedulerProvider: BaseSchedulerProvider
+        schedulerProvider: BaseSchedulerProvider,
+        playlist: Playlist
 ): ViewModel(), LifecycleObserver, MviViewModel<TrackIntent, TrackViewState> {
     private val TAG = CardsViewModel::class.simpleName
 
     private val compositeDisposable = CompositeDisposable()
 
     // LiveData-wrapped ViewState
-    private val liveViewState: MutableLiveData<TrackViewState> by lazy { MutableLiveData<TrackViewState>() }
+    private val liveViewState: MutableLiveData<TrackViewState> by lazy {
+        val liveData = MutableLiveData<TrackViewState>()
+        liveData.value = TrackViewState(playlist = playlist)
+        liveData
+    }
 
     // subject to publish ViewStates
     private val intentsSubject : PublishSubject<TrackIntent> by lazy { PublishSubject.create<TrackIntent>() }
@@ -59,7 +66,7 @@ class CardsViewModel @Inject constructor(
                 .map{ it -> actionFromIntent(it)}
                 .doOnNext { intent -> Utils.log(TAG, "ViewModel ++ intentsSubject hitActionProcessor: ${intent.javaClass.name}") }
                 .compose(actionProcessor.combinedProcessor)
-                .scan(liveViewState.value ?: TrackViewState(), reducer)
+                .scan(liveViewState.value, reducer)
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
@@ -68,11 +75,6 @@ class CardsViewModel @Inject constructor(
                     Utils.log(TAG, "ViewModel ++ ERROR " + err.localizedMessage)
                 })
         )
-    }
-
-    fun setUp(playlist: Playlist) {
-        // make sure viewmodel has the playlist info
-        liveViewState.value?.playlist = playlist
     }
 
     private fun actionFromIntent(intent: MviIntent) : TrackAction {
@@ -180,6 +182,16 @@ class CardsViewModel @Inject constructor(
         }
 
         return newState
+    }
+
+}
+
+class CardsViewModelFactory(val repository: RepositoryImpl,
+                            val actionProcessor: TrackActionProcessor,
+                            val schedulerProvider: BaseSchedulerProvider,
+                            val playlist: Playlist) : ViewModelProvider.Factory {
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return CardsViewModel(repository, actionProcessor, schedulerProvider, playlist) as T
     }
 }
 

@@ -47,9 +47,8 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         }
     }
 
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject @field:Named("CardsViewModel") lateinit var viewModelFactory: ViewModelProvider.Factory
     @Inject lateinit var summaryActionProcessor : SummaryActionProcessor
-    // player
     @Inject @field:Named("Native") lateinit var mPlayer: PlayerInterface
     val schedulerProvider = SchedulerProvider
 
@@ -208,7 +207,6 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
 
     private fun initViewModel(playlist: Playlist) {
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(CardsViewModel::class.java)
-        viewModel.setUp(playlist)
 
         // add viewmodel as an observer of this fragment lifecycle
         viewModel.let { lifecycle.addObserver(it) }

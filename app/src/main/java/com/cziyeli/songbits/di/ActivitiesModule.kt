@@ -3,11 +3,13 @@ package com.cziyeli.songbits.di
 import com.cziyeli.commons.di.PerActivity
 import com.cziyeli.songbits.MainActivity
 import com.cziyeli.songbits.cards.CardsActivity
-import com.cziyeli.songbits.cards.di.CardsActivitySubComponent
+import com.cziyeli.songbits.cards.di.CardsModule
 import com.cziyeli.songbits.home.HomeActivity
 import com.cziyeli.songbits.home.di.HomeActivitySubComponent
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+
+
 
 /**
  * Binds all activity subcomponents.
@@ -15,8 +17,7 @@ import dagger.android.ContributesAndroidInjector
  * Created by connieli on 1/2/18.
  */
 @Module(subcomponents = [
-        HomeActivitySubComponent::class,
-        CardsActivitySubComponent::class
+        HomeActivitySubComponent::class
 ])
 abstract class ActivitiesModule {
 
@@ -29,10 +30,8 @@ abstract class ActivitiesModule {
     abstract fun provideHomeActivity(): HomeActivity
 
     @PerActivity
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(
+            modules = [CardsModule::class]
+    )
     abstract fun provideCardsActivity(): CardsActivity
-
-//    @PerActivity
-//    @ContributesAndroidInjector
-//    abstract fun provideSummaryActivity(): SummaryActivity
 }
