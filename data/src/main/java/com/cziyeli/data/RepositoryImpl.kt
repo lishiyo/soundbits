@@ -5,11 +5,9 @@ import com.cziyeli.data.local.TrackEntity
 import com.cziyeli.data.local.TracksDatabase
 import com.cziyeli.data.remote.RemoteDataSource
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.disposables.Disposable
-import kaaes.spotify.webapi.android.models.AudioFeaturesTracks
-import kaaes.spotify.webapi.android.models.Pager
-import kaaes.spotify.webapi.android.models.PlaylistSimple
-import kaaes.spotify.webapi.android.models.PlaylistTrack
+import kaaes.spotify.webapi.android.models.*
 import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -24,6 +22,10 @@ class RepositoryImpl @Inject constructor(
         private val remoteDataSource: RemoteDataSource
 ) : Repository {
     val allCompositeDisposable: MutableList<Disposable> = arrayListOf()
+
+    override fun fetchCurrentUser(): Single<UserPrivate> {
+        return remoteDataSource.fetchCurrentUser()
+    }
 
     override fun fetchUserPlaylists(source: Repository.Source, limit: Int, offset: Int): Observable<Pager<PlaylistSimple>> {
         return fetchUserPlaylistsRemote(limit, offset)
@@ -71,6 +73,7 @@ class RepositoryImpl @Inject constructor(
     // ====== DEBUG ======
     ///////////////////////
 
+    // logs database - otherwise can just inspect Stetho resources
     override fun debug(limit: Int) {
         tracksDatabase.tracksDao()
                 .queryAllDistinct()

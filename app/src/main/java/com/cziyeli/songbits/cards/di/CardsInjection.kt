@@ -27,14 +27,6 @@ import javax.inject.Singleton
 class CardsModule {
 
     @Provides
-    @PerActivity
-    fun provideTrackActionProcessor(repo: Repository,
-                                    schedulerProvider: BaseSchedulerProvider): TrackActionProcessor {
-        return TrackActionProcessor(repo, schedulerProvider)
-    }
-
-
-    @Provides
     @Named("ActivityContext")
     fun provideActivityContext(activity: CardsActivity): Activity {
         return activity

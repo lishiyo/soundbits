@@ -36,6 +36,7 @@ class SummaryLayout @JvmOverloads constructor(
     // fire off intents
     private val mStatsPublisher = PublishSubject.create<SummaryIntent.LoadStats>()
     private val mUserSavePublisher = PublishSubject.create<SummaryIntent.SaveAllTracks>()
+    private val mCreatePlaylistPublisher = PublishSubject.create<SummaryIntent.CreateWithTracksPlaylist>()
 
     // views
     lateinit var rootView: ViewGroup
@@ -65,8 +66,13 @@ class SummaryLayout @JvmOverloads constructor(
         // immediately fetch stats of the like ids
         mStatsPublisher.onNext(SummaryIntent.LoadStats(initialViewState.trackIdsToFetch()))
 
+        // init click listeners
         action_save_to_database.setOnClickListener {
             mUserSavePublisher.onNext(SummaryIntent.SaveAllTracks(initialViewState.allTracks, initialViewState.playlist!!.id))
+        }
+
+        action_create_playlist.setOnClickListener {
+
         }
 
         nuke.setOnClickListener {

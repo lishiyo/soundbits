@@ -3,7 +3,7 @@ package com.cziyeli.domain.playlists
 import android.os.Parcel
 import android.os.Parcelable
 import com.cziyeli.commons.Utils.createParcel
-import com.cziyeli.domain.CoverImage
+import com.cziyeli.domain.SimpleImage
 import kaaes.spotify.webapi.android.models.PlaylistSimple
 import kaaes.spotify.webapi.android.models.PlaylistTracksInformation
 
@@ -18,14 +18,14 @@ data class Playlist(val id: String,
                     val href: String,
                     val uri: String,
                     val owner: Owner,
-                    val images: List<CoverImage>?,
+                    val images: List<SimpleImage>?,
                     val tracks: PlaylistTracksInformation?) : Parcelable {
 
     // num [Track]s in this playlist
     val totalTracksCount: Int
         get() = tracks?.total ?: 0
 
-    val coverImage: CoverImage?
+    val simpleImage: SimpleImage?
         get() = images?.get(0)
 
 
@@ -35,7 +35,7 @@ data class Playlist(val id: String,
             parcel.readString(),
             parcel.readString(),
             parcel.readParcelable(Owner::class.java.classLoader),
-            parcel.createTypedArrayList(CoverImage),
+            parcel.createTypedArrayList(SimpleImage),
             parcel.readParcelable(PlaylistTracksInformation::class.java.classLoader)) {
     }
 
@@ -46,7 +46,7 @@ data class Playlist(val id: String,
         // create from api model
         fun create(apiModel: PlaylistSimple) : Playlist {
             var owner = Owner(apiModel.owner.id, apiModel.owner.uri, apiModel.owner.display_name)
-            val images = apiModel.images?.map { CoverImage(it.height, it.width, it.url) }
+            val images = apiModel.images?.map { SimpleImage(it.height, it.width, it.url) }
             return Playlist(apiModel.id, apiModel.name, apiModel.href, apiModel.uri, owner, images, apiModel.tracks)
         }
     }

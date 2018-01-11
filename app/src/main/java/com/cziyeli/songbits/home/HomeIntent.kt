@@ -8,21 +8,11 @@ import lishiyo.kotlin_arch.mvibase.MviIntent
 sealed class HomeIntent : MviIntent {
 
     // opened home + not logged in yet
-    class Initial : HomeIntent() {
-        companion object {
-            fun create(): Initial {
-                return Initial()
-            }
-        }
-    }
+    class Initial : HomeIntent()
 
     // opened home, already logged in -> load the items
-    class LoadPlaylists(val limit: Int = 20, val offset: Int = 0) : HomeIntent() {
-        companion object {
-            fun create(limit: Int = 20, offset: Int = 0): LoadPlaylists {
-                return LoadPlaylists(limit, offset)
-            }
-        }
-    }
+    class LoadPlaylists(val limit: Int = 20, val offset: Int = 0) : HomeIntent()
 
+    // get /me and save to UserManager
+    class FetchUser : HomeIntent()
 }

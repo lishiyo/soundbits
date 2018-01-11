@@ -14,10 +14,11 @@ sealed class SummaryIntent : MviIntent {
     class LoadStats(val trackIds: List<String>) : SummaryIntent()
 
     // create playlist out of liked -> hit db and spotify api
-    class CreatePlaylist(val ownerId: Int,
-                         val name: String,
-                         val description: String?, // optional description
-                         val public: Boolean = false
+    class CreateWithTracksPlaylist(val ownerId: Int,
+                                   val name: String,
+                                   val description: String?, // optional description
+                                   val public: Boolean = false,
+                                   val tracks: List<TrackModel>
     ) : SummaryIntent()
 
     // add to an existing playlist -> hit db and spotify

@@ -55,6 +55,6 @@ class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderVie
         Utils.log(TAG, "playlistAdapter onLoadMore ++ currentCount: ${mLoadMoreView.viewCount}")
 
         // post intent to load playlists
-        mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create(offset = mLoadMoreView.viewCount))
+        mLoadPublisher.onNext(HomeIntent.LoadPlaylists(offset = mLoadMoreView.viewCount))
     }
 }

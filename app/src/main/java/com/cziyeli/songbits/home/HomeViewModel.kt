@@ -3,10 +3,7 @@ package com.cziyeli.songbits.home
 import android.arch.lifecycle.*
 import com.cziyeli.commons.Utils
 import com.cziyeli.data.RepositoryImpl
-import com.cziyeli.domain.playlists.Playlist
-import com.cziyeli.domain.playlists.PlaylistAction
-import com.cziyeli.domain.playlists.PlaylistActionProcessor
-import com.cziyeli.domain.playlists.PlaylistResult
+import com.cziyeli.domain.playlists.*
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
@@ -23,7 +20,7 @@ import javax.inject.Inject
  */
 class HomeViewModel @Inject constructor(
         val repository: RepositoryImpl,
-        actionProcessor: PlaylistActionProcessor,
+        actionProcessor: HomeActionProcessor,
         schedulerProvider: BaseSchedulerProvider
 ) : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, HomeViewState> {
     private val TAG = HomeViewModel::class.simpleName
@@ -50,9 +47,10 @@ class HomeViewModel @Inject constructor(
     }
 
     // Previous ViewState + Result => New ViewState
-    private val reducer: BiFunction<HomeViewState, PlaylistResult, HomeViewState> = BiFunction { previousState, result ->
+    private val reducer: BiFunction<HomeViewState, HomeResult, HomeViewState> = BiFunction { previousState, result ->
         when (result) {
             is PlaylistResult.UserPlaylists -> return@BiFunction processUserPlaylists(previousState, result)
+            is UserResult.FetchUser -> return@BiFunction processCurrentUser(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -87,9 +85,10 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    private fun actionFromIntent(intent: MviIntent) : PlaylistAction {
+    private fun actionFromIntent(intent: MviIntent) : HomeAction {
         return when(intent) {
-            is HomeIntent.LoadPlaylists -> PlaylistAction.UserPlaylists.create(intent.limit, intent.offset)
+            is HomeIntent.LoadPlaylists -> PlaylistAction.UserPlaylists(intent.limit, intent.offset)
+            is HomeIntent.FetchUser -> UserAction.FetchUser()
             else -> PlaylistAction.None // no-op all other events
         }
     }
@@ -133,8 +132,33 @@ class HomeViewModel @Inject constructor(
 
         return newState
     }
+
+    private fun processCurrentUser(previousState: HomeViewState, result: UserResult.FetchUser) : HomeViewState {
+        val newState: HomeViewState = previousState.copy()
+        newState.error = null
+
+        Utils.mLog(TAG, "processCurrentUser", "status", result.status.toString(), "result.currentUser",
+                result.currentUser?.toString())
+
+        when (result.status) {
+            UserResult.Status.LOADING -> {
+                newState.loggedInStatus = UserResult.Status.LOADING
+            }
+            UserResult.Status.SUCCESS, UserResult.Status.IDLE -> {
+                newState.loggedInStatus = UserResult.Status.SUCCESS
+            }
+            UserResult.Status.FAILURE -> {
+                newState.loggedInStatus = UserResult.Status.FAILURE
+                newState.error = result.error
+            }
+        }
+
+        return newState
+    }
 }
 
 data class HomeViewState(var status: MviViewState.Status = MviViewState.Status.IDLE,
+                         var loggedInStatus: UserResult.Status = UserResult.Status.IDLE,
                          var error: Throwable? = null,
-                         val playlists: MutableList<Playlist> = mutableListOf()) : MviViewState
+                         val playlists: MutableList<Playlist> = mutableListOf()
+) : MviViewState

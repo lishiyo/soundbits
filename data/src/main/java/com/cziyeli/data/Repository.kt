@@ -2,10 +2,8 @@ package com.cziyeli.data
 
 import com.cziyeli.data.local.TrackEntity
 import io.reactivex.Observable
-import kaaes.spotify.webapi.android.models.AudioFeaturesTracks
-import kaaes.spotify.webapi.android.models.Pager
-import kaaes.spotify.webapi.android.models.PlaylistSimple
-import kaaes.spotify.webapi.android.models.PlaylistTrack
+import io.reactivex.Single
+import kaaes.spotify.webapi.android.models.*
 
 /**
  * Contract for api requests.
@@ -18,6 +16,8 @@ interface Repository {
     }
 
     fun debug(limit: Int = -1)
+
+    fun fetchCurrentUser() : Single<UserPrivate>
 
     // get current user's playlists
     fun fetchUserPlaylists(source: Repository.Source = Source.REMOTE,

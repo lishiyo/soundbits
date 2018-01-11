@@ -17,12 +17,14 @@ val SCOPES = arrayOf(
         "playlist-read-private",
         "streaming",
         "playlist-modify-public",
-        "playlist-modify-private"
+        "playlist-modify-private",
+        "user-read-email"
 )
 
 // Shared Prefs
 const val LOGIN_EXPIRATION = "login_expiration" // in seconds
 const val AUTH_TOKEN = "spotify_auth_token"
+
 
 // tests
 private val TEST_SONG_URI = "spotify:track:6KywfgRqvgvfJc3JRwaZdZ"

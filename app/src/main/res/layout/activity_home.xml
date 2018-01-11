@@ -39,10 +39,11 @@
 		android:layout_marginTop="4dp"
 		android:focusable="true"
 		android:onClick="onTestButtonClicked"
-		android:text="TEST"
+		android:text="Fetch Playlists"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/login_button"
 		app:layout_constraintVertical_bias="0.015" />
+
 </android.support.constraint.ConstraintLayout>

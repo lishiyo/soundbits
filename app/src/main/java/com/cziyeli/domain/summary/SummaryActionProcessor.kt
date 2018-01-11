@@ -53,7 +53,6 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
             .doOnNext { repository.saveTracksLocal(mapNewTracks(it)) }
             .map { act -> SummaryResult.SaveTracks.createSuccess(act.tracks, act.playlistId) }
             .observeOn(schedulerProvider.ui())
-            .doOnNext { repository.debug() }
             .onErrorReturn { err -> SummaryResult.SaveTracks.createError(err) }
             .startWith(SummaryResult.SaveTracks.createLoading())
             .retry() // don't unsubscribe
@@ -71,7 +70,7 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
                     playlistId = act.playlistId,
                     artistName = it.artist?.name,
                     popularity = it.popularity,
-                    coverImageUrl = it.coverImage?.url
+                    coverImageUrl = it.simpleImage?.url
             )
         }
     }

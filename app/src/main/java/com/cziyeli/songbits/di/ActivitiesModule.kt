@@ -1,13 +1,20 @@
 package com.cziyeli.songbits.di
 
+import android.app.Activity
 import com.cziyeli.commons.di.PerActivity
 import com.cziyeli.songbits.MainActivity
 import com.cziyeli.songbits.cards.CardsActivity
 import com.cziyeli.songbits.cards.di.CardsModule
 import com.cziyeli.songbits.home.HomeActivity
 import com.cziyeli.songbits.home.di.HomeActivitySubComponent
+import dagger.Binds
 import dagger.Module
+import dagger.android.ActivityKey
+import dagger.android.AndroidInjector
 import dagger.android.ContributesAndroidInjector
+import dagger.multibindings.IntoMap
+
+
 
 
 
@@ -25,9 +32,10 @@ abstract class ActivitiesModule {
     @ContributesAndroidInjector
     abstract fun provideMainActivity(): MainActivity
 
-    @PerActivity
-    @ContributesAndroidInjector
-    abstract fun provideHomeActivity(): HomeActivity
+    @Binds
+    @IntoMap
+    @ActivityKey(HomeActivity::class)
+    internal abstract fun provideHomeActivity(builder: HomeActivitySubComponent.Builder): AndroidInjector.Factory<out Activity>
 
     @PerActivity
     @ContributesAndroidInjector(

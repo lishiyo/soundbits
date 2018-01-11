@@ -2,11 +2,9 @@ package com.cziyeli.data.remote
 
 import com.cziyeli.commons.Utils
 import io.reactivex.Observable
+import io.reactivex.Single
 import kaaes.spotify.webapi.android.SpotifyApi
-import kaaes.spotify.webapi.android.models.AudioFeaturesTracks
-import kaaes.spotify.webapi.android.models.Pager
-import kaaes.spotify.webapi.android.models.PlaylistSimple
-import kaaes.spotify.webapi.android.models.PlaylistTrack
+import kaaes.spotify.webapi.android.models.*
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import retrofit.Callback
 import retrofit.RetrofitError
@@ -19,6 +17,20 @@ import javax.inject.Inject
 class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
                                            private val schedulerProvider: BaseSchedulerProvider) {
     private val TAG = RemoteDataSource::class.simpleName
+
+    fun fetchCurrentUser() : Single<UserPrivate> {
+        return Single.create<UserPrivate>( { emitter ->
+            api.service.getMe(object : Callback<UserPrivate> {
+                override fun failure(error: RetrofitError?) {
+                    emitter.onError(Throwable(error?.localizedMessage))
+                }
+
+                override fun success(t: UserPrivate?, response: Response?) {
+                    emitter.onSuccess(t)
+                }
+            })
+        })
+    }
 
     fun fetchUserPlaylists(limit: Int = 20, offset: Int = 0): Observable<Pager<PlaylistSimple>> {
         return Observable.create<Pager<PlaylistSimple>>({ emitter ->
@@ -78,5 +90,7 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
             })
         })
     }
+
+
 }
 

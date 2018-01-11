@@ -1,6 +1,6 @@
 package com.cziyeli.domain.tracks
 
-import com.cziyeli.domain.CoverImage
+import com.cziyeli.domain.SimpleImage
 import kaaes.spotify.webapi.android.models.Track
 
 /**
@@ -24,7 +24,7 @@ data class TrackModel(val name: String,
         UNSEEN // user hasn't seen this yet
     }
 
-    val coverImage: CoverImage?
+    val simpleImage: SimpleImage?
         get() = (album.images?.get(0))
 
     val artist: Artist?
@@ -39,7 +39,7 @@ data class TrackModel(val name: String,
     companion object {
         fun create(apiModel: Track) : TrackModel {
             val artists: List<Artist> = apiModel.artists.map { Artist(it.name, it.id, it.uri) }
-            val images = apiModel.album.images?.map { CoverImage(it.height, it.width, it.url) }
+            val images = apiModel.album.images?.map { SimpleImage(it.height, it.width, it.url) }
             val trackAlbum = TrackAlbum(apiModel.album.id, apiModel.album.uri, artists, images)
             return TrackModel(
                     apiModel.name,
@@ -54,7 +54,7 @@ data class TrackModel(val name: String,
     }
 }
 
-data class TrackAlbum(val id: String, val uri: String, val artists: List<Artist>, val images: List<CoverImage>?)
+data class TrackAlbum(val id: String, val uri: String, val artists: List<Artist>, val images: List<SimpleImage>?)
 
 data class Artist(val name: String, val id: String, val uri: String)
 

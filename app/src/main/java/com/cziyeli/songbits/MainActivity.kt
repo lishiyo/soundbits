@@ -4,10 +4,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
+import com.cziyeli.commons.AUTH_TOKEN
+import com.cziyeli.commons.bindSharedPreference
 import com.cziyeli.songbits.home.HomeActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
+
 class MainActivity : AppCompatActivity() {
+
+    var accessToken: String by bindSharedPreference(this, AUTH_TOKEN, "")
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -40,6 +45,10 @@ class MainActivity : AppCompatActivity() {
 
         nav_home_activity.setOnClickListener{ _ ->
             startActivity(Intent(this, HomeActivity::class.java))
+        }
+
+        logout_button.setOnClickListener { _ ->
+            accessToken = "" // "log out" by busting access token
         }
     }
 }

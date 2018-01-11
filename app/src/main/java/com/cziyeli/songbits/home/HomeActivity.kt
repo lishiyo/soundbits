@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.cziyeli.commons.*
+import com.cziyeli.domain.playlists.UserResult
+import com.cziyeli.domain.user.UserManager
 import com.cziyeli.songbits.R
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
@@ -35,11 +37,8 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
     @Inject lateinit var api: SpotifyApi
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-
     // check if logged in by shared prefs and in-memory
-    private var nextExpirationSeconds: Long by bindSharedPreference(this, LOGIN_EXPIRATION, 0)
-    private var accessToken: String by bindSharedPreference(this, AUTH_TOKEN, "")
-    private var loggedInFlag: Boolean = false
+    @Inject lateinit var userManager : UserManager
 
     // view models
     private lateinit var viewModel: HomeViewModel
@@ -49,6 +48,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
     // intents
     private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadPlaylists>()
+    private val mUserPublisher = PublishSubject.create<HomeIntent.FetchUser>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Dagger
@@ -64,31 +64,38 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         // bind the view model after all views are done
         initViewModel()
 
-        if (isLoggedIn()) {
-            Utils.log(TAG, "isLoggedIn already ++ ${(System.currentTimeMillis() / 1000) < nextExpirationSeconds}")
-            api.setAccessToken(accessToken)
-            mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create())
+        Utils.log(TAG, "isAccessTokenValid: ${isAccessTokenValid()}")
+        if (isAccessTokenValid()) {
+            api.setAccessToken(userManager.accessToken)
+            mLoadPublisher.onNext(HomeIntent.LoadPlaylists())
         }
     }
 
     override fun intents(): Observable<out HomeIntent> {
         return Observable.merge(
-                Observable.just(HomeIntent.Initial.create()), // send out initial intent immediately
+                Observable.just(HomeIntent.Initial()), // send out initial intent immediately
                 mLoadPublisher, // own load intent
+                mUserPublisher, // fetch user intent
                 playlistsAdapter.intents() // subviews intents
         )
     }
 
     override fun render(state: HomeViewState) {
-        Utils.setVisible(login_button, !isLoggedIn())
-        Utils.setVisible(test_button, isLoggedIn())
+        Utils.setVisible(login_button, !isAccessTokenValid())
+        Utils.setVisible(test_button, isAccessTokenValid())
 
         // render subviews
         playlistsAdapter.render(state)
+
+        when (state.loggedInStatus) {
+            UserResult.Status.FAILURE -> Utils.mLog(TAG, "render", "failed to save current user")
+            UserResult.Status.SUCCESS -> Utils.mLog(TAG, "render", "saved current user!")
+        }
     }
 
-    private fun isLoggedIn(): Boolean {
-        return !accessToken.isEmpty() && (loggedInFlag || (System.currentTimeMillis() / 1000) < nextExpirationSeconds)
+
+    private fun isAccessTokenValid(): Boolean {
+        return userManager.isAccessTokenValid()
     }
 
     private fun initViewModel() {
@@ -109,19 +116,16 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     }
 
     fun onLoginButtonClicked(view: View) {
-        if (!isLoggedIn()) {
-            Utils.log(TAG, "Logging in")
+        if (!isAccessTokenValid()) {
             openLoginWindow()
-        } else {
-            Utils.log(TAG, "Already logged in")
         }
     }
 
     fun onTestButtonClicked(view: View) {
-        if (!isLoggedIn()) {
+        if (!isAccessTokenValid()) {
             openLoginWindow()
         } else {
-            mLoadPublisher.onNext(HomeIntent.LoadPlaylists.create())
+            mLoadPublisher.onNext(HomeIntent.LoadPlaylists())
         }
     }
 
@@ -134,17 +138,14 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
     override fun onLoggedIn() {
         Utils.log(TAG, "Login complete")
-        loggedInFlag = true
     }
 
     override fun onLoggedOut() {
         Utils.log(TAG, "Logout complete")
-        loggedInFlag = false
     }
 
     override fun onLoginFailed(error: Error) {
         Utils.log(TAG, "Login error " + error)
-        loggedInFlag = false
     }
 
     override fun onTemporaryError() {
@@ -163,8 +164,7 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     //
 
     private fun openLoginWindow() {
-        val request = AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID,
-                AuthenticationResponse.Type.TOKEN, SPOTIFY_REDIRECT_URI)
+        val request = AuthenticationRequest.Builder(SPOTIFY_CLIENT_ID, AuthenticationResponse.Type.TOKEN, SPOTIFY_REDIRECT_URI)
                 .setScopes(SCOPES)
                 .build()
 
@@ -191,18 +191,22 @@ class HomeActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     }
 
     private fun onAuthenticationComplete(authResponse: AuthenticationResponse) {
-        loggedInFlag = true
+        // Set up user manager
+        userManager.accessToken = authResponse.accessToken
+        val nextExpirationSeconds = System.currentTimeMillis() / 1000 + authResponse.expiresIn // 1 hour
+        userManager.nextExpirationSeconds = nextExpirationSeconds
+
         // Save the access token and expiration time in shared prefs
         api.setAccessToken(authResponse.accessToken)
-        accessToken = authResponse.accessToken
-        val nextExpirationTime = System.currentTimeMillis() / 1000 + authResponse.expiresIn // 1 hour
-        nextExpirationSeconds = nextExpirationTime
+
+        // fetch current user and save to UserManager
+        mUserPublisher.onNext(HomeIntent.FetchUser())
 
         // rerender! TODO: do via intent
         Utils.setVisible(login_button, false)
         Utils.setVisible(test_button, true)
 
-        Utils.log(TAG, "Got authentication token: $authResponse.accessToken ++ nextExpirationTime: $nextExpirationTime")
+        Utils.log(TAG, "Got authentication token!")
     }
 
 }

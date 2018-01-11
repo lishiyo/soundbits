@@ -1,27 +1,32 @@
 package com.cziyeli.domain.playlists
 
 import com.cziyeli.data.Repository
+import com.cziyeli.domain.user.User
+import com.cziyeli.domain.user.UserManager
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
- * Business logic to convert actions => results.
+ * Business logic to convert actions => results on the [HomeActivity] screen.
+ * Combines both Playlist + User actions.
  *
  * Created by connieli on 12/31/17.
  */
-class PlaylistActionProcessor @Inject constructor(private val repository: Repository,
-                                                  private val schedulerProvider: BaseSchedulerProvider) {
-    val combinedProcessor: ObservableTransformer<PlaylistAction, PlaylistResult> = ObservableTransformer { acts ->
+@Singleton
+class HomeActionProcessor @Inject constructor(private val repository: Repository,
+                                              private val schedulerProvider: BaseSchedulerProvider,
+                                              private val userManager : UserManager) {
+    val combinedProcessor: ObservableTransformer<HomeAction, HomeResult> = ObservableTransformer { acts ->
         acts.publish { shared ->
-            Observable.merge<PlaylistResult>(
+            Observable.merge<HomeResult>(
                     shared.ofType<PlaylistAction.UserPlaylists>(PlaylistAction.UserPlaylists::class.java).compose(userPlaylistsProcessor),
-                    Observable.empty()
+                    shared.ofType<UserAction.FetchUser>(UserAction.FetchUser::class.java).compose(fetchUserProcessor)
             ).mergeWith(
                     // Error for not implemented actions
-                    shared.filter { v ->
-                        (v !is PlaylistAction.UserPlaylists && v !is PlaylistAction.None)
+                    shared.filter { v -> v !is HomeAction
                     }.flatMap { w -> Observable.error<PlaylistResult>(IllegalArgumentException("Unknown Action type: " + w)) }
             ).retry() // don't unsubscribe ever
         }
@@ -44,4 +49,23 @@ class PlaylistActionProcessor @Inject constructor(private val repository: Reposi
                     .retry()
             }
 
+
+    // fetch and save the current user in UserManager
+    private val fetchUserProcessor : ObservableTransformer<UserAction.FetchUser, UserResult.FetchUser>
+            = ObservableTransformer { action -> action.switchMap {
+                _ -> repository
+                    .fetchCurrentUser()
+                    .subscribeOn(schedulerProvider.io())
+                    .toObservable()
+            }
+            .map { User.create(it) }
+            .doOnNext { user ->
+                // instantiate user!
+                userManager.CURRENT_USER = user
+            }
+            .map { user -> UserResult.FetchUser.createSuccess(currentUser = user)}
+            .onErrorReturn { err -> UserResult.FetchUser.createError(err) }
+            .startWith(UserResult.FetchUser.createLoading())
+            .retry()
+    }
 }

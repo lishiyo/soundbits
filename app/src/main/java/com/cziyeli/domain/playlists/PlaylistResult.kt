@@ -6,7 +6,9 @@ import java.util.*
 /**
  * Created by connieli on 12/31/17.
  */
-sealed class PlaylistResult(var status: Status = Status.IDLE, var error: Throwable? = null) : MviResult {
+interface HomeResult : MviResult
+
+sealed class PlaylistResult(var status: Status = Status.IDLE, var error: Throwable? = null) : HomeResult {
     enum class Status {
         LOADING, SUCCESS, FAILURE, IDLE
     }
