@@ -24,6 +24,7 @@ val SCOPES = arrayOf(
 // Shared Prefs
 const val LOGIN_EXPIRATION = "login_expiration" // in seconds
 const val AUTH_TOKEN = "spotify_auth_token"
+const val CURRENT_USER_ID = "current_user_id"
 
 
 // tests

@@ -91,6 +91,54 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
         })
     }
 
+    fun createPlaylist(ownerId: String, name: String, description: String?, public: Boolean): Single<Playlist> {
+        return Single.create<Playlist>({ emitter ->
+            val params = mapOf("description" to description, "public" to public, "name" to name)
+            api.service.createPlaylist(ownerId, params, object : Callback<Playlist> {
+                override fun success(resp: Playlist?, response: Response?) {
+                    Utils.mLog(TAG, "createPlaylist", "success!")
+                    emitter.onSuccess(resp)
+                }
+
+                override fun failure(error: RetrofitError?) {
+                    Utils.mLog(TAG, "createPlaylist", "error", error?.localizedMessage)
+                    emitter.onError(Throwable(error?.localizedMessage))
+                }
+            })
+        })
+    }
+
+    fun addTracksToPlaylist(ownerId: String, playlistId: String, trackUris: List<String>): Observable<Pair<String, SnapshotId>> {
+        return Observable.create<Pair<String, SnapshotId>>({ emitter ->
+                val params = mapOf("position" to 0, "uris" to TrackData(trackUris))
+                Utils.mLog(TAG, "addTracksToPlaylist!", "params", params.toString(), "trackdata: ", TrackData(trackUris).toString())
+                val snapshotId: SnapshotId = api.service.addTracksToPlaylist(ownerId, playlistId, params, mapOf()) // sync request
+                val pair = Pair(playlistId, snapshotId)
+                emitter.onNext(pair)
+        })
+    }
+
+
+//    fun addTracksToPlaylist(ownerId: String, playlistId: String, trackUris: List<String>): Observable<Pair<String, Pager<PlaylistTrack>>> {
+//        return Observable.create<Pair<String, Pager<PlaylistTrack>>>({ emitter ->
+//            val params = mapOf("position" to 0, "uris" to trackUris.joinToString())
+//
+//
+////            api.service.addTracksToPlaylist(ownerId, playlistId, params, mapOf(), object : Callback<Pager<PlaylistTrack>> {
+////                override fun success(resp: Pager<PlaylistTrack>, response: Response?) {
+////                    Utils.mLog(TAG, "createPlaylist", "success!")
+////                    val pair = Pair<String, Pager<PlaylistTrack>>(playlistId, resp)
+////                    emitter.onNext(pair)
+////                }
+////
+////                override fun failure(error: RetrofitError?) {
+////                    Utils.mLog(TAG, "createPlaylist", "error", error?.localizedMessage)
+////                    emitter.onError(Throwable(error?.localizedMessage))
+////                }
+////            })
+//        })
+//    }
+
 
 }
 

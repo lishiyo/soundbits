@@ -2,6 +2,7 @@ package com.cziyeli.domain.summary
 
 import com.cziyeli.commons.Utils
 import com.cziyeli.domain.tracks.TrackModel
+import kaaes.spotify.webapi.android.models.SnapshotId
 import lishiyo.kotlin_arch.mvibase.MviResult
 
 /**
@@ -30,6 +31,27 @@ sealed class SummaryResult(var status: MviResult.Status = MviResult.Status.IDLE,
         }
     }
 
+    class CreatePlaylistWithTracks(status: MviResult.Status,
+                                   error: Throwable? = null,
+                                   val playlistId: String? = null,
+                                   val snapshotId: SnapshotId? = null
+//                                   val tracks: List<TrackModel> = listOf()
+    ) : SummaryResult(status, error) {
+        companion object {
+            fun createSuccess(playlistId: String,
+                              snapshotId: SnapshotId
+//                              tracks: List<TrackModel> = listOf()
+            ) : CreatePlaylistWithTracks {
+                return CreatePlaylistWithTracks(MviResult.Status.SUCCESS, playlistId = playlistId, snapshotId = snapshotId)
+            }
+            fun createError(throwable: Throwable) : CreatePlaylistWithTracks {
+                return CreatePlaylistWithTracks(MviResult.Status.FAILURE, throwable)
+            }
+            fun createLoading(): CreatePlaylistWithTracks {
+                return CreatePlaylistWithTracks(MviResult.Status.LOADING)
+            }
+        }
+    }
 
     class SaveTracks(status: MviResult.Status,
                      error: Throwable?,

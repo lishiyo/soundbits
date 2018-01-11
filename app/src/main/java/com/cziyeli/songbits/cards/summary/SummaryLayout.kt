@@ -26,7 +26,9 @@ import lishiyo.kotlin_arch.mvibase.MviViewState
  * Created by connieli on 1/7/18.
  */
 class SummaryLayout @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr), MviView<SummaryIntent, SummaryViewState> {
     private val TAG = SummaryLayout::class.simpleName
 
@@ -36,7 +38,7 @@ class SummaryLayout @JvmOverloads constructor(
     // fire off intents
     private val mStatsPublisher = PublishSubject.create<SummaryIntent.LoadStats>()
     private val mUserSavePublisher = PublishSubject.create<SummaryIntent.SaveAllTracks>()
-    private val mCreatePlaylistPublisher = PublishSubject.create<SummaryIntent.CreateWithTracksPlaylist>()
+    private val mCreatePlaylistPublisher = PublishSubject.create<SummaryIntent.CreatePlaylistWithTracks>()
 
     // views
     lateinit var rootView: ViewGroup
@@ -72,7 +74,14 @@ class SummaryLayout @JvmOverloads constructor(
         }
 
         action_create_playlist.setOnClickListener {
-
+            // just testing
+            mCreatePlaylistPublisher.onNext(SummaryIntent.CreatePlaylistWithTracks(
+                    ownerId = App.getCurrentUserId(),
+                    name = "songbits test",
+                    description = "a little test",
+                    public = false,
+                    tracks = initialViewState.currentLikes)
+            )
         }
 
         nuke.setOnClickListener {
@@ -84,7 +93,8 @@ class SummaryLayout @JvmOverloads constructor(
     override fun intents(): Observable<out SummaryIntent> {
         return Observable.merge(
                 mStatsPublisher,
-                mUserSavePublisher
+                mUserSavePublisher,
+                mCreatePlaylistPublisher
         )
     }
 

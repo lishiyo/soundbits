@@ -38,6 +38,16 @@ interface Repository {
                          trackIds: List<String>
     ) : Observable<AudioFeaturesTracks>
 
+    // @POST("/users/{user_id}/playlists")
+    fun createPlaylist(ownerId: String,
+                       name: String,
+                       description: String?, // optional description
+                       public: Boolean = false) : Single<Playlist>
+
+    // @POST("/users/{user_id}/playlists/{playlist_id}/tracks")
+//    fun addTracksToPlaylist(ownerId: String, playlistId: String, trackUris: List<String>) : Observable<Pair<String, Pager<PlaylistTrack>>>
+    fun addTracksToPlaylist(ownerId: String, playlistId: String, trackUris: List<String>) : Observable<Pair<String, SnapshotId>>
+
     // Save tracks to database (local only)
     fun saveTracksLocal(tracks: List<TrackEntity>)
 }

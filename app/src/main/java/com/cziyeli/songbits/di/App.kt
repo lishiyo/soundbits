@@ -24,6 +24,14 @@ class App : Application(), HasActivityInjector {
                     .subscribeOn(SchedulerProvider.io())
                     .subscribe { db -> db.tracksDao().nuke() }
         }
+
+        fun getCurrentUserId() : String {
+            if (appComponent.userManager().userId.isBlank()) {
+                throw(Throwable("user id is blank! log in first?"))
+            }
+
+            return appComponent.userManager().userId
+        }
     }
 
     @Inject lateinit var activityInjector: DispatchingAndroidInjector<Activity>

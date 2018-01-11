@@ -47,6 +47,8 @@ class SummaryViewModel @Inject constructor(
     private val reducer: BiFunction<SummaryViewState, SummaryResult, SummaryViewState> = BiFunction { previousState, result ->
         when (result) {
             is SummaryResult.LoadStatsResult -> return@BiFunction processStats(previousState, result)
+            is SummaryResult.SaveTracks -> return@BiFunction processSaveResult(previousState, result)
+            is SummaryResult.CreatePlaylistWithTracks -> return@BiFunction processCreatePlaylistResult(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -85,6 +87,8 @@ class SummaryViewModel @Inject constructor(
         return when(intent) {
             is SummaryIntent.LoadStats -> SummaryAction.LoadStats(intent.trackIds)
             is SummaryIntent.SaveAllTracks -> SummaryAction.SaveTracks(intent.tracks, intent.playlistId)
+            is SummaryIntent.CreatePlaylistWithTracks -> SummaryAction.CreatePlaylistWithTracks(intent.ownerId, intent.name,
+                    intent.description, intent.public, intent.tracks)
             else -> SummaryAction.None // no-op all other events
         }
     }
@@ -124,6 +128,33 @@ class SummaryViewModel @Inject constructor(
                 newState.status = MviViewState.Status.SUCCESS
                 Utils.mLog(TAG, "processSaveResult SUCCESS", "insertedTracks: ",
                         "${result.insertedTracks!!.size} for playlist: ${result.playlistId}")
+            }
+            MviResult.Status.FAILURE -> {
+                newState.status = MviViewState.Status.ERROR
+                newState.error = result.error
+            }
+        }
+
+        return newState
+    }
+
+    private fun processCreatePlaylistResult(previousState: SummaryViewState, result: SummaryResult.CreatePlaylistWithTracks) : SummaryViewState {
+        val newState = previousState.copy()
+        newState.error = null
+
+//        Utils.mLog(TAG, "processCreatePlaylistResult", "statis", result.status.toString(),
+//                "created with tracks: ", "${result.tracks.joinToString { it.name }} for new playlist: ${result.playlistId}")
+
+        Utils.mLog(TAG, "processCreatePlaylistResult", "statis", result.status.toString(),
+                "created with snapshotId: ", "${result.snapshotId} for new playlist: ${result.playlistId}")
+
+        when (result.status) {
+            MviResult.Status.LOADING -> {
+                newState.status = MviViewState.Status.LOADING
+            }
+            MviResult.Status.SUCCESS -> {
+                newState.status = MviViewState.Status.SUCCESS
+
             }
             MviResult.Status.FAILURE -> {
                 newState.status = MviViewState.Status.ERROR

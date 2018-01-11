@@ -22,7 +22,8 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
         acts.publish { shared ->
             Observable.merge<SummaryResult>(
                     shared.ofType<SummaryAction.LoadStats>(SummaryAction.LoadStats::class.java).compose(mLoadStatsProcessor),
-                    shared.ofType<SummaryAction.SaveTracks>(SummaryAction.SaveTracks::class.java).compose(mSaveTracksProcessor)
+                    shared.ofType<SummaryAction.SaveTracks>(SummaryAction.SaveTracks::class.java).compose(mSaveTracksProcessor),
+                    shared.ofType<SummaryAction.CreatePlaylistWithTracks>(SummaryAction.CreatePlaylistWithTracks::class.java).compose(mCreatePlaylistProcessor)
             ).mergeWith(
                     // Error for not implemented actions
                     shared.filter { v -> (v !is SummaryAction)
@@ -46,6 +47,25 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
             .onErrorReturn { err -> SummaryResult.LoadStatsResult.createError(err) }
             .startWith(SummaryResult.LoadStatsResult.createLoading())
             .retry() // don't unsubscribe
+    }
+
+    private val mCreatePlaylistProcessor: ObservableTransformer<SummaryAction.CreatePlaylistWithTracks,
+            SummaryResult.CreatePlaylistWithTracks> = ObservableTransformer {
+                action -> action.switchMap {
+                    act -> repository
+                            .createPlaylist(act.ownerId, act.name, act.description, act.public)
+                            .subscribeOn(schedulerProvider.io())
+                            .flatMapObservable { playlist ->
+                                Utils.mLog(TAG, "createPlaylistProcessor", "doAfterSuccess!", playlist.toString())
+                                repository.addTracksToPlaylist(act.ownerId, playlist.id, act.tracks.map { it.uri }).subscribeOn(schedulerProvider.io())
+                            }
+                }
+//                .map { pair -> Pair(pair.first, pair.second.items.map { it.track }) }
+//                .map { pair -> Pair(pair.first, pair.second.map { TrackModel.create(it) }) }
+                .map { pair -> SummaryResult.CreatePlaylistWithTracks.createSuccess(pair.first, pair.second) }
+                .onErrorReturn { SummaryResult.CreatePlaylistWithTracks.createError(it) }
+                .startWith(SummaryResult.CreatePlaylistWithTracks.createLoading())
+                .retry() // don't unsubscribe
     }
 
     private val mSaveTracksProcessor: ObservableTransformer<SummaryAction.SaveTracks, SummaryResult.SaveTracks> = ObservableTransformer {

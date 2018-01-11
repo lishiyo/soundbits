@@ -2,6 +2,7 @@ package com.cziyeli.domain.user
 
 import android.content.Context
 import com.cziyeli.commons.AUTH_TOKEN
+import com.cziyeli.commons.CURRENT_USER_ID
 import com.cziyeli.commons.LOGIN_EXPIRATION
 import com.cziyeli.commons.bindSharedPreference
 import com.cziyeli.commons.di.ForApplication
@@ -22,10 +23,16 @@ class UserManager @Inject constructor(@ForApplication context: Context) {
     // Auth requirements
     var nextExpirationSeconds: Long by bindSharedPreference(context, LOGIN_EXPIRATION, 0)
     var accessToken: String by bindSharedPreference(context, AUTH_TOKEN, "")
+    var userId: String by bindSharedPreference(context, CURRENT_USER_ID, "")
 
     // Might not have gotten /me yet, but has access tokens
     fun isAccessTokenValid() : Boolean {
         return !accessToken.isEmpty() && (System.currentTimeMillis() / 1000) < nextExpirationSeconds
+    }
+
+    fun saveUser(user: User) {
+        CURRENT_USER = user
+        userId = user.id
     }
 
     fun isLoggedIn() : Boolean {

@@ -60,8 +60,7 @@ class HomeActionProcessor @Inject constructor(private val repository: Repository
             }
             .map { User.create(it) }
             .doOnNext { user ->
-                // instantiate user!
-                userManager.CURRENT_USER = user
+                userManager.saveUser(user)
             }
             .map { user -> UserResult.FetchUser.createSuccess(currentUser = user)}
             .onErrorReturn { err -> UserResult.FetchUser.createError(err) }

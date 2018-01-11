@@ -28,6 +28,8 @@ interface ApplicationComponent {
     // downstream components need these exposed
     // the method name does not matter, only the return type
     fun tracksDatabase() : TracksDatabase
+
+    fun userManager() : com.cziyeli.domain.user.UserManager
 }
 
 

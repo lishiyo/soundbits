@@ -14,17 +14,18 @@ sealed class SummaryAction : MviAction {
 
     // Create a new playlist
     // https://developer.spotify.com/web-api/console/post-playlists/
-    class CreatePlaylist(val ownerId: Int,
-                         val name: String,
-                         val description: String?, // optional description
-                         val public: Boolean = false
+    class CreatePlaylistWithTracks(val ownerId: String,
+                                   val name: String,
+                                   val description: String?, // optional description
+                                   val public: Boolean = false,
+                                   val tracks: List<TrackModel> = listOf()
     ) : SummaryAction()
 
     // Add tracks to a playlist
     // https://developer.spotify.com/web-api/console/post-playlist-tracks/
-    class AddTracksPlaylist(val ownerId: Int,
+    class AddTracksPlaylist(val ownerId: String,
                             val playlistId: String,
-                            val tracks: List<TrackModel> // map to uris
+                            val tracks: List<TrackModel> // map to single string of track uris
     ) : SummaryAction()
 
     // Save tracks to local database
