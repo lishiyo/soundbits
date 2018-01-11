@@ -1,5 +1,7 @@
 package com.cziyeli.songbits.di
 
+import android.content.Context
+import com.cziyeli.commons.di.ForApplication
 import com.cziyeli.commons.di.UtilsModule
 import com.cziyeli.data.local.TracksDatabase
 import com.cziyeli.songbits.di.viewModels.ViewModelsModule
@@ -30,6 +32,9 @@ interface ApplicationComponent {
     fun tracksDatabase() : TracksDatabase
 
     fun userManager() : com.cziyeli.domain.user.UserManager
+
+    @ForApplication
+    fun appContext() : Context
 }
 
 

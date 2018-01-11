@@ -65,11 +65,6 @@ class RepositoryImpl @Inject constructor(
         return remoteDataSource.addTracksToPlaylist(ownerId, playlistId, trackUris)
     }
 
-//    override fun addTracksToPlaylist(ownerId: String, playlistId: String, trackUris: List<String>):
-//            Observable<Pair<String, Pager<PlaylistTrack>>> {
-//        return remoteDataSource.addTracksToPlaylist(ownerId, playlistId, trackUris)
-//    }
-
     private fun fetchUserPlaylistsRemote(limit: Int, offset: Int): Observable<Pager<PlaylistSimple>> {
         return remoteDataSource.fetchUserPlaylists(limit, offset)
     }

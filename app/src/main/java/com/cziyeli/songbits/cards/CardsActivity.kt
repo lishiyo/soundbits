@@ -11,7 +11,6 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.view.ViewStub
 import com.cziyeli.commons.Utils
-import com.cziyeli.commons.toast
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.SummaryActionProcessor
@@ -175,8 +174,6 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
             state.allTracks.forEach {
                 swipeView.addView(TrackCardView(this, it, this))
             }
-        } else {
-            "CardsActivity not ready: ${state.status} ".toast(this)
         }
 
         Utils.mLog(TAG, "render!", "state", state.toString())

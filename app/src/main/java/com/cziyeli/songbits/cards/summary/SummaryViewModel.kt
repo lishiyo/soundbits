@@ -1,8 +1,10 @@
 package com.cziyeli.songbits.cards.summary
 
 import android.arch.lifecycle.*
+import android.widget.Toast
 import com.cziyeli.commons.SingleLiveEvent
 import com.cziyeli.commons.Utils
+import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.SummaryAction
 import com.cziyeli.domain.summary.SummaryActionProcessor
@@ -10,6 +12,7 @@ import com.cziyeli.domain.summary.SummaryResult
 import com.cziyeli.domain.summary.TrackListStats
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.cards.TrackViewState
+import com.cziyeli.songbits.di.App
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
@@ -68,8 +71,7 @@ class SummaryViewModel @Inject constructor(
                 .observeOn(schedulerProvider.ui())
                 .map{ it -> actionFromIntent(it)}
                 .filter { act -> act != SummaryAction.None }
-                .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject",
-                        "hitActionProcessor", intent.javaClass.name) }
+                .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
                 .compose(actionProcessor.combinedProcessor)
                 .scan(initialViewState, reducer)
 
@@ -142,11 +144,8 @@ class SummaryViewModel @Inject constructor(
         val newState = previousState.copy()
         newState.error = null
 
-//        Utils.mLog(TAG, "processCreatePlaylistResult", "statis", result.status.toString(),
-//                "created with tracks: ", "${result.tracks.joinToString { it.name }} for new playlist: ${result.playlistId}")
-
         Utils.mLog(TAG, "processCreatePlaylistResult", "statis", result.status.toString(),
-                "created with snapshotId: ", "${result.snapshotId} for new playlist: ${result.playlistId}")
+                "created with snapshotId: ", "${result.snapshotId?.snapshot_id} for new playlist: ${result.playlistId}")
 
         when (result.status) {
             MviResult.Status.LOADING -> {
@@ -154,7 +153,7 @@ class SummaryViewModel @Inject constructor(
             }
             MviResult.Status.SUCCESS -> {
                 newState.status = MviViewState.Status.SUCCESS
-
+                "create playlist success! ${result.playlistId}".toast(App.appComponent.appContext(), Toast.LENGTH_SHORT)
             }
             MviResult.Status.FAILURE -> {
                 newState.status = MviViewState.Status.ERROR

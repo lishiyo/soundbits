@@ -45,7 +45,6 @@ interface Repository {
                        public: Boolean = false) : Single<Playlist>
 
     // @POST("/users/{user_id}/playlists/{playlist_id}/tracks")
-//    fun addTracksToPlaylist(ownerId: String, playlistId: String, trackUris: List<String>) : Observable<Pair<String, Pager<PlaylistTrack>>>
     fun addTracksToPlaylist(ownerId: String, playlistId: String, trackUris: List<String>) : Observable<Pair<String, SnapshotId>>
 
     // Save tracks to database (local only)

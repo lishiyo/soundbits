@@ -112,7 +112,7 @@ class SummaryLayout @JvmOverloads constructor(
                 stats_summary.text = "stats: ${state.stats?.printSummary()}"
             }
             MviViewState.Status.ERROR -> {
-                "error in fetching stats: ${state.error?.localizedMessage}".toast(context)
+                "error in rendering: ${state.error?.localizedMessage}".toast(context)
             }
             else -> progressView.smoothToShow()
         }

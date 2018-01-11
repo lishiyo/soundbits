@@ -14,8 +14,8 @@ import io.reactivex.schedulers.Schedulers
 /**
  * Created by connieli on 1/4/18.
  */
-fun Any.toast(context: Context) {
-    Toast.makeText(context, this.toString(), Toast.LENGTH_SHORT).show()
+fun Any.toast(context: Context, length: Int = Toast.LENGTH_LONG) {
+    Toast.makeText(context, this.toString(), length).show()
 }
 
 // Mediator LiveData that only allows distinct object emissions from a source.

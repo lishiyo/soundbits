@@ -60,8 +60,6 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
                                 repository.addTracksToPlaylist(act.ownerId, playlist.id, act.tracks.map { it.uri }).subscribeOn(schedulerProvider.io())
                             }
                 }
-//                .map { pair -> Pair(pair.first, pair.second.items.map { it.track }) }
-//                .map { pair -> Pair(pair.first, pair.second.map { TrackModel.create(it) }) }
                 .map { pair -> SummaryResult.CreatePlaylistWithTracks.createSuccess(pair.first, pair.second) }
                 .onErrorReturn { SummaryResult.CreatePlaylistWithTracks.createError(it) }
                 .startWith(SummaryResult.CreatePlaylistWithTracks.createLoading())
