@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
-import android.view.View
 import com.cziyeli.commons.*
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.domain.playlists.UserResult
@@ -36,14 +35,13 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     @Inject lateinit var api: SpotifyApi
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
     @Inject lateinit var userManager : UserManager
+
     // view models
     private lateinit var viewModel: HomeViewModel
 
     // intents
     private val mUserPublisher = PublishSubject.create<HomeIntent.FetchUser>()
     private val mLogoutPublisher = PublishSubject.create<HomeIntent.LogoutUser>()
-
-    var accessToken: String by bindSharedPreference(this, AUTH_TOKEN, "")
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -63,8 +61,53 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         false
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
+
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val accessTokenValid = isAccessTokenValid()
+        Utils.mLog(TAG, "onCreate", "isAccessTokenValid: $accessTokenValid")
+        if (accessTokenValid) { // already logged in
+            api.setAccessToken(userManager.accessToken)
+        }
+        Utils.setVisible(login_button, !accessTokenValid)
+        Utils.setVisible(nav_home_activity, accessTokenValid)
+        Utils.setVisible(nav_real_home_activity, accessTokenValid)
+
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+
+        nav_demo_activity.setOnClickListener{ _ ->
+            val intent = Intent(this, DemoActivity::class.java)
+            startActivity(intent)
+        }
+
+        nav_home_activity.setOnClickListener{ _ ->
+            startActivity(Intent(this, HomeActivity::class.java))
+        }
+
+        nav_real_home_activity.setOnClickListener { _ ->
+            // TODO
+        }
+
+        logout_button.setOnClickListener { _ ->
+            mLogoutPublisher.onNext(HomeIntent.LogoutUser())
+        }
+
+        login_button.setOnClickListener { _ ->
+            if (!isAccessTokenValid()) {
+                openLoginWindow()
+            }
+        }
+
+        // bind the view model after all views are done
+        initViewModel()
+    }
+
     override fun intents(): Observable<out HomeIntent> {
         return Observable.merge(
+                Observable.just(HomeIntent.Initial()), // send out initial intent immediately
                 mUserPublisher,
                 mLogoutPublisher
         )
@@ -72,12 +115,6 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
     private fun isAccessTokenValid(): Boolean {
         return userManager.isAccessTokenValid()
-    }
-
-    fun onLoginButtonClicked(view: View) {
-        if (!isAccessTokenValid()) {
-            openLoginWindow()
-        }
     }
 
     private fun initViewModel() {
@@ -97,39 +134,15 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         viewModel.processIntents(intents())
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
+    override fun render(state: HomeViewState) {
+        Utils.setVisible(login_button, !isAccessTokenValid())
+        Utils.setVisible(nav_home_activity, isAccessTokenValid())
+        Utils.setVisible(nav_real_home_activity, isAccessTokenValid())
 
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        val accessTokenValid = isAccessTokenValid()
-        Utils.mLog(TAG, "onCreate", "isAccessTokenValid: $accessTokenValid")
-        if (accessTokenValid) { // already logged in
-            api.setAccessToken(userManager.accessToken)
+        when (state.loggedInStatus) {
+            UserResult.Status.FAILURE -> Utils.mLog(TAG, "render", "failed to save/logout current user")
+            UserResult.Status.SUCCESS -> Utils.mLog(TAG, "render", "saved/logged-out current user!")
         }
-        Utils.setVisible(login_button, !accessTokenValid)
-        Utils.setVisible(nav_home_activity, accessTokenValid)
-
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
-
-        nav_demo_activity.setOnClickListener{ _ ->
-            val intent = Intent(this, DemoActivity::class.java)
-            startActivity(intent)
-        }
-
-        nav_home_activity.setOnClickListener{ _ ->
-            startActivity(Intent(this, HomeActivity::class.java))
-        }
-
-        logout_button.setOnClickListener { _ ->
-//            accessToken = "" // "log out" by busting access token
-            // re-render
-            mLogoutPublisher.onNext(HomeIntent.LogoutUser())
-        }
-
-        // bind the view model after all views are done
-        initViewModel()
     }
 
     //   ____      _ _ _                _      __  __      _   _               _
@@ -205,21 +218,12 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         // fetch current user and save to UserManager
         mUserPublisher.onNext(HomeIntent.FetchUser())
 
-        // rerender! TODO: do via intent
+        // rerender! TODO: do via MVI flow
         Utils.setVisible(login_button, false)
         Utils.setVisible(nav_home_activity, true)
+        Utils.setVisible(nav_real_home_activity, true)
 
         Utils.log(TAG, "Got authentication token!")
-    }
-
-    override fun render(state: HomeViewState) {
-        Utils.setVisible(login_button, !isAccessTokenValid())
-        Utils.setVisible(nav_home_activity, isAccessTokenValid())
-
-        when (state.loggedInStatus) {
-            UserResult.Status.FAILURE -> Utils.mLog(TAG, "render", "failed to save/logout current user")
-            UserResult.Status.SUCCESS -> Utils.mLog(TAG, "render", "saved/logged-out current user!")
-        }
     }
 
 }
