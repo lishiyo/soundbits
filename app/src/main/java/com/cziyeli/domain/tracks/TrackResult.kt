@@ -7,20 +7,25 @@ import java.util.*
 /**
  * Created by connieli on 1/1/18.
  */
-sealed class TrackResult(var status: MviResult.Status = MviResult.Status.IDLE, var error: Throwable? = null) : MviResult {
+sealed class TrackResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE, var error: Throwable? = null) : MviResult {
 
-    class LoadTrackCards(status: MviResult.Status, error: Throwable?,
+    class LoadTrackCards(status: Status, error: Throwable?,
                          val items: List<TrackModel> = Collections.emptyList()
     ) : TrackResult(status, error) {
+        // personal status enum
+        enum class Status : MviResult.StatusInterface {
+            SUCCESS, FAILURE, LOADING
+        }
+
         companion object {
             fun createSuccess(items: List<TrackModel>) : LoadTrackCards {
-                return LoadTrackCards(MviResult.Status.SUCCESS, null, items)
+                return LoadTrackCards(Status.SUCCESS, null, items)
             }
             fun createError(throwable: Throwable) : LoadTrackCards {
-                return LoadTrackCards(MviResult.Status.FAILURE, throwable)
+                return LoadTrackCards(Status.FAILURE, throwable)
             }
             fun createLoading(): LoadTrackCards {
-                return LoadTrackCards(MviResult.Status.LOADING, null)
+                return LoadTrackCards(Status.LOADING, null)
             }
         }
     }

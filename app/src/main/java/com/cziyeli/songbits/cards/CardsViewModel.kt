@@ -120,15 +120,15 @@ class CardsViewModel @Inject constructor(
         newState.error = null
 
         when (result.status) {
-            MviResult.Status.LOADING -> {
-                newState.status = MviViewState.Status.LOADING
+            TrackResult.LoadTrackCards.Status.LOADING -> {
+                newState.status = TrackViewState.TracksLoadedStatus.LOADING
             }
-            MviResult.Status.SUCCESS -> {
-                newState.status = MviViewState.Status.SUCCESS
+            TrackResult.LoadTrackCards.Status.SUCCESS -> {
+                newState.status = TrackViewState.TracksLoadedStatus.SUCCESS
                 newState.allTracks.addAll(result.items.filter { it.isRenderable() })
             }
-            MviResult.Status.FAILURE -> {
-                newState.status = MviViewState.Status.ERROR
+            TrackResult.LoadTrackCards.Status.FAILURE -> {
+                newState.status = TrackViewState.TracksLoadedStatus.ERROR
                 newState.error = result.error
             }
         }
@@ -186,13 +186,17 @@ class CardsViewModel @Inject constructor(
 
 }
 
-data class TrackViewState(var status: MviViewState.Status = MviViewState.Status.IDLE,
+data class TrackViewState(var status: MviViewState.StatusInterface = MviViewState.Status.IDLE,
                           var error: Throwable? = null,
                           val allTracks: MutableList<TrackModel> = mutableListOf(),
                           var playlist: Playlist,
                           var currentTrack: TrackModel? = null,
                           var currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID
 ) : MviViewState {
+
+    enum class TracksLoadedStatus : MviViewState.StatusInterface {
+        LOADING, SUCCESS, ERROR
+    }
 
     val currentLikes: MutableList<TrackModel>
         get() = allTracks.filter { it.pref == TrackModel.Pref.LIKED }.toMutableList()

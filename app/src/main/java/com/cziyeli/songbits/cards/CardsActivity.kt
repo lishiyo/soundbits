@@ -28,6 +28,7 @@ import kotlinx.android.synthetic.main.activity_cards.*
 import lishiyo.kotlin_arch.mvibase.MviView
 import lishiyo.kotlin_arch.mvibase.MviViewState
 import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
+import org.jetbrains.anko.collections.forEachWithIndex
 import org.jetbrains.anko.intentFor
 import javax.inject.Inject
 import javax.inject.Named
@@ -169,28 +170,30 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         Utils.setVisible(undoBtn, show)
         Utils.setVisible(swipeView, show)
 
+        Utils.mLog(TAG, "render!", "state", state.toString())
+
         // populate if first time
-        if (state.status == MviViewState.Status.SUCCESS && swipeView.childCount == 0) {
-            state.allTracks.forEach {
-                swipeView.addView(TrackCardView(this, it, this))
+        if (state.status == TrackViewState.TracksLoadedStatus.SUCCESS && swipeView.childCount == 0) {
+            state.allTracks.forEachWithIndex { position, model ->
+                Utils.mLog(TAG, "render! adding TrackCardView @ $position")
+                swipeView.addView(TrackCardView(this, model, this))
             }
         }
 
-        Utils.mLog(TAG, "render!", "state", state.toString())
-
         // todo: render play button based on mediaplayer state
         if (!summaryShown && state.reachedEnd) {
+            Utils.mLog("render!", "reached the end, destroying")
             mPlayer.apply { onDestroy() } // release the player!
             showSummary(state)
         }
     }
-
 
     // show the summary layout
     private fun showSummary(state: TrackViewState) {
         summaryShown = true
 
         // if we're at the end, hide cards and show summary
+        swipeView.removeAllViews()
         (swipeView.parent as ViewGroup).removeView(swipeView)
         (buttons_row.parent as ViewGroup).removeView(buttons_row)
 
