@@ -13,10 +13,10 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.PublishSubject
-import lishiyo.kotlin_arch.mvibase.MviIntent
-import lishiyo.kotlin_arch.mvibase.MviResult
-import lishiyo.kotlin_arch.mvibase.MviViewModel
-import lishiyo.kotlin_arch.mvibase.MviViewState
+import com.cziyeli.commons.mvibase.MviIntent
+import com.cziyeli.commons.mvibase.MviResult
+import com.cziyeli.commons.mvibase.MviViewModel
+import com.cziyeli.commons.mvibase.MviViewState
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 

@@ -2,7 +2,7 @@ package com.cziyeli.songbits.cards
 
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.tracks.TrackModel
-import lishiyo.kotlin_arch.mvibase.MviIntent
+import com.cziyeli.commons.mvibase.MviIntent
 
 /**
  * Created by connieli on 1/1/18.

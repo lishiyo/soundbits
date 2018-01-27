@@ -17,10 +17,10 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.PublishSubject
-import lishiyo.kotlin_arch.mvibase.MviIntent
-import lishiyo.kotlin_arch.mvibase.MviResult
-import lishiyo.kotlin_arch.mvibase.MviViewModel
-import lishiyo.kotlin_arch.mvibase.MviViewState
+import com.cziyeli.commons.mvibase.MviIntent
+import com.cziyeli.commons.mvibase.MviResult
+import com.cziyeli.commons.mvibase.MviViewModel
+import com.cziyeli.commons.mvibase.MviViewState
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
@@ -49,7 +49,7 @@ class SummaryViewModel @Inject constructor(
     // reducer fn: Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<SummaryViewState, SummaryResult, SummaryViewState> = BiFunction { previousState, result ->
         when (result) {
-            is SummaryResult.LoadStatsResult -> return@BiFunction processStats(previousState, result)
+            is SummaryResult.LoadLikedStatsResult -> return@BiFunction processStats(previousState, result)
             is SummaryResult.SaveTracks -> return@BiFunction processSaveResult(previousState, result)
             is SummaryResult.CreatePlaylistWithTracks -> return@BiFunction processCreatePlaylistResult(previousState, result)
             else -> return@BiFunction previousState
@@ -87,7 +87,7 @@ class SummaryViewModel @Inject constructor(
     // transform intent -> action
     private fun actionFromIntent(intent: MviIntent) : SummaryAction {
         return when(intent) {
-            is SummaryIntent.LoadStats -> SummaryAction.LoadStats(intent.trackIds)
+            is SummaryIntent.LoadLikedStats -> SummaryAction.LoadLikedStats(intent.trackIds)
             is SummaryIntent.SaveAllTracks -> SummaryAction.SaveTracks(intent.tracks, intent.playlistId)
             is SummaryIntent.CreatePlaylistWithTracks -> SummaryAction.CreatePlaylistWithTracks(intent.ownerId, intent.name,
                     intent.description, intent.public, intent.tracks)
@@ -97,7 +97,7 @@ class SummaryViewModel @Inject constructor(
 
     // ===== Individual reducers ======
 
-    private fun processStats(previousState: SummaryViewState, result: SummaryResult.LoadStatsResult) : SummaryViewState {
+    private fun processStats(previousState: SummaryViewState, result: SummaryResult.LoadLikedStatsResult) : SummaryViewState {
         val newState = previousState.copy()
         newState.error = null
 

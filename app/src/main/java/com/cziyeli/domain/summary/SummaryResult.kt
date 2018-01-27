@@ -3,7 +3,7 @@ package com.cziyeli.domain.summary
 import com.cziyeli.commons.Utils
 import com.cziyeli.domain.tracks.TrackModel
 import kaaes.spotify.webapi.android.models.SnapshotId
-import lishiyo.kotlin_arch.mvibase.MviResult
+import com.cziyeli.commons.mvibase.MviResult
 
 /**
  * Created by connieli on 1/7/18.
@@ -13,20 +13,20 @@ sealed class SummaryResult(var status: MviResult.Status = MviResult.Status.IDLE,
         private val TAG = SummaryResult::class.simpleName
     }
 
-    class LoadStatsResult(status: MviResult.Status,
-                          error: Throwable?,
-                          val trackStats: TrackListStats? // domain model for stats
+    class LoadLikedStatsResult(status: MviResult.Status,
+                               error: Throwable?,
+                               val trackStats: TrackListStats? // domain model for stats
     ) : SummaryResult(status, error) {
         companion object {
-            fun createSuccess(trackStats: TrackListStats) : LoadStatsResult {
-                return LoadStatsResult(MviResult.Status.SUCCESS, null, trackStats)
+            fun createSuccess(trackStats: TrackListStats) : LoadLikedStatsResult {
+                return LoadLikedStatsResult(MviResult.Status.SUCCESS, null, trackStats)
             }
             fun createError(throwable: Throwable,
-                            trackStats: TrackListStats? = null) : LoadStatsResult {
-                return LoadStatsResult(MviResult.Status.FAILURE, throwable, trackStats)
+                            trackStats: TrackListStats? = null) : LoadLikedStatsResult {
+                return LoadLikedStatsResult(MviResult.Status.FAILURE, throwable, trackStats)
             }
-            fun createLoading(): LoadStatsResult {
-                return LoadStatsResult(MviResult.Status.LOADING, null, null)
+            fun createLoading(): LoadLikedStatsResult {
+                return LoadLikedStatsResult(MviResult.Status.LOADING, null, null)
             }
         }
     }

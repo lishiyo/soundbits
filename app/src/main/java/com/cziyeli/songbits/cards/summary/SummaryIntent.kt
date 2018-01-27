@@ -1,7 +1,7 @@
 package com.cziyeli.songbits.cards.summary
 
 import com.cziyeli.domain.tracks.TrackModel
-import lishiyo.kotlin_arch.mvibase.MviIntent
+import com.cziyeli.commons.mvibase.MviIntent
 
 /**
  * Events in the summary layout.
@@ -11,7 +11,7 @@ import lishiyo.kotlin_arch.mvibase.MviIntent
 sealed class SummaryIntent : MviIntent {
     // TODO: what do I need to create pending PlaylistCard on open
     // fetch audio features for a bunch of tracks => transform to domain model TrackListStats
-    class LoadStats(val trackIds: List<String>) : SummaryIntent()
+    class LoadLikedStats(val trackIds: List<String>) : SummaryIntent()
 
     // create playlist out of liked -> hit db and spotify api
     class CreatePlaylistWithTracks(val ownerId: String,

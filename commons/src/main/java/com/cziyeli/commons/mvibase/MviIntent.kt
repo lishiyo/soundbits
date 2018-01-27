@@ -1,4 +1,4 @@
-package lishiyo.kotlin_arch.mvibase
+package com.cziyeli.commons.mvibase
 
 /**
  * Immutable object which represent an view's intent.

@@ -1,6 +1,6 @@
 package com.cziyeli.domain.playlists
 
-import lishiyo.kotlin_arch.mvibase.MviAction
+import com.cziyeli.commons.mvibase.MviAction
 
 /**
  * Created by connieli on 12/31/17.

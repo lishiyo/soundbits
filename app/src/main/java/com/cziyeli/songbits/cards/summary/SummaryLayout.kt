@@ -15,8 +15,8 @@ import com.wang.avi.AVLoadingIndicatorView
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.layout_summary.view.*
-import lishiyo.kotlin_arch.mvibase.MviView
-import lishiyo.kotlin_arch.mvibase.MviViewState
+import com.cziyeli.commons.mvibase.MviView
+import com.cziyeli.commons.mvibase.MviViewState
 
 
 /**
@@ -36,7 +36,7 @@ class SummaryLayout @JvmOverloads constructor(
     private lateinit var viewModel: SummaryViewModel
 
     // fire off intents
-    private val mStatsPublisher = PublishSubject.create<SummaryIntent.LoadStats>()
+    private val mStatsPublisher = PublishSubject.create<SummaryIntent.LoadLikedStats>()
     private val mUserSavePublisher = PublishSubject.create<SummaryIntent.SaveAllTracks>()
     private val mCreatePlaylistPublisher = PublishSubject.create<SummaryIntent.CreatePlaylistWithTracks>()
 
@@ -66,7 +66,7 @@ class SummaryLayout @JvmOverloads constructor(
         })
 
         // immediately fetch stats of the like ids
-        mStatsPublisher.onNext(SummaryIntent.LoadStats(initialViewState.trackIdsToFetch()))
+        mStatsPublisher.onNext(SummaryIntent.LoadLikedStats(initialViewState.trackIdsToFetch()))
 
         // init click listeners
         action_save_to_database.setOnClickListener {

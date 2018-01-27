@@ -1,7 +1,7 @@
 package com.cziyeli.domain.summary
 
 import com.cziyeli.domain.tracks.TrackModel
-import lishiyo.kotlin_arch.mvibase.MviAction
+import com.cziyeli.commons.mvibase.MviAction
 
 /**
  * Created by connieli on 1/7/18.
@@ -10,7 +10,7 @@ sealed class SummaryAction : MviAction {
     object None : SummaryAction()
 
     // Fetch the stats
-    class LoadStats(val trackIds: List<String>) : SummaryAction()
+    class LoadLikedStats(val trackIds: List<String>) : SummaryAction()
 
     // Create a new playlist
     // https://developer.spotify.com/web-api/console/post-playlists/

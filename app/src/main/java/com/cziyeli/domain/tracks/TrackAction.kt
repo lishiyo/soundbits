@@ -1,7 +1,7 @@
 package com.cziyeli.domain.tracks
 
 import com.cziyeli.domain.player.PlayerInterface
-import lishiyo.kotlin_arch.mvibase.MviAction
+import com.cziyeli.commons.mvibase.MviAction
 
 /**
  * Created by connieli on 1/1/18.

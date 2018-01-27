@@ -7,8 +7,8 @@ import com.mindorks.placeholderview.annotations.Layout
 import com.mindorks.placeholderview.annotations.infinite.LoadMore
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
-import lishiyo.kotlin_arch.mvibase.MviView
-import lishiyo.kotlin_arch.mvibase.MviViewState
+import com.cziyeli.commons.mvibase.MviView
+import com.cziyeli.commons.mvibase.MviViewState
 
 
 /**

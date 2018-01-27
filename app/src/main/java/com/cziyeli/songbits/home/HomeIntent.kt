@@ -1,6 +1,6 @@
 package com.cziyeli.songbits.home
 
-import lishiyo.kotlin_arch.mvibase.MviIntent
+import com.cziyeli.commons.mvibase.MviIntent
 
 /**
  * Created by connieli on 12/31/17.

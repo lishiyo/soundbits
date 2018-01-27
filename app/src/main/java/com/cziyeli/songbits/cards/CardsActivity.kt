@@ -25,8 +25,8 @@ import dagger.android.AndroidInjection
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_cards.*
-import lishiyo.kotlin_arch.mvibase.MviView
-import lishiyo.kotlin_arch.mvibase.MviViewState
+import com.cziyeli.commons.mvibase.MviView
+import com.cziyeli.commons.mvibase.MviViewState
 import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import org.jetbrains.anko.collections.forEachWithIndex
 import org.jetbrains.anko.intentFor

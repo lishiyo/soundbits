@@ -1,7 +1,7 @@
 package com.cziyeli.domain.tracks
 
 import com.cziyeli.domain.player.PlayerInterface
-import lishiyo.kotlin_arch.mvibase.MviResult
+import com.cziyeli.commons.mvibase.MviResult
 import java.util.*
 
 /**

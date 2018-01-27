@@ -21,7 +21,7 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kaaes.spotify.webapi.android.SpotifyApi
 import kotlinx.android.synthetic.main.activity_home.*
-import lishiyo.kotlin_arch.mvibase.MviView
+import com.cziyeli.commons.mvibase.MviView
 import javax.inject.Inject
 
 

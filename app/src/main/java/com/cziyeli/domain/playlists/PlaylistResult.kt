@@ -1,6 +1,6 @@
 package com.cziyeli.domain.playlists
 
-import lishiyo.kotlin_arch.mvibase.MviResult
+import com.cziyeli.commons.mvibase.MviResult
 import java.util.*
 
 /**
