@@ -15,4 +15,7 @@ sealed class HomeIntent : MviIntent {
 
     // get /me and save to UserManager
     class FetchUser : HomeIntent()
+
+    // logout
+    class LogoutUser : HomeIntent()
 }

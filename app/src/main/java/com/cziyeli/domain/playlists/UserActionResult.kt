@@ -7,10 +7,11 @@ sealed class UserAction : HomeAction {
 
     class FetchUser : UserAction()
 
+    class ClearUser : UserAction()
 }
 
 sealed class UserResult(var status: Status = Status.IDLE, var error: Throwable? = null)  : HomeResult {
-
+    // personal status
     enum class Status {
         LOADING, SUCCESS, FAILURE, IDLE
     }
@@ -27,6 +28,20 @@ sealed class UserResult(var status: Status = Status.IDLE, var error: Throwable? 
             }
             fun createLoading(): FetchUser {
                 return FetchUser(Status.LOADING, null)
+            }
+        }
+    }
+
+    class ClearUser(status: Status, error: Throwable?) : UserResult(status, error) {
+        companion object {
+            fun createSuccess() : ClearUser {
+                return ClearUser(Status.SUCCESS, null)
+            }
+            fun createError(throwable: Throwable) : ClearUser {
+                return ClearUser(Status.FAILURE, throwable)
+            }
+            fun createLoading(): ClearUser {
+                return ClearUser(Status.LOADING, null)
             }
         }
     }

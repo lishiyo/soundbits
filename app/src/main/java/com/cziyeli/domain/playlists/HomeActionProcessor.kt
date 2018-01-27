@@ -23,7 +23,8 @@ class HomeActionProcessor @Inject constructor(private val repository: Repository
         acts.publish { shared ->
             Observable.merge<HomeResult>(
                     shared.ofType<PlaylistAction.UserPlaylists>(PlaylistAction.UserPlaylists::class.java).compose(userPlaylistsProcessor),
-                    shared.ofType<UserAction.FetchUser>(UserAction.FetchUser::class.java).compose(fetchUserProcessor)
+                    shared.ofType<UserAction.FetchUser>(UserAction.FetchUser::class.java).compose(fetchUserProcessor),
+                    shared.ofType<UserAction.ClearUser>(UserAction.ClearUser::class.java).compose(clearUserProcessor)
             ).mergeWith(
                     // Error for not implemented actions
                     shared.filter { v -> v !is HomeAction
@@ -66,5 +67,13 @@ class HomeActionProcessor @Inject constructor(private val repository: Repository
             .onErrorReturn { err -> UserResult.FetchUser.createError(err) }
             .startWith(UserResult.FetchUser.createLoading())
             .retry()
+    }
+
+    private val clearUserProcessor : ObservableTransformer<UserAction.ClearUser, UserResult.ClearUser> = ObservableTransformer { action ->
+        action.doOnNext { _ -> userManager.clearUser() }
+                .map { _ -> UserResult.ClearUser.createSuccess() }
+                .onErrorReturn { err -> UserResult.ClearUser.createError(err) }
+                .startWith(UserResult.ClearUser.createLoading())
+                .retry()
     }
 }

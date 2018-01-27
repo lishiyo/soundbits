@@ -2,6 +2,9 @@ package com.cziyeli.songbits.home
 
 import android.arch.lifecycle.*
 import com.cziyeli.commons.Utils
+import com.cziyeli.commons.mvibase.MviIntent
+import com.cziyeli.commons.mvibase.MviViewModel
+import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlists.*
 import io.reactivex.Observable
@@ -9,9 +12,6 @@ import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.PublishSubject
-import com.cziyeli.commons.mvibase.MviIntent
-import com.cziyeli.commons.mvibase.MviViewModel
-import com.cziyeli.commons.mvibase.MviViewState
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
@@ -51,6 +51,7 @@ class HomeViewModel @Inject constructor(
         when (result) {
             is PlaylistResult.UserPlaylists -> return@BiFunction processUserPlaylists(previousState, result)
             is UserResult.FetchUser -> return@BiFunction processCurrentUser(previousState, result)
+            is UserResult.ClearUser -> return@BiFunction processClearedUser(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -89,6 +90,7 @@ class HomeViewModel @Inject constructor(
         return when(intent) {
             is HomeIntent.LoadPlaylists -> PlaylistAction.UserPlaylists(intent.limit, intent.offset)
             is HomeIntent.FetchUser -> UserAction.FetchUser()
+            is HomeIntent.LogoutUser -> UserAction.ClearUser()
             else -> PlaylistAction.None // no-op all other events
         }
     }
@@ -133,6 +135,13 @@ class HomeViewModel @Inject constructor(
         return newState
     }
 
+    private fun processClearedUser(previousState: HomeViewState, result: UserResult.ClearUser) : HomeViewState {
+        val newState: HomeViewState = previousState.copy()
+
+        Utils.mLog(TAG, "processClearedUser", "status", result.status.toString())
+        return newState
+    }
+
     private fun processCurrentUser(previousState: HomeViewState, result: UserResult.FetchUser) : HomeViewState {
         val newState: HomeViewState = previousState.copy()
         newState.error = null
@@ -145,7 +154,9 @@ class HomeViewModel @Inject constructor(
                 newState.loggedInStatus = UserResult.Status.LOADING
             }
             UserResult.Status.SUCCESS, UserResult.Status.IDLE -> {
-                newState.loggedInStatus = UserResult.Status.SUCCESS
+                if (result.currentUser != null) {
+                    newState.loggedInStatus = UserResult.Status.SUCCESS
+                }
             }
             UserResult.Status.FAILURE -> {
                 newState.loggedInStatus = UserResult.Status.FAILURE

@@ -35,6 +35,11 @@ class UserManager @Inject constructor(@ForApplication context: Context) {
         userId = user.id
     }
 
+    fun clearUser() {
+        CURRENT_USER = null
+        accessToken = ""
+    }
+
     fun isLoggedIn() : Boolean {
         return CURRENT_USER != null && isAccessTokenValid()
     }
