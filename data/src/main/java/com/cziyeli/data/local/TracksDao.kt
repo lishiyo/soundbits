@@ -30,7 +30,7 @@ abstract class TracksDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun saveTrack(track: TrackEntity)
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun saveTracks(tracks: List<TrackEntity>)
 
     @Update()
