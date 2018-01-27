@@ -2,7 +2,7 @@ package com.cziyeli.songbits.di.viewModels
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
-import com.cziyeli.songbits.home.HomeViewModel
+import com.cziyeli.songbits.oldhome.HomeViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap

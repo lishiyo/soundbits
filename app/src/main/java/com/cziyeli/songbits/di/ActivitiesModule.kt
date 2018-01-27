@@ -6,8 +6,8 @@ import com.cziyeli.songbits.MainActivity
 import com.cziyeli.songbits.cards.CardsActivity
 import com.cziyeli.songbits.cards.di.CardsModule
 import com.cziyeli.songbits.di.viewModels.ViewModelsModule
-import com.cziyeli.songbits.home.HomeActivity
-import com.cziyeli.songbits.home.di.HomeActivitySubComponent
+import com.cziyeli.songbits.oldhome.HomeActivity
+import com.cziyeli.songbits.oldhome.di.HomeActivitySubComponent
 import dagger.Binds
 import dagger.Module
 import dagger.android.ActivityKey

@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/commons" />
             <option value="$PROJECT_DIR$/data" />
+            <option value="$PROJECT_DIR$/recyclerviewenhanced" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
