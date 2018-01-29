@@ -20,11 +20,11 @@
 		app:layout_constraintBottom_toTopOf="@+id/navigation"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintLeft_toLeftOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/nav_home_activity"
+		app:layout_constraintTop_toBottomOf="@+id/nav_oldhome_activity"
 		app:layout_constraintVertical_bias="0.744" />
 
 	<TextView
-		android:id="@+id/nav_home_activity"
+		android:id="@+id/nav_oldhome_activity"
 		android:layout_width="175dp"
 		android:layout_height="53dp"
 		android:layout_marginBottom="8dp"
@@ -38,26 +38,25 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintLeft_toLeftOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintVertical_bias="0.0"
+		app:layout_constraintVertical_bias="0.421"
 		tools:visibility="visible" />
 
 	<TextView
-		android:id="@+id/nav_real_home_activity"
-		android:layout_width="211dp"
-		android:layout_height="107dp"
+		android:id="@+id/nav_root_activity"
+		android:layout_width="220dp"
+		android:layout_height="100dp"
 		android:layout_marginBottom="8dp"
 		android:layout_marginEnd="8dp"
 		android:layout_marginStart="8dp"
 		android:layout_marginTop="160dp"
-		android:background="@color/colorAccent"
+		android:background="@color/colorPrimaryDark"
 		android:text="@string/title_home_real"
 		android:visibility="gone"
 		app:layout_constraintBottom_toBottomOf="@+id/navigation"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.503"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintVertical_bias="0.0"
+		app:layout_constraintVertical_bias="0.186"
 		tools:visibility="visible" />
 
 	<android.support.design.widget.BottomNavigationView
@@ -94,17 +93,15 @@
 		android:id="@+id/logout_button"
 		android:layout_width="290dp"
 		android:layout_height="55dp"
+		android:layout_marginBottom="316dp"
 		android:layout_marginEnd="8dp"
 		android:layout_marginStart="8dp"
 		android:layout_marginTop="24dp"
-		android:layout_marginBottom="316dp"
 		android:text="LOGOUT"
 		app:layout_constraintBottom_toTopOf="@+id/navigation"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.504"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/login_button"
-		app:layout_constraintVertical_bias="1.0"
-		/>
+		app:layout_constraintVertical_bias="0.0" />
 
 </android.support.constraint.ConstraintLayout>

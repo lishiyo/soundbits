@@ -19,7 +19,8 @@ import javax.inject.Singleton
     UtilsModule::class,
     RoomModule::class,
     RemoteModule::class,
-    ActivitiesModule::class // binds all subcomponents => activities
+    ActivitiesModule::class, // binds all modules => activities
+    FragmentsModule::class // binds all modules => fragments
 ])
 @Singleton
 interface ApplicationComponent {

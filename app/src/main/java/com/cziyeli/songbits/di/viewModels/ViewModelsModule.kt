@@ -2,6 +2,7 @@ package com.cziyeli.songbits.di.viewModels
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
+import com.cziyeli.songbits.home.HomeViewModel
 import com.cziyeli.songbits.oldhome.OldHomeViewModel
 import dagger.Binds
 import dagger.Module
@@ -17,7 +18,12 @@ abstract class ViewModelsModule {
     @Binds
     @IntoMap
     @ViewModelKey(OldHomeViewModel::class)
-    abstract fun bindHomeViewModel(viewModelOld: OldHomeViewModel) : ViewModel
+    abstract fun bindOldHomeViewModel(viewModel: OldHomeViewModel) : ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(HomeViewModel::class)
+    abstract fun bindHomeViewModel(viewModel: HomeViewModel) : ViewModel
 
     @Binds
     abstract fun bindViewModelFactory(factory: ViewModelFactory) : ViewModelProvider.Factory

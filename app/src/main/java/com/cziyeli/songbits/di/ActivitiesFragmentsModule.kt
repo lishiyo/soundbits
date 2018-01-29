@@ -2,12 +2,17 @@ package com.cziyeli.songbits.di
 
 import android.app.Activity
 import com.cziyeli.commons.di.PerActivity
+import com.cziyeli.commons.di.PerFragment
 import com.cziyeli.songbits.MainActivity
 import com.cziyeli.songbits.cards.CardsActivity
 import com.cziyeli.songbits.cards.di.CardsModule
 import com.cziyeli.songbits.di.viewModels.ViewModelsModule
+import com.cziyeli.songbits.home.HomeFragment
+import com.cziyeli.songbits.home.HomeModule
+import com.cziyeli.songbits.home.HomeSubcomponent
 import com.cziyeli.songbits.oldhome.OldHomeActivity
 import com.cziyeli.songbits.oldhome.di.OldHomeActivitySubComponent
+import com.cziyeli.songbits.root.RootActivity
 import dagger.Binds
 import dagger.Module
 import dagger.android.ActivityKey
@@ -43,4 +48,23 @@ abstract class ActivitiesModule {
             modules = [CardsModule::class]
     )
     abstract fun provideCardsActivity(): CardsActivity
+
+    @PerActivity
+    @ContributesAndroidInjector(
+            modules = [ViewModelsModule::class]
+    )
+    abstract fun provideRootActivity(): RootActivity
+}
+
+@Module(subcomponents = [
+    HomeSubcomponent::class
+])
+abstract class FragmentsModule {
+
+    @PerFragment
+    @ContributesAndroidInjector(
+            modules = [(HomeModule::class)]
+    )
+    internal abstract fun homeFragmentInjector(): HomeFragment
+
 }

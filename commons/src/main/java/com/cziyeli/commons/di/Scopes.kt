@@ -14,6 +14,12 @@ annotation class UserScope
 @Retention(AnnotationRetention.RUNTIME)
 annotation class PerActivity
 
+
+// PerFragment.java
+@Scope
+@Retention(AnnotationRetention.RUNTIME)
+annotation class PerFragment
+
 @Qualifier
 @Retention( AnnotationRetention.RUNTIME )
 annotation class ForApplication
