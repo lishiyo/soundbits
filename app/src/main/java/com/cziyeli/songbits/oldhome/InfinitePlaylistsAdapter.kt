@@ -17,9 +17,9 @@ import com.cziyeli.commons.mvibase.MviViewState
  * Created by connieli on 1/1/18.
  */
 @Layout(R.layout.load_more_view)
-class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderView) : MviView<HomeIntent, HomeViewState> {
+class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderView) : MviView<OldHomeIntent, HomeViewState> {
     private val TAG = InfinitePlaylistsAdapter::class.simpleName
-    private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadPlaylists>()
+    private val mLoadPublisher = PublishSubject.create<OldHomeIntent.LoadPlaylists>()
 
     override fun render(state: HomeViewState) {
         var reachedEnd = state.status != MviViewState.Status.LOADING && state.status != MviViewState.Status.SUCCESS
@@ -46,7 +46,7 @@ class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderVie
         }
     }
 
-    override fun intents(): Observable<out HomeIntent> {
+    override fun intents(): Observable<out OldHomeIntent> {
         return mLoadPublisher
     }
 
@@ -55,6 +55,6 @@ class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderVie
         Utils.log(TAG, "playlistAdapter onLoadMore ++ currentCount: ${mLoadMoreView.viewCount}")
 
         // post intent to load playlists
-        mLoadPublisher.onNext(HomeIntent.LoadPlaylists(offset = mLoadMoreView.viewCount))
+        mLoadPublisher.onNext(OldHomeIntent.LoadPlaylists(offset = mLoadMoreView.viewCount))
     }
 }

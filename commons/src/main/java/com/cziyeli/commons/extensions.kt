@@ -4,6 +4,11 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MediatorLiveData
 import android.arch.lifecycle.Observer
 import android.content.Context
+import android.support.annotation.ColorRes
+import android.support.v4.content.ContextCompat
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
@@ -14,6 +19,9 @@ import io.reactivex.schedulers.Schedulers
 /**
  * Created by connieli on 1/4/18.
  */
+
+const val DTAG = "connie"
+
 fun Any.toast(context: Context, length: Int = Toast.LENGTH_LONG) {
     Toast.makeText(context, this.toString(), length).show()
 }
@@ -46,4 +54,38 @@ val schedulersTransformer: ObservableTransformer<Any, Any> = ObservableTransform
 
 fun <T> applySchedulers(): ObservableTransformer<T, T> {
     return schedulersTransformer as ObservableTransformer<T, T>
+}
+
+fun Context.fetchColor(@ColorRes color: Int): Int {
+    return ContextCompat.getColor(this, color)
+}
+
+fun View.disableTouchTheft() {
+    this.setOnTouchListener { view, motionEvent ->
+        view.parent.requestDisallowInterceptTouchEvent(true)
+
+        when (motionEvent.action and MotionEvent.ACTION_MASK) {
+            MotionEvent.ACTION_UP -> view.parent.requestDisallowInterceptTouchEvent(false)
+        }
+        false
+    }
+}
+
+fun Context.colorFromRes(colorResId: Int) : Int {
+    return ContextCompat.getColor(this, colorResId)
+}
+
+fun View.colorFromRes(colorResId: Int) : Int {
+    return ContextCompat.getColor(this.context, colorResId)
+}
+
+fun View.removeFromParent() {
+    val parent = this.parent
+    if (parent is ViewGroup) {
+        parent.removeView(this)
+    }
+}
+fun View.setScaleXY(scale: Float) {
+    scaleX = scale
+    scaleY = scale
 }

@@ -60,9 +60,4 @@
 		<item name="android:scrollbarStyle">outsideOverlay</item>
 		<item name="android:scrollbars">vertical</item>
 	</style>
-
-
-	<style name="AppTheme.Widget.TextView" parent="android:Widget.Holo.Light.TextView">
-		<item name="fontPath">fonts/quicksand.otf</item>
-	</style>
 </resources>

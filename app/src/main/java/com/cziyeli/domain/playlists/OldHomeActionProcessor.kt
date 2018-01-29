@@ -16,9 +16,9 @@ import javax.inject.Singleton
  * Created by connieli on 12/31/17.
  */
 @Singleton
-class HomeActionProcessor @Inject constructor(private val repository: Repository,
-                                              private val schedulerProvider: BaseSchedulerProvider,
-                                              private val userManager : UserManager) {
+class OldHomeActionProcessor @Inject constructor(private val repository: Repository,
+                                                 private val schedulerProvider: BaseSchedulerProvider,
+                                                 private val userManager : UserManager) {
     val combinedProcessor: ObservableTransformer<HomeAction, HomeResult> = ObservableTransformer { acts ->
         acts.publish { shared ->
             Observable.merge<HomeResult>(

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.design.widget.CoordinatorLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	>
+
+	<!-- placeholder the header -->
+	<android.support.design.widget.AppBarLayout
+		android:id="@+id/appBar"
+		android:background="@color/colorAccent"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<android.support.design.widget.CollapsingToolbarLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			app:contentScrim="?attr/colorPrimary"
+			app:layout_scrollFlags="scroll|exitUntilCollapsed"
+			app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Title">
+
+			<ImageView
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/home_header_height"
+				app:layout_collapseMode="parallax"/>
+
+		</android.support.design.widget.CollapsingToolbarLayout>
+
+	</android.support.design.widget.AppBarLayout>
+
+	<!-- the playlists sections -->
+	<android.support.v7.widget.RecyclerView
+		android:id="@+id/playlist_recyclerview"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:clipToPadding="true"
+		android:clipChildren="true"
+		app:layout_behavior="@string/appbar_scrolling_view_behavior"
+		android:paddingBottom="@dimen/bottom_navigation_height"
+		android:paddingTop="@dimen/activity_horizontal_margin"
+		android:layout_marginLeft="8dp"
+		android:layout_marginRight="8dp"
+		android:layout_marginBottom="30dp"
+		/>
+
+</android.support.design.widget.CoordinatorLayout>

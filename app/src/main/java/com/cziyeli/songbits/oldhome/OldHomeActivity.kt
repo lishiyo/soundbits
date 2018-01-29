@@ -11,7 +11,7 @@ import dagger.android.AndroidInjection
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kaaes.spotify.webapi.android.SpotifyApi
-import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.android.synthetic.main.activity_oldhome.*
 import javax.inject.Inject
 
 
@@ -22,27 +22,27 @@ import javax.inject.Inject
  *
  * Created by connieli on 12/31/17.
  */
-class HomeActivity : AppCompatActivity(), MviView<HomeIntent, HomeViewState> {
-    private val TAG = HomeActivity::class.simpleName
+class OldHomeActivity : AppCompatActivity(), MviView<OldHomeIntent, HomeViewState> {
+    private val TAG = OldHomeActivity::class.simpleName
 
     @Inject lateinit var api: SpotifyApi
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
 
     // view models
-    private lateinit var viewModel: HomeViewModel
+    private lateinit var viewModelOld: OldHomeViewModel
 
     // subviews
     private lateinit var playlistsAdapter: InfinitePlaylistsAdapter
 
     // intents
-    private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadPlaylists>()
+    private val mLoadPublisher = PublishSubject.create<OldHomeIntent.LoadPlaylists>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Dagger
         AndroidInjection.inject(this)
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
+        setContentView(R.layout.activity_oldhome)
 
         // initWith the allTracks view
         playlistsAdapter = InfinitePlaylistsAdapter(playlists_container)
@@ -51,10 +51,10 @@ class HomeActivity : AppCompatActivity(), MviView<HomeIntent, HomeViewState> {
         // bind the view model after all views are done
         initViewModel()
 
-        mLoadPublisher.onNext(HomeIntent.LoadPlaylists())
+        mLoadPublisher.onNext(OldHomeIntent.LoadPlaylists())
     }
 
-    override fun intents(): Observable<out HomeIntent> {
+    override fun intents(): Observable<out OldHomeIntent> {
         return Observable.merge(
                 mLoadPublisher, // own load intent
                 playlistsAdapter.intents() // subviews intents
@@ -67,20 +67,20 @@ class HomeActivity : AppCompatActivity(), MviView<HomeIntent, HomeViewState> {
     }
 
     private fun initViewModel() {
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(HomeViewModel::class.java)
+        viewModelOld = ViewModelProviders.of(this, viewModelFactory).get(OldHomeViewModel::class.java)
 
         // add viewmodel as an observer of this fragment lifecycle
-        viewModel.let { lifecycle.addObserver(it) }
+        viewModelOld.let { lifecycle.addObserver(it) }
 
         // Subscribe to the viewmodel states with LiveData, not Rx
-        viewModel.states().observe(this, Observer { state ->
+        viewModelOld.states().observe(this, Observer { state ->
             state?.let {
                 this.render(state)
             }
         })
 
         // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
-        viewModel.processIntents(intents())
+        viewModelOld.processIntents(intents())
     }
 
 }
