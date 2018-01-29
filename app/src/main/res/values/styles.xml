@@ -1,11 +1,68 @@
 <resources>
 
 	<!-- Base application theme. -->
-	<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+	<style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<style name="AppTheme" parent="AppTheme.NoActionBar">
 		<!-- Customize your theme here. -->
 		<item name="colorPrimary">@color/colorPrimary</item>
 		<item name="colorPrimaryDark">@color/colorPrimaryDark</item>
 		<item name="colorAccent">@color/colorAccent</item>
+		<item name="android:fontFamily">@font/indie_flower</item>
+		<!--<item name="android:textViewStyle">@style/QuicksandStyle</item>-->
+		<!--<item name="android:textViewStyle">@style/AppTheme.Widget.TextView</item>-->
 	</style>
 
+	<style name="AppTheme.TranslucentNavigation" parent="AppTheme">
+		<item name="android:windowTranslucentNavigation">true</item>
+		<item name="android:fitsSystemWindows">true</item>
+	</style>
+
+	<style name="HomeToPlaylist" parent="AppTheme.TranslucentNavigation">
+		<item name="android:windowContentTransitions">true</item>
+		<item name="android:windowEnterTransition">@transition/default_window_fade</item>
+		<!--<item name="android:windowExitTransition">@android:transition/no_transition</item>-->
+		<item name="android:windowExitTransition">@transition/default_window_fade</item>
+		<item name="android:windowReenterTransition">@transition/default_window_fade</item>
+		<!--<item name="android:windowReenterTransition">@android:transition/no_transition</item>-->
+
+		<!-- specify enter and exit transitions -->
+		<!-- options are: explode, slide, fade -->
+		<!--<item name="android:windowEnterTransition">@transition/change_image_transform</item>-->
+		<!--<item name="android:windowExitTransition">@transition/change_image_transform</item>-->
+
+		<!-- specify shared element transitions -->
+		<item name="android:windowSharedElementEnterTransition">
+			@transition/change_image_transform</item>
+		<item name="android:windowSharedElementExitTransition">
+			@transition/change_image_transform</item>
+	</style>
+	<style name="HomeToPlaylist.Back" >
+		<item name="android:windowBackground">@android:color/transparent</item>
+		<item name="android:windowIsTranslucent">true</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<!--<item name="android:backgroundDimEnabled">true</item>-->
+		<!--<item name="android:windowIsFloating">true</item>-->
+	</style>
+
+	<!-- Android AdvancedRecyclerview -->
+	<style name="myRecyclerViewStyle">
+		<!-- NOTE: clipChildren should be false on API level 11 or later -->
+		<item name="android:clipChildren">false</item>
+		<item name="android:clipToPadding">false</item>
+		<item name="android:paddingBottom">@dimen/activity_vertical_margin</item>
+		<item name="android:paddingLeft">@dimen/activity_horizontal_margin</item>
+		<item name="android:paddingRight">@dimen/activity_horizontal_margin</item>
+		<item name="android:paddingTop">@dimen/activity_vertical_margin</item>
+		<item name="android:scrollbarStyle">outsideOverlay</item>
+		<item name="android:scrollbars">vertical</item>
+	</style>
+
+
+	<style name="AppTheme.Widget.TextView" parent="android:Widget.Holo.Light.TextView">
+		<item name="fontPath">fonts/quicksand.otf</item>
+	</style>
 </resources>
