@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="@dimen/list_item_track_height"
+	>
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/list_item_track_height"
+		android:orientation="vertical">
+
+		<!-- background row hidden under swipe -->
+		<LinearLayout
+			android:id="@+id/row_background"
+			android:layout_width="wrap_content"
+			android:minWidth="100dp"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:gravity="center"
+			android:orientation="horizontal"
+			android:padding="12dp"
+			android:background="@color/colorAccent"
+			>
+
+			<com.cziyeli.songbits.base.LikeButton
+				android:id="@+id/like_icon_container"
+				android:layout_width="@dimen/track_like_width"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:layout_marginRight="16dp"
+				android:clickable="true"
+				android:focusable="true"
+				/>
+
+			<com.cziyeli.songbits.base.DisLikeButton
+				android:id="@+id/dislike_icon_container"
+				android:layout_width="@dimen/track_dislike_width"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:clickable="true"
+				android:focusable="true"
+				/>
+
+		</LinearLayout>
+
+		<!-- foreground row (over container) -->
+		<RelativeLayout
+			android:id="@+id/row_foreground"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:clickable="false"
+			android:focusable="false"
+			android:elevation="14dp"
+			android:orientation="horizontal"
+			android:visibility="visible"
+			android:padding="8dp"
+			android:gravity="center_vertical|right"
+			android:background="@drawable/gradient_reds"
+			>
+
+			<eu.gsottbauer.equalizerview.EqualizerView
+				android:id="@+id/equalizer_animation"
+				android:layout_width="66dp"
+				android:layout_height="30dp"
+				android:visibility="invisible"
+				android:layout_marginRight="20dp"
+				android:layout_marginTop="6dp"
+				android:layout_gravity="right|center_vertical"
+				android:gravity="right|center_vertical"
+				android:layout_alignParentRight="true"
+				android:layout_alignWithParentIfMissing="true"
+				app:barColor="@color/colorGrey"
+				app:barCount="15"
+				app:barWidth="2dp"
+				app:animationDuration="10000"
+				app:marginLeft="1dp"
+				app:marginRight="1dp"
+				app:runInBatterySaveMode="true"
+				/>
+
+			<com.airbnb.lottie.LottieAnimationView
+				android:id="@+id/wave_animation"
+				android:visibility="invisible"
+				android:layout_width="40dp"
+				android:layout_marginRight="8dp"
+				android:layout_height="wrap_content"
+				android:layout_gravity="right|center_vertical"
+				android:gravity="right|center_vertical"
+				android:layout_alignParentRight="true"
+				android:layout_alignWithParentIfMissing="true"
+				app:lottie_colorFilter="@color/colorDark"
+				app:lottie_fileName="volume_indicator.json"
+				app:lottie_loop="true"
+				app:lottie_scale="2.2"
+				/>
+
+			<ImageView
+				android:id="@+id/track_status"
+				android:src="@drawable/notes_lined"
+				android:layout_width="30dp"
+				android:layout_height="match_parent"
+				android:layout_gravity="right|center_vertical"
+				android:gravity="right|center_vertical"
+				android:layout_alignParentRight="true"
+				android:layout_centerVertical="true"
+				tools:visibility="gone"
+				android:visibility="gone"
+				/>
+
+		</RelativeLayout> <!-- foreground row -->
+
+	</RelativeLayout> <!-- background+foreground rows -->
+
+	<!-- overlays both, doesn't translate -->
+	<LinearLayout
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:layout_gravity="left|center_vertical"
+		android:orientation="horizontal"
+
+		>
+
+		<!-- album art -->
+		<ImageView
+			android:id="@+id/track_image"
+			android:layout_width="45dp"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_vertical"
+			android:layout_marginLeft="8dp"
+			/>
+
+		<LinearLayout
+			android:id="@+id/track_left_container"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:layout_gravity="left|center_vertical"
+			android:padding="8dp"
+			android:gravity="center_vertical"
+			android:orientation="vertical"
+			>
+
+			<TextView
+				android:id="@+id/track_title"
+				android:fontFamily="@font/amatic_sc"
+				android:layout_width="wrap_content"
+				android:layout_height="22dp"
+				android:textColor="@color/colorWhite"
+				android:autoSizeMaxTextSize="14sp"
+				android:autoSizeMinTextSize="6sp"
+				android:autoSizeTextType="uniform"
+				android:gravity="center_vertical"
+				android:maxLines="1"
+				android:text="track title"
+				android:textStyle="bold"
+				tools:text="Row 1"
+				/>
+
+			<TextView
+				android:id="@+id/track_artist"
+				android:fontFamily="@font/annie_use_your_telescope"
+				android:layout_width="wrap_content"
+				android:layout_height="16dp"
+				android:textColor="@color/colorWhite"
+				android:layout_marginTop="2dp"
+				android:layout_marginBottom="6dp"
+				android:maxLines="1"
+				android:text="track artist"
+				android:autoSizeTextType="uniform"
+				android:autoSizeMaxTextSize="@dimen/default_text_size"
+				android:autoSizeMinTextSize="4sp"
+				android:gravity="center_vertical"
+				tools:text="artist..."/>
+		</LinearLayout>
+	</LinearLayout>
+
+	<!-- divider -->
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="1sp"
+		android:alpha="0.33"
+		android:layout_gravity="bottom"
+		android:background="@color/colorWhite"
+		/>
+</FrameLayout>

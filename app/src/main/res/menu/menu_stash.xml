@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<item android:id="@+id/create"
+		android:icon="@drawable/icon_playlist_create"
+		android:iconTint="@color/colorWhite"
+		app:showAsAction="always"
+		android:title="create" />
+
+	<item android:id="@+id/clear"
+		android:icon="@drawable/icon_multiply_1"
+		android:iconTint="@color/colorWhite"
+		app:showAsAction="always"
+		android:title="clear all" />
+
+</menu>

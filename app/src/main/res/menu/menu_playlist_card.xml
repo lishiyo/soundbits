@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<item
+		android:id="@+id/menu_surf"
+		android:icon="@drawable/smilies_filled"
+		android:iconTint="@color/colorWhite"
+		android:title="Surf 13 Left" />
+
+	<item
+		android:id="@+id/menu_resurf"
+		android:icon="@drawable/icon_levels_1"
+		android:iconTint="@color/colorWhite"
+		android:title="Re-Surf All" />
+
+	<item
+		android:id="@+id/menu_create_playlist"
+		android:icon="@drawable/icon_playlist_create"
+		android:iconTint="@color/colorWhite"
+		android:title="Create Playlist" />
+
+</menu>

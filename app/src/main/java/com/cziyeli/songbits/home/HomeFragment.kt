@@ -4,6 +4,7 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.Fragment
@@ -17,7 +18,8 @@ import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
-import com.cziyeli.songbits.cards.CardsActivity
+import com.cziyeli.songbits.home.detail.PlaylistCardActivity
+import com.cziyeli.songbits.home.detail.PlaylistCardActivity.Companion.EXTRA_PLAYLIST_ITEM
 import com.cziyeli.songbits.oldhome.OldHomeIntent
 import dagger.android.support.AndroidSupportInjection
 import io.github.luizgrp.sectionedrecyclerviewadapter.Section
@@ -61,10 +63,10 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
             ).toBundle()
 
             // todo
-            context?.startActivity(CardsActivity.create(context as Context, item))
-//            val intent = Intent(activity, PlaylistCardActivity::class.java)
-//            intent.putExtra(EXTRA_PLAYLIST_ITEM, item)
-//            startActivity(intent, bundle)
+//            context?.startActivity(CardsActivity.create(context as Context, item))
+            val intent = Intent(activity, PlaylistCardActivity::class.java)
+            intent.putExtra(EXTRA_PLAYLIST_ITEM, item)
+            startActivity(intent, bundle)
         }
     }
 
