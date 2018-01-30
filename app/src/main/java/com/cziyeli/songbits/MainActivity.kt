@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<OldHo
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
-                nav_oldhome_activity.setText(R.string.title_home)
+                nav_oldhome_activity.setText(R.string.title_oldhome)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_dashboard -> {

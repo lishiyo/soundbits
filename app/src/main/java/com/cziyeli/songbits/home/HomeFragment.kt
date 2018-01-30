@@ -5,16 +5,22 @@ import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.Fragment
+import android.support.v4.view.ViewCompat
 import android.support.v7.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviView
+import com.cziyeli.commons.mvibase.MviViewState
+import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.cards.CardsActivity
 import com.cziyeli.songbits.oldhome.OldHomeIntent
 import dagger.android.support.AndroidSupportInjection
+import io.github.luizgrp.sectionedrecyclerviewadapter.Section
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -39,20 +45,22 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
     // intents
     private val mLoadPublisher = PublishSubject.create<OldHomeIntent.LoadPlaylists>()
 
-//    private val listener: PlaylistSection.ClickListener = object : PlaylistSection.ClickListener {
-//        override fun onItemClick(view: View, item: PlaylistItem) {
-//            val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(activity!!,
-//                    view.findViewById(R.id.playlist_image),
-//                    ViewCompat.getTransitionName(view.findViewById(R.id.playlist_image))
-//            ).toBundle()
-//
+    // adapter
+    private val listener: PlaylistSection.ClickListener = object : PlaylistSection.ClickListener {
+        override fun onItemClick(view: View, item: Playlist) {
+            val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(activity!!,
+                    view.findViewById(R.id.playlist_image),
+                    ViewCompat.getTransitionName(view.findViewById(R.id.playlist_image))
+            ).toBundle()
+
+            // todo
+            context?.startActivity(CardsActivity.create(context as Context, item))
 //            val intent = Intent(activity, PlaylistCardActivity::class.java)
 //            intent.putExtra(EXTRA_PLAYLIST_ITEM, item)
 //            startActivity(intent, bundle)
-//        }
-//    }
-//    val PLAYLIST_SECTION_ONE = createSectionOne(listener)
-//    val PLAYLIST_SECTION_TWO = createSectionTwo(listener)
+        }
+    }
+    private val PLAYLIST_RECENT =  PlaylistSection("trending", mutableListOf(), listener)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
@@ -70,20 +78,22 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
 
         // fetch the playlists
         mLoadPublisher.onNext(OldHomeIntent.LoadPlaylists())
+        // switch to loading
+        PLAYLIST_RECENT.state = Section.State.LOADING
+        sectionAdapter.notifyDataSetChanged()
     }
 
     private fun setUpSectionedAdapter(view: View, savedInstanceState: Bundle?) {
         sectionAdapter = SectionedRecyclerViewAdapter()
 
-        // add the dummy sections
-//        sectionAdapter.addSection(PLAYLIST_SECTION_ONE)
-//        sectionAdapter.addSection(PLAYLIST_SECTION_TWO)
+        // add the sections (to fill in later)
+        sectionAdapter.addSection(PLAYLIST_RECENT)
 
-        mLayoutManager = GridLayoutManager(context, 3)
+        mLayoutManager = GridLayoutManager(context, PLAYLISTS_COLUMN_COUNT)
         mLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 return when (sectionAdapter.getSectionItemViewType(position)) {
-                    SectionedRecyclerViewAdapter.VIEW_TYPE_HEADER -> 3
+                    SectionedRecyclerViewAdapter.VIEW_TYPE_HEADER -> PLAYLISTS_COLUMN_COUNT
                     else -> 1
                 }
             }
@@ -114,9 +124,26 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
     }
 
     override fun render(state: HomeViewState) {
-        Utils.mLog(TAG, "render!!", "$state")
-        // render subviews
-//        playlistsAdapter.render(state)
+        // TODO: detect if we've reached the end with scroll listener => paginate
+        var reachedEnd = state.status != MviViewState.Status.LOADING && state.status != MviViewState.Status.SUCCESS
+        if (state.status == MviViewState.Status.SUCCESS) {
+            if (state.playlists.isNotEmpty()) { // full list
+                val currentCount = Math.max(0, sectionAdapter.itemCount)
+                val newPlaylists = state.playlists.subList(currentCount, state.playlists.size)
+                Utils.mLog(TAG, "render", "total playlsits ${state.playlists.size} vs new: ${newPlaylists.size}")
+                PLAYLIST_RECENT.addPlaylists(newPlaylists)
+                PLAYLIST_RECENT.state = Section.State.LOADED
+                sectionAdapter.notifyDataSetChanged()
+            } else {
+                // if successful and allTracks are empty, then we've reached end
+                reachedEnd = true
+            }
+        }
+
+        Utils.mLog(TAG,"RENDER", "status: ${state.status}, reachedEnd: $reachedEnd, playlistCount: ${state.playlists.size}")
+        if (reachedEnd) { // error, not-logged-in
+//            mLoadMoreView.noMoreToLoad()
+        }
     }
 
     override fun onAttach(context: Context?) {
@@ -125,6 +152,7 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
     }
 
     companion object {
+        const val PLAYLISTS_COLUMN_COUNT = 2
 
         fun create(args: Bundle? = Bundle()) : HomeFragment {
             val fragment = HomeFragment()

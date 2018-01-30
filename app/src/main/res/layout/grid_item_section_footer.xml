@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.v7.widget.CardView
+	android:id="@+id/rootView"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	xmlns:card_view="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	card_view:cardCornerRadius="@dimen/card_radius"
+	card_view:cardElevation="@dimen/card_radius"
+	card_view:cardPreventCornerOverlap="false"
+	android:layout_margin="@dimen/grid_playlist_margin"
+	android:foreground="?android:attr/selectableItemBackground"
+	android:layout_gravity="center"
+	>
+
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_gravity="center"
+		android:background="@color/colorAccent"
+		>
+
+		<TextView
+			android:id="@+id/tvSeeMore"
+			android:text="@string/home_see_more"
+			android:fontFamily="@font/quicksand"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:gravity="center"
+			android:layout_gravity="center"
+			android:textAlignment="center"
+			android:textAllCaps="true"
+			android:textColor="@color/colorWhite"
+		/>
+
+	</FrameLayout>
+
+</android.support.v7.widget.CardView>

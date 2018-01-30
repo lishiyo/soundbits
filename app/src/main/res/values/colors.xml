@@ -4,7 +4,7 @@
 
 	<!--<color name="colorPrimary">@color/space_time</color>-->
 	<color name="colorPrimary">@color/ruby_grapefruit</color>
-	<color name="colorPrimaryDark">@color/space_time</color>
+	<color name="colorPrimaryDark">@color/colorRed</color>
 	<color name="colorPurple">@color/persian_blue</color>
 	<color name="colorAccent">@color/turquoise</color>
 	<color name="colorRed">@color/violet_red</color>
@@ -40,7 +40,7 @@
 
 	<!-- https://www.canva.com/learn/brand-color-palette/ -->
 	<color name="rosa">#f2AD9F</color>
-	<color name="ruby_grapefruit">#ff403b</color>
+	<color name="ruby_grapefruit">#FF4477</color>
 	<color name="limestone">#DFE2D2</color>
 	<color name="venice_verde">#6CBF84</color>
 	<color name="moss_river">#323339</color>

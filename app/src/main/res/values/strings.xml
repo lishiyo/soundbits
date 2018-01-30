@@ -1,8 +1,9 @@
 <resources>
 	<string name="app_name">Songbits</string>
-	<string name="title_home">Old Home</string>
-	<string name="title_home_real">Real Home</string>
+	<string name="title_oldhome">Old Home</string>
 	<string name="title_demo">Demo Spotify SDK</string>
+
+	<string name="title_home">Real Home</string>
 	<string name="title_dashboard">Dashboard</string>
 	<string name="title_notifications">Notifications</string>
 
@@ -29,4 +30,9 @@
 	<string name="normal_bitrate_button_label">160kbps</string>
 	<string name="low_bitrate_button_label">96kbps</string>
 	<string name="no_metadata">no metadata</string>
+
+	<string name="playlist_image_transition">shared_element_image</string>
+	<string name="playlist_fab_transition">shared_element_fab</string>
+
+	<string name="home_see_more">See more</string>
 </resources>
