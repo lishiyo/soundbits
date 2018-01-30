@@ -46,7 +46,14 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
     private val mLoadPublisher = PublishSubject.create<OldHomeIntent.LoadPlaylists>()
 
     // adapter
+    private lateinit var PLAYLIST_RECENT: PlaylistSection
+    private lateinit var PLAYLIST_FEATURED: PlaylistSection
+    private lateinit var PLAYLIST_RECOMMENDED: PlaylistSection
     private val listener: PlaylistSection.ClickListener = object : PlaylistSection.ClickListener {
+        override fun onFooterClick(section: PlaylistSection) {
+            mLoadPublisher.onNext(OldHomeIntent.LoadPlaylists(offset = section.contentItemsTotal + 1))
+        }
+
         override fun onItemClick(view: View, item: Playlist) {
             val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(activity!!,
                     view.findViewById(R.id.playlist_image),
@@ -60,7 +67,6 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
 //            startActivity(intent, bundle)
         }
     }
-    private val PLAYLIST_RECENT =  PlaylistSection("trending", mutableListOf(), listener)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
@@ -78,8 +84,11 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
 
         // fetch the playlists
         mLoadPublisher.onNext(OldHomeIntent.LoadPlaylists())
+    }
+
+    private fun showLoading(vararg sections: Section) {
         // switch to loading
-        PLAYLIST_RECENT.state = Section.State.LOADING
+        sections.forEach { it.state = Section.State.LOADING }
         sectionAdapter.notifyDataSetChanged()
     }
 
@@ -87,7 +96,12 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
         sectionAdapter = SectionedRecyclerViewAdapter()
 
         // add the sections (to fill in later)
+        PLAYLIST_RECENT =  PlaylistSection(getString(R.string.playlist_section_recent), mutableListOf(), listener)
+        PLAYLIST_FEATURED =  PlaylistSection(getString(R.string.playlist_section_featured), mutableListOf(), listener)
+        PLAYLIST_RECOMMENDED =  PlaylistSection(getString(R.string.playlist_section_recommended), mutableListOf(), listener)
         sectionAdapter.addSection(PLAYLIST_RECENT)
+        sectionAdapter.addSection(PLAYLIST_RECOMMENDED)
+        sectionAdapter.addSection(PLAYLIST_FEATURED)
 
         mLayoutManager = GridLayoutManager(context, PLAYLISTS_COLUMN_COUNT)
         mLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
@@ -124,26 +138,30 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
     }
 
     override fun render(state: HomeViewState) {
-        // TODO: detect if we've reached the end with scroll listener => paginate
-        var reachedEnd = state.status != MviViewState.Status.LOADING && state.status != MviViewState.Status.SUCCESS
-        if (state.status == MviViewState.Status.SUCCESS) {
-            if (state.playlists.isNotEmpty()) { // full list
-                val currentCount = Math.max(0, sectionAdapter.itemCount)
+        Utils.mLog(TAG,"RENDER", "status: ${state.status}, playlistCount: ${state.playlists.size}")
+        when {
+            // TODO this is assuming everything is for PLAYLIST_RECENT
+            state.status == MviViewState.Status.SUCCESS && state.playlists.isNotEmpty() -> {
+                val currentCount = Math.max(0, PLAYLIST_RECENT.contentItemsTotal)
                 val newPlaylists = state.playlists.subList(currentCount, state.playlists.size)
-                Utils.mLog(TAG, "render", "total playlsits ${state.playlists.size} vs new: ${newPlaylists.size}")
+
                 PLAYLIST_RECENT.addPlaylists(newPlaylists)
                 PLAYLIST_RECENT.state = Section.State.LOADED
                 sectionAdapter.notifyDataSetChanged()
-            } else {
-                // if successful and allTracks are empty, then we've reached end
-                reachedEnd = true
+            }
+            state.status == MviViewState.Status.SUCCESS && state.playlists.isEmpty() -> {
+                // todo show empty state
+                Utils.mLog(TAG, "RENDER", "successful but empty")
+            }
+            state.status == MviViewState.Status.LOADING -> {
+                showLoading(PLAYLIST_RECENT)
+            }
+            state.status == MviViewState.Status.ERROR -> {
+                // todo show error state
+                Utils.mLog(TAG, "RENDER", "error")
             }
         }
 
-        Utils.mLog(TAG,"RENDER", "status: ${state.status}, reachedEnd: $reachedEnd, playlistCount: ${state.playlists.size}")
-        if (reachedEnd) { // error, not-logged-in
-//            mLoadMoreView.noMoreToLoad()
-        }
     }
 
     override fun onAttach(context: Context?) {

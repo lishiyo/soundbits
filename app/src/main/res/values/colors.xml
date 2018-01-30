@@ -4,7 +4,8 @@
 
 	<!--<color name="colorPrimary">@color/space_time</color>-->
 	<color name="colorPrimary">@color/ruby_grapefruit</color>
-	<color name="colorPrimaryDark">@color/colorRed</color>
+	<color name="colorPrimaryShade">#f54ea2</color>
+	<color name="colorPrimaryDark">@color/space_time</color>
 	<color name="colorPurple">@color/persian_blue</color>
 	<color name="colorAccent">@color/turquoise</color>
 	<color name="colorRed">@color/violet_red</color>
@@ -40,14 +41,15 @@
 
 	<!-- https://www.canva.com/learn/brand-color-palette/ -->
 	<color name="rosa">#f2AD9F</color>
-	<color name="ruby_grapefruit">#FF4477</color>
+	<!--<color name="ruby_grapefruit">#ff403b</color>-->
+	<color name="ruby_grapefruit">#ff427a</color>
 	<color name="limestone">#DFE2D2</color>
 	<color name="venice_verde">#6CBF84</color>
 	<color name="moss_river">#323339</color>
 	<color name="californian_coral">#3ddad7</color>
 
 	<!-- http://www.colourlovers.com/palette/1097823/Lenas_Love_Letter -->
-	<color name="space_time">#F04155</color>
+	<color name="space_time">#ff4245</color>
 	<color name="nell_hoyt">#FF823A</color>
 	<color name="salty_mars">#F2F26F</color>
 	<color name="brachium">#FFF7BD</color>

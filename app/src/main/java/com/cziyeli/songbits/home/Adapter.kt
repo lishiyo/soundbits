@@ -7,7 +7,6 @@ import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
 import io.github.luizgrp.sectionedrecyclerviewadapter.Section
@@ -27,7 +26,11 @@ class PlaylistSection(val title: String,
 ) {
 
     interface ClickListener {
+        // clicked a playlist card
         fun onItemClick(view: View, item: Playlist)
+
+        // clicked footer in section
+        fun onFooterClick(section: PlaylistSection)
     }
 
     fun addPlaylists(list: MutableList<Playlist>) {
@@ -78,7 +81,7 @@ class PlaylistSection(val title: String,
         val footerHolder = holder as FooterViewHolder?
 
         footerHolder?.rootView?.setOnClickListener({
-            "Clicked on footer of Section $title".toast(footerHolder?.rootView?.context!!)
+            listener?.onFooterClick(this)
         })
     }
 }

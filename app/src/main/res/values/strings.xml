@@ -35,4 +35,7 @@
 	<string name="playlist_fab_transition">shared_element_fab</string>
 
 	<string name="home_see_more">See more</string>
+	<string name="playlist_section_recent">Recent</string>
+	<string name="playlist_section_recommended">Recommended</string>
+	<string name="playlist_section_featured">Featured</string>
 </resources>

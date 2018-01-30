@@ -15,7 +15,7 @@
 	<!-- TAB: HOME -->
 	<dimen name="home_header_height">160dp</dimen>
 	<dimen name="playlist_item_width">110dp</dimen>
-	<dimen name="playlist_image_height">90dp</dimen>
+	<dimen name="playlist_image_height">110dp</dimen>
 	<dimen name="card_radius">4dp</dimen>
 	<dimen name="grid_playlist_margin">4dp</dimen>
 

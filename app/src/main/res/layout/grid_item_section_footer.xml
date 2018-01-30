@@ -7,6 +7,7 @@
 	xmlns:card_view="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:clipToPadding="false"
 	card_view:cardCornerRadius="@dimen/card_radius"
 	card_view:cardElevation="@dimen/card_radius"
 	card_view:cardPreventCornerOverlap="false"
@@ -15,17 +16,19 @@
 	android:layout_gravity="center"
 	>
 
-	<FrameLayout
+	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
+		android:minHeight="@dimen/playlist_image_height"
 		android:layout_gravity="center"
-		android:background="@color/colorAccent"
+		android:background="@drawable/gradient_blues"
 		>
 
 		<TextView
 			android:id="@+id/tvSeeMore"
 			android:text="@string/home_see_more"
 			android:fontFamily="@font/quicksand"
+			android:textStyle="bold"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:gravity="center"
@@ -35,6 +38,6 @@
 			android:textColor="@color/colorWhite"
 		/>
 
-	</FrameLayout>
+	</LinearLayout>
 
 </android.support.v7.widget.CardView>

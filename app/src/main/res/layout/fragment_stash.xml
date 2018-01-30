@@ -56,7 +56,6 @@
 				android:layout_height="@dimen/tab_strip_height"
 				android:layout_gravity="bottom"
 				android:fitsSystemWindows="true"
-				app:nts_typeface="@font/amatic_sc"
 				app:nts_active_color="@color/colorWhite"
 				app:nts_inactive_color="@color/colorDark"
 				app:nts_color="@color/space_time"
