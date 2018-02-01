@@ -8,7 +8,9 @@ import kaaes.spotify.webapi.android.models.SnapshotId
 /**
  * Created by connieli on 1/7/18.
  */
-sealed class SummaryResult(var status: MviResult.Status = MviResult.Status.IDLE, var error: Throwable? = null) : MviResult {
+interface SummaryResultMarker : MviResult
+
+sealed class SummaryResult(var status: MviResult.Status = MviResult.Status.IDLE, var error: Throwable? = null) : SummaryResultMarker {
     companion object {
         private val TAG = SummaryResult::class.simpleName
     }
@@ -19,7 +21,7 @@ sealed class SummaryResult(var status: MviResult.Status = MviResult.Status.IDLE,
     class FetchLikedStats(status: MviResult.Status,
                           error: Throwable?,
                           val trackStats: TrackListStats? // domain model for stats
-    ) : SummaryResult(status, error) {
+    ) : SummaryResult(status, error), StatsResultMarker {
         companion object {
             fun createSuccess(trackStats: TrackListStats) : FetchLikedStats {
                 return FetchLikedStats(MviResult.Status.SUCCESS, null, trackStats)
@@ -35,7 +37,7 @@ sealed class SummaryResult(var status: MviResult.Status = MviResult.Status.IDLE,
     }
 
     /**
-     * Create a playlit out of tracks.
+     * Create a playlist out of tracks.
      */
     class CreatePlaylistWithTracks(status: MviResult.Status,
                                    error: Throwable? = null,

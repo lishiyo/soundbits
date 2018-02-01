@@ -10,10 +10,7 @@ import com.cziyeli.commons.mvibase.MviViewModel
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlists.Playlist
-import com.cziyeli.domain.summary.SummaryAction
-import com.cziyeli.domain.summary.SummaryActionProcessor
-import com.cziyeli.domain.summary.SummaryResult
-import com.cziyeli.domain.summary.TrackListStats
+import com.cziyeli.domain.summary.*
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.cards.TrackViewState
 import com.cziyeli.songbits.di.App
@@ -47,7 +44,7 @@ class SummaryViewModel @Inject constructor(
     private val intentsSubject : PublishSubject<SummaryIntent> by lazy { PublishSubject.create<SummaryIntent>() }
 
     // reducer fn: Previous ViewState + Result => New ViewState
-    private val reducer: BiFunction<SummaryViewState, SummaryResult, SummaryViewState> = BiFunction { previousState, result ->
+    private val reducer: BiFunction<SummaryViewState, SummaryResultMarker, SummaryViewState> = BiFunction { previousState, result ->
         when (result) {
             is SummaryResult.FetchLikedStats -> return@BiFunction processStats(previousState, result)
             is SummaryResult.SaveTracks -> return@BiFunction processSaveResult(previousState, result)
@@ -85,9 +82,9 @@ class SummaryViewModel @Inject constructor(
     }
 
     // transform intent -> action
-    private fun actionFromIntent(intent: MviIntent) : SummaryAction {
+    private fun actionFromIntent(intent: MviIntent) : SummaryActionMarker {
         return when(intent) {
-            is SummaryIntent.FetchStats -> SummaryAction.LoadLikedStats(intent.trackIds)
+            is SummaryIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
             is SummaryIntent.SaveAllTracks -> SummaryAction.SaveTracks(intent.tracks, intent.playlistId)
             is SummaryIntent.CreatePlaylistWithTracks -> SummaryAction.CreatePlaylistWithTracks(intent.ownerId, intent.name,
                     intent.description, intent.public, intent.tracks)

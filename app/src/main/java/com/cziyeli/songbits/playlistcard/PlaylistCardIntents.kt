@@ -6,14 +6,15 @@ import com.cziyeli.commons.mvibase.MviIntent
  * Marker for the [PlaylistCardActivity] screen.
  */
 interface SinglePlaylistIntent : MviIntent
+interface StatsIntent : MviIntent
 
 /**
  * Events for [PlaylistCardWidget].
  **/
 sealed class PlaylistCardIntent : SinglePlaylistIntent {
-    // liked, disliked, total
+    // fetch basic counts - liked, disliked, total
     class FetchQuickStats(val ownerId: String,
-                        val playlistId: String) : PlaylistCardIntent()
+                          val playlistId: String) : PlaylistCardIntent()
 
     // get list of all (swiped) tracks
     class FetchPlaylistTracks(val ownerId: String,
@@ -22,10 +23,10 @@ sealed class PlaylistCardIntent : SinglePlaylistIntent {
 }
 
 /**
- * Events for [TrackStatsView].
+ * Events for [TrackStatsView], widget representing stats for a [PlaylistCardWidget].
  */
-sealed class TrackStatsIntent : SinglePlaylistIntent {
+sealed class TrackStatsIntent : StatsIntent {
 
-    // fetch stats for a single playlist
+    // fetch stats for all tracks
     class FetchStats(val trackIds: List<String>) : TrackStatsIntent()
 }

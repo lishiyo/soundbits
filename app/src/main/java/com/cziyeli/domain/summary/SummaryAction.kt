@@ -1,16 +1,15 @@
 package com.cziyeli.domain.summary
 
-import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.commons.mvibase.MviAction
+import com.cziyeli.domain.tracks.TrackModel
 
 /**
- * Created by connieli on 1/7/18.
+ * Actions for the summary screen.
  */
-sealed class SummaryAction : MviAction {
-    object None : SummaryAction()
+interface SummaryActionMarker : MviAction
 
-    // Fetch the stats
-    class LoadLikedStats(val trackIds: List<String>) : SummaryAction()
+sealed class SummaryAction : SummaryActionMarker {
+    object None : SummaryAction()
 
     // Create a new playlist
     // https://developer.spotify.com/web-api/console/post-playlists/

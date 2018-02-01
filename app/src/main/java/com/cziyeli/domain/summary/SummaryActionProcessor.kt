@@ -11,17 +11,17 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Created by connieli on 1/7/18.
+ * Process summary screen from actions to results.
  */
 @Singleton
 class SummaryActionProcessor @Inject constructor(private val repository: Repository,
                                                  private val schedulerProvider: BaseSchedulerProvider) {
     private val TAG = SummaryActionProcessor::class.simpleName
 
-    val combinedProcessor: ObservableTransformer<SummaryAction, SummaryResult> = ObservableTransformer { acts ->
+    val combinedProcessor: ObservableTransformer<SummaryActionMarker, SummaryResultMarker> = ObservableTransformer { acts ->
         acts.publish { shared ->
-            Observable.merge<SummaryResult>(
-                    shared.ofType<SummaryAction.LoadLikedStats>(SummaryAction.LoadLikedStats::class.java).compose(mFetchLikedStatsProcessor),
+            Observable.merge<SummaryResultMarker>(
+                    shared.ofType<StatsAction.FetchStats>(StatsAction.FetchStats::class.java).compose(mFetchLikedStatsProcessor),
                     shared.ofType<SummaryAction.SaveTracks>(SummaryAction.SaveTracks::class.java).compose(mSaveTracksProcessor),
                     shared.ofType<SummaryAction.CreatePlaylistWithTracks>(SummaryAction.CreatePlaylistWithTracks::class.java).compose(mCreatePlaylistProcessor)
             ).mergeWith(
@@ -36,7 +36,7 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
         }
     }
 
-    private val mFetchLikedStatsProcessor: ObservableTransformer<SummaryAction.LoadLikedStats, SummaryResult.FetchLikedStats> = ObservableTransformer {
+    private val mFetchLikedStatsProcessor: ObservableTransformer<StatsAction.FetchStats, SummaryResult.FetchLikedStats> = ObservableTransformer {
         action -> action.switchMap {
             act -> repository
                 .fetchTracksStats(Repository.Source.REMOTE, act.trackIds)
