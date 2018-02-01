@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.cziyeli.commons.Utils
+import com.cziyeli.commons.mvibase.MviView
+import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.commons.toast
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.di.App
@@ -15,8 +17,6 @@ import com.wang.avi.AVLoadingIndicatorView
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.layout_summary.view.*
-import com.cziyeli.commons.mvibase.MviView
-import com.cziyeli.commons.mvibase.MviViewState
 
 
 /**
@@ -36,7 +36,7 @@ class SummaryLayout @JvmOverloads constructor(
     private lateinit var viewModel: SummaryViewModel
 
     // fire off intents
-    private val mStatsPublisher = PublishSubject.create<SummaryIntent.LoadLikedStats>()
+    private val mStatsPublisher = PublishSubject.create<SummaryIntent.FetchStats>()
     private val mUserSavePublisher = PublishSubject.create<SummaryIntent.SaveAllTracks>()
     private val mCreatePlaylistPublisher = PublishSubject.create<SummaryIntent.CreatePlaylistWithTracks>()
 
@@ -66,7 +66,7 @@ class SummaryLayout @JvmOverloads constructor(
         })
 
         // immediately fetch stats of the like ids
-        mStatsPublisher.onNext(SummaryIntent.LoadLikedStats(initialViewState.trackIdsToFetch()))
+        mStatsPublisher.onNext(SummaryIntent.FetchStats(initialViewState.trackIdsForStats()))
 
         // init click listeners
         action_save_to_database.setOnClickListener {

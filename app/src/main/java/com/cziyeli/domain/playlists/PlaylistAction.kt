@@ -3,15 +3,18 @@ package com.cziyeli.domain.playlists
 import com.cziyeli.commons.mvibase.MviAction
 
 /**
- * Created by connieli on 12/31/17.
+ * Marker for events on the home screen.
  */
 interface HomeAction : MviAction
 
+/**
+ * Events for playlists on the home screen.
+ */
 sealed class PlaylistAction : HomeAction {
     // no-op
     object None : PlaylistAction()
 
-    // fetch current user's playlists (default to first page)
+    // fetch current user's playlists (default to recent, first page)
     class UserPlaylists(val limit: Int = 20, val offset: Int = 0) : PlaylistAction()
 
     // get recommendations by seed:

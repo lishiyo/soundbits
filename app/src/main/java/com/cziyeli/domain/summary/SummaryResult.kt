@@ -1,9 +1,9 @@
 package com.cziyeli.domain.summary
 
 import com.cziyeli.commons.Utils
+import com.cziyeli.commons.mvibase.MviResult
 import com.cziyeli.domain.tracks.TrackModel
 import kaaes.spotify.webapi.android.models.SnapshotId
-import com.cziyeli.commons.mvibase.MviResult
 
 /**
  * Created by connieli on 1/7/18.
@@ -13,24 +13,30 @@ sealed class SummaryResult(var status: MviResult.Status = MviResult.Status.IDLE,
         private val TAG = SummaryResult::class.simpleName
     }
 
-    class LoadLikedStatsResult(status: MviResult.Status,
-                               error: Throwable?,
-                               val trackStats: TrackListStats? // domain model for stats
+    /**
+     * Load stats for the Liked tracks.
+     */
+    class FetchLikedStats(status: MviResult.Status,
+                          error: Throwable?,
+                          val trackStats: TrackListStats? // domain model for stats
     ) : SummaryResult(status, error) {
         companion object {
-            fun createSuccess(trackStats: TrackListStats) : LoadLikedStatsResult {
-                return LoadLikedStatsResult(MviResult.Status.SUCCESS, null, trackStats)
+            fun createSuccess(trackStats: TrackListStats) : FetchLikedStats {
+                return FetchLikedStats(MviResult.Status.SUCCESS, null, trackStats)
             }
             fun createError(throwable: Throwable,
-                            trackStats: TrackListStats? = null) : LoadLikedStatsResult {
-                return LoadLikedStatsResult(MviResult.Status.FAILURE, throwable, trackStats)
+                            trackStats: TrackListStats? = null) : FetchLikedStats {
+                return FetchLikedStats(MviResult.Status.FAILURE, throwable, trackStats)
             }
-            fun createLoading(): LoadLikedStatsResult {
-                return LoadLikedStatsResult(MviResult.Status.LOADING, null, null)
+            fun createLoading(): FetchLikedStats {
+                return FetchLikedStats(MviResult.Status.LOADING, null, null)
             }
         }
     }
 
+    /**
+     * Create a playlit out of tracks.
+     */
     class CreatePlaylistWithTracks(status: MviResult.Status,
                                    error: Throwable? = null,
                                    val playlistId: String? = null,
@@ -53,6 +59,9 @@ sealed class SummaryResult(var status: MviResult.Status = MviResult.Status.IDLE,
         }
     }
 
+    /**
+     * Save tracks to database.
+     */
     class SaveTracks(status: MviResult.Status,
                      error: Throwable?,
                      val insertedTracks: List<TrackModel>? = null,

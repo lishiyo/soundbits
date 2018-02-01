@@ -21,7 +21,7 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
     val combinedProcessor: ObservableTransformer<SummaryAction, SummaryResult> = ObservableTransformer { acts ->
         acts.publish { shared ->
             Observable.merge<SummaryResult>(
-                    shared.ofType<SummaryAction.LoadLikedStats>(SummaryAction.LoadLikedStats::class.java).compose(mLoadLikedStatsProcessor),
+                    shared.ofType<SummaryAction.LoadLikedStats>(SummaryAction.LoadLikedStats::class.java).compose(mFetchLikedStatsProcessor),
                     shared.ofType<SummaryAction.SaveTracks>(SummaryAction.SaveTracks::class.java).compose(mSaveTracksProcessor),
                     shared.ofType<SummaryAction.CreatePlaylistWithTracks>(SummaryAction.CreatePlaylistWithTracks::class.java).compose(mCreatePlaylistProcessor)
             ).mergeWith(
@@ -36,16 +36,16 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
         }
     }
 
-    private val mLoadLikedStatsProcessor: ObservableTransformer<SummaryAction.LoadLikedStats, SummaryResult.LoadLikedStatsResult> = ObservableTransformer {
+    private val mFetchLikedStatsProcessor: ObservableTransformer<SummaryAction.LoadLikedStats, SummaryResult.FetchLikedStats> = ObservableTransformer {
         action -> action.switchMap {
             act -> repository
                 .fetchTracksStats(Repository.Source.REMOTE, act.trackIds)
                 .subscribeOn(schedulerProvider.io())
             }.map { resp -> TrackListStats.create(resp) }
             .observeOn(schedulerProvider.ui())
-            .map { trackStats -> SummaryResult.LoadLikedStatsResult.createSuccess(trackStats) }
-            .onErrorReturn { err -> SummaryResult.LoadLikedStatsResult.createError(err) }
-            .startWith(SummaryResult.LoadLikedStatsResult.createLoading())
+            .map { trackStats -> SummaryResult.FetchLikedStats.createSuccess(trackStats) }
+            .onErrorReturn { err -> SummaryResult.FetchLikedStats.createError(err) }
+            .startWith(SummaryResult.FetchLikedStats.createLoading())
             .retry() // don't unsubscribe
     }
 

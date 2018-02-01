@@ -23,7 +23,7 @@ import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import kotlinx.android.synthetic.main.widget_playlist_card.view.*
 
 /**
- * The normal playlist card.
+ * The normal playlist card (*not* the create/pending one).
  */
 class PlaylistCardWidget : NestedScrollView {
 
@@ -84,15 +84,8 @@ class PlaylistCardWidget : NestedScrollView {
                 })
                 .into(playlist_image_background)
 
-
-        // set up tracks list
-        adapter = TrackRowsAdapter(context, getDummyTracks())
-        tracks_recycler_view.adapter = adapter
-        tracks_recycler_view.layoutManager = LinearLayoutManager(context)
-        tracks_recycler_view.disableTouchTheft()
-
+        // load the fab
 //        setupLottieFab()
-
         if (fab_menu != null && fab_button != null) {
             fab_menu!!.bindAnchorView(fab_button!!)
             fab_menu!!.setOnFABMenuSelectedListener(onFabSelectedListener)
@@ -100,6 +93,12 @@ class PlaylistCardWidget : NestedScrollView {
 
         // add the dummy track stats
         stats_container.loadDefaultAudioFeatures()
+
+        // set up tracks list
+        adapter = TrackRowsAdapter(context, getDummyTracks())
+        tracks_recycler_view.adapter = adapter
+        tracks_recycler_view.layoutManager = LinearLayoutManager(context)
+        tracks_recycler_view.disableTouchTheft()
     }
 
 //    private fun setupLottieFab() {

@@ -156,6 +156,7 @@
 
 					<!-- BODY: likes/dislikes/total -->
 					<LinearLayout
+						android:id="@+id/quickstats_container"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:orientation="horizontal"
@@ -270,12 +271,14 @@
 						app:expansion_layout="@id/expansionLayout"
 						app:expansion_toggleOnClick="true"
 						>
+
 						<RelativeLayout
 							android:background="@color/colorPrimary"
 							android:layout_height="48dp"
 							android:layout_width="match_parent"
 							android:paddingLeft="16dp"
 							android:paddingRight="16dp">
+
 							<TextView
 								android:layout_centerVertical="true"
 								android:layout_height="wrap_content"
@@ -297,7 +300,7 @@
 
 					</com.github.florent37.expansionpanel.ExpansionHeader>
 
-					<!-- CONTENT: LIST of TRACKS (COLLAPSED) -->
+					<!-- BODY CONTENT: LIST of TRACKS (COLLAPSED) -->
 					<com.github.florent37.expansionpanel.ExpansionLayout
 						android:id="@+id/expansionLayout"
 						android:textSize="@dimen/small_text_size"

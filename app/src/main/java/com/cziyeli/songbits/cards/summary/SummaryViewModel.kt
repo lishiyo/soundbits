@@ -4,6 +4,10 @@ import android.arch.lifecycle.*
 import android.widget.Toast
 import com.cziyeli.commons.SingleLiveEvent
 import com.cziyeli.commons.Utils
+import com.cziyeli.commons.mvibase.MviIntent
+import com.cziyeli.commons.mvibase.MviResult
+import com.cziyeli.commons.mvibase.MviViewModel
+import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.SummaryAction
@@ -17,10 +21,6 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.PublishSubject
-import com.cziyeli.commons.mvibase.MviIntent
-import com.cziyeli.commons.mvibase.MviResult
-import com.cziyeli.commons.mvibase.MviViewModel
-import com.cziyeli.commons.mvibase.MviViewState
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
@@ -49,7 +49,7 @@ class SummaryViewModel @Inject constructor(
     // reducer fn: Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<SummaryViewState, SummaryResult, SummaryViewState> = BiFunction { previousState, result ->
         when (result) {
-            is SummaryResult.LoadLikedStatsResult -> return@BiFunction processStats(previousState, result)
+            is SummaryResult.FetchLikedStats -> return@BiFunction processStats(previousState, result)
             is SummaryResult.SaveTracks -> return@BiFunction processSaveResult(previousState, result)
             is SummaryResult.CreatePlaylistWithTracks -> return@BiFunction processCreatePlaylistResult(previousState, result)
             else -> return@BiFunction previousState
@@ -87,7 +87,7 @@ class SummaryViewModel @Inject constructor(
     // transform intent -> action
     private fun actionFromIntent(intent: MviIntent) : SummaryAction {
         return when(intent) {
-            is SummaryIntent.LoadLikedStats -> SummaryAction.LoadLikedStats(intent.trackIds)
+            is SummaryIntent.FetchStats -> SummaryAction.LoadLikedStats(intent.trackIds)
             is SummaryIntent.SaveAllTracks -> SummaryAction.SaveTracks(intent.tracks, intent.playlistId)
             is SummaryIntent.CreatePlaylistWithTracks -> SummaryAction.CreatePlaylistWithTracks(intent.ownerId, intent.name,
                     intent.description, intent.public, intent.tracks)
@@ -97,7 +97,7 @@ class SummaryViewModel @Inject constructor(
 
     // ===== Individual reducers ======
 
-    private fun processStats(previousState: SummaryViewState, result: SummaryResult.LoadLikedStatsResult) : SummaryViewState {
+    private fun processStats(previousState: SummaryViewState, result: SummaryResult.FetchLikedStats) : SummaryViewState {
         val newState = previousState.copy()
         newState.error = null
 
@@ -202,7 +202,8 @@ data class SummaryViewState(var status: MviViewState.Status = MviViewState.Statu
     val unseen: MutableList<TrackModel>
         get() = (allTracks - (currentLikes + currentDislikes)).toMutableList()
 
-    fun trackIdsToFetch() : List<String> {
+    // fetch stats of likes
+    fun trackIdsForStats() : List<String> {
         return currentLikes.map { it.id }
     }
 

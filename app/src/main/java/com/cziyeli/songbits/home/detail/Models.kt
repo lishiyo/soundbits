@@ -9,7 +9,7 @@ import android.widget.TextView
 import com.cziyeli.songbits.R
 import java.util.*
 
-
+// Track list
 data class RowTrackItem(val name: String, val artist: String = "")
 
 fun getDummyTracks() : List<RowTrackItem> {
