@@ -62,7 +62,7 @@ class PlaylistCardWidget : NestedScrollView {
         // Load header
         playlist_title.text = playlistModel.name
         Glide.with(this)
-                .load(playlistModel.simpleImage?.url)
+                .load(playlistModel.imageUrl)
                 .apply(RequestOptions
                         .noTransformation()
                         .dontAnimate()

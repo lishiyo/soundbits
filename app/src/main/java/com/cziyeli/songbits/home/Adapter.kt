@@ -52,7 +52,7 @@ class PlaylistSection(val title: String,
         holder.title.text = playlistItem.name
 
         Glide.with(holder.itemView.context)
-                .load(playlistItem.simpleImage?.url)
+                .load(playlistItem.imageUrl)
                 .apply(RequestOptions
                         .noTransformation()
                         .dontTransform()

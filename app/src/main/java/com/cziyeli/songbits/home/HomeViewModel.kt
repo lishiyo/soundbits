@@ -47,7 +47,7 @@ class HomeViewModel @Inject constructor(
     // Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<HomeViewState, HomeResult, HomeViewState> = BiFunction { previousState, result ->
         when (result) {
-            is PlaylistResult.UserPlaylists -> return@BiFunction processUserPlaylists(previousState, result)
+            is PlaylistsResult.UserPlaylists -> return@BiFunction processUserPlaylists(previousState, result)
             is UserResult.FetchUser -> return@BiFunction processCurrentUser(previousState, result)
             is UserResult.ClearUser -> return@BiFunction processClearedUser(previousState, result)
             else -> return@BiFunction previousState
@@ -86,10 +86,10 @@ class HomeViewModel @Inject constructor(
 
     private fun actionFromIntent(intent: MviIntent) : HomeAction {
         return when(intent) {
-            is OldHomeIntent.LoadPlaylists -> PlaylistAction.UserPlaylists(intent.limit, intent.offset)
+            is OldHomeIntent.LoadPlaylists -> PlaylistsAction.UserPlaylists(intent.limit, intent.offset)
             is OldHomeIntent.FetchUser -> UserAction.FetchUser()
             is OldHomeIntent.LogoutUser -> UserAction.ClearUser()
-            else -> PlaylistAction.None // no-op all other events
+            else -> PlaylistsAction.None // no-op all other events
         }
     }
 
@@ -112,19 +112,19 @@ class HomeViewModel @Inject constructor(
 
     // ===== Individual reducers ======
 
-    private fun processUserPlaylists(previousState: HomeViewState, result: PlaylistResult.UserPlaylists): HomeViewState {
+    private fun processUserPlaylists(previousState: HomeViewState, result: PlaylistsResult.UserPlaylists): HomeViewState {
         val newState: HomeViewState = previousState.copy()
         newState.error = null
 
         when (result.status) {
-            PlaylistResult.Status.LOADING -> {
+            PlaylistsResult.Status.LOADING -> {
                 newState.status = MviViewState.Status.LOADING
             }
-            PlaylistResult.Status.SUCCESS, PlaylistResult.Status.IDLE -> {
+            PlaylistsResult.Status.SUCCESS, PlaylistsResult.Status.IDLE -> {
                 newState.status = MviViewState.Status.SUCCESS
                 newState.playlists.addAll(result.playlists)
             }
-            PlaylistResult.Status.FAILURE -> {
+            PlaylistsResult.Status.FAILURE -> {
                 newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }

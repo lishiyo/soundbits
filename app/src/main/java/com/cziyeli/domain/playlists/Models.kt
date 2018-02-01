@@ -8,10 +8,8 @@ import kaaes.spotify.webapi.android.models.PlaylistSimple
 import kaaes.spotify.webapi.android.models.PlaylistTracksInformation
 
 /**
- * Domain model wrapping {@link PlaylistSimple} from the api =>
- * pass to Results
- *
- * Created by connieli on 12/31/17.
+ * Domain model wrapping a [PlaylistSimple] from the api =>
+ * pass to [PlaylistsResult].
  */
 data class Playlist(val id: String,
                     val name: String,
@@ -25,9 +23,9 @@ data class Playlist(val id: String,
     val totalTracksCount: Int
         get() = tracks?.total ?: 0
 
-    val simpleImage: SimpleImage?
-        get() = images?.get(0)
-
+    // cover image url
+    val imageUrl: String?
+        get() = images?.get(0)?.url
 
     constructor(parcel: Parcel) : this(
             parcel.readString(),
@@ -43,9 +41,9 @@ data class Playlist(val id: String,
         @JvmField
         val CREATOR = createParcel { Playlist(it) }
 
-        // create from api model
+        // factory method to create from api model
         fun create(apiModel: PlaylistSimple) : Playlist {
-            var owner = Owner(apiModel.owner.id, apiModel.owner.uri, apiModel.owner.display_name)
+            val owner = Owner(apiModel.owner.id, apiModel.owner.uri, apiModel.owner.display_name)
             val images = apiModel.images?.map { SimpleImage(it.height, it.width, it.url) }
             return Playlist(apiModel.id, apiModel.name, apiModel.href, apiModel.uri, owner, images, apiModel.tracks)
         }
@@ -66,7 +64,9 @@ data class Playlist(val id: String,
     }
 }
 
-// Pl
+/**
+ * Owner of a [Playlist].
+ */
 data class Owner(val id: String, private val uri: String, val display_name: String? = null) : Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.readString(),

@@ -8,14 +8,14 @@ import java.util.*
  */
 interface HomeResult : MviResult
 
-sealed class PlaylistResult(var status: Status = Status.IDLE, var error: Throwable? = null) : HomeResult {
+sealed class PlaylistsResult(var status: Status = Status.IDLE, var error: Throwable? = null) : HomeResult {
     enum class Status {
         LOADING, SUCCESS, FAILURE, IDLE
     }
 
     // fetching user playlists
     class UserPlaylists(status: Status, error: Throwable?, val playlists: List<Playlist> = Collections.emptyList())
-        : PlaylistResult(status, error) {
+        : PlaylistsResult(status, error) {
         companion object {
             fun createSuccess(playlists: List<Playlist>) : UserPlaylists {
                 return UserPlaylists(Status.SUCCESS, null, playlists)

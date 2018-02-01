@@ -14,10 +14,11 @@ import com.mindorks.placeholderview.annotations.View
 
 
 /**
- * Item view for the allTracks
+ * Item view for the tracks.
  *
  * Created by connieli on 1/1/18.
  */
+@Deprecated("for old home screen and infinite adapter")
 @Layout(R.layout.playlists_item_square)
 class PlaylistItemView(val context: Context, private var playlist: Playlist?) {
 
@@ -49,7 +50,7 @@ class PlaylistItemView(val context: Context, private var playlist: Playlist?) {
            ownerName.text = it.owner.display_name
            tracksCount.text = "${it.totalTracksCount}"
 
-           imageView.setImageURI(it.simpleImage?.url)
+           imageView.setImageURI(it.imageUrl)
        }
     }
 

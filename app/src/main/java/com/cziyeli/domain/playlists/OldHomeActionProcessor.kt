@@ -22,19 +22,19 @@ class OldHomeActionProcessor @Inject constructor(private val repository: Reposit
     val combinedProcessor: ObservableTransformer<HomeAction, HomeResult> = ObservableTransformer { acts ->
         acts.publish { shared ->
             Observable.merge<HomeResult>(
-                    shared.ofType<PlaylistAction.UserPlaylists>(PlaylistAction.UserPlaylists::class.java).compose(userPlaylistsProcessor),
+                    shared.ofType<PlaylistsAction.UserPlaylists>(PlaylistsAction.UserPlaylists::class.java).compose(userPlaylistsProcessor),
                     shared.ofType<UserAction.FetchUser>(UserAction.FetchUser::class.java).compose(fetchUserProcessor),
                     shared.ofType<UserAction.ClearUser>(UserAction.ClearUser::class.java).compose(clearUserProcessor)
             ).mergeWith(
                     // Error for not implemented actions
                     shared.filter { v -> v !is HomeAction
-                    }.flatMap { w -> Observable.error<PlaylistResult>(IllegalArgumentException("Unknown Action type: " + w)) }
+                    }.flatMap { w -> Observable.error<PlaylistsResult>(IllegalArgumentException("Unknown Action type: " + w)) }
             ).retry() // don't unsubscribe ever
         }
     }
 
     // ==== individual list of processors (action -> result) ====
-    private val userPlaylistsProcessor : ObservableTransformer<PlaylistAction.UserPlaylists, PlaylistResult.UserPlaylists>
+    private val userPlaylistsProcessor : ObservableTransformer<PlaylistsAction.UserPlaylists, PlaylistsResult.UserPlaylists>
             = ObservableTransformer { action -> action.switchMap {
                     act -> repository
                                 .fetchUserPlaylists(Repository.Source.REMOTE, act.limit, act.offset)
@@ -44,9 +44,9 @@ class OldHomeActionProcessor @Inject constructor(private val repository: Reposit
                         resp.items.map { Playlist.create(it) }
                     }
                     .observeOn(schedulerProvider.ui())
-                    .map { playlists -> PlaylistResult.UserPlaylists.createSuccess(playlists) }
-                    .onErrorReturn { err -> PlaylistResult.UserPlaylists.createError(err) }
-                    .startWith(PlaylistResult.UserPlaylists.createLoading())
+                    .map { playlists -> PlaylistsResult.UserPlaylists.createSuccess(playlists) }
+                    .onErrorReturn { err -> PlaylistsResult.UserPlaylists.createError(err) }
+                    .startWith(PlaylistsResult.UserPlaylists.createLoading())
                     .retry()
             }
 

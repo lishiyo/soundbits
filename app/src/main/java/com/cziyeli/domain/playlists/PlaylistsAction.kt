@@ -10,12 +10,12 @@ interface HomeAction : MviAction
 /**
  * Events for playlists on the home screen.
  */
-sealed class PlaylistAction : HomeAction {
+sealed class PlaylistsAction : HomeAction {
     // no-op
-    object None : PlaylistAction()
+    object None : PlaylistsAction()
 
     // fetch current user's playlists (default to recent, first page)
-    class UserPlaylists(val limit: Int = 20, val offset: Int = 0) : PlaylistAction()
+    class UserPlaylists(val limit: Int = 20, val offset: Int = 0) : PlaylistsAction()
 
     // get recommendations by seed:
     // https://developer.spotify.com/web-api/console/get-recommendations/

@@ -1,14 +1,14 @@
 package com.cziyeli.songbits.oldhome
 
 import com.cziyeli.commons.Utils
+import com.cziyeli.commons.mvibase.MviView
+import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.songbits.R
 import com.mindorks.placeholderview.InfinitePlaceHolderView
 import com.mindorks.placeholderview.annotations.Layout
 import com.mindorks.placeholderview.annotations.infinite.LoadMore
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
-import com.cziyeli.commons.mvibase.MviView
-import com.cziyeli.commons.mvibase.MviViewState
 
 
 /**
@@ -16,6 +16,7 @@ import com.cziyeli.commons.mvibase.MviViewState
  *
  * Created by connieli on 1/1/18.
  */
+@Deprecated("for old home screen")
 @Layout(R.layout.load_more_view)
 class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderView) : MviView<OldHomeIntent, HomeViewState> {
     private val TAG = InfinitePlaylistsAdapter::class.simpleName
