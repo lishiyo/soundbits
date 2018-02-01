@@ -26,7 +26,7 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".oldhome.OldHomeActivity" />
+		<activity android:name="com.cziyeli.songbits.home.oldhome.OldHomeActivity" />
 		<activity android:name=".cards.CardsActivity" />
 
 		<!-- Spotify sdk demo -->
@@ -64,7 +64,7 @@
 		</activity>
 
 		<activity
-			android:name=".home.detail.PlaylistCardActivity"
+			android:name="com.cziyeli.songbits.playlistcard.PlaylistCardActivity"
 			android:theme="@style/HomeToPlaylist.Back"
 			/>
 

@@ -10,8 +10,8 @@ import com.cziyeli.songbits.di.viewModels.ViewModelsModule
 import com.cziyeli.songbits.home.HomeFragment
 import com.cziyeli.songbits.home.HomeModule
 import com.cziyeli.songbits.home.HomeSubcomponent
-import com.cziyeli.songbits.oldhome.OldHomeActivity
-import com.cziyeli.songbits.oldhome.di.OldHomeActivitySubComponent
+import com.cziyeli.songbits.home.oldhome.OldHomeActivity
+import com.cziyeli.songbits.home.oldhome.di.OldHomeActivitySubComponent
 import com.cziyeli.songbits.root.RootActivity
 import dagger.Binds
 import dagger.Module

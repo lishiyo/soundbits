@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.cziyeli.songbits.home.detail.PlaylistCardWidget
+<com.cziyeli.songbits.playlistcard.PlaylistCardWidget
 	android:id="@+id/playlist_card_widget"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
@@ -8,5 +8,5 @@
 	android:orientation="vertical"
 	android:background="@null"
 	>
-</com.cziyeli.songbits.home.detail.PlaylistCardWidget>
+</com.cziyeli.songbits.playlistcard.PlaylistCardWidget>
 

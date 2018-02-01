@@ -7,7 +7,7 @@ import com.cziyeli.commons.mvibase.MviViewModel
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlists.*
-import com.cziyeli.songbits.oldhome.OldHomeIntent
+import com.cziyeli.songbits.home.oldhome.OldHomeIntent
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable

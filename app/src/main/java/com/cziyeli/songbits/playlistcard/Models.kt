@@ -1,4 +1,4 @@
-package com.cziyeli.songbits.home.detail
+package com.cziyeli.songbits.playlistcard
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView

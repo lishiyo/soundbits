@@ -1,4 +1,4 @@
-package com.cziyeli.songbits.oldhome
+package com.cziyeli.songbits.home.oldhome
 
 import com.cziyeli.commons.mvibase.MviIntent
 

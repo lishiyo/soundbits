@@ -1,4 +1,4 @@
-package com.cziyeli.songbits.home.detail
+package com.cziyeli.songbits.playlistcard
 
 import com.cziyeli.commons.mvibase.MviIntent
 

@@ -251,7 +251,7 @@
 						/>
 
 					<!-- BODY: audio stats -->
-					<com.cziyeli.songbits.home.detail.TrackStatsView
+					<com.cziyeli.songbits.playlistcard.TrackStatsView
 						android:id="@+id/stats_container"
 						android:padding="20dp"
 						android:orientation="vertical"
@@ -260,7 +260,7 @@
 						android:clickable="false"
 						android:focusable="false"
 						>
-					</com.cziyeli.songbits.home.detail.TrackStatsView>
+					</com.cziyeli.songbits.playlistcard.TrackStatsView>
 
 					<!-- BODY: Expansion Header -->
 					<com.github.florent37.expansionpanel.ExpansionHeader

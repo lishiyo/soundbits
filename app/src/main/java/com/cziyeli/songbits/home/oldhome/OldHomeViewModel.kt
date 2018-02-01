@@ -1,4 +1,4 @@
-package com.cziyeli.songbits.oldhome
+package com.cziyeli.songbits.home.oldhome
 
 import android.arch.lifecycle.*
 import com.cziyeli.commons.Utils

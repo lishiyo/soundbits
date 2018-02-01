@@ -11,10 +11,10 @@ import com.cziyeli.commons.*
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.domain.playlists.UserResult
 import com.cziyeli.domain.user.UserManager
-import com.cziyeli.songbits.oldhome.HomeViewState
-import com.cziyeli.songbits.oldhome.OldHomeActivity
-import com.cziyeli.songbits.oldhome.OldHomeIntent
-import com.cziyeli.songbits.oldhome.OldHomeViewModel
+import com.cziyeli.songbits.home.oldhome.HomeViewState
+import com.cziyeli.songbits.home.oldhome.OldHomeActivity
+import com.cziyeli.songbits.home.oldhome.OldHomeIntent
+import com.cziyeli.songbits.home.oldhome.OldHomeViewModel
 import com.cziyeli.songbits.root.RootActivity
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest

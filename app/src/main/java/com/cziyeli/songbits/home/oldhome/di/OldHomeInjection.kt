@@ -1,7 +1,7 @@
-package com.cziyeli.songbits.oldhome.di
+package com.cziyeli.songbits.home.oldhome.di
 
 import com.cziyeli.songbits.di.viewModels.ViewModelsModule
-import com.cziyeli.songbits.oldhome.OldHomeActivity
+import com.cziyeli.songbits.home.oldhome.OldHomeActivity
 import dagger.Module
 import dagger.Subcomponent
 import dagger.android.AndroidInjector
