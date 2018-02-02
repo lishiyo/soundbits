@@ -21,5 +21,8 @@ sealed class PlaylistCardAction : PlaylistCardActionMarker {
     // get list of all (swiped) tracks
     class FetchPlaylistTracks(val ownerId: String,
                               val playlistId: String,
-                              val onlySwiped: Boolean = true) : PlaylistCardAction()
+                              val onlySwiped: Boolean = true,
+                              val fields: String? = null,
+                              val limit: Int = 100,
+                              val offset: Int = 0) : PlaylistCardAction()
 }

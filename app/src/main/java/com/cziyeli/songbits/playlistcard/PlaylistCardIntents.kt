@@ -25,7 +25,7 @@ sealed class PlaylistCardIntent : SinglePlaylistIntent {
 /**
  * Events for [TrackStatsView], widget representing stats for a [PlaylistCardWidget].
  */
-sealed class TrackStatsIntent : StatsIntent {
+sealed class TrackStatsIntent : SinglePlaylistIntent, StatsIntent {
 
     // fetch stats for all tracks
     class FetchStats(val trackIds: List<String>) : TrackStatsIntent()

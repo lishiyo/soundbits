@@ -58,7 +58,7 @@ class RepositoryImpl @Inject constructor(
     }
 
     private fun fetchPlaylistTracksLocal(playlistId: String): Flowable<List<TrackEntity>> {
-        return tracksDatabase.tracksDao().getTracksByPlaylistId(playlistId)
+        return tracksDatabase.tracksDao().getTracksByPlaylistId(playlistId).distinctUntilChanged()
     }
 
     ///////////////////////

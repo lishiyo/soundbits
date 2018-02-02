@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.view.ViewStub
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviView
-import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.SummaryActionProcessor
@@ -164,7 +163,7 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
     }
 
     override fun render(state: TrackViewState) {
-        val show = state.status == MviViewState.Status.SUCCESS && state.allTracks.isNotEmpty()
+        val show = state.isSuccess() && state.allTracks.isNotEmpty()
         Utils.setVisible(discardBtn, show)
         Utils.setVisible(likeBtn, show)
         Utils.setVisible(undoBtn, show)
@@ -175,7 +174,7 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         // populate if first time
         if (state.status == TrackViewState.TracksLoadedStatus.SUCCESS && swipeView.childCount == 0) {
             state.allTracks.forEachWithIndex { position, model ->
-                Utils.mLog(TAG, "render! adding TrackCardView @ $position")
+//                Utils.mLog(TAG, "render! adding TrackCardView @ $position")
                 swipeView.addView(TrackCardView(this, model, this))
             }
         }

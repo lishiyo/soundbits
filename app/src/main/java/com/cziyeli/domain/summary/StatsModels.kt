@@ -54,11 +54,15 @@ data class TrackListStats(val apiModel: AudioFeaturesTracks) {
 
     var trackStats: List<TrackStats> = apiModel.audio_features.map { TrackStats(it) }
 
+    // danceability from 0 -> 1, higher is more danceable
     val avgDanceability by lazy { calculateAvgDanceability(trackStats) }
+    val avgEnergy by lazy { calculateAvgEnergy(trackStats) }
+    // average positivity (0 -> 1, higher is more positive)
+    val avgValence by lazy { calculateAvgValence(trackStats) }
 
-    fun printSummary() : String {
+    override fun toString() : String {
         // test this was correct
-        return "${trackStats.size} tracks: ${trackStats.map{it.danceability}.joinToString()} for avgDanceability: $avgDanceability"
+        return "${trackStats.size} tracks avgDanceability: $avgDanceability"
     }
 
     companion object {
@@ -71,6 +75,18 @@ data class TrackListStats(val apiModel: AudioFeaturesTracks) {
             return tracks.map { it.danceability }
                     .reduce { sum, el -> sum + el }
                     .div(count).toDouble()
+        }
+
+        fun calculateAvgEnergy(tracks: List<TrackStats>) : Double {
+            return tracks.map { it.energy }
+                    .reduce { sum, el -> sum + el }
+                    .div(tracks.size).toDouble()
+        }
+
+        fun calculateAvgValence(tracks: List<TrackStats>) : Double {
+            return tracks.map { it.valence }
+                    .reduce { sum, el -> sum + el }
+                    .div(tracks.size).toDouble()
         }
     }
 }

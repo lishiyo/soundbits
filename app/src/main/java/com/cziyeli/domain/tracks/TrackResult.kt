@@ -1,7 +1,7 @@
 package com.cziyeli.domain.tracks
 
-import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.commons.mvibase.MviResult
+import com.cziyeli.domain.player.PlayerInterface
 import java.util.*
 
 /**
@@ -9,7 +9,8 @@ import java.util.*
  */
 sealed class TrackResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE, var error: Throwable? = null) : MviResult {
 
-    class LoadTrackCards(status: Status, error: Throwable?,
+    class LoadTrackCards(status: Status,
+                         error: Throwable?,
                          val items: List<TrackModel> = Collections.emptyList()
     ) : TrackResult(status, error) {
         // personal status enum

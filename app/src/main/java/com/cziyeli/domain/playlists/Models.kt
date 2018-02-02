@@ -17,11 +17,11 @@ data class Playlist(val id: String,
                     private val uri: String,
                     val owner: Owner,
                     private val images: List<SimpleImage>?,
-                    val tracks: PlaylistTracksInformation?) : Parcelable {
+                    val tracksInfo: PlaylistTracksInformation?) : Parcelable {
 
     // num [Track]s in this playlist
     val totalTracksCount: Int
-        get() = tracks?.total ?: 0
+        get() = tracksInfo?.total ?: 0
 
     // cover image url
     val imageUrl: String?
@@ -56,7 +56,7 @@ data class Playlist(val id: String,
         parcel.writeString(uri)
         parcel.writeParcelable(owner, flags)
         parcel.writeTypedList(images)
-        parcel.writeParcelable(tracks, flags)
+        parcel.writeParcelable(tracksInfo, flags)
     }
 
     override fun describeContents(): Int {

@@ -99,7 +99,7 @@ class PlaylistCardActivity : AppCompatActivity() {
         playlist_card_widget.render(state)
     }
 
-    private fun intents(): Observable<out PlaylistCardIntent> {
+    private fun intents(): Observable<out SinglePlaylistIntent> {
         return playlist_card_widget.intents()
     }
 

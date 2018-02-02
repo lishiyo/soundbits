@@ -11,16 +11,19 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.cziyeli.commons.colorFromRes
+import com.cziyeli.domain.summary.TrackListStats
 import com.cziyeli.songbits.R
 import me.bendik.simplerangeview.SimpleRangeView
+import kotlin.math.roundToInt
 
 class TrackStatsView : LinearLayout {
     companion object {
         private val TRACK_STATS_PAIRS = listOf(
-                AudioFeature("highly danceable", Pair(0, 6)),
-                AudioFeature("fast tempo", Pair(0, 2)),
-                AudioFeature("mostly acoustic", Pair(0, 8))
+                StatLabel("highly danceable", Pair(0, 6)),
+                StatLabel("fast tempo", Pair(0, 2)),
+                StatLabel("mostly acoustic", Pair(0, 8))
         )
+        // range is 0 - 8
         private const val TRACK_STATS_BEGINNING = 0
         private const val TRACK_STATS_END = 8
 
@@ -46,7 +49,7 @@ class TrackStatsView : LinearLayout {
             defStyleRes: Int)
             : super(context, attrs, defStyleAttr, defStyleRes)
 
-    data class AudioFeature(val title: String, val range: Pair<Int, Int>)
+    data class StatLabel(val title: String, val range: Pair<Int, Int>)
 
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_card_stats, this, false)
@@ -56,12 +59,48 @@ class TrackStatsView : LinearLayout {
         orientation = VERTICAL
     }
 
-    fun loadDefaultAudioFeatures() {
-        loadAudioFeatures(TRACK_STATS_PAIRS)
+    fun loadTrackStats(trackStats: TrackListStats) {
+        val normalizedDanceability = getNormalizedStat(trackStats.avgDanceability)
+        val normalizedEnergy = getNormalizedStat(trackStats.avgEnergy)
+        val normalizedValence = getNormalizedStat(trackStats.avgValence)
+
+        val statLabels = mutableListOf(
+                StatLabel(
+                        getStatTitle("danceable", normalizedDanceability, trackStats.avgDanceability),
+                        Pair(0, normalizedDanceability.roundToInt())
+
+                ),
+                StatLabel(
+                        getStatTitle("energetic", normalizedEnergy, trackStats.avgEnergy),
+                        Pair(0, normalizedEnergy.roundToInt())),
+                StatLabel(
+                        getStatTitle("positive", normalizedValence, trackStats.avgValence),
+                        Pair(0, normalizedValence.roundToInt())
+                )
+        )
+
+        loadAudioFeatures(statLabels)
     }
 
-    private fun loadAudioFeatures(audioFeatures: List<AudioFeature>) {
-        for (audioFeature in audioFeatures) {
+    private fun getNormalizedStat(value: Double) : Double {
+        val range = TRACK_STATS_END - TRACK_STATS_BEGINNING
+        return value * range
+    }
+
+    private fun getStatTitle(stat: String, normalizedValue: Double, originalVal: Double) : String {
+        val range = TRACK_STATS_END - TRACK_STATS_BEGINNING
+        val quartiles = range / 4
+        // not at all (0-2), less (2-4), more (4-6), very (6-8)
+        return when {
+            (normalizedValue < quartiles) -> "not at all $stat ~ ${"%.2f".format(originalVal)}"
+            (normalizedValue < quartiles * 2) -> "less $stat ~ ${"%.2f".format(originalVal)}"
+            (normalizedValue < quartiles * 3) -> "more $stat ~ ${"%.2f".format(originalVal)}"
+            else -> "very $stat"
+        }
+    }
+
+    private fun loadAudioFeatures(statLabels: List<StatLabel>) {
+        for (audioFeature in statLabels) {
             val beginning = audioFeature.range.first
             val end = audioFeature.range.second
 

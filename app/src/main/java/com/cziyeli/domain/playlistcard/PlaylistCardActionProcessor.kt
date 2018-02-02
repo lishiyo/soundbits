@@ -5,6 +5,7 @@ import com.cziyeli.data.Repository
 import com.cziyeli.domain.summary.StatsAction
 import com.cziyeli.domain.summary.TrackListStats
 import com.cziyeli.domain.summary.TrackStatsResult
+import com.cziyeli.domain.tracks.TrackModel
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -20,7 +21,8 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
         acts.publish { shared ->
             Observable.merge<PlaylistCardResultMarker>(
                     shared.ofType<PlaylistCardAction.FetchQuickStats>(PlaylistCardAction.FetchQuickStats::class.java).compose(fetchQuickCountsProcessor),
-                    shared.ofType<StatsAction.FetchStats>(StatsAction.FetchStats::class.java).compose(mFetchStatsProcessor)
+                    shared.ofType<StatsAction.FetchStats>(StatsAction.FetchStats::class.java).compose(mFetchStatsProcessor),
+                    shared.ofType<PlaylistCardAction.FetchPlaylistTracks>(PlaylistCardAction.FetchPlaylistTracks::class.java).compose(mFetchTracksProcessor)
             ).mergeWith(
                     // Error for not implemented actions
                     shared.filter { v -> (v !is PlaylistCardActionMarker) }
@@ -33,7 +35,7 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
         }
     }
 
-    // query in local database for counts
+    // fetch quick stats - query in local database for counts
     private val fetchQuickCountsProcessor: ObservableTransformer<PlaylistCardAction.FetchQuickStats, PlaylistCardResult.FetchQuickStats> =
             ObservableTransformer { action ->
                 action.switchMap { act -> repository
@@ -51,6 +53,24 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                         .startWith(PlaylistCardResult.FetchQuickStats.createLoading())
                         .retry() // don't unsubscribe
             }
+
+    // fetch all tracks
+    private val mFetchTracksProcessor: ObservableTransformer<PlaylistCardAction.FetchPlaylistTracks, PlaylistCardResult.FetchPlaylistTracks> =
+            ObservableTransformer {
+        action -> action.switchMap {
+        act -> repository
+            .fetchPlaylistTracks(Repository.Source.REMOTE, act.ownerId, act.playlistId, act.fields, act.limit, act.offset)
+            .subscribeOn(schedulerProvider.io())
+    }.filter { resp -> resp.total > 0 }
+            .map { resp -> resp.items.map { it.track }}
+            .map { tracks -> tracks.map { TrackModel.create(it) } }
+            .observeOn(schedulerProvider.ui())
+            .map { trackCards -> PlaylistCardResult.FetchPlaylistTracks.createSuccess(trackCards) }
+            .onErrorReturn { err -> PlaylistCardResult.FetchPlaylistTracks.createError(err) }
+            .startWith(PlaylistCardResult.FetchPlaylistTracks.createLoading())
+            .retry() // don't unsubscribe
+    }
+
 
     // fetch track stats
     private val mFetchStatsProcessor: ObservableTransformer<StatsAction.FetchStats, TrackStatsResult.FetchStats> = ObservableTransformer {

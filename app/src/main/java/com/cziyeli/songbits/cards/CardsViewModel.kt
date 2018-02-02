@@ -170,7 +170,7 @@ class CardsViewModel @Inject constructor(
                 val track = newState.allTracks.find { el -> el.id == newState.currentTrack?.id }
                 track!!.pref = result.pref!!
                 Utils.mLog(TAG, "processTrackChange ${track.name}",
-                        "pref: ", track!!.pref.toString(),
+                        "pref: ", track.pref.toString(),
                         "currentLikes: ", newState.currentLikes.size.toString(),
                         "currentDislikes: ", newState.currentDislikes.size.toString(),
                         "unseen: ", newState.unseen.size.toString())
@@ -209,6 +209,19 @@ data class TrackViewState(var status: MviViewState.StatusInterface = MviViewStat
 
     val reachedEnd: Boolean
         get() = status == MviViewState.Status.SUCCESS && unseen.size == 0 && allTracks.size > 0
+
+
+    fun isSuccess(): Boolean {
+        return status == TracksLoadedStatus.SUCCESS || status == MviViewState.Status.SUCCESS
+    }
+
+    fun isLoading(): Boolean {
+        return status == TracksLoadedStatus.LOADING || status == MviViewState.Status.LOADING
+    }
+
+    fun isError(): Boolean {
+        return status == TracksLoadedStatus.ERROR || status == MviViewState.Status.ERROR
+    }
 
     override fun toString(): String {
         return "allTracks: ${allTracks.size} -- playlist: ${playlist.id} -- currentTrack: ${currentTrack?.name}"

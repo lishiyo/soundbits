@@ -25,25 +25,26 @@ sealed class StatsAction : StatsActionMarker, SummaryActionMarker, PlaylistCardA
  * Result status.
  */
 enum class StatsResultStatus : MviResult.StatusInterface {
-    SUCCESS, FAILURE, LOADING
+    SUCCESS, ERROR, LOADING
 }
 
 /**
  * Results for the track stats widget
  */
-sealed class TrackStatsResult : StatsResultMarker, PlaylistCardResultMarker {
+sealed class TrackStatsResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
+                              var error: Throwable? = null) : StatsResultMarker, PlaylistCardResultMarker {
 
     class FetchStats(status: StatsResultStatus,
                      error: Throwable?,
                      val trackStats: TrackListStats? // domain model for stats
-    ) : TrackStatsResult() {
+    ) : TrackStatsResult(status, error) {
         companion object {
             fun createSuccess(trackStats: TrackListStats) : TrackStatsResult.FetchStats {
                 return TrackStatsResult.FetchStats(StatsResultStatus.SUCCESS, null, trackStats)
             }
             fun createError(throwable: Throwable,
                             trackStats: TrackListStats? = null) : TrackStatsResult.FetchStats {
-                return TrackStatsResult.FetchStats(StatsResultStatus.FAILURE, throwable, trackStats)
+                return TrackStatsResult.FetchStats(StatsResultStatus.ERROR, throwable, trackStats)
             }
             fun createLoading(): TrackStatsResult.FetchStats {
                 return TrackStatsResult.FetchStats(StatsResultStatus.LOADING, null, null)

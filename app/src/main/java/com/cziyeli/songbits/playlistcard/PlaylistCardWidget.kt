@@ -18,7 +18,9 @@ import com.bumptech.glide.request.RequestOptions
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.disableTouchTheft
 import com.cziyeli.commons.mvibase.MviView
+import com.cziyeli.domain.playlistcard.PlaylistCardResult
 import com.cziyeli.domain.playlists.Playlist
+import com.cziyeli.domain.summary.StatsResultStatus
 import com.cziyeli.songbits.R
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
@@ -29,7 +31,7 @@ import kotlinx.android.synthetic.main.widget_playlist_card.view.*
 /**
  * The normal playlist card (*not* the create/pending one).
  */
-class PlaylistCardWidget : NestedScrollView, MviView<PlaylistCardIntent, PlaylistCardViewModel.PlaylistCardViewState> {
+class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, PlaylistCardViewModel.PlaylistCardViewState> {
     companion object {
         val TAG = PlaylistCardWidget::class.simpleName
         private const val FAB_ASSET_FILE = "emoji_wink.json"
@@ -39,7 +41,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<PlaylistCardIntent, Playlis
     private lateinit var playlistModel: Playlist
 
     // intents
-    private val mEventsPublisher = PublishSubject.create<PlaylistCardIntent>()
+    private val mEventsPublisher = PublishSubject.create<SinglePlaylistIntent>()
 
     // views
     private lateinit var adapter: TrackRowsAdapter
@@ -105,8 +107,12 @@ class PlaylistCardWidget : NestedScrollView, MviView<PlaylistCardIntent, Playlis
         // get the quick stats
         mEventsPublisher.onNext(PlaylistCardIntent.FetchQuickStats(playlist.id))
 
-        // add the dummy track stats
-        stats_container.loadDefaultAudioFeatures()
+        // fetch playlists to get the rows and the track stats
+//        stats_container.loadDefaultAudioFeatures()
+        mEventsPublisher.onNext(PlaylistCardIntent.FetchPlaylistTracks(
+                ownerId = playlist.owner.id,
+                playlistId = playlist.id)
+        )
 
         // set up tracks list
         adapter = TrackRowsAdapter(context, getDummyTracks())
@@ -115,12 +121,18 @@ class PlaylistCardWidget : NestedScrollView, MviView<PlaylistCardIntent, Playlis
         tracks_recycler_view.disableTouchTheft()
     }
 
-    override fun intents(): Observable<out PlaylistCardIntent> {
+    override fun intents(): Observable<out SinglePlaylistIntent> {
         return mEventsPublisher
     }
 
     override fun render(state: PlaylistCardViewModel.PlaylistCardViewState) {
         Utils.mLog(TAG, "RENDER", "state: $state")
+
+        // if we just loaded tracks
+        if (state.status == PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS && state.trackStats == null) {
+            Utils.mLog(TAG, "just got playlist tracks! fetching stats ---")
+            mEventsPublisher.onNext(TrackStatsIntent.FetchStats(state.tracksList.map { it.id }))
+        }
 
         // render the quick counts
         quickstats_likes.text = "${state.likedCount} likes"
@@ -128,8 +140,13 @@ class PlaylistCardWidget : NestedScrollView, MviView<PlaylistCardIntent, Playlis
         quickstats_total.text = "${state.playlist.totalTracksCount} total"
 
         // render the track stats widget
+        if (state.status == StatsResultStatus.SUCCESS && state.trackStats != null) {
+            Utils.mLog(TAG, "RENDER", "just got track stats! loading....")
+            stats_container.loadTrackStats(state.trackStats!!)
+        }
 
         // render the track rows
+
     }
 
     fun onBackPressed() {
