@@ -15,17 +15,37 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
+import com.cziyeli.commons.Utils
 import com.cziyeli.commons.disableTouchTheft
+import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.widget_playlist_card.view.*
 
 /**
  * The normal playlist card (*not* the create/pending one).
  */
-class PlaylistCardWidget : NestedScrollView {
+class PlaylistCardWidget : NestedScrollView, MviView<PlaylistCardIntent, PlaylistCardViewModel.PlaylistCardViewState> {
+    companion object {
+        val TAG = PlaylistCardWidget::class.simpleName
+        private const val FAB_ASSET_FILE = "emoji_wink.json"
+    }
+
+    // models and view models
+    private lateinit var playlistModel: Playlist
+
+    // intents
+    private val mEventsPublisher = PublishSubject.create<PlaylistCardIntent>()
+
+    // views
+    private lateinit var adapter: TrackRowsAdapter
+    private lateinit var onTouchListener: RecyclerTouchListener
+    private lateinit var onFabSelectedListener: OnFABMenuSelectedListener
+    private lateinit var onSwipeListener: RecyclerTouchListener.OnSwipeListener
 
     @JvmOverloads
     constructor(
@@ -34,21 +54,12 @@ class PlaylistCardWidget : NestedScrollView {
             defStyleAttr: Int = 0)
             : super(context, attrs, defStyleAttr)
 
-    private lateinit var playlistModel: Playlist
-    private lateinit var adapter: TrackRowsAdapter
-    private lateinit var onTouchListener: RecyclerTouchListener
-    private lateinit var onFabSelectedListener: OnFABMenuSelectedListener
-    private lateinit var onSwipeListener: RecyclerTouchListener.OnSwipeListener
-
-    companion object {
-        private const val FAB_ASSET_FILE = "emoji_wink.json"
-    }
-
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_playlist_card, this, true)
         descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
     }
 
+    // init with the model
     fun loadPlaylist(playlist: Playlist,
                      fabSelectedListener: OnFABMenuSelectedListener,
                      swipeListener: RecyclerTouchListener.OnSwipeListener,
@@ -91,6 +102,9 @@ class PlaylistCardWidget : NestedScrollView {
             fab_menu!!.setOnFABMenuSelectedListener(onFabSelectedListener)
         }
 
+        // get the quick stats
+        mEventsPublisher.onNext(PlaylistCardIntent.FetchQuickStats(playlist.id))
+
         // add the dummy track stats
         stats_container.loadDefaultAudioFeatures()
 
@@ -99,6 +113,31 @@ class PlaylistCardWidget : NestedScrollView {
         tracks_recycler_view.adapter = adapter
         tracks_recycler_view.layoutManager = LinearLayoutManager(context)
         tracks_recycler_view.disableTouchTheft()
+    }
+
+    override fun intents(): Observable<out PlaylistCardIntent> {
+        return mEventsPublisher
+    }
+
+    override fun render(state: PlaylistCardViewModel.PlaylistCardViewState) {
+        Utils.mLog(TAG, "RENDER", "state: $state")
+
+        // render the quick counts
+        quickstats_likes.text = "${state.likedCount} likes"
+        quickstats_dislikes.text = "${state.dislikedCount} dislikes"
+        quickstats_total.text = "${state.playlist.totalTracksCount} total"
+
+        // render the track stats widget
+
+        // render the track rows
+    }
+
+    fun onBackPressed() {
+        if (fab_menu != null) {
+            if (fab_menu.isShowing) {
+                fab_menu.closeMenu()
+            }
+        }
     }
 
 //    private fun setupLottieFab() {
@@ -111,17 +150,10 @@ class PlaylistCardWidget : NestedScrollView {
 //        fab.playAnimation()
 //    }
 
-    fun onBackPressed() {
-        if (fab_menu != null) {
-            if (fab_menu.isShowing) {
-                fab_menu.closeMenu()
-            }
-        }
-    }
-
 //    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
 //        // to close swipe when clicking elsewhere
 //        if (touchListener != null) touchListener!!.getTouchCoordinates(ev)
 //        return super.dispatchTouchEvent(ev)
 //    }
+
 }

@@ -13,10 +13,10 @@ import kaaes.spotify.webapi.android.models.PlaylistTracksInformation
  */
 data class Playlist(val id: String,
                     val name: String,
-                    val href: String,
-                    val uri: String,
+                    private val href: String,
+                    private val uri: String,
                     val owner: Owner,
-                    val images: List<SimpleImage>?,
+                    private val images: List<SimpleImage>?,
                     val tracks: PlaylistTracksInformation?) : Parcelable {
 
     // num [Track]s in this playlist

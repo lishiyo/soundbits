@@ -11,6 +11,8 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.view.ViewStub
 import com.cziyeli.commons.Utils
+import com.cziyeli.commons.mvibase.MviView
+import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.SummaryActionProcessor
@@ -25,8 +27,6 @@ import dagger.android.AndroidInjection
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_cards.*
-import com.cziyeli.commons.mvibase.MviView
-import com.cziyeli.commons.mvibase.MviViewState
 import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import org.jetbrains.anko.collections.forEachWithIndex
 import org.jetbrains.anko.intentFor
@@ -202,7 +202,7 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         // create the layout with the initial view state
         val initialState = SummaryViewState.create(state)
         val summaryViewModel = SummaryViewModel(summaryActionProcessor, schedulerProvider, initialState)
-        summaryLayout.initWith(this, summaryViewModel, initialState)
+        summaryLayout.initWith(this, summaryViewModel)
     }
 
     private fun initViewModel(playlist: Playlist) {

@@ -2,6 +2,10 @@ package com.cziyeli.songbits.cards
 
 import android.arch.lifecycle.*
 import com.cziyeli.commons.Utils
+import com.cziyeli.commons.mvibase.MviIntent
+import com.cziyeli.commons.mvibase.MviResult
+import com.cziyeli.commons.mvibase.MviViewModel
+import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
@@ -13,10 +17,6 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.PublishSubject
-import com.cziyeli.commons.mvibase.MviIntent
-import com.cziyeli.commons.mvibase.MviResult
-import com.cziyeli.commons.mvibase.MviViewModel
-import com.cziyeli.commons.mvibase.MviViewState
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
@@ -27,9 +27,9 @@ import javax.inject.Inject
  */
 class CardsViewModel @Inject constructor(
         private val repository: RepositoryImpl,
-        actionProcessor: TrackActionProcessor,
-        schedulerProvider: BaseSchedulerProvider,
-        playlist: Playlist
+        val actionProcessor: TrackActionProcessor,
+        val schedulerProvider: BaseSchedulerProvider,
+        val playlist: Playlist
 ): ViewModel(), LifecycleObserver, MviViewModel<TrackIntent, TrackViewState> {
     private val TAG = CardsViewModel::class.simpleName
 

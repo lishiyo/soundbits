@@ -1,6 +1,7 @@
 package com.cziyeli.data
 
 import com.cziyeli.data.local.TrackEntity
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
 import kaaes.spotify.webapi.android.models.*
@@ -17,14 +18,18 @@ interface Repository {
 
     fun debug(limit: Int = -1)
 
+    // ============ ROOT and HOME ============
+
     fun fetchCurrentUser() : Single<UserPrivate>
 
-    // get current user's playlists
+    // get current user's playlists by default sort order
     fun fetchUserPlaylists(source: Repository.Source = Source.REMOTE,
                            limit: Int = 20, offset: Int = 0
     ): Observable<Pager<PlaylistSimple>>
 
-    // get a playlist's com.cziyeli.domain.tracks
+    // ============ SINGLE PLAYLIST ACTIONS ============
+
+    // get a playlist's tracks
     fun fetchPlaylistTracks(source: Repository.Source = Source.REMOTE,
                             ownerId: String,
                             playlistId: String,
@@ -33,10 +38,22 @@ interface Repository {
                             offset: Int = 0
     ): Observable<Pager<PlaylistTrack>>
 
+    // get all a playlist's tracks from database
+    fun fetchPlaylistStashedTracks(source: Repository.Source = Source.LOCAL,
+                                   playlistId: String,
+                                   fields: String? = null,
+                                   limit: Int = 100,
+                                   offset: Int = 0
+    ): Flowable<List<TrackEntity>>
+
+    // ============ STATS ============
+
     // fetch stats for a list of tracks
     fun fetchTracksStats(source: Repository.Source = Source.REMOTE,
                          trackIds: List<String>
     ) : Observable<AudioFeaturesTracks>
+
+    // ============ SUMMARY ============
 
     // @POST("/users/{user_id}/playlists")
     fun createPlaylist(ownerId: String,

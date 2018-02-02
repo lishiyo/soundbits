@@ -4,6 +4,7 @@ import com.cziyeli.commons.Utils
 import com.cziyeli.data.local.TrackEntity
 import com.cziyeli.data.local.TracksDatabase
 import com.cziyeli.data.remote.RemoteDataSource
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
@@ -37,6 +38,10 @@ class RepositoryImpl @Inject constructor(
         return fetchPlaylistTracksRemote(ownerId, playlistId, fields, limit, offset)
     }
 
+    override fun fetchPlaylistStashedTracks(source: Repository.Source, playlistId: String, fields: String?, limit: Int, offset: Int): Flowable<List<TrackEntity>> {
+        return fetchPlaylistTracksLocal(playlistId)
+    }
+
     // fetch the audio features for list of tracks
     override fun fetchTracksStats(source: Repository.Source, trackIds: List<String>) : Observable<AudioFeaturesTracks> {
         return fetchTracksDataRemote(trackIds)
@@ -50,6 +55,10 @@ class RepositoryImpl @Inject constructor(
         Observable.just(tracks)
                 .subscribeOn(SchedulerProvider.io())
                 .subscribe { tracksDatabase.tracksDao().saveTracks(it) }
+    }
+
+    private fun fetchPlaylistTracksLocal(playlistId: String): Flowable<List<TrackEntity>> {
+        return tracksDatabase.tracksDao().getTracksByPlaylistId(playlistId)
     }
 
     ///////////////////////

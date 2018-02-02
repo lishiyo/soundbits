@@ -1,5 +1,8 @@
 package com.cziyeli.songbits.playlistcard
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProvider
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.view.ViewCompat
@@ -12,9 +15,13 @@ import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
+import dagger.android.AndroidInjection
 import eu.gsottbauer.equalizerview.EqualizerView
+import io.reactivex.Observable
 import kotlinx.android.synthetic.main.activity_playlistcard.*
 import kotlinx.android.synthetic.main.widget_playlist_card.*
+import javax.inject.Inject
+import javax.inject.Named
 
 class PlaylistCardActivity : AppCompatActivity() {
     val TAG = PlaylistCardActivity.javaClass.simpleName.toString()
@@ -23,7 +30,7 @@ class PlaylistCardActivity : AppCompatActivity() {
     }
 
     // the model backing this card
-    private lateinit var playlistModel: Playlist
+    lateinit var playlist: Playlist
     // Listener for the track rows
     private lateinit var onSwipeListener: RecyclerTouchListener.OnSwipeListener
     private lateinit var onTouchListener: RecyclerTouchListener
@@ -45,6 +52,10 @@ class PlaylistCardActivity : AppCompatActivity() {
 //        startActivity(intent, bundle)
     }
 
+    @Inject
+    @field:Named("PlaylistCardViewModel") lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var viewModel: PlaylistCardViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -54,12 +65,42 @@ class PlaylistCardActivity : AppCompatActivity() {
         setContentView(R.layout.activity_playlistcard)
 
         // load the parceled item info (image, text etc)
-        playlistModel = intent.getParcelableExtra(EXTRA_PLAYLIST_ITEM)
+        playlist = intent.getParcelableExtra(EXTRA_PLAYLIST_ITEM)
+
+        // inject AFTER parsing out the model
+        AndroidInjection.inject(this)
+
         onSwipeListener = createOnSwipeListener()
         onTouchListener = createOnTouchListener(onSwipeListener)
 
-        // set up the widget
-        playlist_card_widget.loadPlaylist(playlistModel, onFabMenuSelectedListener, onSwipeListener, onTouchListener,this)
+        // bind the viewmodel, passing through to the subviews
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(PlaylistCardViewModel::class.java)
+        initViewModel(viewModel)
+        playlist_card_widget.loadPlaylist(playlist, onFabMenuSelectedListener, onSwipeListener, onTouchListener,this)
+    }
+
+    private fun initViewModel(viewModel: PlaylistCardViewModel) {
+        // add viewmodel as an observer of this fragment lifecycle
+        viewModel.let { lifecycle.addObserver(it) }
+
+        // Subscribe to the viewmodel states with LiveData, not Rx
+        viewModel.states().observe(this, Observer { state ->
+            state?.let {
+                // pass to the widget
+                render(state)
+            }
+        })
+
+        // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
+        viewModel.processIntents(intents())
+    }
+
+    private fun render(state: PlaylistCardViewModel.PlaylistCardViewState) {
+        playlist_card_widget.render(state)
+    }
+
+    private fun intents(): Observable<out PlaylistCardIntent> {
+        return playlist_card_widget.intents()
     }
 
     private fun createOnSwipeListener() : RecyclerTouchListener.OnSwipeListener {
@@ -159,7 +200,7 @@ class PlaylistCardActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle?) {
         val b = outState ?: Bundle()
-        b.putParcelable(EXTRA_PLAYLIST_ITEM, playlistModel)
+        b.putParcelable(EXTRA_PLAYLIST_ITEM, playlist)
         super.onSaveInstanceState(b)
     }
 

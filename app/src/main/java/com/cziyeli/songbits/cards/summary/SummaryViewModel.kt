@@ -33,7 +33,7 @@ class SummaryViewModel @Inject constructor(
 ) : ViewModel(), LifecycleObserver, MviViewModel<SummaryIntent, SummaryViewState> {
     private val TAG = SummaryViewModel::class.simpleName
 
-    private var initialViewState : SummaryViewState? = null
+    var initialViewState : SummaryViewState? = null
 
     private val compositeDisposable = CompositeDisposable()
 

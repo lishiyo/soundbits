@@ -12,14 +12,14 @@ interface StatsIntent : MviIntent
  * Events for [PlaylistCardWidget].
  **/
 sealed class PlaylistCardIntent : SinglePlaylistIntent {
-    // fetch basic counts - liked, disliked, total
-    class FetchQuickStats(val ownerId: String,
-                          val playlistId: String) : PlaylistCardIntent()
 
-    // get list of all (swiped) tracks
+    // fetch basic counts - liked, disliked, total
+    class FetchQuickStats(val playlistId: String) : PlaylistCardIntent()
+
+    // get list of all (swiped) tracks to show in the expandable rows
     class FetchPlaylistTracks(val ownerId: String,
-                      val playlistId: String,
-                      val onlySwiped: Boolean = true) : PlaylistCardIntent()
+                              val playlistId: String,
+                              val onlySwiped: Boolean = true) : PlaylistCardIntent()
 }
 
 /**

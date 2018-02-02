@@ -46,7 +46,7 @@ class SummaryLayout @JvmOverloads constructor(
     lateinit var progressView: AVLoadingIndicatorView
 
     // create with initial state from previous screen
-    fun initWith(context: FragmentActivity, viewModelFromActivity: SummaryViewModel, initialViewState: SummaryViewState) {
+    fun initWith(context: FragmentActivity, viewModelFromActivity: SummaryViewModel) {
         // setup views
         rootView = inflate(context, R.layout.layout_summary, this) as ViewGroup
         titleView = findViewById(R.id.title)
@@ -66,7 +66,8 @@ class SummaryLayout @JvmOverloads constructor(
         })
 
         // immediately fetch stats of the like ids
-        mStatsPublisher.onNext(SummaryIntent.FetchStats(initialViewState.trackIdsForStats()))
+        val initialViewState = viewModelFromActivity.initialViewState
+        mStatsPublisher.onNext(SummaryIntent.FetchStats(initialViewState!!.trackIdsForStats()))
 
         // init click listeners
         action_save_to_database.setOnClickListener {

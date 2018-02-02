@@ -7,7 +7,7 @@ import com.cziyeli.domain.playlistcard.PlaylistCardResultMarker
 
 
 /**
- * Marker interface for stats.
+ * Marker action/results interface for stats.
  */
 interface StatsActionMarker : MviAction
 interface StatsResultMarker : MviResult
@@ -22,9 +22,32 @@ sealed class StatsAction : StatsActionMarker, SummaryActionMarker, PlaylistCardA
 }
 
 /**
+ * Result status.
+ */
+enum class StatsResultStatus : MviResult.StatusInterface {
+    SUCCESS, FAILURE, LOADING
+}
+
+/**
  * Results for the track stats widget
  */
 sealed class TrackStatsResult : StatsResultMarker, PlaylistCardResultMarker {
-    
-    class FetchStats(val trackIds: List<String>) : TrackStatsResult()
+
+    class FetchStats(status: StatsResultStatus,
+                     error: Throwable?,
+                     val trackStats: TrackListStats? // domain model for stats
+    ) : TrackStatsResult() {
+        companion object {
+            fun createSuccess(trackStats: TrackListStats) : TrackStatsResult.FetchStats {
+                return TrackStatsResult.FetchStats(StatsResultStatus.SUCCESS, null, trackStats)
+            }
+            fun createError(throwable: Throwable,
+                            trackStats: TrackListStats? = null) : TrackStatsResult.FetchStats {
+                return TrackStatsResult.FetchStats(StatsResultStatus.FAILURE, throwable, trackStats)
+            }
+            fun createLoading(): TrackStatsResult.FetchStats {
+                return TrackStatsResult.FetchStats(StatsResultStatus.LOADING, null, null)
+            }
+        }
+    }
 }
