@@ -23,6 +23,7 @@ import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlistcard.PlaylistCardResult
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.cards.CardsActivity
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import io.reactivex.Observable
@@ -40,6 +41,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
 
     // models and view models
     private lateinit var playlistModel: Playlist
+    private lateinit var activity: Activity
 
     // intents
     private val mEventsPublisher = PublishSubject.create<SinglePlaylistIntent>()
@@ -50,7 +52,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
     private lateinit var onFabSelectedListener: OnFABMenuSelectedListener
     private lateinit var onSwipeListener: RecyclerTouchListener.OnSwipeListener
 
-    var startedInitialFetch: Boolean = false
+    private var startedInitialFetch: Boolean = false
 
     @JvmOverloads
     constructor(
@@ -89,6 +91,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
                      swipeListener: RecyclerTouchListener.OnSwipeListener,
                      touchListener: RecyclerTouchListener,
                      activity: Activity) {
+        this.activity = activity
         playlistModel = playlist
         onFabSelectedListener = fabSelectedListener
         onSwipeListener = swipeListener
@@ -120,7 +123,6 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
                 .into(playlist_image_background)
 
         // load the fab
-//        setupLottieFab()
         if (fab_menu != null && fab_button != null) {
             fab_menu!!.bindAnchorView(fab_button!!)
             fab_menu!!.setOnFABMenuSelectedListener(onFabSelectedListener)
@@ -131,6 +133,17 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         tracks_recycler_view.adapter = adapter
         tracks_recycler_view.layoutManager = LinearLayoutManager(context)
         tracks_recycler_view.disableTouchTheft()
+    }
+
+    fun startSwipingTracks(reswipeAll: Boolean = false) {
+        if (reswipeAll) {
+            playlistModel.unswipedTrackIds = listOf() // clear out the list to force it to resurf all
+            Utils.mLog(TAG, "startSwiping", "RESWIPE: $reswipeAll -- unswipedTrackIds should be empty: ${playlistModel.unswipedTrackIds.size}")
+            activity.startActivity(CardsActivity.create(context, playlistModel))
+        } else {
+            Utils.mLog(TAG, "startSwiping", "with unswipedTrackIds: ${playlistModel.unswipedTrackIds.size}")
+            activity.startActivity(CardsActivity.create(context, playlistModel))
+        }
     }
 
     override fun intents(): Observable<out SinglePlaylistIntent> {
@@ -145,10 +158,11 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         // if we just loaded tracks
         if (state.status == PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS) {
             Utils.mLog(TAG, "RENDER", "just got playlist tracks! stashed: ${state.stashedTracksList.size} all: ${state.allTracksList.size}")
-
             if (state.stashedTracksList.isNotEmpty()) {
+                // calculating the likes/dislikes of the stashed tracks
                 mEventsPublisher.onNext(PlaylistCardIntent.CalculateQuickCounts(playlistModel, state.stashedTracksList))
             }
+
             // render the track rows
             // TODO this is very ui heavy - figure out better way than delaying until tapped
             Handler().postDelayed({
@@ -160,6 +174,13 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         quickstats_likes.text = "${state.likedCount} likes"
         quickstats_dislikes.text = "${state.dislikedCount} dislikes"
         quickstats_total.text = "${state.playlist.totalTracksCount} total"
+        // check if we need to hide
+        if (state.unswipedCount == 0) {
+            fab_menu.getItemById(R.id.menu_surf)?.isEnabled = false
+        } else {
+            fab_menu.getItemById(R.id.menu_surf)?.isEnabled = true
+            fab_menu.getItemById(R.id.menu_surf)?.title = "Swipe ${state.unswipedCount}"
+        }
 
         // render the track stats widget with remote tracks
         if (state.isSuccess() && state.trackStats != null) {

@@ -1,5 +1,7 @@
 package com.cziyeli.domain.tracks
 
+import android.os.Parcel
+import android.os.Parcelable
 import com.cziyeli.data.local.TrackEntity
 import com.cziyeli.domain.SimpleImage
 import kaaes.spotify.webapi.android.models.Track
@@ -75,7 +77,57 @@ data class TrackModel(val name: String,
     }
 }
 
-data class TrackAlbum(val id: String, val uri: String, val artists: List<Artist>, val images: List<SimpleImage>?)
+data class TrackAlbum(val id: String, val uri: String, val artists: List<Artist>, val images: List<SimpleImage>?) : Parcelable {
+    constructor(parcel: Parcel) : this(
+            parcel.readString(),
+            parcel.readString(),
+            parcel.createTypedArrayList(Artist),
+            parcel.createTypedArrayList(SimpleImage)) {
+    }
 
-data class Artist(val name: String, val id: String, val uri: String)
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(id)
+        parcel.writeString(uri)
+        parcel.writeTypedList(artists)
+        parcel.writeTypedList(images)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<TrackAlbum> {
+        override fun createFromParcel(parcel: Parcel): TrackAlbum {
+            return TrackAlbum(parcel)
+        }
+
+        override fun newArray(size: Int): Array<TrackAlbum?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
+
+data class Artist(val name: String, val id: String, val uri: String) : Parcelable {
+    constructor(parcel: Parcel) : this(parcel.readString(), parcel.readString(), parcel.readString())
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(name)
+        parcel.writeString(id)
+        parcel.writeString(uri)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Artist> {
+        override fun createFromParcel(parcel: Parcel): Artist {
+            return Artist(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Artist?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
 

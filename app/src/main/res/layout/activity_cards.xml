@@ -4,37 +4,39 @@
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:background="@color/space_time"
 	>
-	<LinearLayout
-		android:id="@+id/buttons_row"
-		android:layout_width="match_parent"
-		android:layout_height="80dp"
-		android:layout_gravity="bottom"
-		android:gravity="center"
-		android:orientation="horizontal">
-		<ImageButton
-			android:id="@+id/discardBtn"
-			android:layout_width="50dp"
-			android:layout_height="50dp"
-			android:background="@drawable/ic_cancel"/>
-		<ImageButton
-			android:id="@+id/likeBtn"
-			android:layout_width="50dp"
-			android:layout_height="50dp"
-			android:layout_marginLeft="50dp"
-			android:background="@drawable/ic_heart"/>
-		<ImageButton
-			android:id="@+id/undoBtn"
-			android:layout_width="50dp"
-			android:layout_height="50dp"
-			android:layout_marginLeft="30dp"
-			android:background="@android:drawable/ic_menu_revert"/>
-	</LinearLayout>
-
+	<!-- cards stack -->
 	<com.mindorks.placeholderview.SwipePlaceHolderView
 		android:id="@+id/swipeView"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"/>
+
+	<!-- controls -->
+	<LinearLayout
+		android:id="@+id/buttons_row"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom"
+		android:layout_marginBottom="50dp"
+		android:gravity="center"
+		android:orientation="horizontal"
+		android:background="@null"
+		>
+
+		<ImageButton
+			android:id="@+id/discardBtn"
+			style="@style/trackButton"
+			android:background="@drawable/dislike_smiley"/>
+		<ImageButton
+			android:id="@+id/likeBtn"
+			style="@style/trackButton"
+			android:background="@drawable/like_line_dazzle_filled"/>
+		<ImageButton
+			android:id="@+id/undoBtn"
+			style="@style/trackButton"
+			android:background="@android:drawable/ic_menu_revert"/>
+	</LinearLayout>
 
 	<ViewStub
 		android:id="@+id/summary_stub"

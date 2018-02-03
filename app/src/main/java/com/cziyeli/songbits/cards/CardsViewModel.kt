@@ -80,7 +80,7 @@ class CardsViewModel @Inject constructor(
     private fun actionFromIntent(intent: MviIntent) : TrackAction {
         return when(intent) {
             is TrackIntent.ScreenOpened -> TrackAction.LoadTrackCards.create(
-                    intent.ownerId, intent.playlistId, intent.fields, intent.limit, intent.offset)
+                    intent.ownerId, intent.playlistId, intent.onlyTrackIds, intent.fields, intent.limit, intent.offset)
             is TrackIntent.CommandPlayer -> TrackAction.CommandPlayer.create(
                     intent.command, intent.track
             )
@@ -209,7 +209,6 @@ data class TrackViewState(var status: MviViewState.StatusInterface = MviViewStat
 
     val reachedEnd: Boolean
         get() = status == MviViewState.Status.SUCCESS && unseen.size == 0 && allTracks.size > 0
-
 
     fun isSuccess(): Boolean {
         return status == TracksLoadedStatus.SUCCESS || status == MviViewState.Status.SUCCESS

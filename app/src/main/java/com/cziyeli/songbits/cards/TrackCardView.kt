@@ -2,16 +2,18 @@ package com.cziyeli.songbits.cards
 
 import android.content.Context
 import android.widget.TextView
+import com.bumptech.glide.Glide
 import com.cziyeli.commons.Utils
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
-import com.facebook.drawee.view.SimpleDraweeView
-import com.mindorks.placeholderview.annotations.Click
 import com.mindorks.placeholderview.annotations.Layout
+import com.mindorks.placeholderview.annotations.NonReusable
 import com.mindorks.placeholderview.annotations.Resolve
 import com.mindorks.placeholderview.annotations.View
 import com.mindorks.placeholderview.annotations.swipe.*
+import info.abdolahi.CircularMusicProgressBar
+import info.abdolahi.OnCircularSeekBarChangeListener
 import io.reactivex.subjects.PublishSubject
 
 /**
@@ -19,6 +21,7 @@ import io.reactivex.subjects.PublishSubject
  *
  * Created by connieli on 1/2/18.
  */
+@NonReusable
 @Layout(R.layout.cards_track_view)
 class TrackCardView(private val context: Context,
                     private val model: TrackModel,
@@ -26,8 +29,8 @@ class TrackCardView(private val context: Context,
 
     private val TAG = TrackCardView::class.simpleName
 
-    @View(R.id.image)
-    private lateinit var imageView: SimpleDraweeView
+    @View(R.id.track_image)
+    private lateinit var trackImage: CircularMusicProgressBar
 
     @View(R.id.track_name)
     private lateinit var trackName: TextView
@@ -35,19 +38,51 @@ class TrackCardView(private val context: Context,
     @View(R.id.artist_name)
     private lateinit var artistName: TextView
 
+    @View(R.id.track_title_wrapper)
+    private lateinit var trackTitleWrapper: android.view.View
+
+    private val seekBarChangeListener = object : OnCircularSeekBarChangeListener {
+        override fun onProgressChanged(circularBar: CircularMusicProgressBar?, progress: Int, fromUser: Boolean) {
+            Utils.mLog(TAG, "onProgressChanged", "progress: $progress -- fromUser: $fromUser")
+        }
+
+        override fun onClick(circularBar: CircularMusicProgressBar?) {
+            circularBar?.performClick()
+        }
+
+        override fun onLongPress(circularBar: CircularMusicProgressBar?) {
+            // no-op
+            Utils.mLog(TAG, "onLongPress")
+        }
+    }
+
+    private val trackImageClickListener = android.view.View.OnClickListener {
+        // pause/resume
+        listener.getPlayerIntents()
+                .onNext(TrackIntent.CommandPlayer.create(PlayerInterface.Command.PAUSE_OR_RESUME, model))
+    }
+
     @Resolve
     private fun onResolved() {
+        Utils.log(TAG, "onResolved: ${model.name}") // on average will load 3
+
         trackName.text = model.name
         artistName.text = model.artistName
-        imageView.setImageURI(model.imageUrl)
 
-        Utils.log(TAG, "onResolved: ${model.name}") // on average will load 3
+        trackImage.setOnCircularBarChangeListener(seekBarChangeListener)
+        trackImage.setOnClickListener(trackImageClickListener)
+
+        Glide.with(context)
+                .load(model.imageUrl)
+                .into(trackImage)
     }
 
     @SwipeHead
     private fun onSwipeHeadCard() {
         // a card comes on top of the stack (follows onResolved)
         Utils.log(TAG, "onSwipeHeadCard: ${model.name} -- clearing pref")
+
+        Utils.setVisible(trackTitleWrapper, true)
 
         // immediately start playing
         listener.getPlayerIntents().onNext(
@@ -59,20 +94,11 @@ class TrackCardView(private val context: Context,
         )
     }
 
-    @Click(R.id.image)
-    private fun onClick() {
-        // pause/resume
-        listener.getPlayerIntents().onNext(
-                TrackIntent.CommandPlayer.create(PlayerInterface.Command.PAUSE_OR_RESUME, model))
-    }
-
     @SwipeOut
     private fun onSwipedOut() {
         Utils.log(TAG, "onSwipedOut (rejected): ${model.name}")
 
-        // stop playing this track
-        listener.getPlayerIntents().onNext(
-                TrackIntent.CommandPlayer.create(PlayerInterface.Command.END_TRACK, model))
+        finishTrack()
 
         // add this track to the Pass list
         listener.getTrackIntents().onNext(
@@ -89,13 +115,22 @@ class TrackCardView(private val context: Context,
     private fun onSwipeIn() {
         Utils.log(TAG, "onSwipeIn (accepted): ${model.name}")
 
-        listener.getPlayerIntents().onNext(
-                TrackIntent.CommandPlayer.create(PlayerInterface.Command.END_TRACK, model))
+        finishTrack()
 
         // add this track to the Liked list
         listener.getTrackIntents().onNext(
                 TrackIntent.ChangeTrackPref.like(model)
         )
+    }
+
+    private fun finishTrack() {
+        // stop playing this track
+        listener.getPlayerIntents().onNext(
+                TrackIntent.CommandPlayer.create(PlayerInterface.Command.END_TRACK, model))
+
+        Utils.setVisible(trackTitleWrapper, false)
+        trackImage.setOnCircularBarChangeListener(null)
+        trackImage.setOnClickListener(null)
     }
 
     @SwipeInState

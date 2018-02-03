@@ -50,8 +50,15 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
             act -> repository
                 .fetchPlaylistTracks(Repository.Source.REMOTE, act.ownerId, act.playlistId, act.fields, act.limit, act.offset)
                 .subscribeOn(schedulerProvider.io())
-            }.filter { resp -> resp.total > 0 }
-            .map { resp -> resp.items.map { it.track }}
+                .map { resp ->
+                    var finalTracks = resp.items
+                    if (resp.items.isNotEmpty() && act.onlyTrackIds.isNotEmpty()) {
+                        finalTracks = resp.items.filter { playlistTrack -> act.onlyTrackIds.contains(playlistTrack.track.id) }
+                    }
+                    finalTracks
+                }
+            }
+            .map { items -> items.map { it.track }}
             .map { tracks -> tracks.map { TrackModel.create(it) } }
             .observeOn(schedulerProvider.ui())
             .map { trackCards -> TrackResult.LoadTrackCards.createSuccess(trackCards) }

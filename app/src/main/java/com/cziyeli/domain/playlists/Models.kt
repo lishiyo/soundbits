@@ -17,7 +17,9 @@ data class Playlist(val id: String,
                     private val uri: String,
                     val owner: Owner,
                     private val images: List<SimpleImage>?,
-                    val tracksInfo: PlaylistTracksInformation?) : Parcelable {
+                    val tracksInfo: PlaylistTracksInformation?,
+                    var unswipedTrackIds: List<String> = listOf() // filtered list
+) : Parcelable {
 
     // num [Track]s in this playlist
     val totalTracksCount: Int
@@ -34,8 +36,8 @@ data class Playlist(val id: String,
             parcel.readString(),
             parcel.readParcelable(Owner::class.java.classLoader),
             parcel.createTypedArrayList(SimpleImage),
-            parcel.readParcelable(PlaylistTracksInformation::class.java.classLoader)) {
-    }
+            parcel.readParcelable(PlaylistTracksInformation::class.java.classLoader),
+            parcel.createStringArrayList().toList())
 
     companion object {
         @JvmField
@@ -57,6 +59,7 @@ data class Playlist(val id: String,
         parcel.writeParcelable(owner, flags)
         parcel.writeTypedList(images)
         parcel.writeParcelable(tracksInfo, flags)
+        parcel.writeStringList(unswipedTrackIds)
     }
 
     override fun describeContents(): Int {

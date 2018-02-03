@@ -1,8 +1,8 @@
 package com.cziyeli.songbits.cards
 
+import com.cziyeli.commons.mvibase.MviIntent
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.tracks.TrackModel
-import com.cziyeli.commons.mvibase.MviIntent
 
 /**
  * Created by connieli on 1/1/18.
@@ -12,6 +12,7 @@ sealed class TrackIntent : MviIntent {
     // opened CardsActivity, loaded view model - load tracks
     class ScreenOpened(val ownerId: String,
                        val playlistId: String,
+                       val onlyTrackIds: List<String> = mutableListOf(),
                        val fields: String? = null,
                        val limit: Int = 100,
                        val offset: Int = 0
@@ -19,10 +20,11 @@ sealed class TrackIntent : MviIntent {
         companion object {
             fun create(ownerId: String,
                        playlistId: String,
+                       onlyTrackIds: List<String> = mutableListOf(),
                        fields: String? = null,
                        limit: Int = 100,
                        offset: Int = 0): ScreenOpened {
-                return ScreenOpened(ownerId, playlistId, fields, limit, offset)
+                return ScreenOpened(ownerId, playlistId, onlyTrackIds, fields, limit, offset)
             }
         }
     }

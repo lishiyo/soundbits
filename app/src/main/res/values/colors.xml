@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<!-- gradients -->
-	<color name="colorPrimary">#D71565</color>
+	<!--<color name="colorPrimary">#D71565</color>-->
+	<color name="colorPrimary">@color/quartet_red</color>
 	<!--<color name="colorPrimaryShade">#FF1641</color>-->
 	<color name="colorPrimaryShade">@color/brilliant_rose</color>
 	<color name="colorPrimaryDark">@color/space_time</color>

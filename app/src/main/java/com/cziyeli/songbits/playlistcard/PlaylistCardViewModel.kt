@@ -228,10 +228,32 @@ class PlaylistCardViewModel @Inject constructor(
                                      var playlist: Playlist, // card's playlist - has total count
                                      var likedCount: Int = 0,
                                      var dislikedCount: Int = 0,
-                                     var stashedTracksList: List<TrackModel> = listOf(), // only local tracks
-                                     var allTracksList: List<TrackModel> = listOf(), // ALL tracks (from remote)
                                      var trackStats: TrackListStats? = null // stats for ALL tracks
     ) : MviViewState {
+        var stashedTracksList: List<TrackModel> = listOf() // only local tracks
+            set(value) {
+                field = value
+                playlist.unswipedTrackIds = unswipedTrackIds
+            }
+
+        var allTracksList: List<TrackModel> = listOf() // ALL tracks (from remote)
+            set(value) {
+                field = value
+                playlist.unswipedTrackIds = unswipedTrackIds
+            }
+
+        private var allSwipeableTracksList: List<TrackModel> = listOf() // ALL tracks that are also swipeable
+            get() = allTracksList.filter { it.isRenderable() }
+            set(value) {
+                field = value
+                playlist.unswipedTrackIds = unswipedTrackIds
+            }
+
+        var unswipedTrackIds: List<String> = listOf()
+            get() =  allSwipeableTracksList.map { it.id } - stashedTracksList.map { it.id }
+
+        val unswipedCount: Int
+            get() = unswipedTrackIds.size
 
         fun isSuccess(): Boolean {
             return status == PlaylistCardResult.CalculateQuickCounts.Status.SUCCESS

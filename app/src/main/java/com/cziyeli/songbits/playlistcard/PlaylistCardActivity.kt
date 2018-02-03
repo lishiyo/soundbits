@@ -12,7 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
-import com.cziyeli.songbits.cards.CardsActivity
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import dagger.android.AndroidInjection
@@ -38,11 +37,10 @@ class PlaylistCardActivity : AppCompatActivity() {
     private val onFabMenuSelectedListener = OnFABMenuSelectedListener { view, id ->
         when (id) {
             R.id.menu_surf -> {
-                // todo: send in list of tracks (only unswiped tracks)
-                this@PlaylistCardActivity.startActivity(CardsActivity.create(this@PlaylistCardActivity, playlist))
+                playlist_card_widget.startSwipingTracks(false)
             }
             R.id.menu_resurf -> {
-                this@PlaylistCardActivity.startActivity(CardsActivity.create(this@PlaylistCardActivity, playlist))
+                playlist_card_widget.startSwipingTracks(true)
             }
             R.id.menu_create_playlist -> {
                 val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(this,

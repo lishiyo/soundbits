@@ -1,7 +1,7 @@
 package com.cziyeli.domain.tracks
 
-import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.commons.mvibase.MviAction
+import com.cziyeli.domain.player.PlayerInterface
 
 /**
  * Created by connieli on 1/1/18.
@@ -13,16 +13,18 @@ sealed class TrackAction : MviAction {
     // https://developer.spotify.com/web-api/console/get-playlist-tracks/
     class LoadTrackCards(val ownerId: String,
                          val playlistId: String,
+                         val onlyTrackIds: List<String> = mutableListOf(),
                          val fields: String?,
                          val limit: Int = 100,
                          val offset: Int = 0) : TrackAction() {
         companion object {
             fun create(ownerId: String,
                        playlistId: String,
+                       onlyTrackIds: List<String> = mutableListOf(),
                        fields: String?,
                        limit: Int = 100,
                        offset: Int = 0): LoadTrackCards{
-                return LoadTrackCards(ownerId, playlistId, fields, limit, offset)
+                return LoadTrackCards(ownerId, playlistId, onlyTrackIds, fields, limit, offset)
             }
         }
     }
