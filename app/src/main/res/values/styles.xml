@@ -9,7 +9,7 @@
 	<style name="AppTheme" parent="AppTheme.NoActionBar">
 		<!-- Customize your theme here. -->
 		<item name="colorPrimary">@color/colorPrimary</item>
-		<item name="colorPrimaryDark">@color/colorPurple</item>
+		<item name="colorPrimaryDark">@color/colorPrimaryShade</item>
 		<item name="colorAccent">@color/colorAccent</item>
 		<item name="android:fontFamily">@font/indie_flower</item>
 		<!--<item name="android:textViewStyle">@style/QuicksandStyle</item>-->
@@ -63,9 +63,9 @@
 		<item name="startFixed">0</item>
 		<item name="endFixed">8</item>
 		<item name="movable">false</item>
-		<item name="activeLineColor">@color/turquoise</item>
-		<item name="activeTickColor">@color/turquoise</item>
-		<item name="activeThumbColor">@color/turquoise</item>
+		<item name="activeLineColor">@color/colorAccent</item>
+		<item name="activeTickColor">@color/colorAccent</item>
+		<item name="activeThumbColor">@color/colorAccent</item>
 		<item name="fixedLineColor">@color/colorGrey</item>
 		<item name="fixedThumbLabelColor">@color/colorGrey</item>
 		<item name="fixedThumbColor">@color/colorGrey</item>

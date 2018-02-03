@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<!-- gradients -->
-	<color name="colorPrimary">@color/brilliant_rose</color>
+	<color name="colorPrimary">#D71565</color>
 	<!--<color name="colorPrimaryShade">#FF1641</color>-->
-	<color name="colorPrimaryShade">@color/violet_red</color>
+	<color name="colorPrimaryShade">@color/brilliant_rose</color>
 	<color name="colorPrimaryDark">@color/space_time</color>
-	<color name="colorPurple">@color/persian_blue</color>
-	<color name="colorAccent">@color/turquoise</color>
+	<color name="colorPurple">#5A1299</color>
+	<color name="colorAccent">@color/californian_coral</color>
 	<color name="colorRed">@color/violet_red</color>
 	<color name="colorWhite">@color/ghost_white</color>
 	<color name="colorGrey">@color/quartz</color>
@@ -31,6 +31,11 @@
 	<!-- https://www.uplabs.com/posts/music-player-app-icons -->
 	<color name="turquoise_blue">#67CAE4</color>
 	<color name="quartz">#D7D8E3</color>
+
+	<!-- https://www.uplabs.com/posts/culturo-game-app -->
+	<color name="quartet_red">#EB166F</color>
+	<color name="quartet_blue">#1EAAF1</color>
+	<color name="quartet_green">#9CDA3B</color>
 
 	<!-- https://www.uplabs.com/posts/transaction-history -->
 	<color name="white_smoke">#F7F7F7</color>
