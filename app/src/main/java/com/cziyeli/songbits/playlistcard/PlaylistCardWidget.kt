@@ -177,9 +177,11 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         // check if we need to hide
         if (state.unswipedCount == 0) {
             fab_menu.getItemById(R.id.menu_surf)?.isEnabled = false
+            activity.invalidateOptionsMenu()
         } else {
             fab_menu.getItemById(R.id.menu_surf)?.isEnabled = true
             fab_menu.getItemById(R.id.menu_surf)?.title = "Swipe ${state.unswipedCount}"
+            activity.invalidateOptionsMenu()
         }
 
         // render the track stats widget with remote tracks

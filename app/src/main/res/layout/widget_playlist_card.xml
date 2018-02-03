@@ -138,7 +138,8 @@
 						app:showTitle="true"
 						app:menuSize="normal"
 						app:menuTitleFontFamily="@font/indie_flower"
-						app:menuTitleDisabledTextColor="@color/colorGrey" />
+						app:menuTitleDisabledTextColor="@color/rosa"
+						/>
 
 				</FrameLayout>
 

@@ -25,6 +25,7 @@ import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.PublishSubject
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 
 class PlaylistCardViewModel @Inject constructor(
@@ -230,17 +231,15 @@ class PlaylistCardViewModel @Inject constructor(
                                      var dislikedCount: Int = 0,
                                      var trackStats: TrackListStats? = null // stats for ALL tracks
     ) : MviViewState {
-        var stashedTracksList: List<TrackModel> = listOf() // only local tracks
-            set(value) {
-                field = value
-                playlist.unswipedTrackIds = unswipedTrackIds
-            }
+        var stashedTracksList: List<TrackModel> by Delegates.observable(listOf()) { prop, old, new ->
+            // only local tracks
+            playlist.unswipedTrackIds = unswipedTrackIds
+        }
 
-        var allTracksList: List<TrackModel> = listOf() // ALL tracks (from remote)
-            set(value) {
-                field = value
-                playlist.unswipedTrackIds = unswipedTrackIds
-            }
+        var allTracksList: List<TrackModel> by Delegates.observable(listOf()) { prop, old, new ->
+            // all remote tracks
+            playlist.unswipedTrackIds = unswipedTrackIds
+        }
 
         private var allSwipeableTracksList: List<TrackModel> = listOf() // ALL tracks that are also swipeable
             get() = allTracksList.filter { it.isRenderable() }
@@ -271,6 +270,14 @@ class PlaylistCardViewModel @Inject constructor(
             return status == PlaylistCardResult.CalculateQuickCounts.Status.ERROR
                     || status == PlaylistCardResult.FetchPlaylistTracks.Status.ERROR
                     || status == StatsResultStatus.ERROR
+        }
+
+        // make sure the tracks are there!
+        fun copy() : PlaylistCardViewState {
+            val newState = PlaylistCardViewState(this.status, this.error, this.playlist, this.likedCount, this.dislikedCount, this.trackStats)
+            newState.stashedTracksList = this.stashedTracksList
+            newState.allTracksList = this.allTracksList
+            return newState
         }
 
         companion object {
