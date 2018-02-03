@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.widget.LinearLayout
 import com.cziyeli.domain.summary.TrackListStats
 import com.cziyeli.songbits.R
@@ -37,10 +38,11 @@ class TrackStatsView : LinearLayout {
 
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_card_stats, this, true)
-        isFocusable = false
-        isEnabled = false
-        isClickable = false
         orientation = VERTICAL
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        return true // don't allow the range sliders to move
     }
 
     fun loadTrackStats(trackStats: TrackListStats) {

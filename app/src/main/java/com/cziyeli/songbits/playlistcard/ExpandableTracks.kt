@@ -5,38 +5,25 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
-import com.cziyeli.domain.SimpleImage
+import com.bumptech.glide.Glide
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 
-// Track list
-data class RowTrackItem(val name: String, val artist: String = "")
-
-fun getDummyTracks() : List<RowTrackItem> {
-    return listOf(
-            RowTrackItem("devilman crybaby", "first artist"),
-            RowTrackItem("abandoned kitten", "just sitting there"),
-            RowTrackItem("broadchurch", "auntie ellie"),
-            RowTrackItem("fullmetal alchemist", "elric"),
-            RowTrackItem("le pain quot", "russell tovey"),
-            RowTrackItem("modest writing success", "the dogooder")
-    )
-}
-
+/**
+ * The tracks in the expandable
+ */
 // Wrapper around domain model - represents viewmodel for a track row
 data class TrackRow(val model: TrackModel) {
     val name: String
         get() = model.name
 
-    val primaryArtistName: String
-        get() = if (model.artist == null) "" else model.artist!!.name
-
-    val image: SimpleImage?
-        get() = model.album?.images?.get(0)
+    val primaryArtistName: String?
+        get() = model.artistName
 
     val imageUrl: String?
-        get() = image?.url
+        get() = model.imageUrl
 }
 
 // Tracks adapter
@@ -71,8 +58,14 @@ class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackRow>) :
 
         private var titleText: TextView = itemView.findViewById(R.id.track_title) as TextView
         private var artistText: TextView = itemView.findViewById(R.id.track_artist) as TextView
+        private var imageView: ImageView = itemView.findViewById(R.id.track_image) as ImageView
 
         fun bindData(rowModel: TrackRow) {
+            rowModel.imageUrl?.let {
+                Glide.with(itemView.context)
+                        .load(it)
+                        .into(imageView)
+            }
             titleText.text = rowModel.name
             artistText.text = rowModel.primaryArtistName
         }

@@ -14,7 +14,7 @@ data class TrackModel(val name: String,
                       val id: String,
                       val uri: String,
                       val preview_url: String?,
-                      val album: TrackAlbum?,
+                      private val album: TrackAlbum?,
                       val is_playable: Boolean?,
                       val popularity: Int?,
                       var pref: Pref = Pref.UNSEEN,
@@ -32,15 +32,6 @@ data class TrackModel(val name: String,
 
     val disliked: Boolean
         get() = pref == Pref.DISLIKED
-
-    val seen: Boolean
-        get() = pref != Pref.UNSEEN
-
-    val simpleImage: SimpleImage?
-        get() = (album?.images?.get(0))
-
-    val artist: Artist?
-        get() = (album?.artists?.get(0))
 
     /**
      * @return whether this can be shown in the tinder ui

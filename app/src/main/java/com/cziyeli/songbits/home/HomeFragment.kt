@@ -18,9 +18,9 @@ import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.home.oldhome.OldHomeIntent
 import com.cziyeli.songbits.playlistcard.PlaylistCardActivity
 import com.cziyeli.songbits.playlistcard.PlaylistCardActivity.Companion.EXTRA_PLAYLIST_ITEM
-import com.cziyeli.songbits.home.oldhome.OldHomeIntent
 import dagger.android.support.AndroidSupportInjection
 import io.github.luizgrp.sectionedrecyclerviewadapter.Section
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter
@@ -140,7 +140,6 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
     }
 
     override fun render(state: HomeViewState) {
-        Utils.mLog(TAG,"RENDER", "status: ${state.status}, playlistCount: ${state.playlists.size}")
         when {
             // TODO this is assuming everything is for PLAYLIST_RECENT
             state.status == MviViewState.Status.SUCCESS && state.playlists.isNotEmpty() -> {

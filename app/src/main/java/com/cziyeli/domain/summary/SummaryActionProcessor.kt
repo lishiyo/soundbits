@@ -86,9 +86,9 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
                     liked = it.pref == TrackModel.Pref.LIKED,
                     cleared = false,
                     playlistId = act.playlistId,
-                    artistName = it.artist?.name,
+                    artistName = it.artistName,
                     popularity = it.popularity,
-                    coverImageUrl = it.simpleImage?.url
+                    coverImageUrl = it.imageUrl
             )
         }
     }

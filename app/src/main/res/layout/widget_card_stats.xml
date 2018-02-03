@@ -6,8 +6,8 @@
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:clickable="false"
-	android:focusable="false"
+	android:clickable="true"
+	android:focusable="true"
 	android:descendantFocusability="beforeDescendants"
 	>
 
@@ -45,7 +45,6 @@
 		style="@style/simpleRangeView"
 		/>
 
-
 	<!-- valence -->
 	<TextView
 		android:id="@+id/valence_title"
@@ -62,6 +61,4 @@
 		android:layout_height="wrap_content"
 		style="@style/simpleRangeView"
 		/>
-
-
 </LinearLayout>

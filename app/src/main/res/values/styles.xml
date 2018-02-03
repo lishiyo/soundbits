@@ -51,7 +51,8 @@
 	<style name="simpleRangeView">
 		<item name="android:clickable">false</item>
 		<item name="android:focusable">false</item>
-		<item name="count">8</item>
+		<item name="android:enabled">false</item>
+		<item name="count">9</item>
 		<item name="start">0</item>
 		<item name="end">0</item>
 		<item name="showFixedLine">true</item>
@@ -71,5 +72,7 @@
 		<item name="activeLineThickness">@dimen/stats_line_width</item>
 		<item name="fixedLineThickness">@dimen/stats_line_width</item>
 		<item name="activeThumbRadius">@dimen/stats_radius_thumb</item>
+		<item name="showTicks">true</item>
+		<item name="showActiveTicks">false</item>
 	</style>
 </resources>

@@ -38,8 +38,8 @@ class TrackCardView(private val context: Context,
     @Resolve
     private fun onResolved() {
         trackName.text = model.name
-        artistName.text = model.artist?.name
-        imageView.setImageURI(model.simpleImage?.url)
+        artistName.text = model.artistName
+        imageView.setImageURI(model.imageUrl)
 
         Utils.log(TAG, "onResolved: ${model.name}") // on average will load 3
     }
