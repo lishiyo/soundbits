@@ -3,6 +3,7 @@ package com.cziyeli.songbits.playlistcard
 import android.app.Activity
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.os.Handler
 import android.support.v4.app.ActivityCompat.startPostponedEnterTransition
 import android.support.v4.widget.NestedScrollView
 import android.support.v7.widget.LinearLayoutManager
@@ -49,6 +50,8 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
     private lateinit var onFabSelectedListener: OnFABMenuSelectedListener
     private lateinit var onSwipeListener: RecyclerTouchListener.OnSwipeListener
 
+    var startedInitialFetch: Boolean = false
+
     @JvmOverloads
     constructor(
             context: Context,
@@ -59,6 +62,25 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_playlist_card, this, true)
         descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
+    }
+
+    // After the header's loaded, we'll kick off the transition and *then* start any requests.
+     fun initFetching(playlist: Playlist) {
+        if (startedInitialFetch) {
+            return
+        }
+
+        startedInitialFetch = true
+
+        // fetch stashed tracks -> get quick counts
+        mEventsPublisher.onNext(PlaylistCardIntent.FetchSwipedTracks(
+                ownerId = playlist.owner.id,
+                playlistId = playlist.id,
+                onlySwiped = true)
+        )
+
+        // fetch remote tracks and stats
+        mEventsPublisher.onNext(StatsIntent.FetchTracksWithStats(playlist))
     }
 
     // init with the model
@@ -104,26 +126,11 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
             fab_menu!!.setOnFABMenuSelectedListener(onFabSelectedListener)
         }
 
-
-        // fetch stashed tracks -> get quick counts
-//        stats_container.loadDefaultAudioFeatures()
-        mEventsPublisher.onNext(PlaylistCardIntent.FetchSwipedTracks(
-                ownerId = playlist.owner.id,
-                playlistId = playlist.id,
-                onlySwiped = true)
-        )
-
-        // get the quick stats
-//        mEventsPublisher.onNext(PlaylistCardIntent.CalculateQuickCounts(playlist.id))
-
         // set up tracks list
         adapter = TrackRowsAdapter(context, mutableListOf())
         tracks_recycler_view.adapter = adapter
         tracks_recycler_view.layoutManager = LinearLayoutManager(context)
         tracks_recycler_view.disableTouchTheft()
-
-        // fetch remote tracks and stats
-        mEventsPublisher.onNext(StatsIntent.FetchTracksWithStats(playlist))
     }
 
     override fun intents(): Observable<out SinglePlaylistIntent> {
@@ -139,8 +146,14 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         if (state.status == PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS) {
             Utils.mLog(TAG, "RENDER", "just got playlist tracks! stashed: ${state.stashedTracksList.size} all: ${state.allTracksList.size}")
 
+            if (state.stashedTracksList.isNotEmpty()) {
+                mEventsPublisher.onNext(PlaylistCardIntent.CalculateQuickCounts(playlistModel, state.stashedTracksList))
+            }
             // render the track rows
-            adapter.setTracksAndNotify(state.stashedTracksList.map { TrackRow(it) })
+            // TODO this is very ui heavy - figure out better way than delaying until tapped
+            Handler().postDelayed({
+                adapter.setTracksAndNotify(state.stashedTracksList.map { TrackRow(it) })
+            }, 1000)
         }
 
         // render the quick counts
@@ -156,10 +169,9 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
     }
 
     fun onBackPressed() {
-        if (fab_menu != null) {
-            if (fab_menu.isShowing) {
-                fab_menu.closeMenu()
-            }
+        if (expansionLayout.isExpanded) Utils.setVisible(expansionLayout, false)
+        if (fab_menu != null && fab_menu.isShowing) {
+            fab_menu.closeMenu()
         }
     }
 

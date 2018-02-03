@@ -93,7 +93,7 @@ class PlaylistCardViewModel @Inject constructor(
     // transform intent -> action
     private fun actionFromIntent(intent: MviIntent) : PlaylistCardActionMarker {
         return when (intent) {
-//            is PlaylistCardIntent.CalculateQuickCounts -> PlaylistCardAction.CalculateQuickCounts(intent.playlistId)
+            is PlaylistCardIntent.CalculateQuickCounts -> PlaylistCardAction.CalculateQuickCounts(intent.playlist, intent.tracks)
             is PlaylistCardIntent.FetchSwipedTracks -> PlaylistCardAction.FetchPlaylistTracks(
                     intent.ownerId, intent.playlistId)
             is StatsIntent.FetchTracksWithStats -> StatsAction.FetchAllTracksWithStats(intent.playlist.owner.id, intent.playlist.id)

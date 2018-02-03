@@ -1,0 +1,6 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+	<stroke android:width="2dp" android:color="@color/colorGrey" />
+	<padding android:left="@dimen/card_radius" android:top="@dimen/card_radius"
+		android:right="@dimen/card_radius" android:bottom="@dimen/card_radius" />
+	<corners android:radius="@dimen/card_radius" />
+</shape>

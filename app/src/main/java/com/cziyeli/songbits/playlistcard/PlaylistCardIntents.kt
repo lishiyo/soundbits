@@ -2,6 +2,7 @@ package com.cziyeli.songbits.playlistcard
 
 import com.cziyeli.commons.mvibase.MviIntent
 import com.cziyeli.domain.playlists.Playlist
+import com.cziyeli.domain.tracks.TrackModel
 
 /**
  * Marker for the [PlaylistCardActivity] screen.
@@ -14,7 +15,7 @@ interface SinglePlaylistIntent : MviIntent
 sealed class PlaylistCardIntent : SinglePlaylistIntent {
 
     // fetch basic counts - liked, disliked, total
-//    class CalculateQuickCounts(val playlistId: String) : PlaylistCardIntent()
+    class CalculateQuickCounts(val playlist: Playlist, val tracks: List<TrackModel>) : PlaylistCardIntent()
 
     // get list of all (swiped) tracks to show in the expandable rows
     class FetchSwipedTracks(val ownerId: String,

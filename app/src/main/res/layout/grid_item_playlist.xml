@@ -24,6 +24,7 @@
 
 		<ImageView
 			android:id="@+id/playlist_image"
+			android:transitionGroup="true"
 			android:scaleType="centerCrop"
 			android:background="@color/colorAccent"
 			android:transitionName="@string/playlist_image_transition"

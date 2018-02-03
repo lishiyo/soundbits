@@ -9,6 +9,12 @@
 	<!--<changeClipBounds />-->
 	<changeImageTransform />
 
+	<targets>
+		<target android:excludeId="@id/expansionLayout"/>
+		<target android:excludeId="@id/expansion_header"/>
+		<target android:excludeId="@id/stats_container"/>
+	</targets>
+
 	<!--<fade-->
 		<!--android:fadingMode="fade_in"-->
 		<!--android:startDelay="100">-->

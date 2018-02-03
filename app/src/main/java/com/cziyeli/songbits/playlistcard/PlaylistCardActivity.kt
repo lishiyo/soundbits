@@ -24,7 +24,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class PlaylistCardActivity : AppCompatActivity() {
-    val TAG = PlaylistCardActivity.javaClass.simpleName.toString()
+    val TAG = PlaylistCardActivity::class.java.simpleName
     companion object {
         const val EXTRA_PLAYLIST_ITEM = "playlist_item"
     }
@@ -132,12 +132,11 @@ class PlaylistCardActivity : AppCompatActivity() {
                 // animate the wave
                 val toAlpha = if (isFgOpening) 1.0f else 0.0f
                 val animatedView = foregroundView.findViewById<EqualizerView>(R.id.equalizer_animation)
-
 //                val animatedView = foregroundView.findViewById<LottieAnimationView>(R.id.wave_animation)
                 animatedView.animate().alpha(toAlpha).withEndAction {
                     if (isFgOpening) {
                         animatedView.visibility = View.VISIBLE
-                        animatedView.animateBars();
+                        animatedView.animateBars()
 //                        animatedView.playAnimation()
                     } else {
                         animatedView.visibility = View.INVISIBLE
@@ -152,9 +151,9 @@ class PlaylistCardActivity : AppCompatActivity() {
             }
 
             override fun onSwipeOptionsClosed(foregroundView: View, backgroundView: View?) {
-
+                val animatedView = foregroundView.findViewById<EqualizerView>(R.id.equalizer_animation)
+                animatedView.stopBars()
             }
-
         }
     }
 
@@ -189,6 +188,11 @@ class PlaylistCardActivity : AppCompatActivity() {
         return onTouchListener
     }
 
+    override fun onEnterAnimationComplete() {
+        super.onEnterAnimationComplete()
+
+        playlist_card_widget.initFetching(playlist)
+    }
 
     override fun onBackPressed() {
         playlist_card_widget.onBackPressed()

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<transitionSet
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:interpolator="@android:interpolator/decelerate_quad">
+
+	<fade>
+		<targets>
+			<target android:excludeId="@id/expansionLayout"/>
+			<target android:excludeId="@id/expansion_header"/>
+			<target android:excludeId="@id/stats_container"/>
+			<target android:excludeId="@id/card_view"/>
+		</targets>
+	</fade>
+
+</transitionSet>

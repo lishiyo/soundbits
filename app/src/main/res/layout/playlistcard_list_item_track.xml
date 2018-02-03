@@ -77,25 +77,25 @@
 				app:animationDuration="10000"
 				app:marginLeft="1dp"
 				app:marginRight="1dp"
-				app:runInBatterySaveMode="true"
+				app:runInBatterySaveMode="false"
 				/>
 
-			<com.airbnb.lottie.LottieAnimationView
-				android:id="@+id/wave_animation"
-				android:visibility="invisible"
-				android:layout_width="40dp"
-				android:layout_marginRight="8dp"
-				android:layout_height="wrap_content"
-				android:layout_gravity="right|center_vertical"
-				android:gravity="right|center_vertical"
-				android:layout_alignParentRight="true"
-				android:layout_alignWithParentIfMissing="true"
-				app:lottie_autoPlay="false"
-				app:lottie_colorFilter="@color/colorDark"
-				app:lottie_fileName="volume_indicator.json"
-				app:lottie_loop="true"
-				app:lottie_scale="2.2"
-				/>
+			<!--<com.airbnb.lottie.LottieAnimationView-->
+				<!--android:id="@+id/wave_animation"-->
+				<!--android:visibility="invisible"-->
+				<!--android:layout_width="40dp"-->
+				<!--android:layout_marginRight="8dp"-->
+				<!--android:layout_height="wrap_content"-->
+				<!--android:layout_gravity="right|center_vertical"-->
+				<!--android:gravity="right|center_vertical"-->
+				<!--android:layout_alignParentRight="true"-->
+				<!--android:layout_alignWithParentIfMissing="true"-->
+				<!--app:lottie_autoPlay="false"-->
+				<!--app:lottie_colorFilter="@color/colorDark"-->
+				<!--app:lottie_fileName="volume_indicator.json"-->
+				<!--app:lottie_loop="true"-->
+				<!--app:lottie_scale="2.2"-->
+				<!--/>-->
 
 			<ImageView
 				android:id="@+id/track_status"

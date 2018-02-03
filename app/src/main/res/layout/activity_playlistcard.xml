@@ -7,6 +7,8 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical"
 	android:background="@null"
+	android:transitionGroup="true"
+	android:maxHeight="1000dp"
 	>
 </com.cziyeli.songbits.playlistcard.PlaylistCardWidget>
 
