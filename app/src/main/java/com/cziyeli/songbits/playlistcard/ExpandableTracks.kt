@@ -10,6 +10,8 @@ import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.base.DisLikeButton
+import com.cziyeli.songbits.base.LikeButton
 
 /**
  * The tracks in the expandable
@@ -24,6 +26,9 @@ data class TrackRow(val model: TrackModel) {
 
     val imageUrl: String?
         get() = model.imageUrl
+
+    val liked: Boolean
+        get() = model.liked
 }
 
 // Tracks adapter
@@ -60,6 +65,9 @@ class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackRow>) :
         private var artistText: TextView = itemView.findViewById(R.id.track_artist) as TextView
         private var imageView: ImageView = itemView.findViewById(R.id.track_image) as ImageView
 
+        private var likeButton: LikeButton = itemView.findViewById(R.id.like_icon_container)
+        private var dislikeButton: DisLikeButton = itemView.findViewById(R.id.dislike_icon_container)
+
         fun bindData(rowModel: TrackRow) {
             rowModel.imageUrl?.let {
                 Glide.with(itemView.context)
@@ -68,6 +76,9 @@ class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackRow>) :
             }
             titleText.text = rowModel.name
             artistText.text = rowModel.primaryArtistName
+
+            likeButton.setActive(rowModel.liked)
+            dislikeButton.setActive(!rowModel.liked)
         }
     }
 }

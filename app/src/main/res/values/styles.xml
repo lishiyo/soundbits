@@ -9,7 +9,7 @@
 	<style name="AppTheme" parent="AppTheme.NoActionBar">
 		<!-- Customize your theme here. -->
 		<item name="colorPrimary">@color/colorPrimary</item>
-		<item name="colorPrimaryDark">@color/colorPrimaryShade</item>
+		<item name="colorPrimaryDark">@color/colorPurple</item>
 		<item name="colorAccent">@color/colorAccent</item>
 		<item name="android:fontFamily">@font/indie_flower</item>
 		<!--<item name="android:textViewStyle">@style/QuicksandStyle</item>-->

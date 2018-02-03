@@ -35,7 +35,7 @@
 			<TextView
 				android:id="@+id/track_name"
 				android:layout_width="wrap_content"
-				android:textColor="@color/colorPrimaryDark"
+				android:textColor="@color/colorPrimary"
 				android:textSize="18dp"
 				android:textStyle="bold"
 				android:layout_height="wrap_content"/>
@@ -44,7 +44,7 @@
 				android:id="@+id/artist_name"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:textColor="@color/colorPrimaryDark"
+				android:textColor="@color/colorPrimary"
 				android:textSize="14dp"
 				android:textStyle="normal"/>
 

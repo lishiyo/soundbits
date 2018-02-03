@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<!-- gradients -->
-
-	<!--<color name="colorPrimary">@color/space_time</color>-->
-	<color name="colorPrimary">@color/ruby_grapefruit</color>
-	<color name="colorPrimaryShade">#FF1641</color>
+	<color name="colorPrimary">@color/brilliant_rose</color>
+	<!--<color name="colorPrimaryShade">#FF1641</color>-->
+	<color name="colorPrimaryShade">@color/violet_red</color>
 	<color name="colorPrimaryDark">@color/space_time</color>
 	<color name="colorPurple">@color/persian_blue</color>
 	<color name="colorAccent">@color/turquoise</color>
 	<color name="colorRed">@color/violet_red</color>
-	<color name="colorWhite">@color/white_smoke</color>
+	<color name="colorWhite">@color/ghost_white</color>
 	<color name="colorGrey">@color/quartz</color>
 	<color name="colorYellow">#FED600</color>
 	<color name="colorDark">@color/moss_river</color>
@@ -21,8 +20,10 @@
 
 	<!-- https://www.uplabs.com/posts/music-portal -->
 	<color name="midnight_blue">#1F1F74</color>
-	<color name="brilliant_rose">#F85697</color>
-	<color name="violet_red">#F83A80</color>
+	<!--<color name="brilliant_rose">#F85697</color>-->
+	<color name="brilliant_rose">#f62377</color>
+	<!--<color name="violet_red">#F83A80</color>-->
+	<color name="violet_red">#F71FB5</color>
 	<color name="persian_blue">#3136A8</color>
 	<color name="ghost_white">#F7F7FA</color>
 	<color name="heather">#9FB5C9 </color>
@@ -36,6 +37,7 @@
 	<color name="pampas">#E9E3DC</color>
 	<color name="crusta">#EF8053</color>
 	<color name="turquoise">#4FE4C7</color>
+	<!--<color name="turquoise">#92FFFF</color>-->
 	<color name="light_grey">#D7D7D7</color>
 	<color name="chamoise">#EACD98</color>
 
