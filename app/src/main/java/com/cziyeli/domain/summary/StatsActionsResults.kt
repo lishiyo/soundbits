@@ -4,6 +4,7 @@ import com.cziyeli.commons.mvibase.MviAction
 import com.cziyeli.commons.mvibase.MviResult
 import com.cziyeli.domain.playlistcard.PlaylistCardActionMarker
 import com.cziyeli.domain.playlistcard.PlaylistCardResultMarker
+import com.cziyeli.domain.tracks.TrackModel
 
 
 /**
@@ -17,7 +18,14 @@ interface StatsResultMarker : MviResult
  */
 sealed class StatsAction : StatsActionMarker, SummaryActionMarker, PlaylistCardActionMarker {
 
-    // generic fetch stats for a list of tracks
+    // fetch all tracks + stats given playlist id
+    class FetchAllTracksWithStats(val ownerId: String,
+                                  val playlistId: String,
+                                  val fields: String? = null,
+                                  val limit: Int = 100,
+                                  val offset: Int = 0) : StatsAction()
+
+    // fetch stats for a given list of tracks
     class FetchStats(val trackIds: List<String>) : StatsAction()
 }
 
@@ -31,23 +39,43 @@ enum class StatsResultStatus : MviResult.StatusInterface {
 /**
  * Results for the track stats widget
  */
-sealed class TrackStatsResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
-                              var error: Throwable? = null) : StatsResultMarker, PlaylistCardResultMarker {
+sealed class StatsResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
+                         var error: Throwable? = null) : StatsResultMarker, PlaylistCardResultMarker {
+
+    class FetchAllTracksWithStats(status: StatsResultStatus,
+                                  error: Throwable?,
+                                  val tracks: List<TrackModel> = listOf(),
+                                  val trackStats: TrackListStats? // domain model for stats
+    ) : StatsResult(status, error) {
+        companion object {
+            fun createSuccess(tracks: List<TrackModel>, trackStats: TrackListStats) : StatsResult.FetchAllTracksWithStats {
+                return StatsResult.FetchAllTracksWithStats(StatsResultStatus.SUCCESS, null, tracks, trackStats)
+            }
+            fun createError(throwable: Throwable,
+                            tracks: List<TrackModel> = listOf(),
+                            trackStats: TrackListStats? = null) : StatsResult.FetchAllTracksWithStats {
+                return StatsResult.FetchAllTracksWithStats(StatsResultStatus.ERROR, throwable, tracks, trackStats)
+            }
+            fun createLoading(): StatsResult.FetchAllTracksWithStats {
+                return StatsResult.FetchAllTracksWithStats(StatsResultStatus.LOADING, null, listOf(), null)
+            }
+        }
+    }
 
     class FetchStats(status: StatsResultStatus,
                      error: Throwable?,
                      val trackStats: TrackListStats? // domain model for stats
-    ) : TrackStatsResult(status, error) {
+    ) : StatsResult(status, error) {
         companion object {
-            fun createSuccess(trackStats: TrackListStats) : TrackStatsResult.FetchStats {
-                return TrackStatsResult.FetchStats(StatsResultStatus.SUCCESS, null, trackStats)
+            fun createSuccess(trackStats: TrackListStats) : StatsResult.FetchStats {
+                return StatsResult.FetchStats(StatsResultStatus.SUCCESS, null, trackStats)
             }
             fun createError(throwable: Throwable,
-                            trackStats: TrackListStats? = null) : TrackStatsResult.FetchStats {
-                return TrackStatsResult.FetchStats(StatsResultStatus.ERROR, throwable, trackStats)
+                            trackStats: TrackListStats? = null) : StatsResult.FetchStats {
+                return StatsResult.FetchStats(StatsResultStatus.ERROR, throwable, trackStats)
             }
-            fun createLoading(): TrackStatsResult.FetchStats {
-                return TrackStatsResult.FetchStats(StatsResultStatus.LOADING, null, null)
+            fun createLoading(): StatsResult.FetchStats {
+                return StatsResult.FetchStats(StatsResultStatus.LOADING, null, null)
             }
         }
     }

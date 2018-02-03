@@ -8,47 +8,48 @@ import java.util.*
 sealed class PlaylistCardResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
                                 var error: Throwable? = null) : PlaylistCardResultMarker {
 
-    // fetch basic counts - liked, disliked, total
-    class FetchQuickStats(status: Status,
-                          error: Throwable?,
-                          val likedCount: Int = 0,
-                          val dislikedCount: Int = 0
+    // calculate basic counts - liked, disliked, total
+    class CalculateQuickCounts(status: Status,
+                               error: Throwable?,
+                               val likedCount: Int = 0,
+                               val dislikedCount: Int = 0
     ) : PlaylistCardResult(status, error) {
         enum class Status : MviResult.StatusInterface {
             LOADING, SUCCESS, ERROR, IDLE
         }
 
         companion object {
-            fun createSuccess(likedCount: Int, dislikedCount: Int) : FetchQuickStats {
-                return FetchQuickStats(Status.SUCCESS, null, likedCount, dislikedCount)
+            fun createSuccess(likedCount: Int, dislikedCount: Int) : CalculateQuickCounts {
+                return CalculateQuickCounts(Status.SUCCESS, null, likedCount, dislikedCount)
             }
-            fun createError(throwable: Throwable) : FetchQuickStats{
-                return FetchQuickStats(Status.ERROR, throwable)
+            fun createError(throwable: Throwable) : CalculateQuickCounts {
+                return CalculateQuickCounts(Status.ERROR, throwable)
             }
-            fun createLoading(): FetchQuickStats {
-                return FetchQuickStats(Status.LOADING, null)
+            fun createLoading(): CalculateQuickCounts {
+                return CalculateQuickCounts(Status.LOADING, null)
             }
         }
     }
 
-    // get list of all (swiped) tracks
+    // return list of tracks from either local or remote
     class FetchPlaylistTracks(status: FetchPlaylistTracks.Status,
                               error: Throwable?,
-                              val items: List<TrackModel> = Collections.emptyList()
+                              val items: List<TrackModel> = Collections.emptyList(),
+                              val fromLocal: Boolean = true
     ) : PlaylistCardResult(status, error) {
         enum class Status : MviResult.StatusInterface {
             LOADING, SUCCESS, ERROR, IDLE
         }
 
         companion object {
-            fun createSuccess(items: List<TrackModel>) : FetchPlaylistTracks{
-                return FetchPlaylistTracks(FetchPlaylistTracks.Status.SUCCESS, null, items)
+            fun createSuccess(items: List<TrackModel>, fromLocal: Boolean) : FetchPlaylistTracks{
+                return FetchPlaylistTracks(FetchPlaylistTracks.Status.SUCCESS, null, items, fromLocal)
             }
-            fun createError(throwable: Throwable) : FetchPlaylistTracks {
-                return FetchPlaylistTracks(FetchPlaylistTracks.Status.ERROR, throwable)
+            fun createError(throwable: Throwable, fromLocal: Boolean) : FetchPlaylistTracks {
+                return FetchPlaylistTracks(FetchPlaylistTracks.Status.ERROR, throwable, fromLocal = fromLocal)
             }
-            fun createLoading(): FetchPlaylistTracks {
-                return FetchPlaylistTracks(FetchPlaylistTracks.Status.LOADING, null)
+            fun createLoading(fromLocal: Boolean): FetchPlaylistTracks {
+                return FetchPlaylistTracks(FetchPlaylistTracks.Status.LOADING, null, fromLocal = fromLocal)
             }
         }
     }

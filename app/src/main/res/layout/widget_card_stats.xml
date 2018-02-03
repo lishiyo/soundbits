@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:id="@+id/stats_container"
-	android:padding="20dp"
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
@@ -10,5 +10,58 @@
 	android:focusable="false"
 	android:descendantFocusability="beforeDescendants"
 	>
+
+	<!-- danceability -->
+	<TextView
+		android:id="@+id/danceability_title"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="calculating..."
+		android:clickable="false"
+		android:focusable="false"
+		/>
+
+	<me.bendik.simplerangeview.SimpleRangeView
+		android:id="@+id/danceability_range"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		style="@style/simpleRangeView"
+		/>
+
+	<!-- energy -->
+	<TextView
+		android:id="@+id/energy_title"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="calculating..."
+		android:clickable="false"
+		android:focusable="false"
+		/>
+
+	<me.bendik.simplerangeview.SimpleRangeView
+		android:id="@+id/energy_range"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		style="@style/simpleRangeView"
+		/>
+
+
+	<!-- valence -->
+	<TextView
+		android:id="@+id/valence_title"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="calculating..."
+		android:clickable="false"
+		android:focusable="false"
+		/>
+
+	<me.bendik.simplerangeview.SimpleRangeView
+		android:id="@+id/valence_range"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		style="@style/simpleRangeView"
+		/>
+
 
 </LinearLayout>

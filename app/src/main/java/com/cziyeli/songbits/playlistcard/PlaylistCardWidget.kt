@@ -18,9 +18,9 @@ import com.bumptech.glide.request.RequestOptions
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.disableTouchTheft
 import com.cziyeli.commons.mvibase.MviView
+import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlistcard.PlaylistCardResult
 import com.cziyeli.domain.playlists.Playlist
-import com.cziyeli.domain.summary.StatsResultStatus
 import com.cziyeli.songbits.R
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
@@ -104,21 +104,26 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
             fab_menu!!.setOnFABMenuSelectedListener(onFabSelectedListener)
         }
 
-        // get the quick stats
-        mEventsPublisher.onNext(PlaylistCardIntent.FetchQuickStats(playlist.id))
 
-        // fetch playlists to get the rows and the track stats
+        // fetch stashed tracks -> get quick counts
 //        stats_container.loadDefaultAudioFeatures()
-        mEventsPublisher.onNext(PlaylistCardIntent.FetchPlaylistTracks(
+        mEventsPublisher.onNext(PlaylistCardIntent.FetchSwipedTracks(
                 ownerId = playlist.owner.id,
-                playlistId = playlist.id)
+                playlistId = playlist.id,
+                onlySwiped = true)
         )
 
+        // get the quick stats
+//        mEventsPublisher.onNext(PlaylistCardIntent.CalculateQuickCounts(playlist.id))
+
         // set up tracks list
-        adapter = TrackRowsAdapter(context, getDummyTracks())
+        adapter = TrackRowsAdapter(context, mutableListOf())
         tracks_recycler_view.adapter = adapter
         tracks_recycler_view.layoutManager = LinearLayoutManager(context)
         tracks_recycler_view.disableTouchTheft()
+
+        // fetch remote tracks and stats
+        mEventsPublisher.onNext(StatsIntent.FetchTracksWithStats(playlist))
     }
 
     override fun intents(): Observable<out SinglePlaylistIntent> {
@@ -126,12 +131,16 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
     }
 
     override fun render(state: PlaylistCardViewModel.PlaylistCardViewState) {
-        Utils.mLog(TAG, "RENDER", "state: $state")
+        if (state.isError()) {
+            "error rendering: ${state.error}".toast(context)
+        }
 
         // if we just loaded tracks
-        if (state.status == PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS && state.trackStats == null) {
-            Utils.mLog(TAG, "just got playlist tracks! fetching stats ---")
-            mEventsPublisher.onNext(TrackStatsIntent.FetchStats(state.tracksList.map { it.id }))
+        if (state.status == PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS) {
+            Utils.mLog(TAG, "RENDER", "just got playlist tracks! stashed: ${state.stashedTracksList.size} all: ${state.allTracksList.size}")
+
+            // render the track rows
+            adapter.setTracksAndNotify(state.stashedTracksList.map { TrackRow(it) })
         }
 
         // render the quick counts
@@ -139,14 +148,11 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         quickstats_dislikes.text = "${state.dislikedCount} dislikes"
         quickstats_total.text = "${state.playlist.totalTracksCount} total"
 
-        // render the track stats widget
-        if (state.status == StatsResultStatus.SUCCESS && state.trackStats != null) {
+        // render the track stats widget with remote tracks
+        if (state.isSuccess() && state.trackStats != null) {
             Utils.mLog(TAG, "RENDER", "just got track stats! loading....")
             stats_container.loadTrackStats(state.trackStats!!)
         }
-
-        // render the track rows
-
     }
 
     fun onBackPressed() {

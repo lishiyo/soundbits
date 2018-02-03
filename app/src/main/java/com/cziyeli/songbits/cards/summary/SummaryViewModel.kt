@@ -98,6 +98,8 @@ class SummaryViewModel @Inject constructor(
         val newState = previousState.copy()
         newState.error = null
 
+        Utils.mLog(TAG, "processStats! ${result.status}")
+
         when (result.status) {
             MviResult.Status.LOADING -> {
                 newState.status = MviViewState.Status.LOADING

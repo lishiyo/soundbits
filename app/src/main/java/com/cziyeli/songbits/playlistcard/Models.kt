@@ -6,8 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.cziyeli.domain.SimpleImage
+import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
-import java.util.*
 
 // Track list
 data class RowTrackItem(val name: String, val artist: String = "")
@@ -23,10 +24,35 @@ fun getDummyTracks() : List<RowTrackItem> {
     )
 }
 
+// Wrapper around domain model - represents viewmodel for a track row
+data class TrackRow(val model: TrackModel) {
+    val name: String
+        get() = model.name
+
+    val primaryArtistName: String
+        get() = if (model.artist == null) "" else model.artist!!.name
+
+    val image: SimpleImage?
+        get() = model.album?.images?.get(0)
+
+    val imageUrl: String?
+        get() = image?.url
+}
+
 // Tracks adapter
-class TrackRowsAdapter(context: Context, list: List<RowTrackItem>) : RecyclerView.Adapter<TrackRowsAdapter.MainViewHolder>() {
+class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackRow>) : RecyclerView.Adapter<TrackRowsAdapter.MainViewHolder>() {
     private var inflater: LayoutInflater = LayoutInflater.from(context)
-    private var modelList: List<RowTrackItem> = ArrayList<RowTrackItem>(list)
+
+    fun setTracksAndNotify(tracks: List<TrackRow>) {
+        trackRows.clear()
+        trackRows.addAll(tracks)
+        notifyDataSetChanged()
+    }
+
+    fun addTracksAndNotify(tracks: List<TrackRow>) {
+        trackRows.addAll(tracks)
+        notifyItemRangeInserted(trackRows.size - tracks.size, tracks.size)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
         val view = inflater.inflate(R.layout.playlistcard_list_item_track, parent, false)
@@ -34,21 +60,21 @@ class TrackRowsAdapter(context: Context, list: List<RowTrackItem>) : RecyclerVie
     }
 
     override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
-        holder.bindData(modelList[position])
+        holder.bindData(trackRows[position])
     }
 
     override fun getItemCount(): Int {
-        return modelList.size
+        return trackRows.size
     }
 
     inner class MainViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        private var mainText: TextView = itemView.findViewById(R.id.track_title) as TextView
-        private var subText: TextView = itemView.findViewById(R.id.track_artist) as TextView
+        private var titleText: TextView = itemView.findViewById(R.id.track_title) as TextView
+        private var artistText: TextView = itemView.findViewById(R.id.track_artist) as TextView
 
-        fun bindData(rowModel: RowTrackItem) {
-            mainText.text = rowModel.name
-            subText.text = rowModel.artist
+        fun bindData(rowModel: TrackRow) {
+            titleText.text = rowModel.name
+            artistText.text = rowModel.primaryArtistName
         }
     }
 }

@@ -10,9 +10,9 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.cards.CardsActivity
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import dagger.android.AndroidInjection
@@ -37,19 +37,26 @@ class PlaylistCardActivity : AppCompatActivity() {
     // Listener for the FAB menu
     private val onFabMenuSelectedListener = OnFABMenuSelectedListener { view, id ->
         when (id) {
-            R.id.menu_surf -> Toast.makeText(this@PlaylistCardActivity, "Surf Selected", Toast.LENGTH_SHORT).show()
-            R.id.menu_resurf -> Toast.makeText(this@PlaylistCardActivity, "Resurf Selected", Toast.LENGTH_SHORT).show()
-            R.id.menu_create_playlist -> Toast.makeText(this@PlaylistCardActivity, "Create Selected", Toast.LENGTH_SHORT).show()
-        }
-        val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
-                fab_button,
-                ViewCompat.getTransitionName(fab_button)
-        ).toBundle()
+            R.id.menu_surf -> {
+                // todo: send in list of tracks (only unswiped tracks)
+                this@PlaylistCardActivity.startActivity(CardsActivity.create(this@PlaylistCardActivity, playlist))
+            }
+            R.id.menu_resurf -> {
+                this@PlaylistCardActivity.startActivity(CardsActivity.create(this@PlaylistCardActivity, playlist))
+            }
+            R.id.menu_create_playlist -> {
+                val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
+                        fab_button,
+                        ViewCompat.getTransitionName(fab_button)
+                ).toBundle()
 
-        // go to create
-        // todo send list of parceled tracks
-//        val intent = Intent(this@PlaylistCardActivity, PlaylistCardCreateActivity::class.java)
-//        startActivity(intent, bundle)
+                // go to create
+                // todo send list of parceled tracks
+                //        val intent = Intent(this@PlaylistCardActivity, PlaylistCardCreateActivity::class.java)
+                //        startActivity(intent, bundle)
+            }
+        }
+
     }
 
     @Inject

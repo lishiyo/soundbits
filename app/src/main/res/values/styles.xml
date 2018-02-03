@@ -48,16 +48,28 @@
 		<!--<item name="android:windowIsFloating">true</item>-->
 	</style>
 
-	<!-- Android AdvancedRecyclerview -->
-	<style name="myRecyclerViewStyle">
-		<!-- NOTE: clipChildren should be false on API level 11 or later -->
-		<item name="android:clipChildren">false</item>
-		<item name="android:clipToPadding">false</item>
-		<item name="android:paddingBottom">@dimen/activity_vertical_margin</item>
-		<item name="android:paddingLeft">@dimen/activity_horizontal_margin</item>
-		<item name="android:paddingRight">@dimen/activity_horizontal_margin</item>
-		<item name="android:paddingTop">@dimen/activity_vertical_margin</item>
-		<item name="android:scrollbarStyle">outsideOverlay</item>
-		<item name="android:scrollbars">vertical</item>
+	<style name="simpleRangeView">
+		<item name="android:clickable">false</item>
+		<item name="android:focusable">false</item>
+		<item name="count">8</item>
+		<item name="start">0</item>
+		<item name="end">0</item>
+		<item name="showFixedLine">true</item>
+		<item name="showLabels">false</item>
+		<item name="startFixed">0</item>
+		<item name="endFixed">8</item>
+		<item name="movable">false</item>
+		<item name="activeLineColor">@color/turquoise</item>
+		<item name="activeTickColor">@color/turquoise</item>
+		<item name="activeThumbColor">@color/turquoise</item>
+		<item name="fixedLineColor">@color/colorGrey</item>
+		<item name="fixedThumbLabelColor">@color/colorGrey</item>
+		<item name="fixedThumbColor">@color/colorGrey</item>
+		<item name="tickColor">@color/ghost_white</item>
+		<item name="innerRangePadding">@dimen/stats_range_padding</item>
+		<item name="fixedThumbRadius">@dimen/stats_range_padding</item>
+		<item name="activeLineThickness">@dimen/stats_line_width</item>
+		<item name="fixedLineThickness">@dimen/stats_line_width</item>
+		<item name="activeThumbRadius">@dimen/stats_radius_thumb</item>
 	</style>
 </resources>

@@ -3,13 +3,13 @@
 
 	<item
 		android:id="@+id/menu_surf"
-		android:icon="@drawable/smilies_filled"
+		android:icon="@drawable/note_happy_line"
 		android:iconTint="@color/colorWhite"
 		android:title="Surf 13 Left" />
 
 	<item
 		android:id="@+id/menu_resurf"
-		android:icon="@drawable/icon_levels_1"
+		android:icon="@drawable/smilies_filled"
 		android:iconTint="@color/colorWhite"
 		android:title="Re-Surf All" />
 

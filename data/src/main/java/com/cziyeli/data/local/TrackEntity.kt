@@ -15,13 +15,13 @@ class TrackEntity(
         var id: Long? = null, // id inside database
 
         @ColumnInfo(name = "track_id", index = true)
-        var trackId: String? = null, // actual track id
+        var trackId: String, // actual track id
 
         @ColumnInfo(name = "name")
-        var name: String? = null,
+        var name: String,
 
         @ColumnInfo(name = "uri")
-        var uri: String? = null,
+        var uri: String,
 
         @ColumnInfo(name = "preview_url")
         var previewUrl: String? = null,

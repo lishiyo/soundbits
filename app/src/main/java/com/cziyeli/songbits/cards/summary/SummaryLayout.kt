@@ -104,8 +104,8 @@ class SummaryLayout @JvmOverloads constructor(
                 "out of ${state.allTracks.size} tracks!"
         titleView.text = title // for debugging
 
-        val showResults = state.status == MviViewState.Status.SUCCESS || state.status == MviViewState.Status.ERROR
-        Utils.setVisible(stats_container, showResults)
+//        val showResults = state.status == MviViewState.Status.SUCCESS || state.status == MviViewState.Status.ERROR
+        Utils.setVisible(stats_container, true)
 
         when (state.status) {
             MviViewState.Status.SUCCESS -> {
