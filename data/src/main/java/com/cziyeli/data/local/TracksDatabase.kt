@@ -9,8 +9,8 @@ import android.content.Context
  * Created by connieli on 12/31/17.
  */
 @Database(
-        entities = arrayOf(TrackEntity::class),
-        version = 1,
+        entities = [(TrackEntity::class)],
+        version = 2,
         exportSchema = false)
 abstract class TracksDatabase : RoomDatabase() {
 

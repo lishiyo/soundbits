@@ -11,9 +11,7 @@ import android.arch.persistence.room.PrimaryKey
  */
 @Entity(tableName = "Tracks")
 class TrackEntity(
-        @PrimaryKey(autoGenerate = true)
-        var id: Long? = null, // id inside database
-
+        @PrimaryKey
         @ColumnInfo(name = "track_id", index = true)
         var trackId: String, // actual track id
 
@@ -47,6 +45,6 @@ class TrackEntity(
         var coverImageUrl: String? = null // corresponds to trackModel.coverImage.url
 ) {
         override fun toString(): String {
-                return "[$id: $name - playlistId: $playlistId - liked: $liked -- cleared: $cleared]"
+                return "[$trackId: $name - playlistId: $playlistId - liked: $liked -- cleared: $cleared]"
         }
 }

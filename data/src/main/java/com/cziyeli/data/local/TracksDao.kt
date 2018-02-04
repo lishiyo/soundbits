@@ -12,9 +12,6 @@ import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 @Dao
 abstract class TracksDao {
 
-    @Query("SELECT * FROM Tracks WHERE id = :id")
-    abstract fun getTrackById(id: String): Flowable<TrackEntity> // local id
-
     @Query("SELECT * FROM Tracks WHERE track_id = :trackId")
     abstract fun getTrackByTrackId(trackId: String): Flowable<TrackEntity>
 
