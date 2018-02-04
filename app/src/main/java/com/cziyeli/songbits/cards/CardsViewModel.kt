@@ -79,7 +79,8 @@ class CardsViewModel @Inject constructor(
 
     private fun actionFromIntent(intent: MviIntent) : TrackAction {
         return when(intent) {
-            is TrackIntent.ScreenOpened -> TrackAction.LoadTrackCards.create(
+            is TrackIntent.ScreenOpenedWithTracks -> TrackAction.SetTracks(intent.playlist, intent.tracks)
+            is TrackIntent.ScreenOpenedNoTracks -> TrackAction.LoadTrackCards.create(
                     intent.ownerId, intent.playlistId, intent.onlyTrackIds, intent.fields, intent.limit, intent.offset)
             is TrackIntent.CommandPlayer -> TrackAction.CommandPlayer.create(
                     intent.command, intent.track
@@ -125,7 +126,7 @@ class CardsViewModel @Inject constructor(
             }
             TrackResult.LoadTrackCards.Status.SUCCESS -> {
                 newState.status = TrackViewState.TracksLoadedStatus.SUCCESS
-                newState.allTracks.addAll(result.items.filter { it.isRenderable() })
+                newState.allTracks.addAll(result.items.filter { it.isSwipeable })
             }
             TrackResult.LoadTrackCards.Status.FAILURE -> {
                 newState.status = TrackViewState.TracksLoadedStatus.ERROR

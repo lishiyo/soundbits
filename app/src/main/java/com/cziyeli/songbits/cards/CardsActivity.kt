@@ -7,12 +7,16 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.*
+import android.view.Gravity
+import android.view.ViewGroup
+import android.view.ViewStub
+import android.view.WindowManager
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.SummaryActionProcessor
+import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.cards.summary.SummaryLayout
 import com.cziyeli.songbits.cards.summary.SummaryViewModel
@@ -36,11 +40,12 @@ import javax.inject.Named
 class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>, TrackCardView.TrackListener {
 
     companion object {
-        const val PLAYLIST = "playlist"
+        const val EXTRA_PLAYLIST = "extra_playlist"
+        const val EXTRA_TRACKS_TO_SWIPE = "key_tracks_to_swipe"
         const val TAG: String = "CardsActivity"
 
-        fun create(context: Context, playlist: Playlist) : Intent {
-            return context.intentFor<CardsActivity>("playlist" to playlist)
+        fun create(context: Context, playlist: Playlist, tracksToSwipe: List<TrackModel>? = null) : Intent {
+            return context.intentFor<CardsActivity>(EXTRA_PLAYLIST to playlist, EXTRA_TRACKS_TO_SWIPE to tracksToSwipe)
         }
     }
 
@@ -53,7 +58,7 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
     private lateinit var viewModel: CardsViewModel
 
     // intents
-    private val mLoadPublisher = PublishSubject.create<TrackIntent.ScreenOpened>()
+    private val mLoadPublisher = PublishSubject.create<TrackIntent>()
     private val mPlayerPublisher: PublishSubject<TrackIntent.CommandPlayer> by lazy {
         PublishSubject.create<TrackIntent.CommandPlayer>()
     }
@@ -73,12 +78,12 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_cards)
 
         // parse out the intent bundle
-        playlist = intent.extras.get(PLAYLIST) as Playlist
+        playlist = intent.extras.get(EXTRA_PLAYLIST) as Playlist
+        val tracksToSwipe = intent.extras.get(EXTRA_TRACKS_TO_SWIPE) as List<TrackModel>?
 
         AndroidInjection.inject(this)
 
@@ -88,12 +93,19 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         // bind the view model after all views are done
         initViewModel(playlist)
 
-        // load the necessary tracks
-        mLoadPublisher.onNext(TrackIntent.ScreenOpened.create(
-                ownerId = playlist.owner.id,
-                playlistId = playlist.id,
-                onlyTrackIds = playlist.unswipedTrackIds)
-        )
+        // fetch track cards
+        if (tracksToSwipe != null && tracksToSwipe.isNotEmpty()) {
+            // tracks were passed - just use these
+            Utils.mLog(TAG, "got tracksToSwipe: ${tracksToSwipe.size}")
+            mLoadPublisher.onNext(TrackIntent.ScreenOpenedWithTracks(playlist, tracksToSwipe))
+        } else {
+            // no tracks passed - fetch all from remote
+            Utils.mLog(TAG, "no tracksToSwipe, fetching from remote")
+            mLoadPublisher.onNext(TrackIntent.ScreenOpenedNoTracks.create(
+                    ownerId = playlist.owner.id,
+                    playlistId = playlist.id)
+            )
+        }
     }
 
     override fun onResume() {
@@ -126,7 +138,9 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
                         .setViewWidth(windowSize.x)
                         .setViewHeight(windowSize.y - bottomMargin)
                         .setViewGravity(Gravity.TOP)
+                        .setPaddingLeft(20)
                         .setPaddingTop(20)
+                        .setSwipeRotationAngle(10)
                         .setRelativeScale(0.01f)
                         .setSwipeMaxChangeAngle(1f)
                         .setSwipeInMsgLayoutId(R.layout.tinder_swipe_in_msg_view)

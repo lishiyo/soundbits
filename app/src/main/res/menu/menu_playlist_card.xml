@@ -5,19 +5,16 @@
 	<item
 		android:id="@+id/menu_surf"
 		android:icon="@drawable/note_happy_line"
-		android:iconTint="@color/colorWhite"
 		android:title="Swipe" />
 
 	<item
 		android:id="@+id/menu_resurf"
-		android:icon="@drawable/smilies_line"
-		android:iconTint="@color/colorWhite"
+		android:icon="@drawable/notes_hearts_colorful"
 		android:title="Re-Swipe All" />
 
 	<item
 		android:id="@+id/menu_create_playlist"
 		android:icon="@drawable/icon_playlist_create"
-		android:iconTint="@color/colorWhite"
 		android:title="Create Playlist" />
 
 </menu>

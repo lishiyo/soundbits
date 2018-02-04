@@ -25,7 +25,6 @@ import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.PublishSubject
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 
 class PlaylistCardViewModel @Inject constructor(
@@ -65,6 +64,12 @@ class PlaylistCardViewModel @Inject constructor(
     }
 
     private val compositeDisposable = CompositeDisposable()
+
+    // All swipeable tracks not currently in db
+    val tracksToSwipe: List<TrackModel>?
+        get() = liveViewState.value?.unswipedTracks
+    val playlist: Playlist?
+        get() = liveViewState.value?.playlist
 
     // secondary constructor to set initial playlist model
     init {
@@ -229,27 +234,28 @@ class PlaylistCardViewModel @Inject constructor(
                                      var playlist: Playlist, // card's playlist - has total count
                                      var likedCount: Int = 0,
                                      var dislikedCount: Int = 0,
+                                     var stashedTracksList: List<TrackModel> = listOf(), // swiped tracks in db
+                                     var allTracksList: List<TrackModel> = listOf(), // all tracks (from remote)
                                      var trackStats: TrackListStats? = null // stats for ALL tracks
     ) : MviViewState {
-        var stashedTracksList: List<TrackModel> by Delegates.observable(listOf()) { prop, old, new ->
-            // only local tracks
-            playlist.unswipedTrackIds = unswipedTrackIds
-        }
+//        var stashedTracksList: List<TrackModel> by Delegates.observable(listOf()) { prop, old, new ->
+//            // only local tracks
+//            playlist.unswipedTrackIds = unswipedTrackIds
+//        }
+//
+//        var allTracksList: List<TrackModel> by Delegates.observable(listOf()) { prop, old, new ->
+//            // all remote tracks
+//            playlist.unswipedTrackIds = unswipedTrackIds
+//        }
 
-        var allTracksList: List<TrackModel> by Delegates.observable(listOf()) { prop, old, new ->
-            // all remote tracks
-            playlist.unswipedTrackIds = unswipedTrackIds
-        }
+        val allSwipeableTracksList: List<TrackModel> // ALL tracks that are also swipeable
+            get() = allTracksList.filter { it.isSwipeable }
 
-        private var allSwipeableTracksList: List<TrackModel> = listOf() // ALL tracks that are also swipeable
-            get() = allTracksList.filter { it.isRenderable() }
-            set(value) {
-                field = value
-                playlist.unswipedTrackIds = unswipedTrackIds
-            }
+        val unswipedTrackIds: List<String>
+            get() =  unswipedTracks.map { it.id }
 
-        var unswipedTrackIds: List<String> = listOf()
-            get() =  allSwipeableTracksList.map { it.id } - stashedTracksList.map { it.id }
+        val unswipedTracks: List<TrackModel>
+            get() = allSwipeableTracksList.filter { !stashedTracksList.map { it.id }.contains(it.id) }
 
         val unswipedCount: Int
             get() = unswipedTrackIds.size
@@ -274,10 +280,7 @@ class PlaylistCardViewModel @Inject constructor(
 
         // make sure the tracks are there!
         fun copy() : PlaylistCardViewState {
-            val newState = PlaylistCardViewState(this.status, this.error, this.playlist, this.likedCount, this.dislikedCount, this.trackStats)
-            newState.stashedTracksList = this.stashedTracksList
-            newState.allTracksList = this.allTracksList
-            return newState
+            return PlaylistCardViewState(status, error, playlist, likedCount, dislikedCount, stashedTracksList, allTracksList, trackStats)
         }
 
         companion object {

@@ -98,30 +98,13 @@
 						android:padding="8dp"
 						>
 
-						<!--<TextView-->
-						<!--android:id="@+id/fab_text"-->
-						<!--android:text="Surf"-->
-						<!--android:layout_width="wrap_content"-->
-						<!--android:layout_height="@dimen/fake_fab_diameter"-->
-						<!--android:layout_centerVertical="true"-->
-						<!--android:textStyle="bold"-->
-						<!--/>-->
 						<ImageView
 							android:id="@+id/fab"
 							android:layout_width="30dp"
 							android:layout_height="30dp"
 							android:src="@drawable/note_happy_colored"
-							android:layout_centerVertical="true"
-							android:layout_centerInParent="true"
 							/>
-						<!--<com.airbnb.lottie.LottieAnimationView-->
-						<!--android:id="@+id/fab"-->
-						<!--android:layout_width="@dimen/fake_fab_diameter"-->
-						<!--android:layout_height="@dimen/fake_fab_diameter"-->
-						<!--android:scaleType="centerCrop"-->
-						<!--app:lottie_scale="2.0"-->
-						<!--app:lottie_autoPlay="false"-->
-						<!--/>-->
+
 					</FrameLayout>
 
 					<com.hlab.fabrevealmenu.view.FABRevealMenu

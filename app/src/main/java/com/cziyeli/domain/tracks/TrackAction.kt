@@ -2,6 +2,7 @@ package com.cziyeli.domain.tracks
 
 import com.cziyeli.commons.mvibase.MviAction
 import com.cziyeli.domain.player.PlayerInterface
+import com.cziyeli.domain.playlists.Playlist
 
 /**
  * Created by connieli on 1/1/18.
@@ -9,6 +10,9 @@ import com.cziyeli.domain.player.PlayerInterface
 sealed class TrackAction : MviAction {
     // no-op
     object None : TrackAction()
+
+    // don't fetch from remote
+    class SetTracks(val playlist: Playlist, val tracks: List<TrackModel>): TrackAction()
 
     // https://developer.spotify.com/web-api/console/get-playlist-tracks/
     class LoadTrackCards(val ownerId: String,

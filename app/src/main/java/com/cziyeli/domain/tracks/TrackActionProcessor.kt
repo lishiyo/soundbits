@@ -26,6 +26,7 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
     val combinedProcessor: ObservableTransformer<TrackAction, TrackResult> = ObservableTransformer { acts ->
         acts.publish { shared ->
             Observable.merge<TrackResult>(
+                    shared.ofType<TrackAction.SetTracks>(TrackAction.SetTracks::class.java).compose(mSetTracksProcessor),
                     shared.ofType<TrackAction.LoadTrackCards>(TrackAction.LoadTrackCards::class.java).compose(mLoadTrackCardsProcessor),
                     shared.ofType<TrackAction.CommandPlayer>(TrackAction.CommandPlayer::class.java).compose(commandPlayerProcessor),
                     shared.ofType<TrackAction.ChangeTrackPref>(TrackAction.ChangeTrackPref::class.java).compose(changePrefProcessor)
@@ -44,7 +45,16 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
 
     // ==== individual list of processors (action -> result) ====
 
-    // load tracks for a playlist
+    private val mSetTracksProcessor:  ObservableTransformer<TrackAction.SetTracks, TrackResult.LoadTrackCards> = ObservableTransformer {
+        action -> action
+            .map { it.tracks }
+            .map { trackCards -> TrackResult.LoadTrackCards.createSuccess(trackCards) }
+            .onErrorReturn { err -> TrackResult.LoadTrackCards.createError(err) }
+            .startWith(TrackResult.LoadTrackCards.createLoading())
+            .retry() // don't unsubscribe
+    }
+
+    // fetch tracks from REMOTE for a playlist
     private val mLoadTrackCardsProcessor: ObservableTransformer<TrackAction.LoadTrackCards, TrackResult.LoadTrackCards> = ObservableTransformer {
         action -> action.switchMap {
             act -> repository

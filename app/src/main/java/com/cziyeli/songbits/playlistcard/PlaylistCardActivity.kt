@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.cards.CardsActivity
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import dagger.android.AndroidInjection
@@ -37,10 +38,10 @@ class PlaylistCardActivity : AppCompatActivity() {
     private val onFabMenuSelectedListener = OnFABMenuSelectedListener { view, id ->
         when (id) {
             R.id.menu_surf -> {
-                playlist_card_widget.startSwipingTracks(false)
+                startSwipingTracks(false)
             }
             R.id.menu_resurf -> {
-                playlist_card_widget.startSwipingTracks(true)
+                startSwipingTracks(true)
             }
             R.id.menu_create_playlist -> {
                 val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
@@ -82,6 +83,21 @@ class PlaylistCardActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(PlaylistCardViewModel::class.java)
         initViewModel(viewModel)
         playlist_card_widget.loadPlaylist(playlist, onFabMenuSelectedListener, onSwipeListener, onTouchListener,this)
+    }
+
+
+    /**
+     * Start the tinder UI.
+     */
+    fun startSwipingTracks(reswipeAll: Boolean = false) {
+        viewModel.playlist?.run {
+            if (reswipeAll) {
+                startActivity(CardsActivity.create(this@PlaylistCardActivity, this))
+            } else {
+                startActivity(CardsActivity.create(
+                        this@PlaylistCardActivity, this, viewModel.tracksToSwipe!!))
+            }
+        }
     }
 
     private fun initViewModel(viewModel: PlaylistCardViewModel) {

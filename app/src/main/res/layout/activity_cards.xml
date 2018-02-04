@@ -4,7 +4,7 @@
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@color/space_time"
+	android:background="@drawable/gradient_reds"
 	>
 	<!-- cards stack -->
 	<com.mindorks.placeholderview.SwipePlaceHolderView

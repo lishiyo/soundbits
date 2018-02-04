@@ -23,7 +23,6 @@ import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlistcard.PlaylistCardResult
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
-import com.cziyeli.songbits.cards.CardsActivity
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import io.reactivex.Observable
@@ -52,6 +51,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
     private lateinit var onFabSelectedListener: OnFABMenuSelectedListener
     private lateinit var onSwipeListener: RecyclerTouchListener.OnSwipeListener
 
+    // flag to throttle loading
     private var startedInitialFetch: Boolean = false
 
     @JvmOverloads
@@ -133,17 +133,6 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         tracks_recycler_view.adapter = adapter
         tracks_recycler_view.layoutManager = LinearLayoutManager(context)
         tracks_recycler_view.disableTouchTheft()
-    }
-
-    fun startSwipingTracks(reswipeAll: Boolean = false) {
-        if (reswipeAll) {
-            playlistModel.unswipedTrackIds = listOf() // clear out the list to force it to resurf all
-            Utils.mLog(TAG, "startSwiping", "RESWIPE: $reswipeAll -- unswipedTrackIds should be empty: ${playlistModel.unswipedTrackIds.size}")
-            activity.startActivity(CardsActivity.create(context, playlistModel))
-        } else {
-            Utils.mLog(TAG, "startSwiping", "with unswipedTrackIds: ${playlistModel.unswipedTrackIds.size}")
-            activity.startActivity(CardsActivity.create(context, playlistModel))
-        }
     }
 
     override fun intents(): Observable<out SinglePlaylistIntent> {
