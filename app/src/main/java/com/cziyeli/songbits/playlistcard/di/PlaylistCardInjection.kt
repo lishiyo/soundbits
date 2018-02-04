@@ -1,4 +1,4 @@
-package com.cziyeli.songbits.cards.di
+package com.cziyeli.songbits.playlistcard.di
 
 import android.app.Activity
 import android.arch.lifecycle.ViewModel

@@ -67,6 +67,10 @@
 			android:name="com.cziyeli.songbits.playlistcard.PlaylistCardActivity"
 			android:theme="@style/HomeToPlaylist.Back"
 			/>
+		<activity
+			android:name=".playlistcard.create.PlaylistCardCreateActivity"
+			android:theme="@style/HomeToPlaylist.Back"
+			/>
 
 		<meta-data
 			android:name="preloaded_fonts"

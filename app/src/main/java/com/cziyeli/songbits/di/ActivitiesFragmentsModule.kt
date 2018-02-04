@@ -6,7 +6,6 @@ import com.cziyeli.commons.di.PerFragment
 import com.cziyeli.songbits.MainActivity
 import com.cziyeli.songbits.cards.CardsActivity
 import com.cziyeli.songbits.cards.di.CardsModule
-import com.cziyeli.songbits.cards.di.PlaylistCardModule
 import com.cziyeli.songbits.di.viewModels.ViewModelsModule
 import com.cziyeli.songbits.home.HomeFragment
 import com.cziyeli.songbits.home.HomeModule
@@ -14,6 +13,9 @@ import com.cziyeli.songbits.home.HomeSubcomponent
 import com.cziyeli.songbits.home.oldhome.OldHomeActivity
 import com.cziyeli.songbits.home.oldhome.di.OldHomeActivitySubComponent
 import com.cziyeli.songbits.playlistcard.PlaylistCardActivity
+import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateActivity
+import com.cziyeli.songbits.playlistcard.di.PlaylistCardCreateModule
+import com.cziyeli.songbits.playlistcard.di.PlaylistCardModule
 import com.cziyeli.songbits.root.RootActivity
 import dagger.Binds
 import dagger.Module
@@ -62,6 +64,12 @@ abstract class ActivitiesModule {
             modules = [PlaylistCardModule::class]
     )
     abstract fun providePlaylistCardActivity(): PlaylistCardActivity
+
+    @PerActivity
+    @ContributesAndroidInjector(
+            modules = [PlaylistCardCreateModule::class]
+    )
+    abstract fun providePlaylistCardCreateActivity(): PlaylistCardCreateActivity
 }
 
 @Module(subcomponents = [

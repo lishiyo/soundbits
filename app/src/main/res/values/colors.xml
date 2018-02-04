@@ -35,7 +35,8 @@
 
 	<!-- https://www.uplabs.com/posts/culturo-game-app -->
 	<color name="quartet_red">#EB166F</color>
-	<color name="quartet_blue">#1EAAF1</color>
+	<!--<color name="quartet_blue">#1EAAF1</color>-->
+	<color name="quartet_blue">#1FCFC1</color>
 	<color name="quartet_green">#9CDA3B</color>
 
 	<!-- https://www.uplabs.com/posts/transaction-history -->

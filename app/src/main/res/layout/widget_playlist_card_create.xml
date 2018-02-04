@@ -1,0 +1,167 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:card_view="http://schemas.android.com/apk/res-auto"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<!-- extraneous but necessary for scrolling -->
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingTop="@dimen/scrollview_padding_top"
+		>
+
+		<android.support.v7.widget.CardView
+			android:id="@+id/create_card_view"
+			android:layout_gravity="center"
+			android:layout_margin="10dp"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:elevation="@dimen/card_radius"
+			card_view:cardCornerRadius="@dimen/card_radius"
+			card_view:cardElevation="@dimen/card_radius"
+			card_view:cardPreventCornerOverlap="false"
+			android:descendantFocusability="afterDescendants"
+			>
+
+			<RelativeLayout
+				android:orientation="vertical"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent">
+
+				<!-- HEADER -->
+
+				<!-- viewpager with the create/add-existing -->
+				<com.synnapps.carouselview.CarouselView
+					android:id="@+id/create_header_carousel"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/playlist_card_image_height"
+					app:autoPlay="false"
+					app:disableAutoPlayOnUserInteraction="true"
+					app:fillColor="@color/colorWhite"
+					app:pageColor="#00000000"
+					app:radius="3dp"
+					app:slideInterval="3000"
+					app:strokeColor="#FF777777"
+					app:indicatorMarginVertical="15dp"
+					app:strokeWidth="1dp"
+					/>
+
+				<!-- FAB + menu container row -->
+				<FrameLayout
+					android:id="@+id/create_fab_container"
+					android:layout_below="@id/create_header_carousel"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentRight="true"
+					android:layout_alignBaseline="@id/header_container"
+					app:layout_anchorGravity="bottom|right|end"
+					app:layout_anchor="@id/header_container"
+					android:elevation="12dp"
+					android:layout_marginRight="16dp"
+					android:layout_marginTop="-28dp"
+					android:layout_gravity="right"
+					android:gravity="right"
+					>
+
+					<FrameLayout
+						android:id="@+id/create_fab_button"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:background="@drawable/fake_fab"
+						android:layout_gravity="right"
+						android:gravity="right"
+						android:transitionName="@string/playlist_fab_transition"
+						android:padding="8dp"
+						>
+
+						<ImageView
+							android:id="@+id/fab"
+							android:layout_width="@dimen/fake_fab_diameter"
+							android:layout_height="@dimen/fake_fab_diameter"
+							android:src="@drawable/basic_plus"
+							/>
+
+					</FrameLayout>
+
+				</FrameLayout>
+
+				<!-- BODY -->
+				<LinearLayout
+					android:layout_below="@id/create_header_carousel"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:textSize="@dimen/default_text_size"
+					android:orientation="vertical"
+					>
+
+					<!-- BODY: audio stats -->
+					<com.cziyeli.songbits.playlistcard.TrackStatsView
+						android:id="@+id/create_stats_container"
+						android:padding="20dp"
+						android:orientation="vertical"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:clickable="false"
+						android:focusable="false"
+						>
+					</com.cziyeli.songbits.playlistcard.TrackStatsView>
+
+					<!-- BODY: Expansion Header -->
+					<com.github.florent37.expansionpanel.ExpansionHeader
+						android:id="@+id/create_expansion_header"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						app:expansion_headerIndicator="@id/create_headerIndicator"
+						app:expansion_layout="@id/create_expansionLayout"
+						app:expansion_toggleOnClick="true"
+						>
+						<RelativeLayout
+							android:background="@color/colorPrimary"
+							android:layout_height="48dp"
+							android:layout_width="match_parent"
+							android:paddingLeft="16dp"
+							android:paddingRight="16dp">
+							<TextView
+								android:layout_centerVertical="true"
+								android:layout_height="wrap_content"
+								android:layout_width="wrap_content"
+								android:text="expand tracks"
+								android:fontFamily="@font/indie_flower"
+								android:textColor="@color/colorWhite" />
+							<android.support.v7.widget.AppCompatImageView
+								android:id="@+id/create_headerIndicator"
+								android:adjustViewBounds="true"
+								android:layout_alignParentRight="true"
+								android:layout_centerVertical="true"
+								android:layout_height="wrap_content"
+								android:layout_marginLeft="16dp"
+								android:layout_width="wrap_content"
+								app:srcCompat="@drawable/icon_expand_header" />
+						</RelativeLayout>
+
+					</com.github.florent37.expansionpanel.ExpansionHeader>
+
+					<!-- BODY CONTENT: LIST of TRACKS (COLLAPSED) -->
+					<com.github.florent37.expansionpanel.ExpansionLayout
+						android:id="@+id/create_expansionLayout"
+						android:textSize="@dimen/small_text_size"
+						app:expansion_expanded="false"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:descendantFocusability="afterDescendants"
+						>
+						<android.support.v7.widget.RecyclerView
+							android:id="@+id/create_tracks_recycler_view"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							/>
+					</com.github.florent37.expansionpanel.ExpansionLayout>
+
+				</LinearLayout> <!-- BODY END -->
+
+			</RelativeLayout> <!-- CARD END -->
+
+		</android.support.v7.widget.CardView>
+
+	</FrameLayout>
+
+</merge>

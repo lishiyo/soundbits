@@ -66,10 +66,12 @@ class PlaylistCardViewModel @Inject constructor(
     private val compositeDisposable = CompositeDisposable()
 
     // All swipeable tracks not currently in db
-    val tracksToSwipe: List<TrackModel>?
-        get() = liveViewState.value?.unswipedTracks
     val playlist: Playlist?
         get() = liveViewState.value?.playlist
+    val tracksToSwipe: List<TrackModel>?
+        get() = liveViewState.value?.unswipedTracks
+    val tracksToCreate: List<TrackModel>?
+        get() = liveViewState.value?.tracksToCreate
 
     // secondary constructor to set initial playlist model
     init {
@@ -238,24 +240,17 @@ class PlaylistCardViewModel @Inject constructor(
                                      var allTracksList: List<TrackModel> = listOf(), // all tracks (from remote)
                                      var trackStats: TrackListStats? = null // stats for ALL tracks
     ) : MviViewState {
-//        var stashedTracksList: List<TrackModel> by Delegates.observable(listOf()) { prop, old, new ->
-//            // only local tracks
-//            playlist.unswipedTrackIds = unswipedTrackIds
-//        }
-//
-//        var allTracksList: List<TrackModel> by Delegates.observable(listOf()) { prop, old, new ->
-//            // all remote tracks
-//            playlist.unswipedTrackIds = unswipedTrackIds
-//        }
-
         val allSwipeableTracksList: List<TrackModel> // ALL tracks that are also swipeable
             get() = allTracksList.filter { it.isSwipeable }
 
-        val unswipedTrackIds: List<String>
-            get() =  unswipedTracks.map { it.id }
+        val tracksToCreate: List<TrackModel>
+            get() = stashedTracksList.filter { it.liked }
 
         val unswipedTracks: List<TrackModel>
             get() = allSwipeableTracksList.filter { !stashedTracksList.map { it.id }.contains(it.id) }
+
+        val unswipedTrackIds: List<String>
+            get() =  unswipedTracks.map { it.id }
 
         val unswipedCount: Int
             get() = unswipedTrackIds.size

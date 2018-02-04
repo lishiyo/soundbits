@@ -43,7 +43,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
     private lateinit var activity: Activity
 
     // intents
-    private val mEventsPublisher = PublishSubject.create<SinglePlaylistIntent>()
+    private val eventsPublisher = PublishSubject.create<SinglePlaylistIntent>()
 
     // views
     private lateinit var adapter: TrackRowsAdapter
@@ -75,14 +75,14 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         startedInitialFetch = true
 
         // fetch stashed tracks -> get quick counts
-        mEventsPublisher.onNext(PlaylistCardIntent.FetchSwipedTracks(
+        eventsPublisher.onNext(PlaylistCardIntent.FetchSwipedTracks(
                 ownerId = playlist.owner.id,
                 playlistId = playlist.id,
                 onlySwiped = true)
         )
 
         // fetch remote tracks and stats
-        mEventsPublisher.onNext(StatsIntent.FetchTracksWithStats(playlist))
+        eventsPublisher.onNext(StatsIntent.FetchTracksWithStats(playlist))
     }
 
     // init with the model
@@ -136,7 +136,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
     }
 
     override fun intents(): Observable<out SinglePlaylistIntent> {
-        return mEventsPublisher
+        return eventsPublisher
     }
 
     override fun render(state: PlaylistCardViewModel.PlaylistCardViewState) {
@@ -149,7 +149,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
             Utils.mLog(TAG, "RENDER", "just got playlist tracks! stashed: ${state.stashedTracksList.size} all: ${state.allTracksList.size}")
             if (state.stashedTracksList.isNotEmpty()) {
                 // calculating the likes/dislikes of the stashed tracks
-                mEventsPublisher.onNext(PlaylistCardIntent.CalculateQuickCounts(playlistModel, state.stashedTracksList))
+                eventsPublisher.onNext(PlaylistCardIntent.CalculateQuickCounts(playlistModel, state.stashedTracksList))
             }
 
             // render the track rows
@@ -163,13 +163,32 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         quickstats_likes.text = "${state.likedCount} likes"
         quickstats_dislikes.text = "${state.dislikedCount} dislikes"
         quickstats_total.text = "${state.playlist.totalTracksCount} total"
-        // check if we need to hide
-        if (state.unswipedCount == 0) {
-            fab_menu.getItemById(R.id.menu_surf)?.isEnabled = false
-            activity.invalidateOptionsMenu()
-        } else {
-            fab_menu.getItemById(R.id.menu_surf)?.isEnabled = true
-            fab_menu.getItemById(R.id.menu_surf)?.title = "Swipe ${state.unswipedCount}"
+
+        // check if we need to disable/hide any fab menu items
+        val swipeFabItem = fab_menu.getItemById(R.id.menu_surf)
+        val createFabItem = fab_menu.getItemById(R.id.menu_create_playlist)
+        var shouldInvalidate = true
+        when {
+            state.unswipedCount == 0 && swipeFabItem?.isEnabled == true -> {
+                swipeFabItem.isEnabled = false
+                swipeFabItem.iconDrawable.alpha = 50
+            }
+            state.unswipedCount > 0 && swipeFabItem?.isEnabled == false -> {
+                swipeFabItem.isEnabled = true
+                swipeFabItem.iconDrawable.alpha = 255
+                swipeFabItem.title = "Swipe ${state.unswipedCount}"
+            }
+            state.tracksToCreate.isEmpty() && createFabItem?.isEnabled == true -> {
+                createFabItem.isEnabled = false
+                createFabItem.iconDrawable.alpha = 50
+            }
+            state.tracksToCreate.isNotEmpty() && createFabItem?.isEnabled == false -> {
+                createFabItem.isEnabled = true
+                createFabItem.iconDrawable.alpha = 255
+            }
+            else -> shouldInvalidate = false
+        }
+        if (shouldInvalidate) {
             activity.invalidateOptionsMenu()
         }
 
@@ -186,16 +205,6 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
             fab_menu.closeMenu()
         }
     }
-
-//    private fun setupLottieFab() {
-//        // set up lottie animated fake fab view
-////        fab.imageAssetsFolder = "headphones_images/";
-//        fab.setAnimation(FAB_ASSET_FILE)
-////        val colorFilter = SimpleColorFilter(colorFromRes(R.color.colorWhite))
-////        (fab as LottieAnimationView).colorFilter = colorFilter
-//        fab.repeatCount = LottieDrawable.INFINITE
-//        fab.playAnimation()
-//    }
 
 //    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
 //        // to close swipe when clicking elsewhere

@@ -3,6 +3,8 @@ package com.cziyeli.songbits.playlistcard
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.view.ViewCompat
@@ -10,9 +12,11 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.cards.CardsActivity
+import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateActivity
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import dagger.android.AndroidInjection
@@ -20,13 +24,18 @@ import eu.gsottbauer.equalizerview.EqualizerView
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.activity_playlistcard.*
 import kotlinx.android.synthetic.main.widget_playlist_card.*
+import org.jetbrains.anko.intentFor
 import javax.inject.Inject
 import javax.inject.Named
 
 class PlaylistCardActivity : AppCompatActivity() {
     val TAG = PlaylistCardActivity::class.java.simpleName
     companion object {
-        const val EXTRA_PLAYLIST_ITEM = "playlist_item"
+        const val EXTRA_PLAYLIST_ITEM = "extra_playlist_item"
+
+        fun create(context: Context, playlist: Playlist) : Intent {
+            return context.intentFor<PlaylistCardActivity>(PlaylistCardActivity.EXTRA_PLAYLIST_ITEM to playlist)
+        }
     }
 
     // the model backing this card
@@ -44,18 +53,23 @@ class PlaylistCardActivity : AppCompatActivity() {
                 startSwipingTracks(true)
             }
             R.id.menu_create_playlist -> {
+                fab.setImageResource(R.drawable.basic_plus)
+                invalidateOptionsMenu()
+
                 val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
                         fab_button,
                         ViewCompat.getTransitionName(fab_button)
                 ).toBundle()
-
-                // go to create
-                // todo send list of parceled tracks
-                //        val intent = Intent(this@PlaylistCardActivity, PlaylistCardCreateActivity::class.java)
-                //        startActivity(intent, bundle)
+                if (viewModel.tracksToCreate?.isEmpty() == true) {
+                    "no liked tracks yet! swipe first?".toast(this@PlaylistCardActivity)
+                } else {
+                    // go to create with liked tracks
+                    startActivity(PlaylistCardCreateActivity.create(
+                            this@PlaylistCardActivity, viewModel.tracksToCreate), bundle
+                    )
+                }
             }
         }
-
     }
 
     @Inject

@@ -117,11 +117,11 @@
 						app:menuDirection="left"
 						app:menuRes="@menu/menu_playlist_card"
 						app:menuTitleTextColor="@color/colorBlack"
+						app:menuTitleDisabledTextColor="@color/colorGrey"
 						app:showOverlay="false"
 						app:showTitle="true"
 						app:menuSize="normal"
 						app:menuTitleFontFamily="@font/indie_flower"
-						app:menuTitleDisabledTextColor="@color/rosa"
 						/>
 
 				</FrameLayout>
