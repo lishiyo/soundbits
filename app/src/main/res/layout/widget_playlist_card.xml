@@ -17,7 +17,7 @@
 			android:layout_height="wrap_content"
 			android:elevation="@dimen/card_radius"
 			card_view:cardCornerRadius="@dimen/card_radius"
-			card_view:cardElevation="@dimen/card_radius"
+			card_view:cardElevation="@dimen/playlist_card_elevation"
 			card_view:cardPreventCornerOverlap="false"
 			android:descendantFocusability="afterDescendants"
 			>
@@ -118,6 +118,20 @@
 							android:layout_height="@dimen/fake_fab_diameter"
 							android:src="@drawable/note_happy_colored"
 							/>
+
+						<!--<io.saeid.fabloading.LoadingView-->
+							<!--android:id="@+id/fab"-->
+							<!--android:layout_marginLeft="@dimen/fake_fab_icon_margin"-->
+							<!--android:layout_marginTop="@dimen/fake_fab_icon_margin"-->
+							<!--android:layout_width="@dimen/fake_fab_diameter"-->
+							<!--android:layout_height="@dimen/fake_fab_diameter"-->
+							<!--android:src="@drawable/note_happy_colored"-->
+							<!--android:scaleX="1.5"-->
+							<!--android:scaleY="1.5"-->
+							<!--app:mfl_onclickLoading="false"-->
+							<!--app:mfl_duration="400"-->
+							<!--/>-->
+
 
 					</FrameLayout>
 

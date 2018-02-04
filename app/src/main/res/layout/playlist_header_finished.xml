@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/finished_header_container"
+	android:layout_width="match_parent"
+	android:layout_height="@dimen/playlist_card_image_height"
+	android:layout_alignParentTop="true"
+	android:layout_alignParentStart="true"
+	>
+
+	<ImageView
+		android:id="@+id/finished_playlist_image_background"
+		android:scaleType="centerCrop"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/playlist_card_image_height"
+		android:transitionName="@string/playlist_image_transition"
+		/>
+
+	<!-- fake opacity on the background image -->
+	<View
+		android:id="@+id/image_dim_overlay"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/playlist_card_image_height"
+		android:background="#000000"
+		android:alpha=".4"
+		/>
+
+	<!-- overlay playlist title - bottom left -->
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_gravity="center"
+		android:elevation="12dp"
+		>
+		<!-- input new title -->
+		<TextView
+			android:id="@+id/finished_playlist_new_title"
+			android:layout_width="@dimen/title_input_width"
+			android:layout_height="wrap_content"
+			android:layout_above="@id/dotted_line"
+			android:layout_centerInParent="true"
+			android:layout_gravity="center"
+			android:background="@null"
+			android:backgroundTint="@android:color/transparent"
+			android:fontFamily="@font/fredericka_the_great"
+			android:singleLine="true"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:textColor="#ffffff"
+			android:textSize="@dimen/default_title_size" />
+
+	</RelativeLayout>
+
+</FrameLayout>

@@ -5,22 +5,31 @@ import android.support.v4.widget.NestedScrollView
 import android.support.v7.widget.LinearLayoutManager
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import com.bumptech.glide.Glide
+import com.cziyeli.commons.Utils
 import com.cziyeli.commons.disableTouchTheft
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.toast
+import com.cziyeli.domain.summary.SummaryResult
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.cards.summary.SummaryIntent
-import com.cziyeli.songbits.playlistcard.SinglePlaylistIntent
-import com.cziyeli.songbits.playlistcard.StatsIntent
-import com.cziyeli.songbits.playlistcard.TrackRow
-import com.cziyeli.songbits.playlistcard.TrackRowsAdapter
+import com.cziyeli.songbits.playlistcard.*
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import io.saeid.fabloading.LoadingView
+import kotlinx.android.synthetic.main.playlist_header_add_existing.view.*
 import kotlinx.android.synthetic.main.playlist_header_create_new.view.*
 import kotlinx.android.synthetic.main.widget_playlist_card_create.view.*
+
+
+
 
 /**
  * View for creating a playlist/adding to existing playlist out of a list of tracks.
@@ -29,8 +38,21 @@ import kotlinx.android.synthetic.main.widget_playlist_card_create.view.*
 class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent, PlaylistCardCreateViewModel.ViewState> {
     private val TAG = PlaylistCardCreateViewModel::class.java.simpleName
 
+    val FAB_CREATE_COLOR_0 = resources.getColor(R.color.colorFab)
+    val FAB_CREATE_COLOR_1 = resources.getColor(R.color.colorPurple)
+    val FAB_CREATE_COLOR_2 = resources.getColor(R.color.colorAccent)
+    val FAB_CREATE_COLOR_3 = resources.getColor(R.color.venice_verde)
+
     // intents
     private val eventsPublisher = PublishSubject.create<SinglePlaylistIntent>()
+
+    private lateinit var adapter: TrackRowsAdapter
+    private var onTouchListener: RecyclerTouchListener? = null
+    private var onSwipeListener: RecyclerTouchListener.OnSwipeListener? = null
+
+    // Flag for whether we've created this playlsit or not
+    private var isFinished: Boolean = false
+    private var carouselImageSet: Boolean = false
 
     @JvmOverloads
     constructor(
@@ -39,10 +61,6 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
             defStyleAttr: Int = 0)
             : super(context, attrs, defStyleAttr)
 
-    private lateinit var adapter: TrackRowsAdapter
-    private var onTouchListener: RecyclerTouchListener? = null
-    private var onSwipeListener: RecyclerTouchListener.OnSwipeListener? = null
-
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_playlist_card_create, this, true)
         descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
@@ -50,9 +68,25 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
 
     fun loadTracks(tracks: List<TrackModel>,
                    swipeListener: RecyclerTouchListener.OnSwipeListener? = null,
-                   touchListener: RecyclerTouchListener? = null) {
+                   touchListener: RecyclerTouchListener? = null,
+                   carouselHeaderUrl: String?
+    ) {
+        carouselHeaderUrl?.let {
+            eventsPublisher.onNext(PlaylistCardIntent.CreateHeaderSet(it))
+        }
+
         onSwipeListener = swipeListener
         onTouchListener = touchListener
+
+        // set up the loading fab
+        fab.addAnimation(FAB_CREATE_COLOR_0, R.drawable.basic_plus_fab,
+                LoadingView.FROM_LEFT)
+        fab.addAnimation(FAB_CREATE_COLOR_1, R.drawable.basic_play_fab,
+                LoadingView.FROM_LEFT)
+        fab.addAnimation(FAB_CREATE_COLOR_2, R.drawable.basic_pause_fab,
+                LoadingView.FROM_TOP)
+        fab.addAnimation(FAB_CREATE_COLOR_3, R.drawable.basic_stop_1_fab,
+                LoadingView.FROM_RIGHT)
 
         // fetch the track stats of these pending tracks
         eventsPublisher.onNext(StatsIntent.FetchStats(tracks.map { it.id }))
@@ -65,11 +99,16 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
     }
 
     fun createPlaylist(ownerId: String, tracks: List<TrackModel>) {
+        if (isFinished) {
+            return
+        }
+
         if (create_playlist_new_title.text.isBlank()) {
             "you have to give your playlist a name!".toast(context)
             return
         }
 
+        fab.startAnimation()
         eventsPublisher.onNext(SummaryIntent.CreatePlaylistWithTracks(
                     ownerId = ownerId,
                     name = create_playlist_new_title.text.toString(),
@@ -79,17 +118,73 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
             )
     }
 
+    fun onPlaylistCreated(newTitle: String, state: PlaylistCardCreateViewModel.ViewState) {
+        isFinished = true
+        create_card_view.elevation = resources.getDimension(R.dimen.playlist_card_finished_elevation)
+
+        clearFocus() // try to force keyboard to close
+
+        Utils.setVisible(playlist_header_finished, true) // set up i nin background
+
+        // set title and image
+        val titleView = playlist_header_finished.findViewById<TextView>(R.id.finished_playlist_new_title)
+        val imageView = playlist_header_finished.findViewById<ImageView>(R.id.finished_playlist_image_background)
+        titleView.text = newTitle
+        Glide.with(this).load(state.carouselHeaderUrl).into(imageView)
+
+        Utils.setVisible(create_header_carousel, false)
+
+        isEnabled = false
+        descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
+    }
+
+    override fun render(state: PlaylistCardCreateViewModel.ViewState) {
+        if (state.carouselHeaderUrl != null && !carouselImageSet) {
+            setCarousel(state) // set the carousel image (once)
+        }
+
+        when {
+            state.isFetchStatsSuccess() -> {
+                // render the track stats widget with pending tracks
+                create_stats_container.loadTrackStats(state.trackStats!!)
+            }
+            state.status == SummaryResult.CreatePlaylistWithTracks.CreateStatus.SUCCESS -> {
+                "success!".toast(context)
+                onPlaylistCreated(create_playlist_new_title.text.toString(), state)
+                fab.pauseAnimation()
+                fab.setImageResource(R.drawable.note_happy_colored) // switch fab
+            }
+            state.isCreateFinished() -> {
+                fab.pauseAnimation()
+            }
+            state.isCreateLoading() -> {
+                fab.resumeAnimation()
+            }
+            state.isError() -> "something went wrong".toast(context)
+        }
+
+    }
+
     override fun intents(): Observable<out SinglePlaylistIntent> {
         return eventsPublisher
     }
 
-    override fun render(state: PlaylistCardCreateViewModel.ViewState) {
-        fab_text.text = "${state.pendingTracks.size}"
-
-        // render the track stats widget with remote tracks
-        if (state.isSuccess() && state.trackStats != null) {
-            create_stats_container.loadTrackStats(state.trackStats!!)
-        }
+    override fun onTouchEvent(me: MotionEvent): Boolean {
+        return isFinished
     }
 
+    private fun setCarousel(state: PlaylistCardCreateViewModel.ViewState) {
+        if (state.carouselHeaderUrl == null || carouselImageSet) {
+            return
+        }
+
+        if (create_header_carousel.findViewById<View>(R.id.create_playlist_image_background) != null) {
+            Glide.with(this).load(state.carouselHeaderUrl).into(create_playlist_image_background)
+            carouselImageSet = true
+        }
+        if (create_header_carousel.findViewById<View>(R.id.add_playlist_image_background) != null) {
+            Glide.with(this).load(state.carouselHeaderUrl).into(add_playlist_image_background)
+            carouselImageSet = true
+        }
+    }
 }

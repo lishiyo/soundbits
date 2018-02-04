@@ -8,7 +8,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import com.bumptech.glide.Glide
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.di.App
@@ -18,8 +17,6 @@ import com.synnapps.carouselview.ViewListener
 import dagger.android.AndroidInjection
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.activity_playlistcard_create.*
-import kotlinx.android.synthetic.main.playlist_header_add_existing.*
-import kotlinx.android.synthetic.main.playlist_header_create_new.*
 import kotlinx.android.synthetic.main.widget_playlist_card_create.*
 import org.jetbrains.anko.intentFor
 import java.util.*
@@ -63,7 +60,6 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
     private lateinit var onTouchListener: RecyclerTouchListener
 
     private var carouselHeaderUrl: String? = null
-    private var carouselImageSet: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,31 +74,31 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
         // set up the header
         create_header_carousel.pageCount = NUMBER_OF_PAGES
         create_header_carousel.setViewListener(viewListener)
-        // store random track image
-        carouselHeaderUrl = if (savedInstanceState?.getString(EXTRA_HEADER_URL) != null) {
-            savedInstanceState.getString(EXTRA_HEADER_URL)
-        } else {
-            val headerImageIndex = Random().nextInt(initialPendingTracks.size)
-            initialPendingTracks[headerImageIndex].imageUrl
-        }
-        create_header_carousel.viewTreeObserver.addOnGlobalLayoutListener {
-            setCarousel()
-            create_header_carousel.viewTreeObserver.removeOnGlobalLayoutListener { this@PlaylistCardCreateActivity }
-        }
 
         // bind the viewmodel, passing through to the subviews
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(PlaylistCardCreateViewModel::class.java)
         initViewModel(viewModel)
+
+        // store random track image
+        carouselHeaderUrl = if (savedInstanceState?.getString(EXTRA_HEADER_URL) != null) {
+            savedInstanceState.getString(EXTRA_HEADER_URL)
+        } else if (viewModel.states().value?.carouselHeaderUrl != null) {
+            viewModel.states().value?.carouselHeaderUrl
+        } else {
+            val headerImageIndex = Random().nextInt(initialPendingTracks.size)
+            initialPendingTracks[headerImageIndex].imageUrl
+        }
 
         // set up the widget with the viewmodel's tracks
         onTouchListener = createOnTouchListener()
         create_playlist_card_widget.loadTracks(
                 viewModel.pendingTracks,
                 null,
-                onTouchListener
+                onTouchListener,
+                carouselHeaderUrl
         )
         // delegate ui events to the mvi view
-        create_fab_button.setOnClickListener { v ->
+        fab.setOnClickListener { _ ->
             create_playlist_card_widget.createPlaylist(App.getCurrentUserId(), viewModel.pendingTracks)
         }
     }
@@ -128,7 +124,7 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
             }
         })
 
-        // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
+        // Bind ViewModel to merged intents stream
         viewModel.processIntents(intents())
     }
 
@@ -145,29 +141,9 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
         create_tracks_recycler_view.addOnItemTouchListener(onTouchListener)
     }
 
-//    override fun onStart() {
-//        super.onStart()
-//        setCarousel()
-//    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(EXTRA_HEADER_URL, carouselHeaderUrl)
         super.onSaveInstanceState(outState)
-    }
-
-    private fun setCarousel() {
-        if (carouselImageSet) {
-            return
-        }
-
-        if (create_header_carousel.findViewById<View>(R.id.create_playlist_image_background) != null) {
-            Glide.with(this).load(carouselHeaderUrl).into(create_playlist_image_background)
-            carouselImageSet = true
-        }
-        if (create_header_carousel.findViewById<View>(R.id.add_playlist_image_background) != null) {
-            Glide.with(this).load(carouselHeaderUrl).into(add_playlist_image_background)
-            carouselImageSet = true
-        }
     }
 
     override fun onPause() {

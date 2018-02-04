@@ -44,24 +44,27 @@ sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Sta
     /**
      * Create a playlist out of tracks.
      */
-    class CreatePlaylistWithTracks(status: MviResult.StatusInterface,
+    class CreatePlaylistWithTracks(status: CreateStatus,
                                    error: Throwable? = null,
                                    val playlistId: String? = null,
                                    val snapshotId: SnapshotId? = null
 //                                   val tracks: List<TrackModel> = listOf()
     ) : SummaryResult(status, error), PlaylistCardResultMarker {
+        enum class CreateStatus : MviResult.StatusInterface {
+           LOADING, SUCCESS, ERROR
+        }
         companion object {
             fun createSuccess(playlistId: String,
                               snapshotId: SnapshotId
 //                              tracks: List<TrackModel> = listOf()
             ) : CreatePlaylistWithTracks {
-                return CreatePlaylistWithTracks(MviResult.Status.SUCCESS, playlistId = playlistId, snapshotId = snapshotId)
+                return CreatePlaylistWithTracks(CreateStatus.SUCCESS, playlistId = playlistId, snapshotId = snapshotId)
             }
             fun createError(throwable: Throwable) : CreatePlaylistWithTracks {
-                return CreatePlaylistWithTracks(MviResult.Status.ERROR, throwable)
+                return CreatePlaylistWithTracks(CreateStatus.ERROR, throwable)
             }
             fun createLoading(): CreatePlaylistWithTracks {
-                return CreatePlaylistWithTracks(MviResult.Status.LOADING)
+                return CreatePlaylistWithTracks(CreateStatus.LOADING)
             }
         }
     }

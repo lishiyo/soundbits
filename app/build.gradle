@@ -155,6 +155,7 @@ dependencies {
     implementation 'me.bendik.simplerangeview:simplerangeview:0.2.0'
     implementation 'com.synnapps:carouselview:0.1.4'
     implementation 'com.github.gsotti:EqualizerView:v0.2'
+    implementation 'io.saeid:fab-loading:1.0.0'
 
     // Stash
     implementation 'com.github.devlight.navigationtabstrip:navigationtabstrip:1.0.4'

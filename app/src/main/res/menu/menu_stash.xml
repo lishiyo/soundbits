@@ -9,7 +9,7 @@
 		android:title="create" />
 
 	<item android:id="@+id/clear"
-		android:icon="@drawable/icon_multiply_1"
+		android:icon="@drawable/ic_cancel"
 		android:iconTint="@color/colorWhite"
 		app:showAsAction="always"
 		android:title="clear all" />

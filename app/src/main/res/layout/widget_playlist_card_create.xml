@@ -17,7 +17,7 @@
 			android:layout_height="wrap_content"
 			android:elevation="@dimen/card_radius"
 			card_view:cardCornerRadius="@dimen/card_radius"
-			card_view:cardElevation="@dimen/card_radius"
+			card_view:cardElevation="@dimen/playlist_card_elevation"
 			card_view:cardPreventCornerOverlap="false"
 			android:descendantFocusability="afterDescendants"
 			>
@@ -29,26 +29,40 @@
 
 				<!-- HEADER -->
 
-				<!-- viewpager with the create/add-existing -->
-				<com.synnapps.carouselview.CarouselView
-					android:id="@+id/create_header_carousel"
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/playlist_card_image_height"
-					app:autoPlay="false"
-					app:disableAutoPlayOnUserInteraction="true"
-					app:fillColor="@color/colorWhite"
-					app:pageColor="#00000000"
-					app:radius="3dp"
-					app:slideInterval="3000"
-					app:strokeColor="#FF777777"
-					app:indicatorMarginVertical="15dp"
-					app:strokeWidth="1dp"
-					/>
+				<FrameLayout
+					android:id="@+id/create_header"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content">
+
+					<!-- HIDDEN: finished header -->
+					<include
+						layout="@layout/playlist_header_finished"
+						android:id="@+id/playlist_header_finished"
+						android:visibility="gone"
+						/>
+
+					<!-- viewpager with the create/add-existing -->
+					<com.synnapps.carouselview.CarouselView
+						android:id="@+id/create_header_carousel"
+						android:layout_width="match_parent"
+						android:layout_height="@dimen/playlist_card_image_height"
+						app:autoPlay="false"
+						app:disableAutoPlayOnUserInteraction="true"
+						app:fillColor="@color/colorWhite"
+						app:pageColor="#00000000"
+						app:radius="3dp"
+						app:slideInterval="3000"
+						app:strokeColor="#FF777777"
+						app:indicatorMarginVertical="15dp"
+						app:strokeWidth="1dp"
+						/>
+
+				</FrameLayout>
 
 				<!-- FAB + menu container row -->
 				<FrameLayout
 					android:id="@+id/create_fab_container"
-					android:layout_below="@id/create_header_carousel"
+					android:layout_below="@id/create_header"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_alignParentRight="true"
@@ -62,44 +76,25 @@
 					android:gravity="right"
 					>
 
-					<FrameLayout
-						android:id="@+id/create_fab_button"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:background="@drawable/fake_fab"
+					<io.saeid.fabloading.LoadingView
+						android:id="@+id/fab"
+						android:layout_width="@dimen/fake_fab_create_diameter"
+						android:layout_height="@dimen/fake_fab_create_diameter"
+						android:src="@drawable/basic_plus_fab"
+						app:mfl_onclickLoading="true"
+						app:mfl_duration="200"
+						app:mfl_repeat="24"
+						android:transitionName="@string/playlist_fab_transition"
 						android:layout_gravity="right"
 						android:gravity="right"
-						android:transitionName="@string/playlist_fab_transition"
-						android:padding="@dimen/fake_fab_padding"
-						>
-
-						<TextView
-							android:id="@+id/fab_text"
-							android:layout_width="match_parent"
-							android:layout_height="match_parent"
-							android:textSize="@dimen/fab_number_sp"
-							android:textStyle="bold"
-							android:textAlignment="textStart"
-							android:textColor="@color/colorYellow"
-							android:fontFamily="@font/indie_flower"
-							/>
-
-						<ImageView
-							android:id="@+id/fab"
-							android:layout_marginLeft="@dimen/fake_fab_icon_margin"
-							android:layout_marginTop="@dimen/fake_fab_icon_margin"
-							android:layout_width="@dimen/fake_fab_diameter"
-							android:layout_height="@dimen/fake_fab_diameter"
-							android:src="@drawable/basic_plus"
-							/>
-
-					</FrameLayout>
+						android:elevation="4dp"
+						/>
 
 				</FrameLayout>
 
 				<!-- BODY -->
 				<LinearLayout
-					android:layout_below="@id/create_header_carousel"
+					android:layout_below="@id/create_header"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:textSize="@dimen/default_text_size"

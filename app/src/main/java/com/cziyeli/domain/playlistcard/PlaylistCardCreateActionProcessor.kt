@@ -22,8 +22,10 @@ class PlaylistCardCreateActionProcessor @Inject constructor(private val reposito
                     shared.ofType<StatsAction.FetchStats>(StatsAction.FetchStats::class.java)
                             .compose(fetchStatsProcessor),
                     // create new playlist from tracks
-                     shared.ofType<SummaryAction.CreatePlaylistWithTracks>(SummaryAction.CreatePlaylistWithTracks::class.java)
-                             .compose(mCreatePlaylistProcessor)
+                    shared.ofType<SummaryAction.CreatePlaylistWithTracks>(SummaryAction.CreatePlaylistWithTracks::class.java)
+                            .compose(mCreatePlaylistProcessor),
+                    shared.ofType<PlaylistCardAction.CreateHeaderSet>(PlaylistCardAction.CreateHeaderSet::class.java)
+                            .compose(mSetHeaderProcessor)
             ).mergeWith(
                     // Error for not implemented actions
                     shared.filter { v -> (v !is PlaylistCardActionMarker) }
@@ -53,18 +55,28 @@ class PlaylistCardCreateActionProcessor @Inject constructor(private val reposito
     private val mCreatePlaylistProcessor: ObservableTransformer<SummaryAction.CreatePlaylistWithTracks,
             SummaryResult.CreatePlaylistWithTracks> = ObservableTransformer {
         action -> action.switchMap {
-        act -> repository
-            .createPlaylist(act.ownerId, act.name, act.description, act.public)
-            .subscribeOn(schedulerProvider.io())
-            .flatMapObservable { playlist ->
+            act -> repository
+                .createPlaylist(act.ownerId, act.name, act.description, act.public)
+                .subscribeOn(schedulerProvider.io())
+                .flatMapObservable { playlist ->
                 Utils.mLog(TAG, "createPlaylistProcessor", "doAfterSuccess!", playlist.toString())
-                repository.addTracksToPlaylist(act.ownerId, playlist.id, act.tracks.map { it.uri }).subscribeOn(schedulerProvider.io())
+                repository
+                        .addTracksToPlaylist(act.ownerId, playlist.id, act.tracks.map { it.uri })
+                        .subscribeOn(schedulerProvider.io())
+                }
             }
-    }
+            .observeOn(schedulerProvider.ui())
             .map { pair -> SummaryResult.CreatePlaylistWithTracks.createSuccess(pair.first, pair.second) }
             .onErrorReturn { SummaryResult.CreatePlaylistWithTracks.createError(it) }
             .startWith(SummaryResult.CreatePlaylistWithTracks.createLoading())
             .retry() // don't unsubscribe
+    }
+
+    private val mSetHeaderProcessor: ObservableTransformer<PlaylistCardAction.CreateHeaderSet,
+            PlaylistCardResult.CreateHeaderSet> = ObservableTransformer {
+        action -> action
+            .map { it.headerImageUrl }
+            .map { PlaylistCardResult.CreateHeaderSet(headerImageUrl = it)}
     }
 
 }

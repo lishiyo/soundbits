@@ -4,6 +4,7 @@ import com.cziyeli.commons.mvibase.MviResult
 import com.cziyeli.domain.tracks.TrackModel
 import java.util.*
 
+interface PlaylistCardResultMarker : MviResult
 
 sealed class PlaylistCardResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
                                 var error: Throwable? = null) : PlaylistCardResultMarker {
@@ -53,4 +54,6 @@ sealed class PlaylistCardResult(var status: MviResult.StatusInterface = MviResul
             }
         }
     }
+
+    class CreateHeaderSet(val headerImageUrl: String) : PlaylistCardResult(MviResult.Status.SUCCESS)
 }

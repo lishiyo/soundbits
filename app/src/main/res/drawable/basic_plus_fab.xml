@@ -5,6 +5,12 @@
 	android:viewportWidth="512"
 	android:viewportHeight="512">
 
+	<group
+		android:pivotX="255"
+		android:pivotY="255"
+		android:scaleX="0.66"
+		android:scaleY="0.66">
+
 	<path
 		android:fillColor="@color/colorYellow"
 		android:pathData="M10.199,226.457v59.086c0,11.593,9.399,20.991,20.991,20.991h153.284
@@ -34,4 +40,5 @@ h95.909c5.632,0,10.199,4.567,10.199,10.199C482.422,241.234,477.855,245.801,472.2
 		android:fillColor="#4D4D4D"
 		android:pathData="M345.753,245.801h-7.992c-5.632,0-10.199-4.567-10.199-10.199c0-5.632,4.567-10.199,10.199-10.199
 h7.992c5.632,0,10.199,4.567,10.199,10.199C355.952,241.234,351.385,245.801,345.753,245.801z" />
+	</group>
 </vector>

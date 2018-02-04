@@ -29,8 +29,11 @@
 	<dimen name="fake_fab_diameter">32dp</dimen>
 	<dimen name="fake_fab_icon_margin">4dp</dimen>
 	<dimen name="fake_fab_padding">11dp</dimen>
+	<dimen name="fake_fab_create_diameter">45dp</dimen>
 	<dimen name="fab_number_sp">14sp</dimen>
 	<dimen name="scrollview_padding_top">30dp</dimen>
+	<dimen name="playlist_card_elevation">4dp</dimen>
+	<dimen name="playlist_card_finished_elevation">14dp</dimen>
 
 	<!-- Stats -->
 	<dimen name="stats_padding_vertical">15dp</dimen>

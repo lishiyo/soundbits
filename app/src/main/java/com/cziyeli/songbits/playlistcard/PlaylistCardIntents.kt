@@ -21,6 +21,8 @@ sealed class PlaylistCardIntent : SinglePlaylistIntent {
     class FetchSwipedTracks(val ownerId: String,
                             val playlistId: String,
                             val onlySwiped: Boolean = true) : PlaylistCardIntent()
+
+    class CreateHeaderSet(val headerImageUrl: String) : PlaylistCardIntent()
 }
 
 /**

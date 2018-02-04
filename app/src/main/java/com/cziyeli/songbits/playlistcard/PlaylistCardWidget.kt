@@ -122,7 +122,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
                 })
                 .into(playlist_image_background)
 
-        // load the fab
+        // bing the fab menu
         if (fab_menu != null && fab_button != null) {
             fab_menu!!.bindAnchorView(fab_button!!)
             fab_menu!!.setOnFABMenuSelectedListener(onFabSelectedListener)
@@ -172,7 +172,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         when {
             state.unswipedCount == 0 && swipeFabItem?.isEnabled == true -> {
                 swipeFabItem.isEnabled = false
-                swipeFabItem.iconDrawable.alpha = 90
+                swipeFabItem.iconDrawable.alpha = 60
                 swipeFabItem.title = resources.getString(R.string.fab_swipe_remaining, state.unswipedCount)
             }
             state.unswipedCount > 0 && swipeFabItem?.isEnabled == false -> {
@@ -182,7 +182,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
             }
             state.tracksToCreate.isEmpty() && createFabItem?.isEnabled == true -> {
                 createFabItem.isEnabled = false
-                createFabItem.iconDrawable.alpha = 90
+                createFabItem.iconDrawable.alpha = 60
             }
             state.tracksToCreate.isNotEmpty() && createFabItem?.isEnabled == false -> {
                 createFabItem.isEnabled = true
