@@ -17,6 +17,14 @@
 		android:layout_height="@dimen/playlist_card_image_height"
 		android:transitionName="@string/playlist_image_transition"
 		/>
+	<!-- fake opacity on the background image -->
+	<View
+		android:id="@+id/image_dim_overlay"
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/playlist_card_image_height"
+		android:background="#000000"
+		android:alpha=".4"
+		/>
 
 	<!-- overlay playlist title - bottom left -->
 	<RelativeLayout

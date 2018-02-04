@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/fab_menu_items">
+	android:id="@+id/fab_menu_items"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	>
 
 	<item
 		android:id="@+id/menu_surf"
 		android:icon="@drawable/note_happy_colored"
-		android:title="Swipe" />
+		android:title="@string/fab_swipe_remaining"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		/>
 
 	<item
 		android:id="@+id/menu_resurf"
 		android:icon="@drawable/notes_hearts_colorful"
-		android:title="Re-Swipe All" />
+		android:title="@string/fab_swipe_all"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		/>
 
 	<item
 		android:id="@+id/menu_create_playlist"
 		android:icon="@drawable/basic_plus"
-		android:title="Create Playlist" />
+		android:title="@string/fab_create"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		/>
 
 </menu>

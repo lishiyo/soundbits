@@ -21,6 +21,6 @@ abstract class TracksDatabase : RoomDatabase() {
                 context.applicationContext,
                 TracksDatabase::class.java,
                 TracksContract.DATABASE_APPLICATION
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 }

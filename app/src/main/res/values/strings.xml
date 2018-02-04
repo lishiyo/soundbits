@@ -31,8 +31,12 @@
 	<string name="low_bitrate_button_label">96kbps</string>
 	<string name="no_metadata">no metadata</string>
 
+	<!-- fab stuff -->
 	<string name="playlist_image_transition">shared_element_image</string>
 	<string name="playlist_fab_transition">shared_element_fab</string>
+	<string name="fab_swipe_remaining">swipe\n%1$d left</string>
+	<string name="fab_swipe_all">reswipe\nall</string>
+	<string name="fab_create">create\nplaylist</string>
 
 	<string name="home_see_more">See more</string>
 	<string name="playlist_section_recent">Recent</string>

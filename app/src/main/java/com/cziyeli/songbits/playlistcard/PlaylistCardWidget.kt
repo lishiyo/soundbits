@@ -146,7 +146,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
 
         // if we just loaded tracks
         if (state.status == PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS) {
-            Utils.mLog(TAG, "RENDER", "just got playlist tracks! stashed: ${state.stashedTracksList.size} all: ${state.allTracksList.size}")
+//            Utils.mLog(TAG, "RENDER", "just got playlist tracks! stashed: ${state.stashedTracksList.size} all: ${state.allTracksList.size}")
             if (state.stashedTracksList.isNotEmpty()) {
                 // calculating the likes/dislikes of the stashed tracks
                 eventsPublisher.onNext(PlaylistCardIntent.CalculateQuickCounts(playlistModel, state.stashedTracksList))
@@ -173,12 +173,12 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
             state.unswipedCount == 0 && swipeFabItem?.isEnabled == true -> {
                 swipeFabItem.isEnabled = false
                 swipeFabItem.iconDrawable.alpha = 90
-                swipeFabItem.title = "Swipe ${state.unswipedCount}"
+                swipeFabItem.title = resources.getString(R.string.fab_swipe_remaining, state.unswipedCount)
             }
             state.unswipedCount > 0 && swipeFabItem?.isEnabled == false -> {
                 swipeFabItem.isEnabled = true
                 swipeFabItem.iconDrawable.alpha = 255
-                swipeFabItem.title = "Swipe ${state.unswipedCount}"
+                swipeFabItem.title = resources.getString(R.string.fab_swipe_remaining, state.unswipedCount)
             }
             state.tracksToCreate.isEmpty() && createFabItem?.isEnabled == true -> {
                 createFabItem.isEnabled = false
