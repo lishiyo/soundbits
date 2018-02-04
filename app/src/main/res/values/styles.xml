@@ -79,9 +79,24 @@
 		<item name="showActiveTicks">false</item>
 	</style>
 
-	<style name="trackButton">
+	<style name="trackCardButton">
 		<item name="android:layout_width">60dp</item>
 		<item name="android:layout_height">60dp</item>
 		<item name="android:layout_margin">20dp</item>
+		<item name="android:layout_gravity">center_vertical</item>
+		<item name="android:elevation">10dp</item>
 	</style>
+
+	<style name="trackCardButton.Player">
+		<item name="android:layout_width">60dp</item>
+		<item name="android:layout_height">60dp</item>
+		<item name="android:layout_margin">0dp</item>
+		<item name="android:layout_gravity">center</item>
+		<item name="android:gravity">center</item>
+		<item name="android:visibility">gone</item>
+		<item name="android:elevation">10dp</item>
+		<item name="android:drawableTint">@color/colorPurple</item>
+		<item name="android:tint">@color/colorPurple</item>
+	</style>
+
 </resources>

@@ -14,7 +14,7 @@
 
 	<item
 		android:id="@+id/menu_create_playlist"
-		android:icon="@drawable/icon_playlist_create"
+		android:icon="@drawable/basic_plus"
 		android:title="Create Playlist" />
 
 </menu>

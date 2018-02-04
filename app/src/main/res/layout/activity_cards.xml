@@ -26,16 +26,18 @@
 
 		<ImageButton
 			android:id="@+id/discardBtn"
-			style="@style/trackButton"
+			android:layout_marginTop="4dp"
+			style="@style/trackCardButton"
 			android:background="@drawable/dislike_smiley"/>
 		<ImageButton
 			android:id="@+id/likeBtn"
-			style="@style/trackButton"
+			style="@style/trackCardButton"
 			android:background="@drawable/like_line_dazzle_filled"/>
 		<ImageButton
 			android:id="@+id/undoBtn"
-			style="@style/trackButton"
-			android:background="@android:drawable/ic_menu_revert"/>
+			android:tint="@color/colorAccent"
+			style="@style/trackCardButton"
+			android:background="@drawable/basic_undo"/>
 	</LinearLayout>
 
 	<ViewStub

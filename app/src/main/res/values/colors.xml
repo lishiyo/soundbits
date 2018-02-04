@@ -13,7 +13,7 @@
 	<color name="colorGrey">@color/quartz</color>
 	<color name="colorYellow">#FED600</color>
 	<color name="colorDark">@color/moss_river</color>
-	<color name="colorSoftAccent">@color/sincerest_feelings</color>
+	<color name="colorSoftAccent">@color/venice_verde</color>
 
 	<color name="colorDislike">@color/colorAccent</color>
 	<color name="colorDisabled">@color/colorGrey</color>

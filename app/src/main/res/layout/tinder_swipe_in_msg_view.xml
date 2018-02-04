@@ -13,6 +13,6 @@
         android:textSize="32sp"
         android:textStyle="bold"
         android:layout_margin="40dp"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/colorPurple"
         android:text="yup"/>
 </LinearLayout>

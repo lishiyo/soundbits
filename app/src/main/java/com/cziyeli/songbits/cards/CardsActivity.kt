@@ -139,7 +139,7 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
                         .setViewHeight(windowSize.y - bottomMargin)
                         .setViewGravity(Gravity.TOP)
                         .setPaddingLeft(20)
-                        .setPaddingTop(20)
+                        .setPaddingTop(10)
                         .setSwipeRotationAngle(10)
                         .setRelativeScale(0.01f)
                         .setSwipeMaxChangeAngle(1f)

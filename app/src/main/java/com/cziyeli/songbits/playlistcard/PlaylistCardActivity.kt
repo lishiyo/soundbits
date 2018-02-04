@@ -85,7 +85,6 @@ class PlaylistCardActivity : AppCompatActivity() {
         playlist_card_widget.loadPlaylist(playlist, onFabMenuSelectedListener, onSwipeListener, onTouchListener,this)
     }
 
-
     /**
      * Start the tinder UI.
      */

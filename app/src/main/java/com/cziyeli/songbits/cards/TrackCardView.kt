@@ -1,6 +1,7 @@
 package com.cziyeli.songbits.cards
 
 import android.content.Context
+import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.cziyeli.commons.Utils
@@ -8,7 +9,6 @@ import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.mindorks.placeholderview.annotations.Layout
-import com.mindorks.placeholderview.annotations.NonReusable
 import com.mindorks.placeholderview.annotations.Resolve
 import com.mindorks.placeholderview.annotations.View
 import com.mindorks.placeholderview.annotations.swipe.*
@@ -21,7 +21,6 @@ import io.reactivex.subjects.PublishSubject
  *
  * Created by connieli on 1/2/18.
  */
-@NonReusable
 @Layout(R.layout.cards_track_view)
 class TrackCardView(private val context: Context,
                     private val model: TrackModel,
@@ -29,8 +28,14 @@ class TrackCardView(private val context: Context,
 
     private val TAG = TrackCardView::class.simpleName
 
+    @View(R.id.track_image_container)
+    private lateinit var trackImageContainer: android.view.View
+
     @View(R.id.track_image)
     private lateinit var trackImage: CircularMusicProgressBar
+
+    @View(R.id.track_play_pause)
+    private lateinit var trackPlayPause: ImageView
 
     @View(R.id.track_name)
     private lateinit var trackName: TextView
@@ -40,6 +45,10 @@ class TrackCardView(private val context: Context,
 
     @View(R.id.track_title_wrapper)
     private lateinit var trackTitleWrapper: android.view.View
+
+
+    // Flag to flip the icon
+    private var isPlaying: Boolean = true
 
     private val seekBarChangeListener = object : OnCircularSeekBarChangeListener {
         override fun onProgressChanged(circularBar: CircularMusicProgressBar?, progress: Int, fromUser: Boolean) {
@@ -60,6 +69,11 @@ class TrackCardView(private val context: Context,
         // pause/resume
         listener.getPlayerIntents()
                 .onNext(TrackIntent.CommandPlayer.create(PlayerInterface.Command.PAUSE_OR_RESUME, model))
+
+        // switch icon
+        val icon = if (isPlaying) R.drawable.basic_pause else R.drawable.basic_play
+        trackPlayPause.setImageResource(icon)
+        isPlaying = !isPlaying
     }
 
     @Resolve
@@ -82,8 +96,6 @@ class TrackCardView(private val context: Context,
         // a card comes on top of the stack (follows onResolved)
         Utils.log(TAG, "onSwipeHeadCard: ${model.name} -- clearing pref")
 
-        Utils.setVisible(trackTitleWrapper, true)
-
         // immediately start playing
         listener.getPlayerIntents().onNext(
                 TrackIntent.CommandPlayer.create(PlayerInterface.Command.PLAY_NEW, model))
@@ -92,6 +104,10 @@ class TrackCardView(private val context: Context,
         listener.getTrackIntents().onNext(
                 TrackIntent.ChangeTrackPref.clear(model)
         )
+
+        trackImageContainer.alpha = 1f
+        Utils.setVisible(trackTitleWrapper, true)
+        Utils.setVisible(trackPlayPause, true)
     }
 
     @SwipeOut

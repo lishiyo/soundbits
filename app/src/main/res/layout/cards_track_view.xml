@@ -12,26 +12,42 @@
 	android:layout_gravity="center_horizontal"
 	>
 
-		<info.abdolahi.CircularMusicProgressBar
-			android:id="@+id/track_image"
-			android:layout_width="260dp"
-			android:layout_height="260dp"
-			android:layout_marginTop="10dp"
-			android:layout_marginBottom="10dp"
+		<FrameLayout
+			android:id="@+id/track_image_container"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
 			android:layout_centerHorizontal="true"
-			app:border_color="@color/colorPurple"
-			app:progress_color="@color/colorYellow"
-			app:border_width="6dp"
-			app:centercircle_diammterer="1"
-			app:progress_startAngle="0"
-			app:draw_anticlockwise="false"
-			android:elevation="44dp"
-			/>
+			android:alpha="0.33"
+			>
+
+			<info.abdolahi.CircularMusicProgressBar
+				android:id="@+id/track_image"
+				android:layout_width="260dp"
+				android:layout_height="260dp"
+				android:layout_marginTop="10dp"
+				android:layout_marginBottom="10dp"
+				android:layout_gravity="center_horizontal"
+				android:layout_centerHorizontal="true"
+				app:border_color="@color/colorPurple"
+				app:progress_color="@color/colorYellow"
+				app:border_width="6dp"
+				app:centercircle_diammterer="1"
+				app:progress_startAngle="0"
+				app:draw_anticlockwise="false"
+				/>
+
+			<ImageView
+				android:id="@+id/track_play_pause"
+				android:src="@drawable/basic_play"
+				style="@style/trackCardButton.Player"
+				/>
+		</FrameLayout>
+
 
 		<LinearLayout
 			android:id="@+id/track_title_wrapper"
-			android:layout_below="@id/track_image"
+			android:layout_below="@id/track_image_container"
 			android:layout_alignParentBottom="true"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
