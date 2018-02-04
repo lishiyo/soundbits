@@ -4,7 +4,7 @@
 
 	<item
 		android:id="@+id/menu_surf"
-		android:icon="@drawable/note_happy_line"
+		android:icon="@drawable/note_happy_colored"
 		android:title="Swipe" />
 
 	<item

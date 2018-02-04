@@ -53,9 +53,6 @@ class PlaylistCardActivity : AppCompatActivity() {
                 startSwipingTracks(true)
             }
             R.id.menu_create_playlist -> {
-                fab.setImageResource(R.drawable.basic_plus)
-                invalidateOptionsMenu()
-
                 val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
                         fab_button,
                         ViewCompat.getTransitionName(fab_button)
@@ -97,6 +94,13 @@ class PlaylistCardActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(PlaylistCardViewModel::class.java)
         initViewModel(viewModel)
         playlist_card_widget.loadPlaylist(playlist, onFabMenuSelectedListener, onSwipeListener, onTouchListener,this)
+
+        playlist_card_widget.setOnTouchListener { v, event ->
+            if (fab_menu.isShowing) {
+                fab_menu.closeMenu()
+            }
+            false
+        }
     }
 
     /**

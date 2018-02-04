@@ -163,6 +163,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         quickstats_likes.text = "${state.likedCount} likes"
         quickstats_dislikes.text = "${state.dislikedCount} dislikes"
         quickstats_total.text = "${state.playlist.totalTracksCount} total"
+        fab_text.text = "${state.unswipedCount}"
 
         // check if we need to disable/hide any fab menu items
         val swipeFabItem = fab_menu.getItemById(R.id.menu_surf)
@@ -171,7 +172,8 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         when {
             state.unswipedCount == 0 && swipeFabItem?.isEnabled == true -> {
                 swipeFabItem.isEnabled = false
-                swipeFabItem.iconDrawable.alpha = 50
+                swipeFabItem.iconDrawable.alpha = 90
+                swipeFabItem.title = "Swipe ${state.unswipedCount}"
             }
             state.unswipedCount > 0 && swipeFabItem?.isEnabled == false -> {
                 swipeFabItem.isEnabled = true
@@ -180,7 +182,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
             }
             state.tracksToCreate.isEmpty() && createFabItem?.isEnabled == true -> {
                 createFabItem.isEnabled = false
-                createFabItem.iconDrawable.alpha = 50
+                createFabItem.iconDrawable.alpha = 90
             }
             state.tracksToCreate.isNotEmpty() && createFabItem?.isEnabled == false -> {
                 createFabItem.isEnabled = true

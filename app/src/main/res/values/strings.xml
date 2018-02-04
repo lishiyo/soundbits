@@ -38,4 +38,6 @@
 	<string name="playlist_section_recent">Recent</string>
 	<string name="playlist_section_recommended">Recommended</string>
 	<string name="playlist_section_featured">Featured</string>
+
+	<string name="expand_tracks">expand swiped</string>
 </resources>

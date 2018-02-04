@@ -57,7 +57,7 @@
 					<!-- overlay playlist title - bottom left -->
 					<TextView
 						android:id="@+id/playlist_title"
-						android:fontFamily="@font/quicksand"
+						android:fontFamily="@font/raleway_light"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:textAppearance="?android:attr/textAppearanceLarge"
@@ -95,13 +95,27 @@
 						android:layout_gravity="right"
 						android:gravity="right"
 						android:transitionName="@string/playlist_fab_transition"
-						android:padding="8dp"
+						android:padding="@dimen/fake_fab_padding"
 						>
 
+						<TextView
+							android:id="@+id/fab_text"
+							android:layout_width="match_parent"
+							android:layout_height="match_parent"
+							android:textSize="@dimen/fab_number_sp"
+							android:textStyle="bold"
+							android:textAlignment="textStart"
+							android:textColor="@color/colorYellow"
+							android:fontFamily="@font/indie_flower"
+							/>
+
+						<!-- icon -->
 						<ImageView
 							android:id="@+id/fab"
-							android:layout_width="30dp"
-							android:layout_height="30dp"
+							android:layout_marginLeft="@dimen/fake_fab_icon_margin"
+							android:layout_marginTop="@dimen/fake_fab_icon_margin"
+							android:layout_width="@dimen/fake_fab_diameter"
+							android:layout_height="@dimen/fake_fab_diameter"
 							android:src="@drawable/note_happy_colored"
 							/>
 
@@ -113,11 +127,11 @@
 						android:layout_height="match_parent"
 						android:minWidth="300dp"
 						app:animateItems="true"
-						app:menuBackgroundColor="@color/colorPrimary"
+						app:menuBackgroundColor="@color/colorFab"
 						app:menuDirection="left"
 						app:menuRes="@menu/menu_playlist_card"
 						app:menuTitleTextColor="@color/colorBlack"
-						app:menuTitleDisabledTextColor="@color/colorGrey"
+						app:menuTitleDisabledTextColor="@color/colorDisabled"
 						app:showOverlay="false"
 						app:showTitle="true"
 						app:menuSize="normal"
@@ -162,7 +176,6 @@
 
 							<TextView
 								android:id="@+id/quickstats_likes"
-								android:text="13 likes"
 								android:layout_marginTop="4dp"
 								android:layout_gravity="center"
 								android:layout_width="wrap_content"
@@ -268,8 +281,7 @@
 								android:layout_centerVertical="true"
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
-								android:text="expand tracks"
-								android:fontFamily="@font/indie_flower"
+								android:text="@string/expand_tracks"
 								android:textColor="@color/colorWhite" />
 
 							<android.support.v7.widget.AppCompatImageView

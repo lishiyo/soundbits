@@ -7,7 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.widget.Toast
+import android.view.View
+import com.bumptech.glide.Glide
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.playlistcard.SinglePlaylistIntent
@@ -16,11 +17,13 @@ import com.synnapps.carouselview.ViewListener
 import dagger.android.AndroidInjection
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.activity_playlistcard_create.*
+import kotlinx.android.synthetic.main.playlist_header_add_existing.*
+import kotlinx.android.synthetic.main.playlist_header_create_new.*
 import kotlinx.android.synthetic.main.widget_playlist_card_create.*
 import org.jetbrains.anko.intentFor
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
-
 
 /**
  * Activity holding the [PlaylistCardCreateWidget] for creating a playlist out of tracks.
@@ -31,6 +34,7 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
     companion object {
         const val NUMBER_OF_PAGES = 2
         const val EXTRA_PENDING_TRACKS = "extra_pending_tracks"
+        const val EXTRA_HEADER_URL = "extra_header_url"
 
         fun create(context: Context, pendingTracks: List<TrackModel>? = listOf()) : Intent {
             return context.intentFor<PlaylistCardCreateActivity>(PlaylistCardCreateActivity.EXTRA_PENDING_TRACKS to pendingTracks)
@@ -46,13 +50,19 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
 
     // viewpager
     private val viewListener: ViewListener = ViewListener {
+        val view: View
         if (it == 0) {
-            layoutInflater.inflate(R.layout.playlist_header_create_new, null)
+            view = layoutInflater.inflate(R.layout.playlist_header_create_new, create_header_carousel, false)
         } else {
-            layoutInflater.inflate(R.layout.playlist_header_add_existing, null)
+            view = layoutInflater.inflate(R.layout.playlist_header_add_existing, create_header_carousel, false)
+
         }
+        view
     }
     private lateinit var onTouchListener: RecyclerTouchListener
+
+    private var carouselHeaderUrl: String? = null
+    private var carouselImageSet: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,8 +77,16 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
         // set up the header
         create_header_carousel.pageCount = NUMBER_OF_PAGES
         create_header_carousel.setViewListener(viewListener)
-        create_header_carousel.setImageClickListener {
-            Toast.makeText(this@PlaylistCardCreateActivity, "Clicked: $it", Toast.LENGTH_SHORT).show()
+        // store random track image
+        carouselHeaderUrl = if (savedInstanceState?.getString(EXTRA_HEADER_URL) != null) {
+            savedInstanceState.getString(EXTRA_HEADER_URL)
+        } else {
+            val headerImageIndex = Random().nextInt(pendingTracks.size)
+            pendingTracks[headerImageIndex].imageUrl
+        }
+        create_header_carousel.viewTreeObserver.addOnGlobalLayoutListener {
+            setCarousel()
+            create_header_carousel.viewTreeObserver.removeOnGlobalLayoutListener { this@PlaylistCardCreateActivity }
         }
 
         // bind the viewmodel, passing through to the subviews
@@ -117,61 +135,34 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
         return create_playlist_card_widget.intents()
     }
 
-//    private fun createOnSwipeListener() : RecyclerTouchListener.OnSwipeListener {
-//        return object : RecyclerTouchListener.OnSwipeListener {
-//            override fun onForegroundAnimationStart(isFgOpening: Boolean, duration: Long, foregroundView: View, backgroundView: View?) {
-//                // shrink the textview size
-//                val scale = if (isFgOpening) 0.7f else 1.0f
-//                val parentView = foregroundView as ViewGroup
-//                val shrinkingViews = listOf<View>(
-//                        parentView.findViewById(R.id.track_left_container),
-//                        parentView.findViewById(R.id.track_image)
-//                )
-//                shrinkingViews.forEach { view ->
-//                    view.pivotX = 0f
-//                    view.animate()
-//                            .scaleX(scale)
-//                            .scaleY(scale)
-//                            .setDuration(duration)
-//                            .start()
-//                }
-//
-//                val animatedView = foregroundView.findViewById<LottieAnimationView>(R.id.wave_animation)
-//                val toAlpha = if (isFgOpening) 1.0f else 0.0f
-//                animatedView.animate().alpha(toAlpha).withEndAction {
-//                    if (isFgOpening) {
-//                        animatedView.visibility = View.VISIBLE
-//                        animatedView.playAnimation()
-//                    } else {
-//                        animatedView.visibility = View.INVISIBLE
-//                        animatedView.pauseAnimation()
-//                    }
-//                }.setDuration(duration).start()
-//            }
-//
-//            override fun onSwipeOptionsOpened(foregroundView: View?, backgroundView: View?) {
-//                Log.i(DTAG, "onSwipeOptionsOpened")
-//            }
-//
-//            override fun onSwipeOptionsClosed(foregroundView: View?, backgroundView: View?) {
-//                Log.i(DTAG, "onSwipeOptionsClosed")
-//            }
-//        }
-//    }
-//
-//    private fun createOnTouchListener(swipeListener: RecyclerTouchListener.OnSwipeListener) : RecyclerTouchListener {
-//        val onTouchListener = RecyclerTouchListener(this, create_tracks_recycler_view)
-//        onTouchListener
-//                .setViewsToFade(R.id.track_status)
-//                .setOnSwipeListener(swipeListener)
-//                .setSwipeable(false) // Create is read-only!
-//
-//        return onTouchListener
-//    }
-
     override fun onResume() {
         super.onResume()
         create_tracks_recycler_view.addOnItemTouchListener(onTouchListener)
+    }
+
+//    override fun onStart() {
+//        super.onStart()
+//        setCarousel()
+//    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString(EXTRA_HEADER_URL, carouselHeaderUrl)
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun setCarousel() {
+        if (carouselImageSet) {
+            return
+        }
+
+        if (create_header_carousel.findViewById<View>(R.id.create_playlist_image_background) != null) {
+            Glide.with(this).load(carouselHeaderUrl).into(create_playlist_image_background)
+            carouselImageSet = true
+        }
+        if (create_header_carousel.findViewById<View>(R.id.add_playlist_image_background) != null) {
+            Glide.with(this).load(carouselHeaderUrl).into(add_playlist_image_background)
+            carouselImageSet = true
+        }
     }
 
     override fun onPause() {

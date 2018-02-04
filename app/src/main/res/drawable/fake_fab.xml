@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:elevation="22dp"
 	android:shape="oval">
 
 	<solid
-		android:color="@color/colorPrimary"/>
+		android:color="@color/colorFab"/>
 
-	<!--<size-->
-		<!--android:width="@dimen/fake_fab_diameter"-->
-		<!--android:height="@dimen/fake_fab_diameter"/>-->
+	<stroke android:width="2dp" android:color="@color/colorPurple"/>
 </shape>

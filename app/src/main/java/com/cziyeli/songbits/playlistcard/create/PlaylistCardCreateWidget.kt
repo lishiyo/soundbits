@@ -6,7 +6,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.cziyeli.commons.Utils
 import com.cziyeli.commons.disableTouchTheft
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.domain.tracks.TrackModel
@@ -52,14 +51,14 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
         onSwipeListener = swipeListener
         onTouchListener = touchListener
 
-        // set up tracks list
+        // fetch the track stats of these pending tracks
+        eventsPublisher.onNext(StatsIntent.FetchStats(tracks.map { it.id }))
+
+        // set up tracks list (don't need to re-render)
         adapter = TrackRowsAdapter(context, tracks.map { TrackRow(it) }.toMutableList())
         create_tracks_recycler_view.adapter = adapter
         create_tracks_recycler_view.layoutManager = LinearLayoutManager(context)
         create_tracks_recycler_view.disableTouchTheft()
-
-        // fetch the track stats of these pending tracks
-        eventsPublisher.onNext(StatsIntent.FetchStats(tracks.map { it.id }))
     }
 
     override fun intents(): Observable<out SinglePlaylistIntent> {
@@ -67,7 +66,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
     }
 
     override fun render(state: PlaylistCardCreateViewModel.ViewState) {
-        Utils.mLog(TAG, "RENDER", "$state")
+        fab_text.text = "${state.pendingTracks.size}"
 
         // render the track stats widget with remote tracks
         if (state.isSuccess() && state.trackStats != null) {

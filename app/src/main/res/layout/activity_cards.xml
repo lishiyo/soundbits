@@ -26,7 +26,7 @@
 
 		<ImageButton
 			android:id="@+id/discardBtn"
-			android:layout_marginTop="4dp"
+			android:layout_marginTop="8dp"
 			style="@style/trackCardButton"
 			android:background="@drawable/dislike_smiley"/>
 		<ImageButton
@@ -35,8 +35,10 @@
 			android:background="@drawable/like_line_dazzle_filled"/>
 		<ImageButton
 			android:id="@+id/undoBtn"
-			android:tint="@color/colorAccent"
+			android:drawableTint="@color/colorAccent"
 			style="@style/trackCardButton"
+			android:layout_height="55dp"
+			android:layout_marginTop="8dp"
 			android:background="@drawable/basic_undo"/>
 	</LinearLayout>
 

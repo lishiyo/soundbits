@@ -26,11 +26,14 @@
 	<dimen name="track_like_width">24dp</dimen>
 	<dimen name="track_dislike_width">21dp</dimen>
 	<dimen name="list_item_track_height">60dp</dimen>
-	<dimen name="fake_fab_diameter">40dp</dimen>
+	<dimen name="fake_fab_diameter">32dp</dimen>
+	<dimen name="fake_fab_icon_margin">4dp</dimen>
+	<dimen name="fake_fab_padding">11dp</dimen>
+	<dimen name="fab_number_sp">14sp</dimen>
 	<dimen name="scrollview_padding_top">30dp</dimen>
 
 	<!-- Stats -->
-	<dimen name="stats_padding_vertical">20dp</dimen>
+	<dimen name="stats_padding_vertical">15dp</dimen>
 	<dimen name="stats_padding_horizontal">25dp</dimen>
 	<dimen name="stats_range_padding">0dp</dimen>
 	<dimen name="stats_radius_thumb">7dp</dimen>

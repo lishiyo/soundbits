@@ -7,7 +7,7 @@
 	<color name="colorPrimaryShade">@color/brilliant_rose</color>
 	<color name="colorPrimaryDark">@color/space_time</color>
 	<color name="colorPurple">#5A1299</color>
-	<color name="colorAccent">@color/californian_coral</color>
+	<color name="colorAccent">@color/quartet_blue</color>
 	<color name="colorRed">@color/violet_red</color>
 	<color name="colorWhite">@color/ghost_white</color>
 	<color name="colorGrey">@color/quartz</color>
@@ -16,8 +16,10 @@
 	<color name="colorSoftAccent">@color/venice_verde</color>
 
 	<color name="colorDislike">@color/colorAccent</color>
-	<color name="colorDisabled">@color/colorGrey</color>
 	<color name="colorLike">@color/colorPrimary</color>
+	<color name="colorDisabled">#A8000000</color>
+
+	<color name="colorFab">@color/colorPrimary</color>
 
 	<!-- https://www.uplabs.com/posts/music-portal -->
 	<color name="midnight_blue">#1F1F74</color>

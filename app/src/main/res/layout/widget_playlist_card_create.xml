@@ -52,7 +52,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_alignParentRight="true"
-					android:layout_alignBaseline="@id/header_container"
+					android:layout_alignBaseline="@id/create_header_container"
 					app:layout_anchorGravity="bottom|right|end"
 					app:layout_anchor="@id/header_container"
 					android:elevation="12dp"
@@ -70,8 +70,19 @@
 						android:layout_gravity="right"
 						android:gravity="right"
 						android:transitionName="@string/playlist_fab_transition"
-						android:padding="8dp"
+						android:padding="@dimen/fake_fab_padding"
 						>
+
+						<TextView
+							android:id="@+id/fab_text"
+							android:layout_width="match_parent"
+							android:layout_height="match_parent"
+							android:textSize="@dimen/fab_number_sp"
+							android:textStyle="bold"
+							android:textAlignment="textStart"
+							android:textColor="@color/colorYellow"
+							android:fontFamily="@font/indie_flower"
+							/>
 
 						<ImageView
 							android:id="@+id/fab"
@@ -124,8 +135,7 @@
 								android:layout_centerVertical="true"
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
-								android:text="expand tracks"
-								android:fontFamily="@font/indie_flower"
+								android:text="@string/expand_tracks"
 								android:textColor="@color/colorWhite" />
 							<android.support.v7.widget.AppCompatImageView
 								android:id="@+id/create_headerIndicator"

@@ -2,7 +2,7 @@
 
 <FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/create_header_container"
+	android:id="@+id/add_header_container"
 	android:layout_width="match_parent"
 	android:layout_height="@dimen/playlist_card_image_height"
 	android:layout_alignParentTop="true"
@@ -10,7 +10,7 @@
 	>
 
 	<ImageView
-		android:id="@+id/create_playlist_image_background"
+		android:id="@+id/add_playlist_image_background"
 		android:src="@color/persian_blue"
 		android:scaleType="centerCrop"
 		android:layout_width="match_parent"
@@ -27,7 +27,7 @@
 		>
 		<!-- input new title -->
 		<EditText
-			android:id="@+id/create_playlist_new_title"
+			android:id="@+id/add_playlist_new_title"
 			android:layout_width="@dimen/title_input_width"
 			android:layout_height="wrap_content"
 			android:textAppearance="?android:attr/textAppearanceLarge"
