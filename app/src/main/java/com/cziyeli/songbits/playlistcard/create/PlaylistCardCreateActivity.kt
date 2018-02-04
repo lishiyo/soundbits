@@ -11,6 +11,7 @@ import android.view.View
 import com.bumptech.glide.Glide
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.di.App
 import com.cziyeli.songbits.playlistcard.SinglePlaylistIntent
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import com.synnapps.carouselview.ViewListener
@@ -42,7 +43,7 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
     }
 
     // pending tracks to create/add
-    lateinit var pendingTracks: List<TrackModel>
+    lateinit var initialPendingTracks: List<TrackModel>
 
     @Inject
     @field:Named("PlaylistCardCreateViewModel") lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -69,7 +70,7 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_playlistcard_create)
 
-        pendingTracks = intent.getParcelableArrayListExtra(EXTRA_PENDING_TRACKS)
+        initialPendingTracks = intent.getParcelableArrayListExtra<TrackModel>(EXTRA_PENDING_TRACKS) as List<TrackModel>
 
         // inject AFTER parsing out the tracks so the viewmodel starts out with it
         AndroidInjection.inject(this)
@@ -81,8 +82,8 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
         carouselHeaderUrl = if (savedInstanceState?.getString(EXTRA_HEADER_URL) != null) {
             savedInstanceState.getString(EXTRA_HEADER_URL)
         } else {
-            val headerImageIndex = Random().nextInt(pendingTracks.size)
-            pendingTracks[headerImageIndex].imageUrl
+            val headerImageIndex = Random().nextInt(initialPendingTracks.size)
+            initialPendingTracks[headerImageIndex].imageUrl
         }
         create_header_carousel.viewTreeObserver.addOnGlobalLayoutListener {
             setCarousel()
@@ -93,13 +94,17 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(PlaylistCardCreateViewModel::class.java)
         initViewModel(viewModel)
 
-        // set up the widget
+        // set up the widget with the viewmodel's tracks
         onTouchListener = createOnTouchListener()
         create_playlist_card_widget.loadTracks(
-                pendingTracks,
+                viewModel.pendingTracks,
                 null,
                 onTouchListener
         )
+        // delegate ui events to the mvi view
+        create_fab_button.setOnClickListener { v ->
+            create_playlist_card_widget.createPlaylist(App.getCurrentUserId(), viewModel.pendingTracks)
+        }
     }
 
     private fun createOnTouchListener() : RecyclerTouchListener {

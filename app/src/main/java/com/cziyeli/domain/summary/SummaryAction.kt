@@ -1,6 +1,7 @@
 package com.cziyeli.domain.summary
 
 import com.cziyeli.commons.mvibase.MviAction
+import com.cziyeli.domain.playlistcard.PlaylistCardActionMarker
 import com.cziyeli.domain.tracks.TrackModel
 
 /**
@@ -18,14 +19,14 @@ sealed class SummaryAction : SummaryActionMarker {
                                    val description: String?, // optional description
                                    val public: Boolean = false,
                                    val tracks: List<TrackModel> = listOf()
-    ) : SummaryAction()
+    ) : SummaryAction(), PlaylistCardActionMarker
 
     // Add tracks to a playlist
     // https://developer.spotify.com/web-api/console/post-playlist-tracks/
     class AddTracksPlaylist(val ownerId: String,
                             val playlistId: String,
                             val tracks: List<TrackModel> // map to single string of track uris
-    ) : SummaryAction()
+    ) : SummaryAction(), PlaylistCardActionMarker
 
     // Save tracks to local database
     class SaveTracks(val tracks: List<TrackModel>,

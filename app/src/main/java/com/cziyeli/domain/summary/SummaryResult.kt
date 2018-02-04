@@ -2,6 +2,7 @@ package com.cziyeli.domain.summary
 
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviResult
+import com.cziyeli.domain.playlistcard.PlaylistCardResultMarker
 import com.cziyeli.domain.tracks.TrackModel
 import kaaes.spotify.webapi.android.models.SnapshotId
 
@@ -10,7 +11,11 @@ import kaaes.spotify.webapi.android.models.SnapshotId
  */
 interface SummaryResultMarker : MviResult
 
-sealed class SummaryResult(var status: MviResult.Status = MviResult.Status.IDLE, var error: Throwable? = null) : SummaryResultMarker {
+enum class SinglePlaylistResult : MviResult.StatusInterface {
+    SUCCESS, ERROR, LOADING
+}
+
+sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE, var error: Throwable? = null) : SummaryResultMarker {
     companion object {
         private val TAG = SummaryResult::class.simpleName
     }
@@ -28,7 +33,7 @@ sealed class SummaryResult(var status: MviResult.Status = MviResult.Status.IDLE,
             }
             fun createError(throwable: Throwable,
                             trackStats: TrackListStats? = null) : FetchLikedStats {
-                return FetchLikedStats(MviResult.Status.FAILURE, throwable, trackStats)
+                return FetchLikedStats(MviResult.Status.ERROR, throwable, trackStats)
             }
             fun createLoading(): FetchLikedStats {
                 return FetchLikedStats(MviResult.Status.LOADING, null, null)
@@ -39,12 +44,12 @@ sealed class SummaryResult(var status: MviResult.Status = MviResult.Status.IDLE,
     /**
      * Create a playlist out of tracks.
      */
-    class CreatePlaylistWithTracks(status: MviResult.Status,
+    class CreatePlaylistWithTracks(status: MviResult.StatusInterface,
                                    error: Throwable? = null,
                                    val playlistId: String? = null,
                                    val snapshotId: SnapshotId? = null
 //                                   val tracks: List<TrackModel> = listOf()
-    ) : SummaryResult(status, error) {
+    ) : SummaryResult(status, error), PlaylistCardResultMarker {
         companion object {
             fun createSuccess(playlistId: String,
                               snapshotId: SnapshotId
@@ -53,7 +58,7 @@ sealed class SummaryResult(var status: MviResult.Status = MviResult.Status.IDLE,
                 return CreatePlaylistWithTracks(MviResult.Status.SUCCESS, playlistId = playlistId, snapshotId = snapshotId)
             }
             fun createError(throwable: Throwable) : CreatePlaylistWithTracks {
-                return CreatePlaylistWithTracks(MviResult.Status.FAILURE, throwable)
+                return CreatePlaylistWithTracks(MviResult.Status.ERROR, throwable)
             }
             fun createLoading(): CreatePlaylistWithTracks {
                 return CreatePlaylistWithTracks(MviResult.Status.LOADING)
@@ -76,7 +81,7 @@ sealed class SummaryResult(var status: MviResult.Status = MviResult.Status.IDLE,
             }
             fun createError(throwable: Throwable) : SaveTracks {
                 Utils.log(TAG, "SaveAllTracks --- createError! ${throwable.localizedMessage}")
-                return SaveTracks(MviResult.Status.FAILURE, throwable)
+                return SaveTracks(MviResult.Status.ERROR, throwable)
             }
             fun createLoading(): SaveTracks {
                 return SaveTracks(MviResult.Status.LOADING, null)

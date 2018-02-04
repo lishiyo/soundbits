@@ -45,7 +45,7 @@ sealed class TrackResult(var status: MviResult.StatusInterface = MviResult.Statu
             fun createError(throwable: Throwable,
                             currentTrack: TrackModel?,
                             currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED) : CommandPlayerResult {
-                return CommandPlayerResult(MviResult.Status.FAILURE, throwable, currentTrack, currentPlayerState)
+                return CommandPlayerResult(MviResult.Status.ERROR, throwable, currentTrack, currentPlayerState)
             }
             fun createLoading(currentTrack: TrackModel,
                               currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED): CommandPlayerResult {
@@ -67,7 +67,7 @@ sealed class TrackResult(var status: MviResult.StatusInterface = MviResult.Statu
             fun createError(throwable: Throwable,
                             currentTrack: TrackModel? = null) : ChangePrefResult {
                 // roll back to the original pref
-                return ChangePrefResult(MviResult.Status.FAILURE, throwable, currentTrack, currentTrack?.pref)
+                return ChangePrefResult(MviResult.Status.ERROR, throwable, currentTrack, currentTrack?.pref)
             }
         }
     }

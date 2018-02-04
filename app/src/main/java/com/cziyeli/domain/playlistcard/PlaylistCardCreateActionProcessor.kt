@@ -2,9 +2,7 @@ package com.cziyeli.domain.playlistcard
 
 import com.cziyeli.commons.Utils
 import com.cziyeli.data.Repository
-import com.cziyeli.domain.summary.StatsAction
-import com.cziyeli.domain.summary.StatsResult
-import com.cziyeli.domain.summary.TrackListStats
+import com.cziyeli.domain.summary.*
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -23,10 +21,9 @@ class PlaylistCardCreateActionProcessor @Inject constructor(private val reposito
                     // given tracks list -> grab stats
                     shared.ofType<StatsAction.FetchStats>(StatsAction.FetchStats::class.java)
                             .compose(fetchStatsProcessor),
-                    // given tracks list -> grab stats TODO remove
-                    shared.ofType<StatsAction.FetchStats>(StatsAction.FetchStats::class.java)
-                            .take(0)
-                            .compose(fetchStatsProcessor)
+                    // create new playlist from tracks
+                     shared.ofType<SummaryAction.CreatePlaylistWithTracks>(SummaryAction.CreatePlaylistWithTracks::class.java)
+                             .compose(mCreatePlaylistProcessor)
             ).mergeWith(
                     // Error for not implemented actions
                     shared.filter { v -> (v !is PlaylistCardActionMarker) }
@@ -50,6 +47,23 @@ class PlaylistCardCreateActionProcessor @Inject constructor(private val reposito
             .map { trackStats -> StatsResult.FetchStats.createSuccess(trackStats) }
             .onErrorReturn { err -> StatsResult.FetchStats.createError(err) }
             .startWith(StatsResult.FetchStats.createLoading())
+            .retry() // don't unsubscribe
+    }
+
+    private val mCreatePlaylistProcessor: ObservableTransformer<SummaryAction.CreatePlaylistWithTracks,
+            SummaryResult.CreatePlaylistWithTracks> = ObservableTransformer {
+        action -> action.switchMap {
+        act -> repository
+            .createPlaylist(act.ownerId, act.name, act.description, act.public)
+            .subscribeOn(schedulerProvider.io())
+            .flatMapObservable { playlist ->
+                Utils.mLog(TAG, "createPlaylistProcessor", "doAfterSuccess!", playlist.toString())
+                repository.addTracksToPlaylist(act.ownerId, playlist.id, act.tracks.map { it.uri }).subscribeOn(schedulerProvider.io())
+            }
+    }
+            .map { pair -> SummaryResult.CreatePlaylistWithTracks.createSuccess(pair.first, pair.second) }
+            .onErrorReturn { SummaryResult.CreatePlaylistWithTracks.createError(it) }
+            .startWith(SummaryResult.CreatePlaylistWithTracks.createLoading())
             .retry() // don't unsubscribe
     }
 

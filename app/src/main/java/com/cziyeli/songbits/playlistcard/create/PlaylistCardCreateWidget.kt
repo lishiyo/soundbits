@@ -8,8 +8,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.cziyeli.commons.disableTouchTheft
 import com.cziyeli.commons.mvibase.MviView
+import com.cziyeli.commons.toast
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.cards.summary.SummaryIntent
 import com.cziyeli.songbits.playlistcard.SinglePlaylistIntent
 import com.cziyeli.songbits.playlistcard.StatsIntent
 import com.cziyeli.songbits.playlistcard.TrackRow
@@ -17,6 +19,7 @@ import com.cziyeli.songbits.playlistcard.TrackRowsAdapter
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import kotlinx.android.synthetic.main.playlist_header_create_new.view.*
 import kotlinx.android.synthetic.main.widget_playlist_card_create.view.*
 
 /**
@@ -59,6 +62,21 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
         create_tracks_recycler_view.adapter = adapter
         create_tracks_recycler_view.layoutManager = LinearLayoutManager(context)
         create_tracks_recycler_view.disableTouchTheft()
+    }
+
+    fun createPlaylist(ownerId: String, tracks: List<TrackModel>) {
+        if (create_playlist_new_title.text.isBlank()) {
+            "you have to give your playlist a name!".toast(context)
+            return
+        }
+
+        eventsPublisher.onNext(SummaryIntent.CreatePlaylistWithTracks(
+                    ownerId = ownerId,
+                    name = create_playlist_new_title.text.toString(),
+                    description = "via songbits",
+                    public = false,
+                    tracks = tracks)
+            )
     }
 
     override fun intents(): Observable<out SinglePlaylistIntent> {

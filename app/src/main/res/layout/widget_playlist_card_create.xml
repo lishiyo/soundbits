@@ -86,6 +86,8 @@
 
 						<ImageView
 							android:id="@+id/fab"
+							android:layout_marginLeft="@dimen/fake_fab_icon_margin"
+							android:layout_marginTop="@dimen/fake_fab_icon_margin"
 							android:layout_width="@dimen/fake_fab_diameter"
 							android:layout_height="@dimen/fake_fab_diameter"
 							android:src="@drawable/basic_plus"

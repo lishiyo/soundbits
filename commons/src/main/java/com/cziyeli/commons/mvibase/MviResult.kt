@@ -9,6 +9,6 @@ interface MviResult {
 
     // Most generic status, use if you don't need to differentiate from others (i.e. just generic success)
     enum class Status : StatusInterface {
-        LOADING, SUCCESS, FAILURE, IDLE
+        LOADING, SUCCESS, ERROR, IDLE
     }
 }

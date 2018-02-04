@@ -4,19 +4,23 @@ import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
+import android.widget.Toast
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviIntent
 import com.cziyeli.commons.mvibase.MviResult
 import com.cziyeli.commons.mvibase.MviViewModel
 import com.cziyeli.commons.mvibase.MviViewState
+import com.cziyeli.commons.toast
 import com.cziyeli.data.RepositoryImpl
-import com.cziyeli.domain.playlistcard.*
+import com.cziyeli.domain.playlistcard.PlaylistCardAction
+import com.cziyeli.domain.playlistcard.PlaylistCardActionMarker
+import com.cziyeli.domain.playlistcard.PlaylistCardCreateActionProcessor
+import com.cziyeli.domain.playlistcard.PlaylistCardResultMarker
 import com.cziyeli.domain.playlists.Playlist
-import com.cziyeli.domain.summary.StatsAction
-import com.cziyeli.domain.summary.StatsResult
-import com.cziyeli.domain.summary.StatsResultStatus
-import com.cziyeli.domain.summary.TrackListStats
+import com.cziyeli.domain.summary.*
 import com.cziyeli.domain.tracks.TrackModel
+import com.cziyeli.songbits.cards.summary.SummaryIntent
+import com.cziyeli.songbits.di.App
 import com.cziyeli.songbits.playlistcard.SinglePlaylistIntent
 import com.cziyeli.songbits.playlistcard.StatsIntent
 import io.reactivex.Observable
@@ -56,10 +60,14 @@ class PlaylistCardCreateViewModel @Inject constructor(
             BiFunction { previousState, result ->
         when (result) {
             is StatsResult.FetchStats -> return@BiFunction processFetchStats(previousState, result)
+            is SummaryResult.CreatePlaylistWithTracks -> return@BiFunction processCreatePlaylistResult(previousState, result)
             else -> return@BiFunction previousState
         }
     }
     private val compositeDisposable = CompositeDisposable()
+
+    var pendingTracks: List<TrackModel> = listOf()
+        get() = if (liveViewState.value?.pendingTracks == null) listOf() else liveViewState.value!!.pendingTracks
 
     init {
         initialViewState = initialState.copy()
@@ -89,6 +97,8 @@ class PlaylistCardCreateViewModel @Inject constructor(
     private fun actionFromIntent(intent: MviIntent) : PlaylistCardActionMarker {
         return when (intent) {
             is StatsIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
+            is SummaryIntent.CreatePlaylistWithTracks -> SummaryAction.CreatePlaylistWithTracks(intent.ownerId, intent.name,
+                    intent.description, intent.public, intent.tracks)
             else -> PlaylistCardAction.None
         }
     }
@@ -111,6 +121,32 @@ class PlaylistCardCreateViewModel @Inject constructor(
             }
             StatsResultStatus.ERROR -> {
                 newState.status = StatsResultStatus.ERROR
+                newState.error = result.error
+            }
+        }
+
+        return newState
+    }
+
+    private fun processCreatePlaylistResult(previousState: PlaylistCardCreateViewModel.ViewState,
+                                            result: SummaryResult.CreatePlaylistWithTracks
+    ) : PlaylistCardCreateViewModel.ViewState {
+        val newState = previousState.copy()
+        newState.error = null
+
+        Utils.mLog(TAG, "processCreatePlaylistResult", "statis", result.status.toString(),
+                "created with snapshotId: ", "${result.snapshotId?.snapshot_id} for new playlist: ${result.playlistId}")
+
+        when (result.status) {
+            MviResult.Status.LOADING -> {
+                newState.status =  MviResult.Status.LOADING
+            }
+            MviResult.Status.SUCCESS -> {
+                newState.status = MviResult.Status.SUCCESS
+                "create playlist success! ${result.playlistId}".toast(App.appComponent.appContext(), Toast.LENGTH_SHORT)
+            }
+            MviResult.Status.ERROR -> {
+                newState.status = MviResult.Status.ERROR
                 newState.error = result.error
             }
         }

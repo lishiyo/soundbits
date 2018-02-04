@@ -28,8 +28,8 @@ class PlaylistCardCreateModule {
 
     @Provides
     @PerActivity
-    fun providePendingTracks(activity: PlaylistCardCreateActivity): List<TrackModel> {
-        return activity.pendingTracks // call inject after binding this in the activity!
+    fun provideInitialPendingTracks(activity: PlaylistCardCreateActivity): List<TrackModel> {
+        return activity.initialPendingTracks // call inject after binding this in the activity!
     }
 
     @Provides

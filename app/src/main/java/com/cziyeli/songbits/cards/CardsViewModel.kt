@@ -150,7 +150,7 @@ class CardsViewModel @Inject constructor(
             MviResult.Status.SUCCESS -> {
                 newState.status = MviViewState.Status.SUCCESS
             }
-            MviResult.Status.FAILURE -> {
+            MviResult.Status.ERROR -> {
                 newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
@@ -176,7 +176,7 @@ class CardsViewModel @Inject constructor(
                         "currentDislikes: ", newState.currentDislikes.size.toString(),
                         "unseen: ", newState.unseen.size.toString())
             }
-            MviResult.Status.FAILURE -> {
+            MviResult.Status.ERROR -> {
                 newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }

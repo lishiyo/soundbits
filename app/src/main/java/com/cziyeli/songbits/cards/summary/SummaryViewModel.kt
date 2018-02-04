@@ -108,7 +108,7 @@ class SummaryViewModel @Inject constructor(
                 newState.status = MviViewState.Status.SUCCESS
                 newState.stats = result.trackStats
             }
-            MviResult.Status.FAILURE -> {
+            MviResult.Status.ERROR -> {
                 newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
@@ -130,7 +130,7 @@ class SummaryViewModel @Inject constructor(
                 Utils.mLog(TAG, "processSaveResult SUCCESS", "insertedTracks: ",
                         "${result.insertedTracks!!.size} for playlist: ${result.playlistId}")
             }
-            MviResult.Status.FAILURE -> {
+            MviResult.Status.ERROR -> {
                 newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
@@ -154,7 +154,7 @@ class SummaryViewModel @Inject constructor(
                 newState.status = MviViewState.Status.SUCCESS
                 "create playlist success! ${result.playlistId}".toast(App.appComponent.appContext(), Toast.LENGTH_SHORT)
             }
-            MviResult.Status.FAILURE -> {
+            MviResult.Status.ERROR -> {
                 newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
