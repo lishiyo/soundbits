@@ -66,7 +66,6 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
 
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_playlist_card_create, this, true)
-        descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
     }
 
     fun loadTracks(tracks: List<TrackModel>,

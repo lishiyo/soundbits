@@ -107,7 +107,7 @@
 						android:layout_height="wrap_content"
 						android:gravity="center_vertical|left"
 						android:paddingTop="@dimen/stats_padding_vertical"
-						android:paddingLeft="@dimen/stats_padding_vertical"
+						android:paddingLeft="@dimen/stats_padding_horizontal"
 						android:paddingBottom="10dp"
 						>
 

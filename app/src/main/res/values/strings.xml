@@ -46,5 +46,5 @@
 	<string name="expand_tracks">expand swiped</string>
 	<string name="create_expand_tracks">playlist tracks</string>
 	<string name="create_card_label">Nice! Create a new playlist or</string>
-	<string name="create_card_label_2">add to an existing one\nwith these %1$d tracks!</string>
+	<string name="create_card_label_2">add to an existing one with\nthese %1$d tracks!</string>
 </resources>
