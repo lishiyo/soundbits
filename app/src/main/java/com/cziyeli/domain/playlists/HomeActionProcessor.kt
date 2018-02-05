@@ -2,6 +2,7 @@ package com.cziyeli.domain.playlists
 
 import com.cziyeli.commons.Utils
 import com.cziyeli.data.Repository
+import com.cziyeli.domain.user.QuickCounts
 import com.cziyeli.domain.user.User
 import com.cziyeli.domain.user.UserManager
 import io.reactivex.Observable
@@ -17,17 +18,18 @@ import javax.inject.Singleton
  * Created by connieli on 12/31/17.
  */
 @Singleton
-class OldHomeActionProcessor @Inject constructor(private val repository: Repository,
-                                                 private val schedulerProvider: BaseSchedulerProvider,
-                                                 private val userManager : UserManager) {
-    private val TAG = OldHomeActionProcessor::class.java.simpleName
+class HomeActionProcessor @Inject constructor(private val repository: Repository,
+                                              private val schedulerProvider: BaseSchedulerProvider,
+                                              private val userManager : UserManager) {
+    private val TAG = HomeActionProcessor::class.java.simpleName
 
     val combinedProcessor: ObservableTransformer<HomeAction, HomeResult> = ObservableTransformer { acts ->
         acts.publish { shared ->
             Observable.merge<HomeResult>(
                     shared.ofType<PlaylistsAction.UserPlaylists>(PlaylistsAction.UserPlaylists::class.java).compose(userPlaylistsProcessor),
                     shared.ofType<UserAction.FetchUser>(UserAction.FetchUser::class.java).compose(fetchUserProcessor),
-                    shared.ofType<UserAction.ClearUser>(UserAction.ClearUser::class.java).compose(clearUserProcessor)
+                    shared.ofType<UserAction.ClearUser>(UserAction.ClearUser::class.java).compose(clearUserProcessor),
+                    shared.ofType<UserAction.FetchQuickCounts>(UserAction.FetchQuickCounts::class.java).compose(fetchQuickCountsProcessor)
             ).mergeWith(
                     // Error for not implemented actions
                     shared.filter { v -> v !is HomeAction
@@ -37,6 +39,7 @@ class OldHomeActionProcessor @Inject constructor(private val repository: Reposit
     }
 
     // ==== individual list of processors (action -> result) ====
+
     private val userPlaylistsProcessor : ObservableTransformer<PlaylistsAction.UserPlaylists, PlaylistsResult.UserPlaylists>
             = ObservableTransformer { action -> action.switchMap {
                     act -> repository
@@ -53,6 +56,18 @@ class OldHomeActionProcessor @Inject constructor(private val repository: Reposit
                     .retry()
             }
 
+    private val fetchQuickCountsProcessor : ObservableTransformer<UserAction.FetchQuickCounts, UserResult.FetchQuickCounts> =
+            ObservableTransformer { action ->
+                action.switchMap { act ->
+                    repository.fetchUserQuickStats().subscribeOn(schedulerProvider.io()).toObservable()
+                }.map { (total, liked, disliked) -> QuickCounts(total, liked, disliked) }
+                .doOnNext { Utils.mLog(TAG, "fetchQuickCountsProcessor","got quickCounts: $it")}
+                .observeOn(schedulerProvider.ui())
+                .map { quickCounts -> UserResult.FetchQuickCounts.createSuccess(quickCounts) }
+                .onErrorReturn { err -> UserResult.FetchQuickCounts.createError(err) }
+                .startWith(UserResult.FetchQuickCounts.createLoading())
+                .retry()
+            }
 
     // fetch and save the current user in UserManager
     private val fetchUserProcessor : ObservableTransformer<UserAction.FetchUser, UserResult.FetchUser>
@@ -63,7 +78,6 @@ class OldHomeActionProcessor @Inject constructor(private val repository: Reposit
                     .toObservable()
             }
             .map { User.create(it) }
-            .doOnNext { Utils.mLog(TAG, "fetchUserProcessor", "user: ${it} ")}
             .doOnNext { user ->
                 userManager.saveUser(user)
             }
@@ -73,6 +87,7 @@ class OldHomeActionProcessor @Inject constructor(private val repository: Reposit
             .retry()
     }
 
+    // logout the user
     private val clearUserProcessor : ObservableTransformer<UserAction.ClearUser, UserResult.ClearUser> = ObservableTransformer { action ->
         action.doOnNext { _ -> userManager.clearUser() }
                 .doOnNext { Utils.mLog(TAG, "clearUserProcessor", "user: ${it} ")}

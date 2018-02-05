@@ -25,7 +25,7 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
                     emitter.onError(Throwable(error?.localizedMessage))
                 }
 
-                override fun success(t: UserPrivate?, response: Response?) {
+                override fun success(t: UserPrivate, response: Response?) {
                     emitter.onSuccess(t)
                 }
             })
@@ -38,7 +38,7 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
             val params = mapOf("limit" to limit, "offset" to offset)
 
             api.service.getMyPlaylists(params, object : Callback<Pager<PlaylistSimple>> {
-                override fun success(pagedResponse: Pager<PlaylistSimple>?, response: Response?) {
+                override fun success(pagedResponse: Pager<PlaylistSimple>, response: Response?) {
                     emitter.onNext(pagedResponse)
                 }
 
@@ -62,7 +62,7 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
             }
 
             api.service.getPlaylistTracks(ownerId, playlistId, params, object : Callback<Pager<PlaylistTrack>> {
-                override fun success(pagedResponse: Pager<PlaylistTrack>?, response: Response?) {
+                override fun success(pagedResponse: Pager<PlaylistTrack>, response: Response?) {
                     emitter.onNext(pagedResponse)
                 }
 
@@ -78,7 +78,7 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
         return Observable.create<AudioFeaturesTracks>({ emitter ->
             val params = trackIds.joinToString(separator = ",")
             api.service.getTracksAudioFeatures(params, object : Callback<AudioFeaturesTracks> {
-                override fun success(resp: AudioFeaturesTracks?, response: Response?) {
+                override fun success(resp: AudioFeaturesTracks, response: Response?) {
                     Utils.mLog(TAG, "fetchTracksStats", "success!")
                     emitter.onNext(resp)
                 }
@@ -95,7 +95,7 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
         return Single.create<Playlist>({ emitter ->
             val params = mapOf("description" to description, "public" to public, "name" to name)
             api.service.createPlaylist(ownerId, params, object : Callback<Playlist> {
-                override fun success(resp: Playlist?, response: Response?) {
+                override fun success(resp: Playlist, response: Response?) {
                     emitter.onSuccess(resp)
                 }
 

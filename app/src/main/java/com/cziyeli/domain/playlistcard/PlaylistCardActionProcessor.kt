@@ -38,7 +38,7 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                     shared.ofType<PlaylistCardAction.FetchPlaylistTracks>(PlaylistCardAction.FetchPlaylistTracks::class.java)
                             .groupBy { it.onlySwiped }
                             .flatMap { grouped ->
-                                val compose: Observable<PlaylistCardResultMarker> = if (grouped.key) {
+                                val compose: Observable<PlaylistCardResultMarker> = if (grouped.key == true) {
                                     Utils.mLog(TAG, "FetchPlaylistTracks!", "onlySwiped -- fetching stashed")
                                     grouped.compose(fetchStashedTracksForPlaylist).compose(mapStashedTracksProcessor)
                                 } else {

@@ -14,10 +14,10 @@
 
 	<!-- TAB: HOME -->
 	<dimen name="home_header_height">160dp</dimen>
-	<dimen name="user_mini_card_height">140dp</dimen>
+	<dimen name="user_mini_card_height">145dp</dimen>
 	<dimen name="playlist_item_width">110dp</dimen>
 	<dimen name="playlist_image_height">110dp</dimen>
-	<dimen name="card_radius">4dp</dimen>
+	<dimen name="card_radius">6dp</dimen>
 	<dimen name="grid_playlist_margin">4dp</dimen>
 	<dimen name="user_card_image">66dp</dimen>
 	<dimen name="user_card_image_half">34dp</dimen>
@@ -35,8 +35,8 @@
 	<dimen name="fake_fab_create_diameter">45dp</dimen>
 	<dimen name="fab_number_sp">14sp</dimen>
 	<dimen name="scrollview_padding_top">30dp</dimen>
-	<dimen name="playlist_card_elevation">4dp</dimen>
-	<dimen name="playlist_card_finished_elevation">14dp</dimen>
+	<dimen name="playlist_card_elevation">6dp</dimen>
+	<dimen name="playlist_card_finished_elevation">24dp</dimen>
 
 	<!-- Stats -->
 	<dimen name="stats_padding_vertical">15dp</dimen>

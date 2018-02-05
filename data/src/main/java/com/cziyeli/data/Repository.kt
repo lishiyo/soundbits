@@ -27,6 +27,8 @@ interface Repository {
                            limit: Int = 20, offset: Int = 0
     ): Observable<Pager<PlaylistSimple>>
 
+    fun fetchUserQuickStats() : Flowable<Triple<Int, Int, Int>>
+
     // ============ SINGLE PLAYLIST ACTIONS ============
 
     // get a playlist's tracks

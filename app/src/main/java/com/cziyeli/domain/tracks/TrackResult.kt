@@ -16,7 +16,7 @@ sealed class TrackResult(var status: MviResult.StatusInterface = MviResult.Statu
     ) : TrackResult(status, error) {
         // personal status enum
         enum class Status : MviResult.StatusInterface {
-            SUCCESS, FAILURE, LOADING
+            SUCCESS, ERROR, LOADING
         }
 
         companion object {
@@ -24,7 +24,7 @@ sealed class TrackResult(var status: MviResult.StatusInterface = MviResult.Statu
                 return LoadTrackCards(Status.SUCCESS, null, items)
             }
             fun createError(throwable: Throwable) : LoadTrackCards {
-                return LoadTrackCards(Status.FAILURE, throwable)
+                return LoadTrackCards(Status.ERROR, throwable)
             }
             fun createLoading(): LoadTrackCards {
                 return LoadTrackCards(Status.LOADING, null)

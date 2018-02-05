@@ -26,6 +26,7 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kaaes.spotify.webapi.android.SpotifyApi
 import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.android.synthetic.main.widget_quickcounts_row.*
 import javax.inject.Inject
 
 
@@ -44,7 +45,7 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     private lateinit var mLayoutManager: GridLayoutManager
 
     // intents
-    private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadPlaylists>()
+    private val mLoadPublisher = PublishSubject.create<HomeIntent>()
 
     // adapter
     private lateinit var PLAYLIST_RECENT: PlaylistSection
@@ -73,20 +74,23 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // bind the view model before events
+        initViewModel()
+
         // set up the user mini card
         loadUserCard()
 
         // set up the views
         setUpSectionedAdapter(view, savedInstanceState)
 
-        // bind the view model after all views are done
-        initViewModel()
-
         // fetch the playlists
         mLoadPublisher.onNext(HomeIntent.LoadPlaylists())
     }
 
+    // the little mini card with the stats
     private fun loadUserCard() {
+        mLoadPublisher.onNext(HomeIntent.FetchUserQuickCounts())
+
         val userName = userManager.getCurrentUser().display_name
         val userImage = userManager.getCurrentUser().cover_image
 
@@ -94,6 +98,7 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
         Glide.with(context).load(userImage).into(user_card_image)
     }
 
+    // show loading view for list of sections
     private fun showLoading(vararg sections: Section) {
         // switch to loading
         sections.forEach { it.state = Section.State.LOADING }
@@ -147,7 +152,7 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
 
     override fun render(state: HomeViewState) {
         when {
-            // TODO this is assuming everything is for PLAYLIST_RECENT
+            // TODO this is assuming everything is for section PLAYLIST_RECENT
             state.status == MviViewState.Status.SUCCESS && state.playlists.isNotEmpty() -> {
                 val currentCount = Math.max(0, PLAYLIST_RECENT.contentItemsTotal)
                 val newPlaylists = state.playlists.subList(currentCount, state.playlists.size)
@@ -161,12 +166,21 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
                 Utils.mLog(TAG, "RENDER", "successful but empty")
             }
             state.status == MviViewState.Status.LOADING -> {
-                showLoading(PLAYLIST_RECENT)
+//                showLoading(PLAYLIST_RECENT)
             }
             state.status == MviViewState.Status.ERROR -> {
                 // todo show error state
                 Utils.mLog(TAG, "RENDER", "error")
             }
+        }
+
+        if (state.status == MviViewState.Status.SUCCESS) {
+            quickstats_likes.setTextColor(resources.getColor(R.color.colorWhite))
+            quickstats_dislikes.setTextColor(resources.getColor(R.color.colorWhite))
+            quickstats_total.setTextColor(resources.getColor(R.color.colorWhite))
+            quickstats_likes.text = "${state.quickCounts?.likedCount} likes"
+            quickstats_dislikes.text = "${state.quickCounts?.dislikedCount} dislikes"
+            quickstats_total.text = "${state.quickCounts?.totalCount} swiped"
         }
 
     }

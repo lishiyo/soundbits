@@ -10,7 +10,7 @@ interface HomeResult : MviResult
 
 sealed class PlaylistsResult(var status: Status = Status.IDLE, var error: Throwable? = null) : HomeResult {
     enum class Status {
-        LOADING, SUCCESS, FAILURE, IDLE
+        LOADING, SUCCESS, ERROR, IDLE
     }
 
     // fetching user playlists
@@ -21,7 +21,7 @@ sealed class PlaylistsResult(var status: Status = Status.IDLE, var error: Throwa
                 return UserPlaylists(Status.SUCCESS, null, playlists)
             }
             fun createError(throwable: Throwable) : UserPlaylists {
-                return UserPlaylists(Status.FAILURE, throwable)
+                return UserPlaylists(Status.ERROR, throwable)
             }
             fun createLoading(): UserPlaylists {
                 return UserPlaylists(Status.LOADING, null)

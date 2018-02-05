@@ -7,6 +7,7 @@ import com.cziyeli.commons.mvibase.MviViewModel
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlists.*
+import com.cziyeli.domain.user.QuickCounts
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
@@ -17,7 +18,7 @@ import javax.inject.Inject
 
 class HomeViewModel @Inject constructor(
         val repository: RepositoryImpl,
-        actionProcessor: OldHomeActionProcessor,
+        actionProcessor: HomeActionProcessor,
         schedulerProvider: BaseSchedulerProvider
 ) : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, HomeViewState> {
     private val TAG = HomeViewModel::class.simpleName
@@ -49,6 +50,7 @@ class HomeViewModel @Inject constructor(
             is PlaylistsResult.UserPlaylists -> return@BiFunction processUserPlaylists(previousState, result)
             is UserResult.FetchUser -> return@BiFunction processCurrentUser(previousState, result)
             is UserResult.ClearUser -> return@BiFunction processClearedUser(previousState, result)
+            is UserResult.FetchQuickCounts -> return@BiFunction processUserQuickCounts(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -68,11 +70,11 @@ class HomeViewModel @Inject constructor(
                 .scan(HomeViewState(), reducer)
                 // Emit the last one event of the stream on subscription
                 // Useful when a View rebinds to the ViewModel after rotation.
-                .replay(0)
+//                .replay(1)
                 // Create the stream on creation without waiting for anyone to subscribe
                 // This allows the stream to stay alive even when the UI disconnects and
                 // match the stream's lifecycle to the ViewModel's one.
-                .autoConnect(0) // automatically connect
+//                .autoConnect(0) // automatically connect
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
@@ -88,6 +90,7 @@ class HomeViewModel @Inject constructor(
             is HomeIntent.LoadPlaylists -> PlaylistsAction.UserPlaylists(intent.limit, intent.offset)
             is HomeIntent.FetchUser -> UserAction.FetchUser()
             is HomeIntent.LogoutUser -> UserAction.ClearUser()
+            is HomeIntent.FetchUserQuickCounts -> UserAction.FetchQuickCounts()
             else -> PlaylistsAction.None // no-op all other events
         }
     }
@@ -123,7 +126,7 @@ class HomeViewModel @Inject constructor(
                 newState.status = MviViewState.Status.SUCCESS
                 newState.playlists.addAll(result.playlists)
             }
-            PlaylistsResult.Status.FAILURE -> {
+            PlaylistsResult.Status.ERROR -> {
                 newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
@@ -132,10 +135,35 @@ class HomeViewModel @Inject constructor(
         return newState
     }
 
+    private fun processUserQuickCounts(previousState: HomeViewState, result: UserResult.FetchQuickCounts) : HomeViewState {
+        val newState: HomeViewState = previousState.copy()
+        newState.error = null
+        Utils.mLog(TAG, "processUserQuickCounts", "status", result.status.toString())
+
+        when (result.status) {
+            UserResult.FetchQuickCounts.Status.SUCCESS -> {
+                newState.status = MviViewState.Status.SUCCESS
+                newState.quickCounts = result.quickCounts
+            }
+            UserResult.FetchQuickCounts.Status.ERROR -> {
+                newState.status = MviViewState.Status.SUCCESS
+                newState.error = result.error
+            }
+        }
+        return newState
+    }
+
     private fun processClearedUser(previousState: HomeViewState, result: UserResult.ClearUser) : HomeViewState {
         val newState: HomeViewState = previousState.copy()
-
+        newState.error = null
         Utils.mLog(TAG, "processClearedUser", "status", result.status.toString())
+
+        when (result.status) {
+            UserResult.Status.ERROR -> {
+                newState.error = result.error
+            }
+        }
+
         return newState
     }
 
@@ -150,13 +178,13 @@ class HomeViewModel @Inject constructor(
             UserResult.Status.LOADING -> {
                 newState.loggedInStatus = UserResult.Status.LOADING
             }
-            UserResult.Status.SUCCESS, UserResult.Status.IDLE -> {
+            UserResult.Status.SUCCESS -> {
                 if (result.currentUser != null) {
                     newState.loggedInStatus = UserResult.Status.SUCCESS
                 }
             }
-            UserResult.Status.FAILURE -> {
-                newState.loggedInStatus = UserResult.Status.FAILURE
+            UserResult.Status.ERROR -> {
+                newState.loggedInStatus = UserResult.Status.ERROR
                 newState.error = result.error
             }
         }
@@ -168,5 +196,6 @@ class HomeViewModel @Inject constructor(
 data class HomeViewState(var status: MviViewState.Status = MviViewState.Status.IDLE,
                          var loggedInStatus: UserResult.Status = UserResult.Status.IDLE,
                          var error: Throwable? = null,
-                         val playlists: MutableList<Playlist> = mutableListOf()
+                         val playlists: MutableList<Playlist> = mutableListOf(),
+                         var quickCounts: QuickCounts? = null
 ) : MviViewState

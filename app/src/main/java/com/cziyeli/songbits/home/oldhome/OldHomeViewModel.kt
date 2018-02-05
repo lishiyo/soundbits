@@ -21,7 +21,7 @@ import javax.inject.Inject
  */
 class OldHomeViewModel @Inject constructor(
         val repository: RepositoryImpl,
-        actionProcessor: OldHomeActionProcessor,
+        actionProcessor: HomeActionProcessor,
         schedulerProvider: BaseSchedulerProvider
 ) : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, HomeViewState> {
     private val TAG = OldHomeViewModel::class.simpleName
@@ -127,7 +127,7 @@ class OldHomeViewModel @Inject constructor(
                 newState.status = MviViewState.Status.SUCCESS
                 newState.playlists.addAll(result.playlists)
             }
-            PlaylistsResult.Status.FAILURE -> {
+            PlaylistsResult.Status.ERROR -> {
                 newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
@@ -159,8 +159,8 @@ class OldHomeViewModel @Inject constructor(
                     newState.loggedInStatus = UserResult.Status.SUCCESS
                 }
             }
-            UserResult.Status.FAILURE -> {
-                newState.loggedInStatus = UserResult.Status.FAILURE
+            UserResult.Status.ERROR -> {
+                newState.loggedInStatus = UserResult.Status.ERROR
                 newState.error = result.error
             }
         }

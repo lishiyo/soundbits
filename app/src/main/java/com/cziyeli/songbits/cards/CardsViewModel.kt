@@ -128,7 +128,7 @@ class CardsViewModel @Inject constructor(
                 newState.status = TrackViewState.TracksLoadedStatus.SUCCESS
                 newState.allTracks.addAll(result.items.filter { it.isSwipeable })
             }
-            TrackResult.LoadTrackCards.Status.FAILURE -> {
+            TrackResult.LoadTrackCards.Status.ERROR -> {
                 newState.status = TrackViewState.TracksLoadedStatus.ERROR
                 newState.error = result.error
             }

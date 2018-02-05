@@ -57,6 +57,7 @@ dependencies {
     // Rx
     implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
     implementation "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxAndroidVersion"
+    implementation "io.reactivex.rxjava2:rxkotlin:2.2.0"
 
     // Dagger2
     implementation "com.google.dagger:dagger:$rootProject.ext.daggerVersion"

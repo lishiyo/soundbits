@@ -23,10 +23,18 @@ abstract class TracksDao {
     @Query("SELECT * FROM Tracks WHERE playlist_id = :playlistId AND cleared = 0")
     abstract fun getVisibleTracksByPlaylistId(playlistId: String): Flowable<List<TrackEntity>>
 
+    // get all visible
     @Query("SELECT * FROM Tracks WHERE cleared = 0 LIMIT :limit")
     abstract fun getVisibleTracks(limit: Int): Flowable<List<TrackEntity>>
 
-    // all liked
+    @Query("SELECT COUNT(*) FROM Tracks WHERE cleared = 0")
+    abstract fun getStashedTracksCount(): Flowable<Int>
+    @Query("SELECT COUNT(*) FROM Tracks WHERE cleared = 0 AND liked = 1")
+    abstract fun getStashedTracksLikedCount(): Flowable<Int>
+    @Query("SELECT COUNT(*) FROM Tracks WHERE cleared = 0 AND liked = 0")
+    abstract fun getStashedTracksDislikedCount(): Flowable<Int>
+
+    // get all visible and liked
     @Query("SELECT * FROM Tracks WHERE cleared = 0 AND liked = 1 LIMIT :limit")
     abstract fun getLikedTracks(limit: Int): Flowable<List<TrackEntity>>
 

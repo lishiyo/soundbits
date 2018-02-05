@@ -11,9 +11,9 @@ import com.cziyeli.commons.*
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.domain.playlists.UserResult
 import com.cziyeli.domain.user.UserManager
+import com.cziyeli.songbits.home.HomeIntent
 import com.cziyeli.songbits.home.HomeViewModel
 import com.cziyeli.songbits.home.oldhome.OldHomeActivity
-import com.cziyeli.songbits.home.HomeIntent
 import com.cziyeli.songbits.root.RootActivity
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         Utils.setVisible(nav_root_activity, isAccessTokenValid())
 
         when (state.loggedInStatus) {
-            UserResult.Status.FAILURE -> Utils.mLog(TAG, "render", "failed to save/logout current user")
+            UserResult.Status.ERROR -> Utils.mLog(TAG, "render", "failed to save/logout current user")
             UserResult.Status.SUCCESS -> Utils.mLog(TAG, "render", "saved/logged-out current user: ${userManager.getCurrentUser()}")
         }
     }

@@ -49,6 +49,8 @@ class UserManager @Inject constructor(@ForApplication context: Context) {
     }
 }
 
+data class QuickCounts(val totalCount: Int = 0, val likedCount: Int = 0, val dislikedCount: Int = 0)
+
 data class User(
         val display_name: String,
         val id: String,

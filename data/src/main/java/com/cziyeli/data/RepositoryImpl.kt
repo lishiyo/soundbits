@@ -8,6 +8,7 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.Flowables
 import kaaes.spotify.webapi.android.models.*
 import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import javax.inject.Inject
@@ -66,6 +67,16 @@ class RepositoryImpl @Inject constructor(
                 .subscribe { tracksDatabase.tracksDao().saveTracks(it) }
     }
 
+    override fun fetchUserQuickStats() : Flowable<Triple<Int, Int, Int>> {
+        return Flowables.zip<Int, Int, Int, Triple<Int, Int, Int>>(
+                tracksDatabase.tracksDao().getStashedTracksCount(),
+                tracksDatabase.tracksDao().getStashedTracksLikedCount(),
+                tracksDatabase.tracksDao().getStashedTracksDislikedCount(),
+                { totalCount: Int, likedCount: Int, dislikedCount: Int ->
+                    Triple(totalCount, likedCount, dislikedCount)
+                }
+        )
+    }
 
     ///////////////////////
     // ====== REMOTE ======
