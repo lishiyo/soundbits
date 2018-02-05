@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.home.HomeIntent
 import dagger.android.AndroidInjection
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -22,7 +23,7 @@ import javax.inject.Inject
  *
  * Created by connieli on 12/31/17.
  */
-class OldHomeActivity : AppCompatActivity(), MviView<OldHomeIntent, HomeViewState> {
+class OldHomeActivity : AppCompatActivity(), MviView<HomeIntent, HomeViewState> {
     private val TAG = OldHomeActivity::class.simpleName
 
     @Inject lateinit var api: SpotifyApi
@@ -35,7 +36,7 @@ class OldHomeActivity : AppCompatActivity(), MviView<OldHomeIntent, HomeViewStat
     private lateinit var playlistsAdapter: InfinitePlaylistsAdapter
 
     // intents
-    private val mLoadPublisher = PublishSubject.create<OldHomeIntent.LoadPlaylists>()
+    private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadPlaylists>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Dagger
@@ -51,10 +52,10 @@ class OldHomeActivity : AppCompatActivity(), MviView<OldHomeIntent, HomeViewStat
         // bind the view model after all views are done
         initViewModel()
 
-        mLoadPublisher.onNext(OldHomeIntent.LoadPlaylists())
+        mLoadPublisher.onNext(HomeIntent.LoadPlaylists())
     }
 
-    override fun intents(): Observable<out OldHomeIntent> {
+    override fun intents(): Observable<out HomeIntent> {
         return Observable.merge(
                 mLoadPublisher, // own load intent
                 playlistsAdapter.intents() // subviews intents

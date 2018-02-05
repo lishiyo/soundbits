@@ -1,5 +1,6 @@
 package com.cziyeli.domain.playlists
 
+import com.cziyeli.commons.Utils
 import com.cziyeli.data.Repository
 import com.cziyeli.domain.user.User
 import com.cziyeli.domain.user.UserManager
@@ -19,6 +20,8 @@ import javax.inject.Singleton
 class OldHomeActionProcessor @Inject constructor(private val repository: Repository,
                                                  private val schedulerProvider: BaseSchedulerProvider,
                                                  private val userManager : UserManager) {
+    private val TAG = OldHomeActionProcessor::class.java.simpleName
+
     val combinedProcessor: ObservableTransformer<HomeAction, HomeResult> = ObservableTransformer { acts ->
         acts.publish { shared ->
             Observable.merge<HomeResult>(
@@ -60,6 +63,7 @@ class OldHomeActionProcessor @Inject constructor(private val repository: Reposit
                     .toObservable()
             }
             .map { User.create(it) }
+            .doOnNext { Utils.mLog(TAG, "fetchUserProcessor", "user: ${it} ")}
             .doOnNext { user ->
                 userManager.saveUser(user)
             }
@@ -71,6 +75,7 @@ class OldHomeActionProcessor @Inject constructor(private val repository: Reposit
 
     private val clearUserProcessor : ObservableTransformer<UserAction.ClearUser, UserResult.ClearUser> = ObservableTransformer { action ->
         action.doOnNext { _ -> userManager.clearUser() }
+                .doOnNext { Utils.mLog(TAG, "clearUserProcessor", "user: ${it} ")}
                 .map { _ -> UserResult.ClearUser.createSuccess() }
                 .onErrorReturn { err -> UserResult.ClearUser.createError(err) }
                 .startWith(UserResult.ClearUser.createLoading())

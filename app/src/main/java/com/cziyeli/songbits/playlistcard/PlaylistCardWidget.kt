@@ -29,6 +29,7 @@ import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.widget_playlist_card.view.*
+import kotlinx.android.synthetic.main.widget_quickcounts_row.view.*
 
 /**
  * The normal playlist card (*not* the create/pending one).

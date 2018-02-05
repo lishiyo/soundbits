@@ -7,7 +7,6 @@ import com.cziyeli.commons.mvibase.MviViewModel
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlists.*
-import com.cziyeli.songbits.home.oldhome.OldHomeIntent
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
@@ -20,7 +19,7 @@ class HomeViewModel @Inject constructor(
         val repository: RepositoryImpl,
         actionProcessor: OldHomeActionProcessor,
         schedulerProvider: BaseSchedulerProvider
-) : ViewModel(), LifecycleObserver, MviViewModel<OldHomeIntent, HomeViewState> {
+) : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, HomeViewState> {
     private val TAG = HomeViewModel::class.simpleName
 
     private val compositeDisposable = CompositeDisposable()
@@ -29,17 +28,17 @@ class HomeViewModel @Inject constructor(
     private val liveViewState: MutableLiveData<HomeViewState> by lazy { MutableLiveData<HomeViewState>() }
 
     // subject to publish ViewStates
-    private val intentsSubject : PublishSubject<OldHomeIntent> by lazy { PublishSubject.create<OldHomeIntent>() }
+    private val intentsSubject : PublishSubject<HomeIntent> by lazy { PublishSubject.create<HomeIntent>() }
 
     /**
      * take only the first ever InitialIntent and all intents of other types
      * to avoid reloading data on config changes
      */
-    private val intentFilter: ObservableTransformer<OldHomeIntent, OldHomeIntent> = ObservableTransformer { intents ->
+    private val intentFilter: ObservableTransformer<HomeIntent, HomeIntent> = ObservableTransformer { intents ->
         intents.publish { shared -> shared
-            Observable.merge<OldHomeIntent>(
-                    shared.ofType(OldHomeIntent.Initial::class.java).take(1), // only take initial one time
-                    shared.filter({ intent -> intent !is OldHomeIntent.Initial })
+            Observable.merge<HomeIntent>(
+                    shared.ofType(HomeIntent.Initial::class.java).take(1), // only take initial one time
+                    shared.filter({ intent -> intent !is HomeIntent.Initial })
             )
         }
     }
@@ -86,14 +85,14 @@ class HomeViewModel @Inject constructor(
 
     private fun actionFromIntent(intent: MviIntent) : HomeAction {
         return when(intent) {
-            is OldHomeIntent.LoadPlaylists -> PlaylistsAction.UserPlaylists(intent.limit, intent.offset)
-            is OldHomeIntent.FetchUser -> UserAction.FetchUser()
-            is OldHomeIntent.LogoutUser -> UserAction.ClearUser()
+            is HomeIntent.LoadPlaylists -> PlaylistsAction.UserPlaylists(intent.limit, intent.offset)
+            is HomeIntent.FetchUser -> UserAction.FetchUser()
+            is HomeIntent.LogoutUser -> UserAction.ClearUser()
             else -> PlaylistsAction.None // no-op all other events
         }
     }
 
-    override fun processIntents(intents: Observable<out OldHomeIntent>) {
+    override fun processIntents(intents: Observable<out HomeIntent>) {
         intents.subscribe(intentsSubject)
     }
 

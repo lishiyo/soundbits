@@ -11,10 +11,9 @@ import com.cziyeli.commons.*
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.domain.playlists.UserResult
 import com.cziyeli.domain.user.UserManager
-import com.cziyeli.songbits.home.oldhome.HomeViewState
+import com.cziyeli.songbits.home.HomeViewModel
 import com.cziyeli.songbits.home.oldhome.OldHomeActivity
-import com.cziyeli.songbits.home.oldhome.OldHomeIntent
-import com.cziyeli.songbits.home.oldhome.OldHomeViewModel
+import com.cziyeli.songbits.home.HomeIntent
 import com.cziyeli.songbits.root.RootActivity
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
@@ -29,7 +28,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
 
-class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<OldHomeIntent, HomeViewState> {
+class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeIntent, com.cziyeli.songbits.home.HomeViewState> {
     private val TAG = MainActivity::class.simpleName
 
     // check if logged in by shared prefs and in-memory
@@ -38,11 +37,11 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<OldHo
     @Inject lateinit var userManager : UserManager
 
     // view models
-    private lateinit var viewModelOld: OldHomeViewModel
+    private lateinit var viewModelOld: HomeViewModel
 
     // intents
-    private val mUserPublisher = PublishSubject.create<OldHomeIntent.FetchUser>()
-    private val mLogoutPublisher = PublishSubject.create<OldHomeIntent.LogoutUser>()
+    private val mUserPublisher = PublishSubject.create<HomeIntent.FetchUser>()
+    private val mLogoutPublisher = PublishSubject.create<HomeIntent.LogoutUser>()
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -68,10 +67,15 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<OldHo
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // bind the view model before events
+        initViewModel()
+
         val accessTokenValid = isAccessTokenValid()
         Utils.mLog(TAG, "onCreate", "isAccessTokenValid: $accessTokenValid")
         if (accessTokenValid) { // already logged in
+            // fetch current user and save to UserManager
             api.setAccessToken(userManager.accessToken)
+            mUserPublisher.onNext(HomeIntent.FetchUser())
         }
         Utils.setVisible(login_button, !accessTokenValid)
         Utils.setVisible(nav_oldhome_activity, accessTokenValid)
@@ -93,7 +97,7 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<OldHo
         }
 
         logout_button.setOnClickListener { _ ->
-            mLogoutPublisher.onNext(OldHomeIntent.LogoutUser())
+            mLogoutPublisher.onNext(HomeIntent.LogoutUser())
         }
 
         login_button.setOnClickListener { _ ->
@@ -102,13 +106,11 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<OldHo
             }
         }
 
-        // bind the view model after all views are done
-        initViewModel()
     }
 
-    override fun intents(): Observable<out OldHomeIntent> {
+    override fun intents(): Observable<out HomeIntent> {
         return Observable.merge(
-                Observable.just(OldHomeIntent.Initial()), // send out initial intent immediately
+                Observable.just(HomeIntent.Initial()), // send out initial intent immediately
                 mUserPublisher,
                 mLogoutPublisher
         )
@@ -119,7 +121,7 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<OldHo
     }
 
     private fun initViewModel() {
-        viewModelOld = ViewModelProviders.of(this, viewModelFactory).get(OldHomeViewModel::class.java)
+        viewModelOld = ViewModelProviders.of(this, viewModelFactory).get(HomeViewModel::class.java)
 
         // add viewmodel as an observer of this fragment lifecycle
         viewModelOld.let { lifecycle.addObserver(it) }
@@ -135,14 +137,14 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<OldHo
         viewModelOld.processIntents(intents())
     }
 
-    override fun render(state: HomeViewState) {
+    override fun render(state: com.cziyeli.songbits.home.HomeViewState) {
         Utils.setVisible(login_button, !isAccessTokenValid())
         Utils.setVisible(nav_oldhome_activity, isAccessTokenValid())
         Utils.setVisible(nav_root_activity, isAccessTokenValid())
 
         when (state.loggedInStatus) {
             UserResult.Status.FAILURE -> Utils.mLog(TAG, "render", "failed to save/logout current user")
-            UserResult.Status.SUCCESS -> Utils.mLog(TAG, "render", "saved/logged-out current user!")
+            UserResult.Status.SUCCESS -> Utils.mLog(TAG, "render", "saved/logged-out current user: ${userManager.getCurrentUser()}")
         }
     }
 
@@ -217,7 +219,7 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<OldHo
         api.setAccessToken(authResponse.accessToken)
 
         // fetch current user and save to UserManager
-        mUserPublisher.onNext(OldHomeIntent.FetchUser())
+        mUserPublisher.onNext(HomeIntent.FetchUser())
 
         // rerender! TODO: do via MVI flow
         Utils.setVisible(login_button, false)

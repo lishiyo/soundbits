@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+	<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:id="@+id/quickstats_container"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:paddingTop="@dimen/stats_padding_vertical"
+		android:paddingBottom="10dp"
+		android:paddingLeft="@dimen/stats_padding_horizontal"
+		android:paddingRight="@dimen/stats_padding_horizontal"
+		>
+
+		<LinearLayout
+			android:layout_width="0dp"
+			android:layout_weight="1"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:orientation="vertical"
+			>
+
+			<com.cziyeli.songbits.base.LikeButton
+				android:layout_width="@dimen/like_button_big"
+				android:layout_height="@dimen/like_button_big" />
+
+			<TextView
+				android:id="@+id/quickstats_likes"
+				android:layout_marginTop="4dp"
+				android:layout_gravity="center"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+
+		</LinearLayout>
+
+		<View
+			android:layout_width="2dp"
+			android:layout_height="match_parent"
+			android:background="@drawable/dotted_line_vertical" />
+
+		<LinearLayout
+			android:layout_width="0dp"
+			android:layout_weight="1"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:orientation="vertical"
+			>
+
+			<com.cziyeli.songbits.base.DisLikeButton
+				android:layout_width="@dimen/dislike_button_big"
+				android:layout_height="@dimen/dislike_button_big" />
+
+			<TextView
+				android:id="@+id/quickstats_dislikes"
+				android:layout_marginTop="4dp"
+				android:layout_gravity="center"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+
+		</LinearLayout>
+
+		<View
+			android:layout_width="2dp"
+			android:layout_height="match_parent"
+			android:background="@drawable/dotted_line_vertical" />
+
+		<LinearLayout
+			android:layout_width="0dp"
+			android:layout_weight="1"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:orientation="vertical"
+			>
+
+			<ImageView
+				android:src="@drawable/notes_hearts_colorful"
+				android:layout_width="@dimen/dislike_button_big"
+				android:layout_height="@dimen/dislike_button_big" />
+
+			<TextView
+				android:id="@+id/quickstats_total"
+				android:layout_marginTop="4dp"
+				android:layout_gravity="center"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+
+		</LinearLayout>
+
+	</LinearLayout>

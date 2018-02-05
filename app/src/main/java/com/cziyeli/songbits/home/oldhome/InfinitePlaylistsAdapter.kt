@@ -4,6 +4,7 @@ import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.home.HomeIntent
 import com.mindorks.placeholderview.InfinitePlaceHolderView
 import com.mindorks.placeholderview.annotations.Layout
 import com.mindorks.placeholderview.annotations.infinite.LoadMore
@@ -18,9 +19,9 @@ import io.reactivex.subjects.PublishSubject
  */
 @Deprecated("for old home screen")
 @Layout(R.layout.load_more_view)
-class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderView) : MviView<OldHomeIntent, HomeViewState> {
+class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderView) : MviView<HomeIntent, HomeViewState> {
     private val TAG = InfinitePlaylistsAdapter::class.simpleName
-    private val mLoadPublisher = PublishSubject.create<OldHomeIntent.LoadPlaylists>()
+    private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadPlaylists>()
 
     override fun render(state: HomeViewState) {
         var reachedEnd = state.status != MviViewState.Status.LOADING && state.status != MviViewState.Status.SUCCESS
@@ -47,7 +48,7 @@ class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderVie
         }
     }
 
-    override fun intents(): Observable<out OldHomeIntent> {
+    override fun intents(): Observable<out HomeIntent> {
         return mLoadPublisher
     }
 
@@ -56,6 +57,6 @@ class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderVie
         Utils.log(TAG, "playlistAdapter onLoadMore ++ currentCount: ${mLoadMoreView.viewCount}")
 
         // post intent to load playlists
-        mLoadPublisher.onNext(OldHomeIntent.LoadPlaylists(offset = mLoadMoreView.viewCount))
+        mLoadPublisher.onNext(HomeIntent.LoadPlaylists(offset = mLoadMoreView.viewCount))
     }
 }

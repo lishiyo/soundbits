@@ -12,12 +12,12 @@ import android.support.v7.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
-import com.cziyeli.songbits.home.oldhome.OldHomeIntent
 import com.cziyeli.songbits.playlistcard.PlaylistCardActivity
 import dagger.android.support.AndroidSupportInjection
 import io.github.luizgrp.sectionedrecyclerviewadapter.Section
@@ -29,11 +29,12 @@ import kotlinx.android.synthetic.main.fragment_home.*
 import javax.inject.Inject
 
 
-class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
+class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     private val TAG = HomeFragment::class.simpleName
 
     @Inject lateinit var api: SpotifyApi
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject lateinit var userManager : com.cziyeli.domain.user.UserManager
 
     // view models
     private lateinit var viewModel: HomeViewModel
@@ -43,7 +44,7 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
     private lateinit var mLayoutManager: GridLayoutManager
 
     // intents
-    private val mLoadPublisher = PublishSubject.create<OldHomeIntent.LoadPlaylists>()
+    private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadPlaylists>()
 
     // adapter
     private lateinit var PLAYLIST_RECENT: PlaylistSection
@@ -51,7 +52,7 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
     private lateinit var PLAYLIST_RECOMMENDED: PlaylistSection
     private val listener: PlaylistSection.ClickListener = object : PlaylistSection.ClickListener {
         override fun onFooterClick(section: PlaylistSection) {
-            mLoadPublisher.onNext(OldHomeIntent.LoadPlaylists(offset = section.contentItemsTotal + 1))
+            mLoadPublisher.onNext(HomeIntent.LoadPlaylists(offset = section.contentItemsTotal + 1))
         }
 
         override fun onItemClick(view: View, item: Playlist) {
@@ -60,8 +61,6 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
                     ViewCompat.getTransitionName(view.findViewById(R.id.playlist_image))
             ).toBundle()
 
-//            val intent = Intent(activity, PlaylistCardActivity::class.java)
-//            intent.putExtra(EXTRA_PLAYLIST_ITEM, item)
             startActivity(PlaylistCardActivity.create(context!!, item), bundle)
         }
     }
@@ -74,6 +73,9 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // set up the user mini card
+        loadUserCard()
+
         // set up the views
         setUpSectionedAdapter(view, savedInstanceState)
 
@@ -81,7 +83,15 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
         initViewModel()
 
         // fetch the playlists
-        mLoadPublisher.onNext(OldHomeIntent.LoadPlaylists())
+        mLoadPublisher.onNext(HomeIntent.LoadPlaylists())
+    }
+
+    private fun loadUserCard() {
+        val userName = userManager.getCurrentUser().display_name
+        val userImage = userManager.getCurrentUser().cover_image
+
+        user_card_name.text = userName
+        Glide.with(context).load(userImage).into(user_card_image)
     }
 
     private fun showLoading(vararg sections: Section) {
@@ -131,7 +141,7 @@ class HomeFragment : Fragment(), MviView<OldHomeIntent, HomeViewState> {
         viewModel.processIntents(intents())
     }
 
-    override fun intents(): Observable<out OldHomeIntent> {
+    override fun intents(): Observable<out HomeIntent> {
        return mLoadPublisher
     }
 
