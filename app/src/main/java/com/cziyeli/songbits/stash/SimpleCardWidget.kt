@@ -58,6 +58,7 @@ class SimpleCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, SimpleC
         carouselHeaderUrl?.let {
             eventsPublisher.onNext(CardIntent.CreateHeaderSet(it))
         }
+
 //        create_card_label_2.text = resources.getString(R.string.create_card_label_2).format(tracks.size)
         // fetch the track stats of these pending tracks
         eventsPublisher.onNext(StatsIntent.FetchStats(tracks.map { it.id }))

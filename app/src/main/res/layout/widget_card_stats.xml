@@ -19,6 +19,7 @@
 		android:text="calculating..."
 		android:clickable="false"
 		android:focusable="false"
+		android:paddingLeft="@dimen/track_stats_padding_text"
 		/>
 
 	<me.bendik.simplerangeview.SimpleRangeView
@@ -36,6 +37,7 @@
 		android:text="calculating..."
 		android:clickable="false"
 		android:focusable="false"
+		android:paddingLeft="@dimen/track_stats_padding_text"
 		/>
 
 	<me.bendik.simplerangeview.SimpleRangeView
@@ -53,6 +55,7 @@
 		android:text="calculating..."
 		android:clickable="false"
 		android:focusable="false"
+		android:paddingLeft="@dimen/track_stats_padding_text"
 		/>
 
 	<me.bendik.simplerangeview.SimpleRangeView

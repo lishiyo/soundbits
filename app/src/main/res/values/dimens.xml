@@ -38,12 +38,15 @@
 	<dimen name="playlist_card_elevation">6dp</dimen>
 	<dimen name="playlist_card_finished_elevation">24dp</dimen>
 
-	<!-- Stats -->
+	<!-- QuickCounts and Stats -->
 	<dimen name="stats_padding_vertical">15dp</dimen>
 	<dimen name="stats_padding_horizontal">25dp</dimen>
 	<dimen name="stats_range_padding">0dp</dimen>
 	<dimen name="stats_radius_thumb">1dp</dimen>
 	<dimen name="stats_line_width">4dp</dimen>
+	<dimen name="track_stats_padding">20dp</dimen>
+	<dimen name="track_stats_padding_container">4dp</dimen>
+	<dimen name="track_stats_padding_text">16dp</dimen>
 
 	<!-- PlaylistCard: Create -->
 	<dimen name="title_input_width">150dp</dimen>

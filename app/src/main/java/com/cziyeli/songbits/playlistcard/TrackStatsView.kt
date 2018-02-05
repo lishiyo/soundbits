@@ -16,7 +16,9 @@ class TrackStatsView : LinearLayout {
     companion object {
         // range is 0 - 8
         private const val TRACK_STATS_BEGINNING = 0
-        private const val TRACK_STATS_END = 8
+        private const val TRACK_STATS_END = 9
+        private const val TRACK_RANGE = TRACK_STATS_END - TRACK_STATS_BEGINNING
+        private const val QUARTILE: Double = TRACK_RANGE / 4.0
     }
 
     @JvmOverloads
@@ -65,19 +67,16 @@ class TrackStatsView : LinearLayout {
     }
 
     private fun getNormalizedStat(value: Double) : Double {
-        val range = TRACK_STATS_END - TRACK_STATS_BEGINNING
-        return value * range
+        return value * TRACK_RANGE
     }
 
     private fun getStatTitle(stat: String, normalizedValue: Double, originalVal: Double) : String {
-        val range = TRACK_STATS_END - TRACK_STATS_BEGINNING
-        val quartiles = range / 4
         // not at all (0-2), less (2-4), more (4-6), very (6-8)
         return when {
-            (normalizedValue < quartiles) -> "not at all $stat ~ ${"%.2f".format(originalVal)}"
-            (normalizedValue < quartiles * 2) -> "less $stat ~ ${"%.2f".format(originalVal)}"
-            (normalizedValue < quartiles * 3) -> "more $stat ~ ${"%.2f".format(originalVal)}"
-            else -> "very $stat"
+            (normalizedValue < QUARTILE) -> "not at all $stat ~ ${"%.2f".format(originalVal)}"
+            (normalizedValue < QUARTILE * 2) -> "less $stat ~ ${"%.2f".format(originalVal)}"
+            (normalizedValue < QUARTILE * 3) -> "more $stat ~ ${"%.2f".format(originalVal)}"
+            else -> "super $stat"
         }
     }
 
