@@ -16,7 +16,10 @@ import com.cziyeli.domain.summary.StatsAction
 import com.cziyeli.domain.summary.StatsResult
 import com.cziyeli.domain.summary.StatsResultStatus
 import com.cziyeli.domain.summary.TrackListStats
+import com.cziyeli.domain.tracks.TrackAction
 import com.cziyeli.domain.tracks.TrackModel
+import com.cziyeli.domain.tracks.TrackResult
+import com.cziyeli.songbits.cards.TrackIntent
 import com.cziyeli.songbits.cards.TrackViewState
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
@@ -48,6 +51,7 @@ class PlaylistCardViewModel @Inject constructor(
                 is PlaylistCardResult.FetchPlaylistTracks -> return@BiFunction processTracksFetched(previousState, result)
                 is StatsResult.FetchStats -> return@BiFunction processFetchStats(previousState, result)
                 is StatsResult.FetchAllTracksWithStats -> return@BiFunction processFetchAllTracksWithStats(previousState, result)
+                is TrackResult.ChangePrefResult -> return@BiFunction processTrackChangePref(previousState, result)
                 else -> return@BiFunction previousState
             }
     }
@@ -106,6 +110,7 @@ class PlaylistCardViewModel @Inject constructor(
                     intent.ownerId, intent.playlistId)
             is StatsIntent.FetchTracksWithStats -> StatsAction.FetchAllTracksWithStats(intent.playlist.owner.id, intent.playlist.id)
             is StatsIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
+            is TrackIntent.ChangeTrackPref -> TrackAction.ChangeTrackPref(intent.track, intent.pref)
             else -> PlaylistCardAction.None
         }
     }
@@ -148,6 +153,7 @@ class PlaylistCardViewModel @Inject constructor(
         return newState
     }
 
+    // process remote (all tracks) with stats
     private fun processFetchAllTracksWithStats(
             previousState: PlaylistCardViewState,
             result: StatsResult.FetchAllTracksWithStats
@@ -190,7 +196,7 @@ class PlaylistCardViewModel @Inject constructor(
             PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS -> {
                 newState.status = PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS
                 if (result.fromLocal) {
-                    newState.stashedTracksList = result.items
+                    newState.stashedTracksList = result.items.toMutableList()
                 } else {
                     newState.allTracksList = result.items
                 }
@@ -229,6 +235,29 @@ class PlaylistCardViewModel @Inject constructor(
         return newState
     }
 
+    private fun processTrackChangePref(previousState: PlaylistCardViewState, result: TrackResult.ChangePrefResult) : PlaylistCardViewState {
+        val newState = previousState.copy()
+        newState.error = null
+
+        when (result.status) {
+            MviResult.Status.SUCCESS -> {
+                Utils.mLog(TAG, "change track pref success! ${result.currentTrack?.name}: ${result.currentTrack?.pref}")
+                result.currentTrack?.apply {
+                    val index = newState.stashedTracksList.indexOfFirst { it.id == this.id }
+                    if (index != -1) {
+                        newState.stashedTracksList[index] = this
+                    }
+                }
+            }
+            MviResult.Status.ERROR -> {
+                Utils.mLog(TAG, "change track pref ERROR! ${result.error} ${result.currentTrack?.name}: ${result.currentTrack?.pref}")
+                newState.error = result.error
+            }
+        }
+
+        return newState
+    }
+
     // ======= VIEWSTATE =======
 
     data class PlaylistCardViewState(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
@@ -236,7 +265,7 @@ class PlaylistCardViewModel @Inject constructor(
                                      var playlist: Playlist, // card's playlist - has total count
                                      var likedCount: Int = 0,
                                      var dislikedCount: Int = 0,
-                                     var stashedTracksList: List<TrackModel> = listOf(), // swiped tracks in db
+                                     var stashedTracksList: MutableList<TrackModel> = mutableListOf(), // swiped tracks in db
                                      var allTracksList: List<TrackModel> = listOf(), // all tracks (from remote)
                                      var trackStats: TrackListStats? = null // stats for ALL tracks
     ) : MviViewState {

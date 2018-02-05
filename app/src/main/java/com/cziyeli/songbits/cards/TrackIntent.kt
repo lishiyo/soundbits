@@ -4,6 +4,7 @@ import com.cziyeli.commons.mvibase.MviIntent
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.tracks.TrackModel
+import com.cziyeli.songbits.playlistcard.SinglePlaylistIntent
 
 /**
  * Created by connieli on 1/1/18.
@@ -46,7 +47,7 @@ sealed class TrackIntent : MviIntent {
 
     // like or dislike a track
     class ChangeTrackPref(val track: TrackModel,
-                          val pref: TrackModel.Pref) : TrackIntent() {
+                          val pref: TrackModel.Pref) : TrackIntent(), SinglePlaylistIntent {
         companion object {
             fun like(track: TrackModel) : ChangeTrackPref {
                 return ChangeTrackPref(track, TrackModel.Pref.LIKED)

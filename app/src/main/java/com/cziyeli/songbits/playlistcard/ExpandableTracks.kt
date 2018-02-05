@@ -32,16 +32,21 @@ data class TrackRow(val model: TrackModel) {
 }
 
 // Tracks adapter
-class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackRow>) : RecyclerView.Adapter<TrackRowsAdapter.MainViewHolder>() {
+class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackModel>) : RecyclerView.Adapter<TrackRowsAdapter.MainViewHolder>() {
     private var inflater: LayoutInflater = LayoutInflater.from(context)
 
-    fun setTracksAndNotify(tracks: List<TrackRow>) {
+    fun updateTrack(track: TrackModel, position: Int) {
+        trackRows[position] = track
+        notifyItemChanged(position)
+    }
+
+    fun setTracksAndNotify(tracks: List<TrackModel>) {
         trackRows.clear()
         trackRows.addAll(tracks)
         notifyDataSetChanged()
     }
 
-    fun addTracksAndNotify(tracks: List<TrackRow>) {
+    fun addTracksAndNotify(tracks: List<TrackModel>) {
         trackRows.addAll(tracks)
         notifyItemRangeInserted(trackRows.size - tracks.size, tracks.size)
     }
@@ -68,14 +73,14 @@ class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackRow>) :
         private var likeButton: LikeButton = itemView.findViewById(R.id.like_icon_container)
         private var dislikeButton: DisLikeButton = itemView.findViewById(R.id.dislike_icon_container)
 
-        fun bindData(rowModel: TrackRow) {
+        fun bindData(rowModel: TrackModel) {
             rowModel.imageUrl?.let {
                 Glide.with(itemView.context)
                         .load(it)
                         .into(imageView)
             }
             titleText.text = rowModel.name
-            artistText.text = rowModel.primaryArtistName
+            artistText.text = rowModel.artistName
 
             likeButton.setActive(rowModel.liked)
             dislikeButton.setActive(!rowModel.liked)

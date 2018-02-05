@@ -11,7 +11,6 @@
 
 	<ImageView
 		android:id="@+id/create_playlist_image_background"
-		android:src="@color/persian_blue"
 		android:scaleType="centerCrop"
 		android:layout_width="match_parent"
 		android:layout_height="@dimen/playlist_card_image_height"

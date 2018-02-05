@@ -19,7 +19,10 @@ import com.cziyeli.domain.summary.SummaryResult
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.cards.summary.SummaryIntent
-import com.cziyeli.songbits.playlistcard.*
+import com.cziyeli.songbits.playlistcard.PlaylistCardIntent
+import com.cziyeli.songbits.playlistcard.SinglePlaylistIntent
+import com.cziyeli.songbits.playlistcard.StatsIntent
+import com.cziyeli.songbits.playlistcard.TrackRowsAdapter
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -71,12 +74,13 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
                    touchListener: RecyclerTouchListener? = null,
                    carouselHeaderUrl: String?
     ) {
+        onSwipeListener = swipeListener
+        onTouchListener = touchListener
+
         carouselHeaderUrl?.let {
             eventsPublisher.onNext(PlaylistCardIntent.CreateHeaderSet(it))
         }
-
-        onSwipeListener = swipeListener
-        onTouchListener = touchListener
+        create_card_label_2.text = resources.getString(R.string.create_card_label_2).format(tracks.size)
 
         // set up the loading fab
         fab.addAnimation(FAB_CREATE_COLOR_0, R.drawable.basic_plus_fab,
@@ -92,7 +96,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
         eventsPublisher.onNext(StatsIntent.FetchStats(tracks.map { it.id }))
 
         // set up tracks list (don't need to re-render)
-        adapter = TrackRowsAdapter(context, tracks.map { TrackRow(it) }.toMutableList())
+        adapter = TrackRowsAdapter(context, tracks.toMutableList())
         create_tracks_recycler_view.adapter = adapter
         create_tracks_recycler_view.layoutManager = LinearLayoutManager(context)
         create_tracks_recycler_view.disableTouchTheft()
@@ -120,13 +124,11 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
 
     fun onPlaylistCreated(newTitle: String, state: PlaylistCardCreateViewModel.ViewState) {
         isFinished = true
-        create_card_view.elevation = resources.getDimension(R.dimen.playlist_card_finished_elevation)
-
-        clearFocus() // try to force keyboard to close
-
-        Utils.setVisible(playlist_header_finished, true) // set up i nin background
+        create_card_view.cardElevation = resources.getDimension(R.dimen.playlist_card_finished_elevation)
+        Utils.hideKeyboard(context, create_playlist_new_title)
 
         // set title and image
+        Utils.setVisible(playlist_header_finished, true) // set up in background
         val titleView = playlist_header_finished.findViewById<TextView>(R.id.finished_playlist_new_title)
         val imageView = playlist_header_finished.findViewById<ImageView>(R.id.finished_playlist_image_background)
         titleView.text = newTitle

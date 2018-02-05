@@ -6,22 +6,23 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.ActivityOptionsCompat
-import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import com.cziyeli.commons.Utils
 import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlists.Playlist
+import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.cards.CardsActivity
+import com.cziyeli.songbits.cards.TrackIntent
 import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateActivity
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import dagger.android.AndroidInjection
 import eu.gsottbauer.equalizerview.EqualizerView
 import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_playlistcard.*
 import kotlinx.android.synthetic.main.widget_playlist_card.*
 import org.jetbrains.anko.intentFor
@@ -53,16 +54,17 @@ class PlaylistCardActivity : AppCompatActivity() {
                 startSwipingTracks(true)
             }
             R.id.menu_create_playlist -> {
-                val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
-                        fab_button,
-                        ViewCompat.getTransitionName(fab_button)
-                ).toBundle()
+
                 if (viewModel.tracksToCreate?.isEmpty() == true) {
                     "no liked tracks yet! swipe first?".toast(this@PlaylistCardActivity)
                 } else {
                     // go to create with liked tracks
+//                    val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
+//                            fab_button,
+//                            ViewCompat.getTransitionName(fab_button)
+//                    ).toBundle()
                     startActivity(PlaylistCardCreateActivity.create(
-                            this@PlaylistCardActivity, viewModel.tracksToCreate), bundle
+                            this@PlaylistCardActivity, viewModel.tracksToCreate)
                     )
                 }
             }
@@ -138,7 +140,7 @@ class PlaylistCardActivity : AppCompatActivity() {
     }
 
     private fun intents(): Observable<out SinglePlaylistIntent> {
-        return playlist_card_widget.intents()
+        return Observable.merge(playlist_card_widget.intents(), eventsPublisher)
     }
 
     private fun createOnSwipeListener() : RecyclerTouchListener.OnSwipeListener {
@@ -188,6 +190,8 @@ class PlaylistCardActivity : AppCompatActivity() {
         }
     }
 
+    private val eventsPublisher: PublishSubject<SinglePlaylistIntent> by lazy { PublishSubject.create<SinglePlaylistIntent>() }
+
     private fun createOnTouchListener(swipeListener: RecyclerTouchListener.OnSwipeListener) : RecyclerTouchListener {
         val onTouchListener = RecyclerTouchListener(this, tracks_recycler_view)
         onTouchListener
@@ -209,11 +213,31 @@ class PlaylistCardActivity : AppCompatActivity() {
                 .setSwipeable(R.id.row_foreground, R.id.row_background) { viewID, position ->
                     var message = ""
                     when (viewID) {
-                        R.id.like_icon_container -> message += "Like"
-                        R.id.dislike_icon_container -> message += "Dislike"
+                        R.id.like_icon_container -> {
+                            // send off like command
+                            val model = viewModel.states().value?.stashedTracksList?.get(position)
+                            message += "Liked: ${model?.name}: ${model?.liked}"
+                            // only update if not already liked +
+                            if (model?.liked == false) {
+                                val newModel = model.copy()
+                                newModel.pref = TrackModel.Pref.LIKED
+                                eventsPublisher.onNext(TrackIntent.ChangeTrackPref.like(newModel))
+                                playlist_card_widget.updateTrackPref(newModel, position)
+                            }
+                        }
+                        R.id.dislike_icon_container -> {
+                            val model = viewModel.states().value?.stashedTracksList?.get(position)
+                            message += "Disliked: ${model?.name}: ${model?.disliked}"
+                            // only update if not already disliked
+                            if (model?.liked == true) {
+                                val newModel = model.copy()
+                                newModel.pref = TrackModel.Pref.DISLIKED
+                                eventsPublisher.onNext(TrackIntent.ChangeTrackPref.dislike(newModel))
+                                playlist_card_widget.updateTrackPref(newModel, position)
+                            }
+                        }
                     }
-                    message += " clicked for row " + (position + 1)
-                    Log.i(TAG, message)
+                    Utils.mLog(TAG, message)
                 }
 
         return onTouchListener

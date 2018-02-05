@@ -46,6 +46,10 @@ interface Repository {
                                    offset: Int = 0
     ): Flowable<List<TrackEntity>>
 
+    // ============ TRACKS ============
+
+    fun updateTrackPref(trackId: String, liked: Boolean)
+
     // ============ STATS ============
 
     // fetch stats for a list of tracks
@@ -64,6 +68,6 @@ interface Repository {
     // @POST("/users/{user_id}/playlists/{playlist_id}/tracks")
     fun addTracksToPlaylist(ownerId: String, playlistId: String, trackUris: List<String>) : Observable<Pair<String, SnapshotId>>
 
-    // Save tracks to database (local only)
+    // Save all swiped tracks to database (local only)
     fun saveTracksLocal(tracks: List<TrackEntity>)
 }

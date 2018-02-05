@@ -15,7 +15,7 @@
 			android:layout_margin="10dp"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:elevation="@dimen/card_radius"
+			android:elevation="@dimen/playlist_card_elevation"
 			card_view:cardCornerRadius="@dimen/card_radius"
 			card_view:cardElevation="@dimen/playlist_card_elevation"
 			card_view:cardPreventCornerOverlap="false"
@@ -148,7 +148,7 @@
 						app:menuTitleDisabledTextColor="@color/colorDisabled"
 						app:showOverlay="false"
 						app:showTitle="true"
-						app:menuSize="normal"
+						app:menuSize="small"
 						app:menuTitleFontFamily="@font/indie_flower"
 						/>
 
@@ -244,7 +244,6 @@
 
 							<TextView
 								android:id="@+id/quickstats_total"
-								android:text="55 total"
 								android:layout_marginTop="4dp"
 								android:layout_gravity="center"
 								android:layout_width="wrap_content"

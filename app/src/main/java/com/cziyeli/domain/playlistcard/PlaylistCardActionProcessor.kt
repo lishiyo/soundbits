@@ -6,7 +6,9 @@ import com.cziyeli.data.local.TrackEntity
 import com.cziyeli.domain.summary.StatsAction
 import com.cziyeli.domain.summary.StatsResult
 import com.cziyeli.domain.summary.TrackListStats
+import com.cziyeli.domain.tracks.TrackAction
 import com.cziyeli.domain.tracks.TrackModel
+import com.cziyeli.domain.tracks.TrackResult
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -18,30 +20,38 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                                                       private val schedulerProvider: BaseSchedulerProvider) {
     private val TAG = PlaylistCardActionProcessor::class.simpleName
 
-    val combinedProcessor: ObservableTransformer<PlaylistCardActionMarker, PlaylistCardResultMarker> = ObservableTransformer { acts ->
+    val combinedProcessor: ObservableTransformer<PlaylistCardActionMarker, PlaylistCardResultMarker> = ObservableTransformer { acts
+        ->
         acts.publish { shared ->
             Observable.merge<PlaylistCardResultMarker>(
+                    // ==== FETCH ACTIONS ====
+                    // given tracks list -> calculate quick count
+                    shared.ofType<PlaylistCardAction.CalculateQuickCounts>(PlaylistCardAction.CalculateQuickCounts::class.java)
+                            .compose(calculateQuickCountsProcessor),
+                    // given playlist id -> grab all tracks (from remote) and calculate their stats
+                    shared.ofType<StatsAction.FetchAllTracksWithStats>(StatsAction.FetchAllTracksWithStats::class.java)
+                            .compose(fetchAllTracksWithStatsProcessor),
+                    // given tracks list -> grab stats
+                    shared.ofType<StatsAction.FetchStats>(StatsAction.FetchStats::class.java)
+                            .compose(fetchStatsProcessor),
                     // fetch playlist tracks either from database (if swiped only) or from remote (all)
                     shared.ofType<PlaylistCardAction.FetchPlaylistTracks>(PlaylistCardAction.FetchPlaylistTracks::class.java)
                             .groupBy { it.onlySwiped }
                             .flatMap { grouped ->
-                                if (grouped.key) {
+                                val compose: Observable<PlaylistCardResultMarker> = if (grouped.key) {
                                     Utils.mLog(TAG, "FetchPlaylistTracks!", "onlySwiped -- fetching stashed")
                                     grouped.compose(fetchStashedTracksForPlaylist).compose(mapStashedTracksProcessor)
                                 } else {
                                     Utils.mLog(TAG, "FetchPlaylistTracks!", "NOT onlySwiped -- fetching remote")
                                     grouped.compose(fetchAllTracksProcessor)
                                 }
-                            },
-                    // given tracks list -> calculate count
-                    shared.ofType<PlaylistCardAction.CalculateQuickCounts>(PlaylistCardAction.CalculateQuickCounts::class.java)
-                            .compose(calculateQuickCountsProcessor),
-                    // given playlist id -> grab all tracks (from remote) as well as stats
-                    shared.ofType<StatsAction.FetchAllTracksWithStats>(StatsAction.FetchAllTracksWithStats::class.java)
-                            .compose(fetchAllTracksWithStatsProcessor),
-                    // given tracks list -> grab stats
-                    shared.ofType<StatsAction.FetchStats>(StatsAction.FetchStats::class.java)
-                            .compose(fetchStatsProcessor)
+                                compose
+                            }
+            ).mergeWith(
+                    // ==== USER INTERACTIONS ====
+                    // update a track's pref in the db
+                    shared.ofType<TrackAction.ChangeTrackPref>(TrackAction.ChangeTrackPref::class.java)
+                            .compose(changePrefAndSaveProcessor)
             ).mergeWith(
                     // Error for not implemented actions
                     shared.filter { v -> (v !is PlaylistCardActionMarker) }
@@ -134,6 +144,17 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
             .retry() // don't unsubscribe
     }
 
+
+    // like, dislike, undo track AND save in db
+    private val changePrefAndSaveProcessor : ObservableTransformer<TrackAction.ChangeTrackPref, TrackResult.ChangePrefResult> =
+            ObservableTransformer { action -> action
+                    .map { act -> act.track.copy(pref = act.pref) } // return new for immutability
+                    .doOnNext { track -> repository.updateTrackPref(track.id, track.liked) }
+                    .map { TrackResult.ChangePrefResult.createSuccess(it, it.pref) }
+                    .onErrorReturn { err -> TrackResult.ChangePrefResult.createError(err)}
+                    .retry()
+            }
+
     // given playlist id => track entities in db
     private val fetchStashedTracksForPlaylist: ObservableTransformer<PlaylistCardAction, List<TrackEntity>> = ObservableTransformer { action ->
         action.switchMap { act ->
@@ -144,6 +165,5 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                     .subscribeOn(schedulerProvider.io())
         }.share().doOnNext { Utils.mLog(TAG, "fetchStashedTracks! count: ${it.size} ")}
     }
-
 
 }

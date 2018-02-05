@@ -39,12 +39,21 @@ class RepositoryImpl @Inject constructor(
     }
 
     override fun fetchPlaylistStashedTracks(source: Repository.Source, playlistId: String, fields: String?, limit: Int, offset: Int): Flowable<List<TrackEntity>> {
-        return fetchPlaylistTracksLocal(playlistId)
+        return tracksDatabase.tracksDao().getTracksByPlaylistId(playlistId).distinctUntilChanged()
     }
 
     // fetch the audio features for list of tracks
     override fun fetchTracksStats(source: Repository.Source, trackIds: List<String>) : Observable<AudioFeaturesTracks> {
         return fetchTracksDataRemote(trackIds)
+    }
+
+    override fun updateTrackPref(trackId: String, liked: Boolean) {
+        Observable.just(trackId)
+                .subscribeOn(SchedulerProvider.io())
+                .doOnNext{ Utils.mLog(TAG, "updateTrackPref", "track: $trackId: $liked") }
+                .subscribe {
+                    tracksDatabase.tracksDao().updateTrackPref(trackId, liked)
+                }
     }
 
     ///////////////////////
@@ -57,9 +66,6 @@ class RepositoryImpl @Inject constructor(
                 .subscribe { tracksDatabase.tracksDao().saveTracks(it) }
     }
 
-    private fun fetchPlaylistTracksLocal(playlistId: String): Flowable<List<TrackEntity>> {
-        return tracksDatabase.tracksDao().getTracksByPlaylistId(playlistId).distinctUntilChanged()
-    }
 
     ///////////////////////
     // ====== REMOTE ======

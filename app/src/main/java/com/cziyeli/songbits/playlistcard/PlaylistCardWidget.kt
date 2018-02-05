@@ -22,6 +22,7 @@ import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlistcard.PlaylistCardResult
 import com.cziyeli.domain.playlists.Playlist
+import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
@@ -43,7 +44,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
     private lateinit var activity: Activity
 
     // intents
-    private val eventsPublisher = PublishSubject.create<SinglePlaylistIntent>()
+    private var eventsPublisher = PublishSubject.create<SinglePlaylistIntent>()
 
     // views
     private lateinit var adapter: TrackRowsAdapter
@@ -90,7 +91,8 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
                      fabSelectedListener: OnFABMenuSelectedListener,
                      swipeListener: RecyclerTouchListener.OnSwipeListener,
                      touchListener: RecyclerTouchListener,
-                     activity: Activity) {
+                     activity: Activity
+    ) {
         this.activity = activity
         playlistModel = playlist
         onFabSelectedListener = fabSelectedListener
@@ -135,6 +137,10 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         tracks_recycler_view.disableTouchTheft()
     }
 
+    fun updateTrackPref(model: TrackModel, position: Int) {
+        adapter.updateTrack(model, position)
+    }
+
     override fun intents(): Observable<out SinglePlaylistIntent> {
         return eventsPublisher
     }
@@ -155,7 +161,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
             // render the track rows
             // TODO this is very ui heavy - figure out better way than delaying until tapped
             Handler().postDelayed({
-                adapter.setTracksAndNotify(state.stashedTracksList.map { TrackRow(it) })
+                adapter.setTracksAndNotify(state.stashedTracksList)
             }, 1000)
         }
 

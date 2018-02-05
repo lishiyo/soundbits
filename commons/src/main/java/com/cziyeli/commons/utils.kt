@@ -1,5 +1,6 @@
 package com.cziyeli.commons
 
+import android.content.Context
 import android.content.res.Resources
 import android.graphics.Point
 import android.os.Parcel
@@ -8,6 +9,8 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
+
 
 /**
  * Created by connieli on 12/31/17.
@@ -57,5 +60,10 @@ object Utils {
 
     fun dpToPx(dp: Int): Int {
         return (dp * Resources.getSystem().displayMetrics.density).toInt()
+    }
+
+    fun hideKeyboard(context: Context, focusedView: View) {
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+        imm?.hideSoftInputFromWindow(focusedView.windowToken, 0)
     }
 }

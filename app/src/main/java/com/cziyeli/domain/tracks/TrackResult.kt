@@ -2,6 +2,7 @@ package com.cziyeli.domain.tracks
 
 import com.cziyeli.commons.mvibase.MviResult
 import com.cziyeli.domain.player.PlayerInterface
+import com.cziyeli.domain.playlistcard.PlaylistCardResultMarker
 import java.util.*
 
 /**
@@ -58,7 +59,7 @@ sealed class TrackResult(var status: MviResult.StatusInterface = MviResult.Statu
                            error: Throwable?,
                            val currentTrack: TrackModel?,
                            val pref: TrackModel.Pref?
-    ) : TrackResult(status, error) {
+    ) : TrackResult(status, error), PlaylistCardResultMarker {
         companion object {
             fun createSuccess(currentTrack: TrackModel,
                               pref: TrackModel.Pref) : ChangePrefResult {
