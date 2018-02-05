@@ -157,8 +157,9 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
             if (state.stashedTracksList.isNotEmpty()) {
                 // update the title
                 expansion_header_title.text = resources.getString(R.string.expand_tracks).format(state.stashedTracksList.size)
+                Utils.setVisible(headerIndicator, true)
 
-                // calculating the likes/dislikes of the stashed tracks
+                // calculate the likes/dislikes of the stashed tracks
                 eventsPublisher.onNext(PlaylistCardIntent.CalculateQuickCounts(state.stashedTracksList))
             }
             // TODO this is very ui heavy - figure out better way than delaying until tapped
@@ -204,7 +205,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
 
         // render the track stats widget with remote tracks
         if (state.isSuccess() && state.trackStats != null) {
-            Utils.mLog(TAG, "RENDER", "just got track stats! loading....")
+            Utils.mLog(TAG, "RENDER", "we have track stats! rendering....")
             stats_container.loadTrackStats(state.trackStats!!)
         }
     }

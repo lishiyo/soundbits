@@ -7,6 +7,10 @@
 	<string name="title_dashboard">Dashboard</string>
 	<string name="title_notifications">Notifications</string>
 
+	<string name="tab_title_home">Playlists</string>
+	<string name="tab_title_stash">Tracks</string>
+	<string name="tab_title_profile">Profile</string>
+
 	<string name="com_spotify_sdk_redirect_scheme">songbits</string>
 	<string name="com_spotify_sdk_redirect_host">callback</string>
 

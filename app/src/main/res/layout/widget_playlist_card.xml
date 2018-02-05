@@ -223,7 +223,9 @@
 								android:layout_height="wrap_content"
 								android:layout_marginLeft="16dp"
 								android:layout_width="wrap_content"
-								app:srcCompat="@drawable/icon_expand_header" />
+								app:srcCompat="@drawable/icon_expand_header"
+								android:visibility="invisible"
+								/>
 						</RelativeLayout>
 
 					</com.github.florent37.expansionpanel.ExpansionHeader>

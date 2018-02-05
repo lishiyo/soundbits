@@ -162,9 +162,8 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
             repository
                     .fetchPlaylistStashedTracks(playlistId = act.playlistId!!)
                     .toObservable()
-                    .doOnNext { Utils.mLog(TAG, "fetchPlaylistStashedTracks size: ${it.size}") }
                     .subscribeOn(schedulerProvider.io())
-        }.share().doOnNext { Utils.mLog(TAG, "fetchStashedTracks! count: ${it.size} ")}
+        }.share().doOnNext { Utils.mLog(TAG, "fetchStashedTracksForPlaylist! count: ${it.size} ")}
     }
 
 }

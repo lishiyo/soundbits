@@ -3,6 +3,7 @@ package com.cziyeli.songbits.root
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
+import android.view.WindowManager
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem
 import com.cziyeli.commons.fetchColor
@@ -32,6 +33,7 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector {
         AndroidInjection.inject(this)
 
         super.onCreate(savedInstanceState)
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_root)
 
         setUpBottomNav()
@@ -53,9 +55,9 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector {
     }
 
     private fun setUpBottomNav() {
-        val home = AHBottomNavigationItem("home", R.drawable.icon_levels_1)
-        val tracks = AHBottomNavigationItem("stash", R.drawable.notes_hearts_line)
-        val profile = AHBottomNavigationItem("profile", R.drawable.icon_headphones)
+        val home = AHBottomNavigationItem(resources.getString(R.string.tab_title_home), R.drawable.icon_levels_1)
+        val tracks = AHBottomNavigationItem(resources.getString(R.string.tab_title_stash), R.drawable.notes_hearts_line)
+        val profile = AHBottomNavigationItem(resources.getString(R.string.tab_title_profile), R.drawable.icon_headphones)
         bottom_navigation.addItem(home)
         bottom_navigation.addItem(tracks)
         bottom_navigation.addItem(profile)

@@ -54,6 +54,8 @@
 
 	<!-- Stash -->
 	<dimen name="tab_strip_height">48dp</dimen>
+	<dimen name="simple_card_header_height">130dp</dimen>
+	<dimen name="simple_card_padding">20dp</dimen>
 
 	<!-- Stash multiselect -->
 	<dimen name="decoration_size">1.5dp</dimen>
