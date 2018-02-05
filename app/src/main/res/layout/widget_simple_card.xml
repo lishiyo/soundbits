@@ -119,20 +119,6 @@
 							android:src="@drawable/note_happy_colored"
 							/>
 
-						<!--<io.saeid.fabloading.LoadingView-->
-							<!--android:id="@+id/fab"-->
-							<!--android:layout_marginLeft="@dimen/fake_fab_icon_margin"-->
-							<!--android:layout_marginTop="@dimen/fake_fab_icon_margin"-->
-							<!--android:layout_width="@dimen/fake_fab_diameter"-->
-							<!--android:layout_height="@dimen/fake_fab_diameter"-->
-							<!--android:src="@drawable/note_happy_colored"-->
-							<!--android:scaleX="1.5"-->
-							<!--android:scaleY="1.5"-->
-							<!--app:mfl_onclickLoading="false"-->
-							<!--app:mfl_duration="400"-->
-							<!--/>-->
-
-
 					</FrameLayout>
 
 					<com.hlab.fabrevealmenu.view.FABRevealMenu
@@ -164,16 +150,13 @@
 					android:orientation="vertical"
 					>
 
-					<!-- BODY: likes/dislikes/total -->
-					<include layout="@layout/widget_quickcounts_row" />
-
-					<View
-						android:layout_width="match_parent"
-						android:layout_height="4dp"
-						android:background="@drawable/dotted_line_horizontal"
-						android:paddingLeft="@dimen/stats_padding_horizontal"
-						android:paddingRight="@dimen/stats_padding_horizontal"
-						/>
+					<!--<View-->
+						<!--android:layout_width="match_parent"-->
+						<!--android:layout_height="4dp"-->
+						<!--android:background="@drawable/dotted_line_horizontal"-->
+						<!--android:paddingLeft="@dimen/stats_padding_horizontal"-->
+						<!--android:paddingRight="@dimen/stats_padding_horizontal"-->
+						<!--/>-->
 
 					<!-- BODY: audio stats -->
 					<com.cziyeli.songbits.playlistcard.TrackStatsView

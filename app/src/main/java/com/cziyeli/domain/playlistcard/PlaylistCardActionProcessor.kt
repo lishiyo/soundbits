@@ -25,8 +25,8 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
         acts.publish { shared ->
             Observable.merge<PlaylistCardResultMarker>(
                     // ==== FETCH ACTIONS ====
-                    // given tracks list -> calculate quick count
-                    shared.ofType<PlaylistCardAction.CalculateQuickCounts>(PlaylistCardAction.CalculateQuickCounts::class.java)
+                    // given any tracks list -> calculate quick count
+                    shared.ofType<CardAction.CalculateQuickCounts>(CardAction.CalculateQuickCounts::class.java)
                             .compose(calculateQuickCountsProcessor),
                     // given playlist id -> grab all tracks (from remote) and calculate their stats
                     shared.ofType<StatsAction.FetchAllTracksWithStats>(StatsAction.FetchAllTracksWithStats::class.java)
@@ -36,6 +36,7 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                             .compose(fetchStatsProcessor),
                     // fetch playlist tracks either from database (if swiped only) or from remote (all)
                     shared.ofType<PlaylistCardAction.FetchPlaylistTracks>(PlaylistCardAction.FetchPlaylistTracks::class.java)
+                            .filter { it.playlistId != null }
                             .groupBy { it.onlySwiped }
                             .flatMap { grouped ->
                                 val compose: Observable<PlaylistCardResultMarker> = if (grouped.key == true) {
@@ -65,7 +66,7 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
     }
 
     // fetch quick stats - query in local database for counts
-    private val calculateQuickCountsProcessor: ObservableTransformer<PlaylistCardAction.CalculateQuickCounts, PlaylistCardResult.CalculateQuickCounts> =
+    private val calculateQuickCountsProcessor: ObservableTransformer<CardAction.CalculateQuickCounts, CardResult.CalculateQuickCounts> =
             ObservableTransformer { action -> action
                     .map { act -> act.tracks }
                     .map { list -> // return pair <liked, disliked>
@@ -73,9 +74,9 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                         val dislikedCount = list.count { it.disliked }
                         Pair(likedCount, dislikedCount)
                     }.observeOn(schedulerProvider.ui())
-                    .map { pair -> PlaylistCardResult.CalculateQuickCounts.createSuccess(pair.first, pair.second) }
-                    .onErrorReturn { err -> PlaylistCardResult.CalculateQuickCounts.createError(err) }
-                    .startWith(PlaylistCardResult.CalculateQuickCounts.createLoading())
+                    .map { pair -> CardResult.CalculateQuickCounts.createSuccess(pair.first, pair.second) }
+                    .onErrorReturn { err -> CardResult.CalculateQuickCounts.createError(err) }
+                    .startWith(CardResult.CalculateQuickCounts.createLoading())
                     .retry() // don't unsubscribe
             }
 
@@ -95,7 +96,7 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
     private val fetchAllTracksProcessor: ObservableTransformer<PlaylistCardAction.FetchPlaylistTracks, PlaylistCardResult.FetchPlaylistTracks> =
             ObservableTransformer { action -> action.switchMap {
         act -> repository
-            .fetchPlaylistTracks(Repository.Source.REMOTE, act.ownerId, act.playlistId, act.fields, act.limit, act.offset)
+            .fetchPlaylistTracks(Repository.Source.REMOTE, act.ownerId, act.playlistId!!, act.fields, act.limit, act.offset)
             .subscribeOn(schedulerProvider.io())
         }.filter { resp -> resp.total > 0 }
             .map { resp -> resp.items.map { it.track }}
@@ -159,7 +160,7 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
     private val fetchStashedTracksForPlaylist: ObservableTransformer<PlaylistCardAction, List<TrackEntity>> = ObservableTransformer { action ->
         action.switchMap { act ->
             repository
-                    .fetchPlaylistStashedTracks(playlistId = act.playlistId)
+                    .fetchPlaylistStashedTracks(playlistId = act.playlistId!!)
                     .toObservable()
                     .doOnNext { Utils.mLog(TAG, "fetchPlaylistStashedTracks size: ${it.size}") }
                     .subscribeOn(schedulerProvider.io())

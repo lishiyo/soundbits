@@ -15,7 +15,7 @@ import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.*
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.cards.summary.SummaryIntent
-import com.cziyeli.songbits.playlistcard.PlaylistCardIntent
+import com.cziyeli.songbits.playlistcard.CardIntent
 import com.cziyeli.songbits.playlistcard.SinglePlaylistIntent
 import com.cziyeli.songbits.playlistcard.StatsIntent
 import io.reactivex.Observable
@@ -93,7 +93,7 @@ class PlaylistCardCreateViewModel @Inject constructor(
             is StatsIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
             is SummaryIntent.CreatePlaylistWithTracks -> SummaryAction.CreatePlaylistWithTracks(intent.ownerId, intent.name,
                     intent.description, intent.public, intent.tracks)
-            is PlaylistCardIntent.CreateHeaderSet -> PlaylistCardAction.CreateHeaderSet(intent.headerImageUrl)
+            is CardIntent.CreateHeaderSet -> PlaylistCardAction.CreateHeaderSet(intent.headerImageUrl)
             else -> PlaylistCardAction.None
         }
     }

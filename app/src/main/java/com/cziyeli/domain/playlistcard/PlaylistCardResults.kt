@@ -6,15 +6,14 @@ import java.util.*
 
 interface PlaylistCardResultMarker : MviResult
 
-sealed class PlaylistCardResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
-                                var error: Throwable? = null) : PlaylistCardResultMarker {
-
+sealed class CardResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
+                        var error: Throwable? = null) : PlaylistCardResultMarker {
     // calculate basic counts - liked, disliked, total
     class CalculateQuickCounts(status: Status,
                                error: Throwable?,
                                val likedCount: Int = 0,
                                val dislikedCount: Int = 0
-    ) : PlaylistCardResult(status, error) {
+    ) : CardResult(status, error) {
         enum class Status : MviResult.StatusInterface {
             LOADING, SUCCESS, ERROR, IDLE
         }
@@ -31,6 +30,10 @@ sealed class PlaylistCardResult(var status: MviResult.StatusInterface = MviResul
             }
         }
     }
+}
+
+sealed class PlaylistCardResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
+                                var error: Throwable? = null) : PlaylistCardResultMarker {
 
     // return list of tracks from either local or remote
     class FetchPlaylistTracks(status: FetchPlaylistTracks.Status,

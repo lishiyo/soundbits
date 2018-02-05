@@ -47,7 +47,7 @@ class PlaylistCardViewModel @Inject constructor(
     private val reducer: BiFunction<PlaylistCardViewState, PlaylistCardResultMarker, PlaylistCardViewState> = BiFunction {
         previousState, result ->
             when (result) {
-                is PlaylistCardResult.CalculateQuickCounts -> return@BiFunction processQuickCounts(previousState, result)
+                is CardResult.CalculateQuickCounts -> return@BiFunction processQuickCounts(previousState, result)
                 is PlaylistCardResult.FetchPlaylistTracks -> return@BiFunction processTracksFetched(previousState, result)
                 is StatsResult.FetchStats -> return@BiFunction processFetchStats(previousState, result)
                 is StatsResult.FetchAllTracksWithStats -> return@BiFunction processFetchAllTracksWithStats(previousState, result)
@@ -105,7 +105,7 @@ class PlaylistCardViewModel @Inject constructor(
     // transform intent -> action
     private fun actionFromIntent(intent: MviIntent) : PlaylistCardActionMarker {
         return when (intent) {
-            is PlaylistCardIntent.CalculateQuickCounts -> PlaylistCardAction.CalculateQuickCounts(intent.playlist, intent.tracks)
+            is PlaylistCardIntent.CalculateQuickCounts -> CardAction.CalculateQuickCounts(intent.tracks)
             is PlaylistCardIntent.FetchSwipedTracks -> PlaylistCardAction.FetchPlaylistTracks(
                     intent.ownerId, intent.playlistId)
             is StatsIntent.FetchTracksWithStats -> StatsAction.FetchAllTracksWithStats(intent.playlist.owner.id, intent.playlist.id)
@@ -129,23 +129,23 @@ class PlaylistCardViewModel @Inject constructor(
 
     // ===== Individual reducers ======
 
-    private fun processQuickCounts(previousState: PlaylistCardViewState, result: PlaylistCardResult.CalculateQuickCounts) : PlaylistCardViewState {
+    private fun processQuickCounts(previousState: PlaylistCardViewState, result: CardResult.CalculateQuickCounts) : PlaylistCardViewState {
         val newState = previousState.copy()
         newState.error = null
 
         Utils.mLog(TAG, "processQuickCounts", "status: ${result.status}")
 
         when (result.status) {
-            PlaylistCardResult.CalculateQuickCounts.Status.LOADING -> {
-                newState.status = PlaylistCardResult.CalculateQuickCounts.Status.LOADING
+            CardResult.CalculateQuickCounts.Status.LOADING -> {
+                newState.status = CardResult.CalculateQuickCounts.Status.LOADING
             }
-            PlaylistCardResult.CalculateQuickCounts.Status.SUCCESS -> {
-                newState.status = PlaylistCardResult.CalculateQuickCounts.Status.SUCCESS
+            CardResult.CalculateQuickCounts.Status.SUCCESS -> {
+                newState.status = CardResult.CalculateQuickCounts.Status.SUCCESS
                 newState.likedCount = result.likedCount
                 newState.dislikedCount = result.dislikedCount
             }
-            PlaylistCardResult.CalculateQuickCounts.Status.ERROR -> {
-                newState.status = PlaylistCardResult.CalculateQuickCounts.Status.ERROR
+            CardResult.CalculateQuickCounts.Status.ERROR -> {
+                newState.status = CardResult.CalculateQuickCounts.Status.ERROR
                 newState.error = result.error
             }
         }
@@ -285,19 +285,19 @@ class PlaylistCardViewModel @Inject constructor(
             get() = unswipedTrackIds.size
 
         fun isSuccess(): Boolean {
-            return status == PlaylistCardResult.CalculateQuickCounts.Status.SUCCESS
+            return status == CardResult.CalculateQuickCounts.Status.SUCCESS
                     || status == PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS
                     || status == StatsResultStatus.SUCCESS
         }
 
         fun isLoading(): Boolean {
-            return status == PlaylistCardResult.CalculateQuickCounts.Status.LOADING
+            return status == CardResult.CalculateQuickCounts.Status.LOADING
                     || status == PlaylistCardResult.FetchPlaylistTracks.Status.LOADING
                     || status == StatsResultStatus.LOADING
         }
 
         fun isError(): Boolean {
-            return status == PlaylistCardResult.CalculateQuickCounts.Status.ERROR
+            return status == CardResult.CalculateQuickCounts.Status.ERROR
                     || status == PlaylistCardResult.FetchPlaylistTracks.Status.ERROR
                     || status == StatsResultStatus.ERROR
         }

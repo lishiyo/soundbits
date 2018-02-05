@@ -155,11 +155,12 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         if (state.status == PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS) {
 //            Utils.mLog(TAG, "RENDER", "just got playlist tracks! stashed: ${state.stashedTracksList.size} all: ${state.allTracksList.size}")
             if (state.stashedTracksList.isNotEmpty()) {
-                // calculating the likes/dislikes of the stashed tracks
-                eventsPublisher.onNext(PlaylistCardIntent.CalculateQuickCounts(playlistModel, state.stashedTracksList))
-            }
+                // update the title
+                expansion_header_title.text = resources.getString(R.string.expand_tracks).format(state.stashedTracksList.size)
 
-            // render the track rows
+                // calculating the likes/dislikes of the stashed tracks
+                eventsPublisher.onNext(PlaylistCardIntent.CalculateQuickCounts(state.stashedTracksList))
+            }
             // TODO this is very ui heavy - figure out better way than delaying until tapped
             Handler().postDelayed({
                 adapter.setTracksAndNotify(state.stashedTracksList)

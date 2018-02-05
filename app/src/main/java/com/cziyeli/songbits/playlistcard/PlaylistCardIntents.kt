@@ -10,19 +10,26 @@ import com.cziyeli.domain.tracks.TrackModel
 interface SinglePlaylistIntent : MviIntent
 
 /**
+ * Events shared by [SimpleCardWidget] and [PlaylistCardWidget].
+ */
+sealed class CardIntent : SinglePlaylistIntent {
+    // Notify the header image has been chosen
+    class CreateHeaderSet(val headerImageUrl: String) : CardIntent()
+}
+
+/**
  * Events for [PlaylistCardWidget].
  **/
 sealed class PlaylistCardIntent : SinglePlaylistIntent {
 
     // fetch basic counts - liked, disliked, total
-    class CalculateQuickCounts(val playlist: Playlist, val tracks: List<TrackModel>) : PlaylistCardIntent()
+    class CalculateQuickCounts(val tracks: List<TrackModel>) : PlaylistCardIntent()
 
     // get list of all (swiped) tracks to show in the expandable rows
     class FetchSwipedTracks(val ownerId: String,
                             val playlistId: String,
                             val onlySwiped: Boolean = true) : PlaylistCardIntent()
 
-    class CreateHeaderSet(val headerImageUrl: String) : PlaylistCardIntent()
 }
 
 /**

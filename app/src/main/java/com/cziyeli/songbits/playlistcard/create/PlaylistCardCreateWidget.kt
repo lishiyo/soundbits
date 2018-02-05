@@ -19,7 +19,7 @@ import com.cziyeli.domain.summary.SummaryResult
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.cards.summary.SummaryIntent
-import com.cziyeli.songbits.playlistcard.PlaylistCardIntent
+import com.cziyeli.songbits.playlistcard.CardIntent
 import com.cziyeli.songbits.playlistcard.SinglePlaylistIntent
 import com.cziyeli.songbits.playlistcard.StatsIntent
 import com.cziyeli.songbits.playlistcard.TrackRowsAdapter
@@ -30,9 +30,6 @@ import io.saeid.fabloading.LoadingView
 import kotlinx.android.synthetic.main.playlist_header_add_existing.view.*
 import kotlinx.android.synthetic.main.playlist_header_create_new.view.*
 import kotlinx.android.synthetic.main.widget_playlist_card_create.view.*
-
-
-
 
 /**
  * View for creating a playlist/adding to existing playlist out of a list of tracks.
@@ -77,7 +74,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
         onTouchListener = touchListener
 
         carouselHeaderUrl?.let {
-            eventsPublisher.onNext(PlaylistCardIntent.CreateHeaderSet(it))
+            eventsPublisher.onNext(CardIntent.CreateHeaderSet(it))
         }
         create_card_label_2.text = resources.getString(R.string.create_card_label_2).format(tracks.size)
 
@@ -99,44 +96,6 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
         create_tracks_recycler_view.adapter = adapter
         create_tracks_recycler_view.layoutManager = LinearLayoutManager(context)
         create_tracks_recycler_view.disableTouchTheft()
-    }
-
-    fun createPlaylist(ownerId: String, tracks: List<TrackModel>) {
-        if (isFinished) {
-            return
-        }
-
-        if (create_playlist_new_title.text.isBlank()) {
-            "you have to give your playlist a name!".toast(context)
-            return
-        }
-
-        fab.startAnimation()
-        eventsPublisher.onNext(SummaryIntent.CreatePlaylistWithTracks(
-                    ownerId = ownerId,
-                    name = create_playlist_new_title.text.toString(),
-                    description = "via songbits",
-                    public = false,
-                    tracks = tracks)
-            )
-    }
-
-    fun onPlaylistCreated(newTitle: String, state: PlaylistCardCreateViewModel.ViewState) {
-        isFinished = true
-        create_card_view.cardElevation = resources.getDimension(R.dimen.playlist_card_finished_elevation)
-        Utils.hideKeyboard(context, create_playlist_new_title)
-
-        // set title and image
-        Utils.setVisible(playlist_header_finished, true) // set up in background
-        val titleView = playlist_header_finished.findViewById<TextView>(R.id.finished_playlist_new_title)
-        val imageView = playlist_header_finished.findViewById<ImageView>(R.id.finished_playlist_image_background)
-        titleView.text = newTitle
-        Glide.with(this).load(state.carouselHeaderUrl).into(imageView)
-
-        Utils.setVisible(create_header_carousel, false)
-
-        isEnabled = false
-        descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
     }
 
     override fun render(state: PlaylistCardCreateViewModel.ViewState) {
@@ -163,7 +122,44 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
             }
             state.isError() -> "something went wrong".toast(context)
         }
+    }
 
+    fun createPlaylist(ownerId: String, tracks: List<TrackModel>) {
+        if (isFinished) {
+            return
+        }
+
+        if (create_playlist_new_title.text.isBlank()) {
+            "you have to give your playlist a name!".toast(context)
+            return
+        }
+
+        fab.startAnimation()
+        eventsPublisher.onNext(SummaryIntent.CreatePlaylistWithTracks(
+                ownerId = ownerId,
+                name = create_playlist_new_title.text.toString(),
+                description = "via songbits",
+                public = false,
+                tracks = tracks)
+        )
+    }
+
+    private fun onPlaylistCreated(newTitle: String, state: PlaylistCardCreateViewModel.ViewState) {
+        isFinished = true
+        create_card_view.cardElevation = resources.getDimension(R.dimen.playlist_card_finished_elevation)
+        Utils.hideKeyboard(context, create_playlist_new_title)
+
+        // set title and image
+        Utils.setVisible(playlist_header_finished, true) // set up in background
+        val titleView = playlist_header_finished.findViewById<TextView>(R.id.finished_playlist_new_title)
+        val imageView = playlist_header_finished.findViewById<ImageView>(R.id.finished_playlist_image_background)
+        titleView.text = newTitle
+        Glide.with(this).load(state.carouselHeaderUrl).into(imageView)
+
+        Utils.setVisible(create_header_carousel, false)
+
+        isEnabled = false
+        descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
     }
 
     override fun intents(): Observable<out SinglePlaylistIntent> {

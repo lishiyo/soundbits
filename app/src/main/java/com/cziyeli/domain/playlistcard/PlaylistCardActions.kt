@@ -1,7 +1,6 @@
 package com.cziyeli.domain.playlistcard
 
 import com.cziyeli.commons.mvibase.MviAction
-import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.tracks.TrackModel
 
 /**
@@ -9,14 +8,16 @@ import com.cziyeli.domain.tracks.TrackModel
  */
 interface PlaylistCardActionMarker : MviAction
 
+sealed class CardAction : PlaylistCardActionMarker {
+    // fetch basic counts - liked, disliked, total
+    class CalculateQuickCounts(val tracks: List<TrackModel>) : CardAction()
+}
+
 /**
  * Actions for the playlist card widget.
  */
-sealed class PlaylistCardAction(val playlistId: String) : PlaylistCardActionMarker {
-    object None : PlaylistCardAction("")
-
-    // fetch basic counts - liked, disliked, total
-    class CalculateQuickCounts(playlist: Playlist, val tracks: List<TrackModel>) : PlaylistCardAction(playlist.id)
+sealed class PlaylistCardAction(val playlistId: String? = "") : PlaylistCardActionMarker {
+    object None : PlaylistCardAction()
 
     // get list of all (swiped) tracks
     class FetchPlaylistTracks(val ownerId: String,
@@ -26,5 +27,5 @@ sealed class PlaylistCardAction(val playlistId: String) : PlaylistCardActionMark
                               val limit: Int = 100,
                               val offset: Int = 0) : PlaylistCardAction(playlistId)
 
-    class CreateHeaderSet(val headerImageUrl: String) : PlaylistCardAction("")
+    class CreateHeaderSet(val headerImageUrl: String) : PlaylistCardAction()
 }

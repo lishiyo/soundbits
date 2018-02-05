@@ -67,19 +67,19 @@
 		<item name="endFixed">8</item>
 		<item name="movable">false</item>
 		<item name="activeLineColor">@color/colorAccent</item>
-		<item name="activeTickColor">@color/colorAccent</item>
+		<item name="activeTickColor">@color/colorYellow</item>
 		<item name="activeThumbColor">@color/colorAccent</item>
 		<item name="fixedLineColor">@color/colorGrey</item>
 		<item name="fixedThumbLabelColor">@color/colorGrey</item>
 		<item name="fixedThumbColor">@color/colorGrey</item>
 		<item name="tickColor">@color/ghost_white</item>
 		<item name="innerRangePadding">@dimen/stats_range_padding</item>
-		<item name="fixedThumbRadius">@dimen/stats_range_padding</item>
+		<item name="fixedThumbRadius">@dimen/stats_radius_thumb</item>
 		<item name="activeLineThickness">@dimen/stats_line_width</item>
 		<item name="fixedLineThickness">@dimen/stats_line_width</item>
 		<item name="activeThumbRadius">@dimen/stats_radius_thumb</item>
 		<item name="showTicks">true</item>
-		<item name="showActiveTicks">false</item>
+		<item name="showActiveTicks">true</item>
 	</style>
 
 	<style name="trackCardButton">

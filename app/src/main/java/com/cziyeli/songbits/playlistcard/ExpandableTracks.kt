@@ -40,10 +40,13 @@ class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackModel>)
         notifyItemChanged(position)
     }
 
-    fun setTracksAndNotify(tracks: List<TrackModel>) {
+    fun setTracksAndNotify(tracks: List<TrackModel>, notify: Boolean = true) {
         trackRows.clear()
         trackRows.addAll(tracks)
-        notifyDataSetChanged()
+
+        if (notify) {
+            notifyDataSetChanged()
+        }
     }
 
     fun addTracksAndNotify(tracks: List<TrackModel>) {
