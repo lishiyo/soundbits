@@ -20,7 +20,7 @@ import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.cards.summary.SummaryIntent
 import com.cziyeli.songbits.playlistcard.CardIntent
-import com.cziyeli.songbits.playlistcard.SinglePlaylistIntent
+import com.cziyeli.songbits.playlistcard.CardIntentMarker
 import com.cziyeli.songbits.playlistcard.StatsIntent
 import com.cziyeli.songbits.playlistcard.TrackRowsAdapter
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
@@ -35,7 +35,7 @@ import kotlinx.android.synthetic.main.widget_playlist_card_create.view.*
  * View for creating a playlist/adding to existing playlist out of a list of tracks.
  * Read-only tracks, no fab menu.
  */
-class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent, PlaylistCardCreateViewModel.ViewState> {
+class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistCardCreateViewModel.ViewState> {
     private val TAG = PlaylistCardCreateViewModel::class.java.simpleName
 
     val FAB_CREATE_COLOR_0 = resources.getColor(R.color.colorFab)
@@ -44,7 +44,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
     val FAB_CREATE_COLOR_3 = resources.getColor(R.color.venice_verde)
 
     // intents
-    private val eventsPublisher = PublishSubject.create<SinglePlaylistIntent>()
+    private val eventsPublisher = PublishSubject.create<CardIntentMarker>()
 
     private lateinit var adapter: TrackRowsAdapter
     private var onTouchListener: RecyclerTouchListener? = null
@@ -162,7 +162,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<SinglePlaylistIntent,
         descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
     }
 
-    override fun intents(): Observable<out SinglePlaylistIntent> {
+    override fun intents(): Observable<out CardIntentMarker> {
         return eventsPublisher
     }
 

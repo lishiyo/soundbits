@@ -8,11 +8,11 @@ import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlists.*
 import com.cziyeli.domain.user.QuickCounts
+import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
-import io.reactivex.subjects.PublishSubject
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
@@ -29,7 +29,7 @@ class HomeViewModel @Inject constructor(
     private val liveViewState: MutableLiveData<HomeViewState> by lazy { MutableLiveData<HomeViewState>() }
 
     // subject to publish ViewStates
-    private val intentsSubject : PublishSubject<HomeIntent> by lazy { PublishSubject.create<HomeIntent>() }
+    private val intentsSubject : PublishRelay<HomeIntent> by lazy { PublishRelay.create<HomeIntent>() }
 
     /**
      * take only the first ever InitialIntent and all intents of other types
@@ -70,11 +70,11 @@ class HomeViewModel @Inject constructor(
                 .scan(HomeViewState(), reducer)
                 // Emit the last one event of the stream on subscription
                 // Useful when a View rebinds to the ViewModel after rotation.
-//                .replay(1)
+                .replay(1)
                 // Create the stream on creation without waiting for anyone to subscribe
                 // This allows the stream to stay alive even when the UI disconnects and
                 // match the stream's lifecycle to the ViewModel's one.
-//                .autoConnect(0) // automatically connect
+                .autoConnect(0) // automatically connect
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->

@@ -53,12 +53,6 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                     // update a track's pref in the db
                     shared.ofType<TrackAction.ChangeTrackPref>(TrackAction.ChangeTrackPref::class.java)
                             .compose(changePrefAndSaveProcessor)
-            ).mergeWith(
-                    // Error for not implemented actions
-                    shared.filter { v -> (v !is PlaylistCardActionMarker) }
-                            .flatMap { w ->
-                                Observable.error<PlaylistCardResultMarker>(IllegalArgumentException("Unknown Action type: " + w))
-                            }
             ).doOnNext {
                 Utils.log(TAG, "PlaylistCardActionProcessor: --- ${it::class.simpleName}")
             }.retry() // don't ever unsubscribe
@@ -144,7 +138,6 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
             .startWith(StatsResult.FetchStats.createLoading())
             .retry() // don't unsubscribe
     }
-
 
     // like, dislike, undo track AND save in db
     private val changePrefAndSaveProcessor : ObservableTransformer<TrackAction.ChangeTrackPref, TrackResult.ChangePrefResult> =

@@ -2,14 +2,14 @@ package com.cziyeli.songbits.cards.summary
 
 import com.cziyeli.commons.mvibase.MviIntent
 import com.cziyeli.domain.tracks.TrackModel
-import com.cziyeli.songbits.playlistcard.SinglePlaylistIntent
+import com.cziyeli.songbits.playlistcard.CardIntentMarker
 
 /**
  * Events in the summary layout after swiping through the cards.
  *
  * Created by connieli on 1/6/18.
  */
-sealed class SummaryIntent : MviIntent, SinglePlaylistIntent {
+sealed class SummaryIntent : MviIntent, CardIntentMarker {
     // TODO: what do I need to create pending PlaylistCard on open
     // fetch audio features for a bunch of tracks => transform to domain model TrackListStats
     class FetchStats(val trackIds: List<String>) : SummaryIntent()

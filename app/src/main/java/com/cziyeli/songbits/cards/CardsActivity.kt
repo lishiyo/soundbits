@@ -187,7 +187,7 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
 
         Utils.mLog(TAG, "render!", "state", state.toString())
 
-        // populate if first time
+        // populate deck if first time
         if (state.status == TrackViewState.TracksLoadedStatus.SUCCESS && swipeView.childCount == 0) {
             state.allTracks.forEachWithIndex { position, model ->
 //                Utils.mLog(TAG, "render! adding TrackCardView @ $position")
@@ -197,8 +197,7 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
 
         // todo: render play button based on mediaplayer state
         if (!summaryShown && state.reachedEnd) {
-            Utils.mLog("render!", "reached the end, destroying")
-            mPlayer.apply { onDestroy() } // release the player!
+            mPlayer.run { onDestroy() } // release the player!
             showSummary(state)
         }
     }
@@ -211,7 +210,6 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         swipeView.removeAllViews()
         (swipeView.parent as ViewGroup).removeView(swipeView)
         (buttons_row.parent as ViewGroup).removeView(buttons_row)
-
         Utils.setVisible(summaryLayout, true)
 
         // create the layout with the initial view state

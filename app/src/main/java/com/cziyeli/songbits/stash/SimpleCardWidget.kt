@@ -1,6 +1,5 @@
 package com.cziyeli.songbits.stash
 
-import android.app.Activity
 import android.content.Context
 import android.support.v4.widget.NestedScrollView
 import android.support.v7.widget.LinearLayoutManager
@@ -21,15 +20,15 @@ import kotlinx.android.synthetic.main.widget_simple_card.view.*
 
 /**
  * Very similar to [PlaylistCardWidget], but doesn't need to be instantiated with a playlist
- * - just a list of tracks.
+ * - just any list of tracks.
  */
-class SimpleCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, SimpleCardViewModel.ViewState> {
+class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker, SimpleCardViewModel.ViewState> {
     val TAG = SimpleCardWidget::class.simpleName
 
     // backing model is list of tracks
-    private lateinit var activity: Activity
+
     // intents
-    private val eventsPublisher = PublishSubject.create<SinglePlaylistIntent>()
+    private val eventsPublisher = PublishSubject.create<CardIntentMarker>()
 
     // Listener for the track rows
     private lateinit var adapter: TrackRowsAdapter
@@ -78,7 +77,7 @@ class SimpleCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, SimpleC
         tracks_recycler_view.disableTouchTheft()
     }
 
-    override fun intents(): Observable<out SinglePlaylistIntent> {
+    override fun intents(): Observable<out CardIntentMarker> {
         return eventsPublisher
     }
 

@@ -35,14 +35,14 @@ class PlaylistCardViewModel @Inject constructor(
         val actionProcessor: PlaylistCardActionProcessor,
         val schedulerProvider: BaseSchedulerProvider,
         val initialState: PlaylistCardViewState
-) : ViewModel(), LifecycleObserver, MviViewModel<SinglePlaylistIntent, PlaylistCardViewModel.PlaylistCardViewState> {
+) : ViewModel(), LifecycleObserver, MviViewModel<CardIntentMarker, PlaylistCardViewModel.PlaylistCardViewState> {
     private val TAG = PlaylistCardViewModel::class.simpleName
 
     private var initialViewState : PlaylistCardViewState
     // LiveData-wrapped ViewState
     private val liveViewState: MutableLiveData<PlaylistCardViewState> by lazy { MutableLiveData<PlaylistCardViewState>() }
     // subject to publish ViewStates
-    private val intentsSubject : PublishSubject<SinglePlaylistIntent> by lazy { PublishSubject.create<SinglePlaylistIntent>() }
+    private val intentsSubject : PublishSubject<CardIntentMarker> by lazy { PublishSubject.create<CardIntentMarker>() }
     // reducer fn: Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<PlaylistCardViewState, PlaylistCardResultMarker, PlaylistCardViewState> = BiFunction {
         previousState, result ->
@@ -55,9 +55,9 @@ class PlaylistCardViewModel @Inject constructor(
                 else -> return@BiFunction previousState
             }
     }
-    private val intentFilter: ObservableTransformer<SinglePlaylistIntent, SinglePlaylistIntent> = ObservableTransformer { intents ->
+    private val intentFilter: ObservableTransformer<CardIntentMarker, CardIntentMarker> = ObservableTransformer { intents ->
         intents.publish { shared -> shared
-            Observable.merge<SinglePlaylistIntent>(
+            Observable.merge<CardIntentMarker>(
                     shared.ofType(PlaylistCardIntent.FetchSwipedTracks::class.java)
                             .filter{ liveViewState.value?.allTracksList?.isEmpty() == true }, // only fetch if still empty
                     shared.ofType(StatsIntent.FetchStats::class.java).take(1), // only hit once
@@ -117,7 +117,7 @@ class PlaylistCardViewModel @Inject constructor(
 
     // ===== MviViewModel =====
 
-    override fun processIntents(intents: Observable<out SinglePlaylistIntent>) {
+    override fun processIntents(intents: Observable<out CardIntentMarker>) {
         compositeDisposable.add(
                 intents.subscribe(intentsSubject::onNext)
         )

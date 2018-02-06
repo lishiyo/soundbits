@@ -34,7 +34,7 @@ import kotlinx.android.synthetic.main.widget_quickcounts_row.view.*
 /**
  * The normal playlist card (*not* the create/pending one).
  */
-class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, PlaylistCardViewModel.PlaylistCardViewState> {
+class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistCardViewModel.PlaylistCardViewState> {
     companion object {
         val TAG = PlaylistCardWidget::class.simpleName
         private const val FAB_ASSET_FILE = "emoji_wink.json"
@@ -45,7 +45,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
     private lateinit var activity: Activity
 
     // intents
-    private var eventsPublisher = PublishSubject.create<SinglePlaylistIntent>()
+    private var eventsPublisher = PublishSubject.create<CardIntentMarker>()
 
     // views
     private lateinit var adapter: TrackRowsAdapter
@@ -142,7 +142,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<SinglePlaylistIntent, Playl
         adapter.updateTrack(model, position)
     }
 
-    override fun intents(): Observable<out SinglePlaylistIntent> {
+    override fun intents(): Observable<out CardIntentMarker> {
         return eventsPublisher
     }
 

@@ -26,14 +26,8 @@ class PlaylistCardCreateActionProcessor @Inject constructor(private val reposito
                             .compose(mCreatePlaylistProcessor),
                     shared.ofType<PlaylistCardAction.CreateHeaderSet>(PlaylistCardAction.CreateHeaderSet::class.java)
                             .compose(mSetHeaderProcessor)
-            ).mergeWith(
-                    // Error for not implemented actions
-                    shared.filter { v -> (v !is PlaylistCardActionMarker) }
-                            .flatMap { w ->
-                                Observable.error<PlaylistCardResultMarker>(IllegalArgumentException("Unknown Action type: " + w))
-                            }
             ).doOnNext {
-                Utils.log(TAG, "PlaylistCardActionProcessor: --- ${it::class.simpleName}")
+                Utils.mLog(TAG, "PlaylistCardActionProcessor: --- ${it::class.simpleName}")
             }.retry() // don't ever unsubscribe
         }
     }

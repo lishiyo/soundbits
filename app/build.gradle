@@ -118,6 +118,7 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
     implementation "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxAndroidVersion"
     implementation "io.reactivex.rxjava2:rxkotlin:2.2.0"
+    implementation 'com.jakewharton.rxrelay2:rxrelay:2.0.0'
 
     // UI - Images TODO remove
     implementation "com.facebook.fresco:fresco:$rootProject.ext.frescoVersion"

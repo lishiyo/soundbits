@@ -139,7 +139,7 @@ class PlaylistCardActivity : AppCompatActivity() {
         playlist_card_widget.render(state)
     }
 
-    private fun intents(): Observable<out SinglePlaylistIntent> {
+    private fun intents(): Observable<out CardIntentMarker> {
         return Observable.merge(playlist_card_widget.intents(), eventsPublisher)
     }
 
@@ -190,7 +190,7 @@ class PlaylistCardActivity : AppCompatActivity() {
         }
     }
 
-    private val eventsPublisher: PublishSubject<SinglePlaylistIntent> by lazy { PublishSubject.create<SinglePlaylistIntent>() }
+    private val eventsPublisher: PublishSubject<CardIntentMarker> by lazy { PublishSubject.create<CardIntentMarker>() }
 
     private fun createOnTouchListener(swipeListener: RecyclerTouchListener.OnSwipeListener) : RecyclerTouchListener {
         val onTouchListener = RecyclerTouchListener(this, tracks_recycler_view)

@@ -29,13 +29,16 @@ sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Sta
     ) : SummaryResult(status, error), StatsResultMarker {
         companion object {
             fun createSuccess(trackStats: TrackListStats) : FetchLikedStats {
+                Utils.mLog(TAG, "FetchLikedStats success!")
                 return FetchLikedStats(MviResult.Status.SUCCESS, null, trackStats)
             }
             fun createError(throwable: Throwable,
                             trackStats: TrackListStats? = null) : FetchLikedStats {
+                Utils.mLog(TAG, "FetchLikedStats error!")
                 return FetchLikedStats(MviResult.Status.ERROR, throwable, trackStats)
             }
             fun createLoading(): FetchLikedStats {
+                Utils.mLog(TAG, "FetchLikedStats loading!")
                 return FetchLikedStats(MviResult.Status.LOADING, null, null)
             }
         }

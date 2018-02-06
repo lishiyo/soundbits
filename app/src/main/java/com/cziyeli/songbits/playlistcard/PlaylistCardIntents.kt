@@ -5,14 +5,14 @@ import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.tracks.TrackModel
 
 /**
- * Marker for the [PlaylistCardActivity] screen.
+ * Marker for any action that takes place on a card.
  */
-interface SinglePlaylistIntent : MviIntent
+interface CardIntentMarker : MviIntent
 
 /**
  * Events shared by [SimpleCardWidget] and [PlaylistCardWidget].
  */
-sealed class CardIntent : SinglePlaylistIntent {
+sealed class CardIntent : CardIntentMarker {
     // Notify the header image has been chosen
     class CreateHeaderSet(val headerImageUrl: String) : CardIntent()
 }
@@ -20,7 +20,7 @@ sealed class CardIntent : SinglePlaylistIntent {
 /**
  * Events for [PlaylistCardWidget].
  **/
-sealed class PlaylistCardIntent : SinglePlaylistIntent {
+sealed class PlaylistCardIntent : CardIntentMarker {
 
     // fetch basic counts - liked, disliked, total
     class CalculateQuickCounts(val tracks: List<TrackModel>) : PlaylistCardIntent()
@@ -35,7 +35,7 @@ sealed class PlaylistCardIntent : SinglePlaylistIntent {
 /**
  * Events for [TrackStatsView], widget representing stats for a [PlaylistCardWidget].
  */
-sealed class StatsIntent : SinglePlaylistIntent {
+sealed class StatsIntent : CardIntentMarker {
 
     // fetch tracks and tats for a playlist
     class FetchTracksWithStats(val playlist: Playlist) : StatsIntent()

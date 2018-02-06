@@ -24,14 +24,8 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
                     shared.ofType<StatsAction.FetchStats>(StatsAction.FetchStats::class.java).compose(mFetchLikedStatsProcessor),
                     shared.ofType<SummaryAction.SaveTracks>(SummaryAction.SaveTracks::class.java).compose(mSaveTracksProcessor),
                     shared.ofType<SummaryAction.CreatePlaylistWithTracks>(SummaryAction.CreatePlaylistWithTracks::class.java).compose(mCreatePlaylistProcessor)
-            ).mergeWith(
-                    // Error for not implemented actions
-                    shared.filter { v -> (v !is SummaryAction)
-                    }.flatMap { w ->
-                        Observable.error<SummaryResult>(IllegalArgumentException("Unknown Action type: " + w))
-                    }
             ).doOnNext {
-                Utils.log(TAG, "commandPlayer processing --- ${it::class.simpleName}")
+                Utils.mLog(TAG, "processing --- ${it::class.simpleName}")
             }.retry() // don't ever unsubscribe
         }
     }

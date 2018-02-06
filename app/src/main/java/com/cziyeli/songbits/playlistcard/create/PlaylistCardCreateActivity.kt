@@ -11,7 +11,7 @@ import android.view.View
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.di.App
-import com.cziyeli.songbits.playlistcard.SinglePlaylistIntent
+import com.cziyeli.songbits.playlistcard.CardIntentMarker
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import com.synnapps.carouselview.ViewListener
 import dagger.android.AndroidInjection
@@ -132,7 +132,7 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
         create_playlist_card_widget.render(state)
     }
 
-    private fun intents(): Observable<out SinglePlaylistIntent> {
+    private fun intents(): Observable<out CardIntentMarker> {
         return create_playlist_card_widget.intents()
     }
 

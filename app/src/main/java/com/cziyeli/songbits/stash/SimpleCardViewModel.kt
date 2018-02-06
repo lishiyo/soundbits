@@ -11,7 +11,7 @@ import com.cziyeli.domain.summary.SummaryActionProcessor
 import com.cziyeli.domain.summary.SummaryResult
 import com.cziyeli.domain.summary.TrackListStats
 import com.cziyeli.domain.tracks.TrackModel
-import com.cziyeli.songbits.playlistcard.SinglePlaylistIntent
+import com.cziyeli.songbits.playlistcard.CardIntentMarker
 import io.reactivex.Observable
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
@@ -20,9 +20,9 @@ import javax.inject.Inject
 class SimpleCardViewModel @Inject constructor(
         val actionProcessor: SummaryActionProcessor,
         val schedulerProvider: BaseSchedulerProvider
-) : ViewModel(), LifecycleObserver, MviViewModel<SinglePlaylistIntent, SimpleCardViewModel.ViewState> {
+) : ViewModel(), LifecycleObserver, MviViewModel<CardIntentMarker, SimpleCardViewModel.ViewState> {
 
-    override fun processIntents(intents: Observable<out SinglePlaylistIntent>) {
+    override fun processIntents(intents: Observable<out CardIntentMarker>) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

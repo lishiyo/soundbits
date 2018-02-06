@@ -16,7 +16,7 @@ import com.cziyeli.domain.summary.*
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.cards.summary.SummaryIntent
 import com.cziyeli.songbits.playlistcard.CardIntent
-import com.cziyeli.songbits.playlistcard.SinglePlaylistIntent
+import com.cziyeli.songbits.playlistcard.CardIntentMarker
 import com.cziyeli.songbits.playlistcard.StatsIntent
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
@@ -31,7 +31,7 @@ class PlaylistCardCreateViewModel @Inject constructor(
         val actionProcessor: PlaylistCardCreateActionProcessor,
         val schedulerProvider: BaseSchedulerProvider,
         initialState: PlaylistCardCreateViewModel.ViewState
-) : ViewModel(), LifecycleObserver, MviViewModel<SinglePlaylistIntent, PlaylistCardCreateViewModel.ViewState> {
+) : ViewModel(), LifecycleObserver, MviViewModel<CardIntentMarker, PlaylistCardCreateViewModel.ViewState> {
 
     private val TAG = PlaylistCardCreateViewModel::class.simpleName
 
@@ -39,10 +39,10 @@ class PlaylistCardCreateViewModel @Inject constructor(
     private val liveViewState: MutableLiveData<PlaylistCardCreateViewModel.ViewState> by lazy {
         MutableLiveData<PlaylistCardCreateViewModel.ViewState>() }
     // subject to publish ViewStates
-    private val intentsSubject : PublishSubject<SinglePlaylistIntent> by lazy { PublishSubject.create<SinglePlaylistIntent>() }
-    private val intentFilter: ObservableTransformer<SinglePlaylistIntent, SinglePlaylistIntent> = ObservableTransformer { intents ->
+    private val intentsSubject : PublishSubject<CardIntentMarker> by lazy { PublishSubject.create<CardIntentMarker>() }
+    private val intentFilter: ObservableTransformer<CardIntentMarker, CardIntentMarker> = ObservableTransformer { intents ->
         intents.publish { shared -> shared
-            Observable.merge<SinglePlaylistIntent>(
+            Observable.merge<CardIntentMarker>(
                     shared.ofType(StatsIntent.FetchStats::class.java).take(1), // only hit once
                     shared.filter({ intent ->
                         intent !is StatsIntent.FetchStats})
@@ -155,7 +155,7 @@ class PlaylistCardCreateViewModel @Inject constructor(
         return newState
     }
 
-    override fun processIntents(intents: Observable<out SinglePlaylistIntent>) {
+    override fun processIntents(intents: Observable<out CardIntentMarker>) {
         compositeDisposable.add(
                 intents.subscribe(intentsSubject::onNext)
         )

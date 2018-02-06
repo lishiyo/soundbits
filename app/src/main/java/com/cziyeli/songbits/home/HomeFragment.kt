@@ -19,11 +19,11 @@ import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.playlistcard.PlaylistCardActivity
+import com.jakewharton.rxrelay2.PublishRelay
 import dagger.android.support.AndroidSupportInjection
 import io.github.luizgrp.sectionedrecyclerviewadapter.Section
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter
 import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
 import kaaes.spotify.webapi.android.SpotifyApi
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.widget_quickcounts_row.*
@@ -33,9 +33,12 @@ import javax.inject.Inject
 class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     private val TAG = HomeFragment::class.simpleName
 
-    @Inject lateinit var api: SpotifyApi
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-    @Inject lateinit var userManager : com.cziyeli.domain.user.UserManager
+    @Inject
+    lateinit var api: SpotifyApi
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject
+    lateinit var userManager: com.cziyeli.domain.user.UserManager
 
     // view models
     private lateinit var viewModel: HomeViewModel
@@ -45,7 +48,9 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     private lateinit var mLayoutManager: GridLayoutManager
 
     // intents
-    private val mLoadPublisher = PublishSubject.create<HomeIntent>()
+    private val mLoadPublisher: PublishRelay<HomeIntent> by lazy {
+        PublishRelay.create<HomeIntent>()
+    }
 
     // adapter
     private lateinit var PLAYLIST_RECENT: PlaylistSection
@@ -53,7 +58,7 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     private lateinit var PLAYLIST_RECOMMENDED: PlaylistSection
     private val listener: PlaylistSection.ClickListener = object : PlaylistSection.ClickListener {
         override fun onFooterClick(section: PlaylistSection) {
-            mLoadPublisher.onNext(HomeIntent.LoadPlaylists(offset = section.contentItemsTotal + 1))
+            mLoadPublisher.accept(HomeIntent.LoadPlaylists(offset = section.contentItemsTotal + 1))
         }
 
         override fun onItemClick(view: View, item: Playlist) {
@@ -84,12 +89,12 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
         setUpSectionedAdapter(view, savedInstanceState)
 
         // fetch the playlists
-        mLoadPublisher.onNext(HomeIntent.LoadPlaylists())
+        mLoadPublisher.accept(HomeIntent.LoadPlaylists())
     }
 
     // the little mini card with the stats
     private fun loadUserCard() {
-        mLoadPublisher.onNext(HomeIntent.FetchUserQuickCounts())
+        mLoadPublisher.accept(HomeIntent.FetchUserQuickCounts())
 
         val userName = userManager.getCurrentUser().display_name
         val userImage = userManager.getCurrentUser().cover_image
@@ -109,9 +114,9 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
         sectionAdapter = SectionedRecyclerViewAdapter()
 
         // add the sections (to fill in later)
-        PLAYLIST_RECENT =  PlaylistSection(getString(R.string.playlist_section_recent), mutableListOf(), listener)
-        PLAYLIST_FEATURED =  PlaylistSection(getString(R.string.playlist_section_featured), mutableListOf(), listener)
-        PLAYLIST_RECOMMENDED =  PlaylistSection(getString(R.string.playlist_section_recommended), mutableListOf(), listener)
+        PLAYLIST_RECENT = PlaylistSection(getString(R.string.playlist_section_recent), mutableListOf(), listener)
+        PLAYLIST_FEATURED = PlaylistSection(getString(R.string.playlist_section_featured), mutableListOf(), listener)
+        PLAYLIST_RECOMMENDED = PlaylistSection(getString(R.string.playlist_section_recommended), mutableListOf(), listener)
         sectionAdapter.addSection(PLAYLIST_RECENT)
         sectionAdapter.addSection(PLAYLIST_RECOMMENDED)
         sectionAdapter.addSection(PLAYLIST_FEATURED)
@@ -147,7 +152,7 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     }
 
     override fun intents(): Observable<out HomeIntent> {
-       return mLoadPublisher
+        return mLoadPublisher
     }
 
     override fun render(state: HomeViewState) {
@@ -166,7 +171,7 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
                 Utils.mLog(TAG, "RENDER", "successful but empty")
             }
             state.status == MviViewState.Status.LOADING -> {
-//                showLoading(PLAYLIST_RECENT)
+                showLoading(PLAYLIST_RECENT)
             }
             state.status == MviViewState.Status.ERROR -> {
                 // todo show error state
@@ -193,7 +198,7 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     companion object {
         const val PLAYLISTS_COLUMN_COUNT = 2
 
-        fun create(args: Bundle? = Bundle()) : HomeFragment {
+        fun create(args: Bundle? = Bundle()): HomeFragment {
             val fragment = HomeFragment()
             fragment.arguments = args
             return fragment

@@ -54,10 +54,8 @@ class SummaryLayout @JvmOverloads constructor(
 
         // Bind the view model
         viewModel = viewModelFromActivity
-        // Bind ViewModel to merged intents stream
+        // Bind ViewModel to this view's intents stream
         viewModel.processIntents(intents())
-        // add viewmodel as an observer of this fragment lifecycle
-        viewModel.let { context.lifecycle.addObserver(it) }
         // Subscribe to the viewmodel states with LiveData, not Rx
         viewModel.states().observe(context, Observer { state ->
             state?.let {
@@ -66,7 +64,7 @@ class SummaryLayout @JvmOverloads constructor(
         })
 
         // immediately fetch stats of the like ids
-        val initialViewState = viewModelFromActivity.initialViewState
+        val initialViewState = viewModel.states().value
         mStatsPublisher.onNext(SummaryIntent.FetchStats(initialViewState!!.trackIdsForStats()))
 
         // init click listeners
@@ -104,7 +102,6 @@ class SummaryLayout @JvmOverloads constructor(
                 "out of ${state.allTracks.size} tracks!"
         titleView.text = title // for debugging
 
-//        val showResults = state.status == MviViewState.Status.SUCCESS || state.status == MviViewState.Status.ERROR
         Utils.setVisible(stats_container, true)
 
         when (state.status) {

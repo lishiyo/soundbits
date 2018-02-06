@@ -30,10 +30,6 @@ class HomeActionProcessor @Inject constructor(private val repository: Repository
                     shared.ofType<UserAction.FetchUser>(UserAction.FetchUser::class.java).compose(fetchUserProcessor),
                     shared.ofType<UserAction.ClearUser>(UserAction.ClearUser::class.java).compose(clearUserProcessor),
                     shared.ofType<UserAction.FetchQuickCounts>(UserAction.FetchQuickCounts::class.java).compose(fetchQuickCountsProcessor)
-            ).mergeWith(
-                    // Error for not implemented actions
-                    shared.filter { v -> v !is HomeAction
-                    }.flatMap { w -> Observable.error<PlaylistsResult>(IllegalArgumentException("Unknown Action type: " + w)) }
             ).retry() // don't unsubscribe ever
         }
     }

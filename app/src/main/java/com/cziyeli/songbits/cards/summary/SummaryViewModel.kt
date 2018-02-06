@@ -2,7 +2,6 @@ package com.cziyeli.songbits.cards.summary
 
 import android.arch.lifecycle.*
 import android.widget.Toast
-import com.cziyeli.commons.SingleLiveEvent
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviIntent
 import com.cziyeli.commons.mvibase.MviResult
@@ -33,12 +32,10 @@ class SummaryViewModel @Inject constructor(
 ) : ViewModel(), LifecycleObserver, MviViewModel<SummaryIntent, SummaryViewState> {
     private val TAG = SummaryViewModel::class.simpleName
 
-    var initialViewState : SummaryViewState? = null
-
     private val compositeDisposable = CompositeDisposable()
 
     // LiveData-wrapped ViewState
-    private val liveViewState: SingleLiveEvent<SummaryViewState> by lazy { SingleLiveEvent<SummaryViewState>() }
+    private val liveViewState: MutableLiveData<SummaryViewState> by lazy { MutableLiveData<SummaryViewState>() }
 
     // subject to publish ViewStates
     private val intentsSubject : PublishSubject<SummaryIntent> by lazy { PublishSubject.create<SummaryIntent>() }
@@ -57,20 +54,20 @@ class SummaryViewModel @Inject constructor(
     constructor(actionProcessor: SummaryActionProcessor,
                 schedulerProvider: BaseSchedulerProvider,
                 initialState: SummaryViewState) : this(actionProcessor, schedulerProvider) {
-        initialViewState = initialState.copy()
         liveViewState.value = initialState.copy()
 
         // create observable to push into states live data
         val observable: Observable<SummaryViewState> = intentsSubject
-                .filter { initialViewState != null }
-                .filter { !initialViewState!!.allTracks.isEmpty() }
+                .filter { initialState.allTracks.isNotEmpty() }
                 .subscribeOn(schedulerProvider.io())
                 .observeOn(schedulerProvider.ui())
                 .map{ it -> actionFromIntent(it)}
                 .filter { act -> act != SummaryAction.None }
                 .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
                 .compose(actionProcessor.combinedProcessor)
-                .scan(initialViewState, reducer)
+                .scan(liveViewState.value, reducer)
+                .replay(1)
+                .autoConnect()
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
@@ -143,7 +140,7 @@ class SummaryViewModel @Inject constructor(
         val newState = previousState.copy()
         newState.error = null
 
-        Utils.mLog(TAG, "processCreatePlaylistResult", "statis", result.status.toString(),
+        Utils.mLog(TAG, "processCreatePlaylistResult", "status", result.status.toString(),
                 "created with snapshotId: ", "${result.snapshotId?.snapshot_id} for new playlist: ${result.playlistId}")
 
         when (result.status) {
