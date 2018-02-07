@@ -23,9 +23,7 @@ class PlaylistCardCreateActionProcessor @Inject constructor(private val reposito
                             .compose(fetchStatsProcessor),
                     // create new playlist from tracks
                     shared.ofType<SummaryAction.CreatePlaylistWithTracks>(SummaryAction.CreatePlaylistWithTracks::class.java)
-                            .compose(mCreatePlaylistProcessor),
-                    shared.ofType<CardAction.HeaderSet>(CardAction.HeaderSet::class.java)
-                            .compose(mSetHeaderProcessor)
+                            .compose(mCreatePlaylistProcessor)
             ).doOnNext {
                 Utils.mLog(TAG, "PlaylistCardActionProcessor: --- ${it::class.simpleName}")
             }.retry() // don't ever unsubscribe
@@ -64,12 +62,6 @@ class PlaylistCardCreateActionProcessor @Inject constructor(private val reposito
             .onErrorReturn { SummaryResult.CreatePlaylistWithTracks.createError(it) }
             .startWith(SummaryResult.CreatePlaylistWithTracks.createLoading())
             .retry() // don't unsubscribe
-    }
-
-    private val mSetHeaderProcessor: ObservableTransformer<CardAction.HeaderSet, CardResult.HeaderSet> = ObservableTransformer {
-        action -> action
-            .map { it.headerImageUrl }
-            .map { CardResult.HeaderSet(headerImageUrl = it) }
     }
 
 }

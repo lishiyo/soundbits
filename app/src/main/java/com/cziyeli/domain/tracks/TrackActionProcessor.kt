@@ -77,7 +77,7 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
         }.retry() // don't unsubscribe
     }
 
-    // like, dislike, undo track
+    // like, dislike, undo track - no saving in db
     private val changePrefProcessor : ObservableTransformer<TrackAction.ChangeTrackPref, TrackResult.ChangePrefResult> = ObservableTransformer {
         action -> action
             .map { act -> act.track.copy(pref = act.pref) } // return new for immutability

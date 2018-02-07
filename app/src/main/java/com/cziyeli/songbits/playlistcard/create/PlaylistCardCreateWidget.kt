@@ -15,17 +15,18 @@ import com.cziyeli.commons.Utils
 import com.cziyeli.commons.disableTouchTheft
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.toast
+import com.cziyeli.domain.playlistcard.CardResult
+import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.summary.SummaryResult
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.cards.summary.SummaryIntent
-import com.cziyeli.songbits.playlistcard.CardIntent
 import com.cziyeli.songbits.playlistcard.CardIntentMarker
 import com.cziyeli.songbits.playlistcard.StatsIntent
 import com.cziyeli.songbits.playlistcard.TrackRowsAdapter
+import com.jakewharton.rxrelay2.PublishRelay
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
 import io.saeid.fabloading.LoadingView
 import kotlinx.android.synthetic.main.playlist_header_add_existing.view.*
 import kotlinx.android.synthetic.main.playlist_header_create_new.view.*
@@ -44,7 +45,9 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
     val FAB_CREATE_COLOR_3 = resources.getColor(R.color.venice_verde)
 
     // intents
-    private val eventsPublisher = PublishSubject.create<CardIntentMarker>()
+    private val eventsPublisher = PublishRelay.create<CardIntentMarker>()
+    // stream to pipe in basic results (skips intent -> action processing)
+    val simpleResultsPublisher = PublishRelay.create<CardResultMarker>()
 
     private lateinit var adapter: TrackRowsAdapter
     private var onTouchListener: RecyclerTouchListener? = null
@@ -74,7 +77,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
         onTouchListener = touchListener
 
         carouselHeaderUrl?.let {
-            eventsPublisher.onNext(CardIntent.CreateHeaderSet(it))
+            simpleResultsPublisher.accept(CardResult.HeaderSet(it))
         }
         create_card_label_2.text = resources.getString(R.string.create_card_label_2).format(tracks.size)
 
@@ -89,7 +92,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
                 LoadingView.FROM_RIGHT)
 
         // fetch the track stats of these pending tracks
-        eventsPublisher.onNext(StatsIntent.FetchStats(tracks.map { it.id }))
+        eventsPublisher.accept(StatsIntent.FetchStats(tracks.map { it.id }))
 
         // set up tracks list (don't need to re-render)
         adapter = TrackRowsAdapter(context, tracks.toMutableList())
@@ -135,13 +138,13 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
         }
 
         fab.startAnimation()
-        eventsPublisher.onNext(SummaryIntent.CreatePlaylistWithTracks(
+        eventsPublisher.accept(SummaryIntent.CreatePlaylistWithTracks(
                 ownerId = ownerId,
                 name = create_playlist_new_title.text.toString(),
                 description = "via songbits",
                 public = false,
-                tracks = tracks)
-        )
+                tracks = tracks
+        ))
     }
 
     private fun onPlaylistCreated(newTitle: String, state: PlaylistCardCreateViewModel.ViewState) {

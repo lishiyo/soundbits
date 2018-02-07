@@ -10,12 +10,17 @@ import com.bumptech.glide.Glide
 import com.cziyeli.commons.disableTouchTheft
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.toast
+import com.cziyeli.domain.playlistcard.CardResult
+import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
-import com.cziyeli.songbits.playlistcard.*
+import com.cziyeli.songbits.playlistcard.CardIntentMarker
+import com.cziyeli.songbits.playlistcard.PlaylistCardWidget
+import com.cziyeli.songbits.playlistcard.StatsIntent
+import com.cziyeli.songbits.playlistcard.TrackRowsAdapter
+import com.jakewharton.rxrelay2.PublishRelay
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.widget_simple_card.view.*
 
 /**
@@ -25,10 +30,12 @@ import kotlinx.android.synthetic.main.widget_simple_card.view.*
 class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker, SimpleCardViewModel.ViewState> {
     val TAG = SimpleCardWidget::class.simpleName
 
-    // backing model is list of tracks
+    // viewmodel's backing model is list of tracks
 
     // intents
-    private val eventsPublisher = PublishSubject.create<CardIntentMarker>()
+    private val eventsPublisher = PublishRelay.create<CardIntentMarker>()
+    // stream to pipe in basic results (skips intent -> action processing)
+    val simpleResultsPublisher = PublishRelay.create<CardResultMarker>()
 
     // Listener for the track rows
     private lateinit var adapter: TrackRowsAdapter
@@ -63,12 +70,14 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker, SimpleCardV
 
         // set header
         playlist_title.text = title
+
         carouselHeaderUrl?.let {
-            eventsPublisher.onNext(CardIntent.CreateHeaderSet(it))
+            // set directly onto ViewModel
+            simpleResultsPublisher.accept(CardResult.HeaderSet(it))
         }
 
         // fetch the track stats of these pending tracks
-        eventsPublisher.onNext(StatsIntent.FetchStats(tracks.map { it.id }))
+        eventsPublisher.accept(StatsIntent.FetchStats(tracks.map { it.id }))
 
         // set up tracks list (don't need to re-render)
         adapter = TrackRowsAdapter(context, tracks.toMutableList())

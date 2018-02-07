@@ -117,8 +117,7 @@ class CardsViewModel @Inject constructor(
     // ===== Individual reducers ======
 
     private fun processTrackCards(previousState: TrackViewState, result: TrackResult.LoadTrackCards): TrackViewState {
-        val newState = previousState.copy()
-        newState.error = null
+        val newState = previousState.copy(error = null)
 
         when (result.status) {
             TrackResult.LoadTrackCards.Status.LOADING -> {
@@ -138,10 +137,7 @@ class CardsViewModel @Inject constructor(
     }
 
     private fun processPlayerCommand(previousState: TrackViewState, result: TrackResult.CommandPlayerResult) : TrackViewState {
-        val newState = previousState.copy()
-        newState.error = null
-        newState.currentTrack = result.currentTrack
-        newState.currentPlayerState = result.currentPlayerState
+        val newState = previousState.copy(error = null, currentTrack = result.currentTrack, currentPlayerState = result.currentPlayerState)
 
         when (result.status) {
             MviResult.Status.LOADING -> {
@@ -160,12 +156,11 @@ class CardsViewModel @Inject constructor(
     }
 
     private fun processTrackChangePref(previousState: TrackViewState, result: TrackResult.ChangePrefResult) : TrackViewState {
-        val newState = previousState.copy()
+        val newState = previousState.copy(error = null)
 
         when (result.status) {
-            MviResult.Status.SUCCESS -> {
+            TrackResult.ChangePrefResult.Status.SUCCESS -> {
                 newState.status = MviViewState.Status.SUCCESS
-                newState.error = null
                 newState.currentTrack = result.currentTrack
 
                 val track = newState.allTracks.find { el -> el.id == newState.currentTrack?.id }
@@ -176,7 +171,7 @@ class CardsViewModel @Inject constructor(
                         "currentDislikes: ", newState.currentDislikes.size.toString(),
                         "unseen: ", newState.unseen.size.toString())
             }
-            MviResult.Status.ERROR -> {
+            TrackResult.ChangePrefResult.Status.ERROR -> {
                 newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
@@ -194,7 +189,6 @@ data class TrackViewState(var status: MviViewState.StatusInterface = MviViewStat
                           var currentTrack: TrackModel? = null,
                           var currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID
 ) : MviViewState {
-
     enum class TracksLoadedStatus : MviViewState.StatusInterface {
         LOADING, SUCCESS, ERROR
     }
@@ -224,7 +218,7 @@ data class TrackViewState(var status: MviViewState.StatusInterface = MviViewStat
     }
 
     override fun toString(): String {
-        return "allTracks: ${allTracks.size} -- playlist: ${playlist.id} -- currentTrack: ${currentTrack?.name}"
+        return "status: $status -- allTracks: ${allTracks.size} -- playlist: ${playlist.id} -- currentTrack: ${currentTrack?.name}"
     }
 }
 

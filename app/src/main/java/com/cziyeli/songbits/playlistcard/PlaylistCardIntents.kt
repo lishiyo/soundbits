@@ -12,10 +12,7 @@ interface CardIntentMarker : MviIntent
 /**
  * Events shared by [SimpleCardWidget] and [PlaylistCardWidget].
  */
-sealed class CardIntent : CardIntentMarker {
-    // Notify the header image has been chosen
-    class CreateHeaderSet(val headerImageUrl: String) : CardIntent()
-}
+sealed class CardIntent : CardIntentMarker
 
 /**
  * Events for [PlaylistCardWidget].
@@ -32,7 +29,7 @@ sealed class PlaylistCardIntent : CardIntentMarker {
 }
 
 /**
- * Events for [TrackStatsView], widget representing stats for a [PlaylistCardWidget].
+ * Events for [TrackStatsView], widget representing stats for a card.
  */
 sealed class StatsIntent : CardIntentMarker {
 

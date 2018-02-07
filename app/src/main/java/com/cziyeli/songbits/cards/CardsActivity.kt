@@ -190,7 +190,6 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         // populate deck if first time
         if (state.status == TrackViewState.TracksLoadedStatus.SUCCESS && swipeView.childCount == 0) {
             state.allTracks.forEachWithIndex { position, model ->
-//                Utils.mLog(TAG, "render! adding TrackCardView @ $position")
                 swipeView.addView(TrackCardView(this, model, this))
             }
         }

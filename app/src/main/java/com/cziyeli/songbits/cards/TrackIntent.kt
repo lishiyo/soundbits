@@ -47,17 +47,16 @@ sealed class TrackIntent : MviIntent {
 
     // like or dislike a track
     class ChangeTrackPref(val track: TrackModel,
-                          val pref: TrackModel.Pref,
-                          val position: Int = -1 // position within adapter, or -1 if not relevant
+                          val pref: TrackModel.Pref
     ) : TrackIntent(), CardIntentMarker {
         companion object {
-            fun like(track: TrackModel, position: Int = -1) : ChangeTrackPref {
+            fun like(track: TrackModel) : ChangeTrackPref {
                 return ChangeTrackPref(track, TrackModel.Pref.LIKED)
             }
-            fun dislike(track: TrackModel, position: Int = -1) : ChangeTrackPref {
+            fun dislike(track: TrackModel) : ChangeTrackPref {
                 return ChangeTrackPref(track, TrackModel.Pref.DISLIKED)
             }
-            fun clear(track: TrackModel, position: Int = -1) : ChangeTrackPref {
+            fun clear(track: TrackModel) : ChangeTrackPref {
                 return ChangeTrackPref(track, TrackModel.Pref.UNSEEN)
             }
         }

@@ -14,9 +14,6 @@ interface CardActionMarker : MviAction
 sealed class CardAction : CardActionMarker {
     // fetch basic counts - liked, disliked, total
     class CalculateQuickCounts(val tracks: List<TrackModel>) : CardAction()
-
-    // action to set a header
-    class HeaderSet(val headerImageUrl: String) : CardAction()
 }
 
 /**

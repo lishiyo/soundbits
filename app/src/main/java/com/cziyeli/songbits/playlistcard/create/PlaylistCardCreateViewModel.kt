@@ -15,14 +15,13 @@ import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.*
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.cards.summary.SummaryIntent
-import com.cziyeli.songbits.playlistcard.CardIntent
 import com.cziyeli.songbits.playlistcard.CardIntentMarker
 import com.cziyeli.songbits.playlistcard.StatsIntent
+import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
-import io.reactivex.subjects.PublishSubject
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
@@ -39,7 +38,10 @@ class PlaylistCardCreateViewModel @Inject constructor(
     private val liveViewState: MutableLiveData<PlaylistCardCreateViewModel.ViewState> by lazy {
         MutableLiveData<PlaylistCardCreateViewModel.ViewState>() }
     // subject to publish ViewStates
-    private val intentsSubject : PublishSubject<CardIntentMarker> by lazy { PublishSubject.create<CardIntentMarker>() }
+    private val intentsSubject : PublishRelay<CardIntentMarker> by lazy { PublishRelay.create<CardIntentMarker>() }
+
+    private val resultsSubject : PublishRelay<CardResultMarker> by lazy { PublishRelay.create<CardResultMarker>() }
+
     private val intentFilter: ObservableTransformer<CardIntentMarker, CardIntentMarker> = ObservableTransformer { intents ->
         intents.publish { shared -> shared
             Observable.merge<CardIntentMarker>(
@@ -74,8 +76,9 @@ class PlaylistCardCreateViewModel @Inject constructor(
                 .map{ it -> actionFromIntent(it)}
                 .filter { act -> act != PlaylistCardAction.None }
                 .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
-                .observeOn(schedulerProvider.ui())
                 .compose(actionProcessor.combinedProcessor)
+                .mergeWith(resultsSubject) // pipe in results directly!
+                .observeOn(schedulerProvider.ui())
                 .scan(liveViewState.value, reducer)
 
         compositeDisposable.add(
@@ -93,7 +96,7 @@ class PlaylistCardCreateViewModel @Inject constructor(
             is StatsIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
             is SummaryIntent.CreatePlaylistWithTracks -> SummaryAction.CreatePlaylistWithTracks(intent.ownerId, intent.name,
                     intent.description, intent.public, intent.tracks)
-            is CardIntent.CreateHeaderSet -> CardAction.HeaderSet(intent.headerImageUrl)
+//            is CardIntent.HeaderSet -> CardAction.HeaderSet(intent.headerImageUrl)
             else -> PlaylistCardAction.None
         }
     }
@@ -157,7 +160,13 @@ class PlaylistCardCreateViewModel @Inject constructor(
 
     override fun processIntents(intents: Observable<out CardIntentMarker>) {
         compositeDisposable.add(
-                intents.subscribe(intentsSubject::onNext)
+                intents.subscribe(intentsSubject::accept)
+        )
+    }
+
+    fun processSimpleResults(results: Observable<out CardResultMarker>) {
+        compositeDisposable.add(
+                results.subscribe(resultsSubject::accept)
         )
     }
 

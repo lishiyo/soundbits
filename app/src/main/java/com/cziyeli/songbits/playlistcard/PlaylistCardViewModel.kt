@@ -42,6 +42,7 @@ class PlaylistCardViewModel @Inject constructor(
     private val liveViewState: MutableLiveData<PlaylistCardViewState> by lazy { MutableLiveData<PlaylistCardViewState>() }
     // subject to publish ViewStates
     private val intentsSubject : PublishSubject<CardIntentMarker> by lazy { PublishSubject.create<CardIntentMarker>() }
+
     // reducer fn: Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<PlaylistCardViewState, CardResultMarker, PlaylistCardViewState> = BiFunction {
         previousState, result ->

@@ -79,14 +79,14 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(PlaylistCardCreateViewModel::class.java)
         initViewModel(viewModel)
 
-        // store random track image
-        carouselHeaderUrl = if (savedInstanceState?.getString(EXTRA_HEADER_URL) != null) {
-            savedInstanceState.getString(EXTRA_HEADER_URL)
-        } else if (viewModel.states().value?.carouselHeaderUrl != null) {
-            viewModel.states().value?.carouselHeaderUrl
-        } else {
-            val headerImageIndex = Random().nextInt(initialPendingTracks.size)
-            initialPendingTracks[headerImageIndex].imageUrl
+        // grab random track's header as the carousel header
+        carouselHeaderUrl = when {
+            viewModel.states().value?.carouselHeaderUrl != null -> viewModel.states().value?.carouselHeaderUrl
+            savedInstanceState?.getString(EXTRA_HEADER_URL) != null -> savedInstanceState.getString(EXTRA_HEADER_URL)
+            else -> {
+                val headerImageIndex = Random().nextInt(initialPendingTracks.size)
+                initialPendingTracks[headerImageIndex].imageUrl
+            }
         }
 
         // set up the widget with the viewmodel's tracks
@@ -126,6 +126,9 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
 
         // Bind ViewModel to merged intents stream
         viewModel.processIntents(intents())
+
+        // Bind ViewModel to simple results stream
+        viewModel.processSimpleResults(create_playlist_card_widget.simpleResultsPublisher)
     }
 
     private fun render(state: PlaylistCardCreateViewModel.ViewState) {
