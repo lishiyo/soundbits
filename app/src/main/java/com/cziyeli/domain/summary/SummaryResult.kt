@@ -2,7 +2,7 @@ package com.cziyeli.domain.summary
 
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviResult
-import com.cziyeli.domain.playlistcard.PlaylistCardResultMarker
+import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.tracks.TrackModel
 import kaaes.spotify.webapi.android.models.SnapshotId
 
@@ -52,7 +52,7 @@ sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Sta
                                    val playlistId: String? = null,
                                    val snapshotId: SnapshotId? = null
 //                                   val tracks: List<TrackModel> = listOf()
-    ) : SummaryResult(status, error), PlaylistCardResultMarker {
+    ) : SummaryResult(status, error), CardResultMarker {
         enum class CreateStatus : MviResult.StatusInterface {
            LOADING, SUCCESS, ERROR
         }

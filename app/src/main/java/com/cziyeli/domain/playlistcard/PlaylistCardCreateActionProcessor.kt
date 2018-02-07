@@ -15,16 +15,16 @@ class PlaylistCardCreateActionProcessor @Inject constructor(private val reposito
                                                             private val schedulerProvider: BaseSchedulerProvider) {
     private val TAG = PlaylistCardCreateActionProcessor::class.simpleName
 
-    val combinedProcessor: ObservableTransformer<PlaylistCardActionMarker, PlaylistCardResultMarker> = ObservableTransformer { acts ->
+    val combinedProcessor: ObservableTransformer<CardActionMarker, CardResultMarker> = ObservableTransformer { acts ->
         acts.publish { shared ->
-            Observable.merge<PlaylistCardResultMarker>(
+            Observable.merge<CardResultMarker>(
                     // given tracks list -> grab stats
                     shared.ofType<StatsAction.FetchStats>(StatsAction.FetchStats::class.java)
                             .compose(fetchStatsProcessor),
                     // create new playlist from tracks
                     shared.ofType<SummaryAction.CreatePlaylistWithTracks>(SummaryAction.CreatePlaylistWithTracks::class.java)
                             .compose(mCreatePlaylistProcessor),
-                    shared.ofType<PlaylistCardAction.CreateHeaderSet>(PlaylistCardAction.CreateHeaderSet::class.java)
+                    shared.ofType<CardAction.HeaderSet>(CardAction.HeaderSet::class.java)
                             .compose(mSetHeaderProcessor)
             ).doOnNext {
                 Utils.mLog(TAG, "PlaylistCardActionProcessor: --- ${it::class.simpleName}")
@@ -66,11 +66,10 @@ class PlaylistCardCreateActionProcessor @Inject constructor(private val reposito
             .retry() // don't unsubscribe
     }
 
-    private val mSetHeaderProcessor: ObservableTransformer<PlaylistCardAction.CreateHeaderSet,
-            PlaylistCardResult.CreateHeaderSet> = ObservableTransformer {
+    private val mSetHeaderProcessor: ObservableTransformer<CardAction.HeaderSet, CardResult.HeaderSet> = ObservableTransformer {
         action -> action
             .map { it.headerImageUrl }
-            .map { PlaylistCardResult.CreateHeaderSet(headerImageUrl = it)}
+            .map { CardResult.HeaderSet(headerImageUrl = it) }
     }
 
 }

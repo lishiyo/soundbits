@@ -2,7 +2,7 @@ package com.cziyeli.domain.tracks
 
 import com.cziyeli.commons.mvibase.MviResult
 import com.cziyeli.domain.player.PlayerInterface
-import com.cziyeli.domain.playlistcard.PlaylistCardResultMarker
+import com.cziyeli.domain.playlistcard.CardResultMarker
 import java.util.*
 
 /**
@@ -55,20 +55,27 @@ sealed class TrackResult(var status: MviResult.StatusInterface = MviResult.Statu
         }
     }
 
-    class ChangePrefResult(status: MviResult.Status,
+    class ChangePrefResult(status: Status,
                            error: Throwable?,
                            val currentTrack: TrackModel?,
                            val pref: TrackModel.Pref?
-    ) : TrackResult(status, error), PlaylistCardResultMarker {
+    ) : TrackResult(status, error), CardResultMarker {
+        enum class Status : MviResult.StatusInterface {
+            SUCCESS, ERROR, LOADING
+        }
+
         companion object {
             fun createSuccess(currentTrack: TrackModel,
                               pref: TrackModel.Pref) : ChangePrefResult {
-                return ChangePrefResult(MviResult.Status.SUCCESS, null, currentTrack, pref)
+                return ChangePrefResult(Status.SUCCESS, null, currentTrack, pref)
             }
             fun createError(throwable: Throwable,
                             currentTrack: TrackModel? = null) : ChangePrefResult {
                 // roll back to the original pref
-                return ChangePrefResult(MviResult.Status.ERROR, throwable, currentTrack, currentTrack?.pref)
+                return ChangePrefResult(Status.ERROR, throwable, currentTrack, currentTrack?.pref)
+            }
+            fun createLoading(currentTrack: TrackModel? = null) : ChangePrefResult {
+                return ChangePrefResult(Status.LOADING, null, currentTrack, currentTrack?.pref)
             }
         }
     }

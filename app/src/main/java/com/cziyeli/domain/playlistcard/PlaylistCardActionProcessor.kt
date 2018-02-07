@@ -20,10 +20,10 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                                                       private val schedulerProvider: BaseSchedulerProvider) {
     private val TAG = PlaylistCardActionProcessor::class.simpleName
 
-    val combinedProcessor: ObservableTransformer<PlaylistCardActionMarker, PlaylistCardResultMarker> = ObservableTransformer { acts
+    val combinedProcessor: ObservableTransformer<CardActionMarker, CardResultMarker> = ObservableTransformer { acts
         ->
         acts.publish { shared ->
-            Observable.merge<PlaylistCardResultMarker>(
+            Observable.merge<CardResultMarker>(
                     // ==== FETCH ACTIONS ====
                     // given any tracks list -> calculate quick count
                     shared.ofType<CardAction.CalculateQuickCounts>(CardAction.CalculateQuickCounts::class.java)
@@ -39,9 +39,9 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                             .filter { it.playlistId != null }
                             .groupBy { it.onlySwiped }
                             .flatMap { grouped ->
-                                val compose: Observable<PlaylistCardResultMarker> = if (grouped.key == true) {
+                                val compose: Observable<CardResultMarker> = if (grouped.key == true) {
                                     Utils.mLog(TAG, "FetchPlaylistTracks!", "onlySwiped -- fetching stashed")
-                                    grouped.compose(fetchStashedTracksForPlaylist).compose(mapStashedTracksProcessor)
+                                    grouped.compose(fetchStashedTracksIntermediary).compose(mapStashedTracksProcessor)
                                 } else {
                                     Utils.mLog(TAG, "FetchPlaylistTracks!", "NOT onlySwiped -- fetching remote")
                                     grouped.compose(fetchAllTracksProcessor)
@@ -53,37 +53,20 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                     // update a track's pref in the db
                     shared.ofType<TrackAction.ChangeTrackPref>(TrackAction.ChangeTrackPref::class.java)
                             .compose(changePrefAndSaveProcessor)
+
             ).doOnNext {
                 Utils.log(TAG, "PlaylistCardActionProcessor: --- ${it::class.simpleName}")
             }.retry() // don't ever unsubscribe
         }
     }
 
+    // ============= Action -> Result processors ===========
+
     // fetch quick stats - query in local database for counts
     private val calculateQuickCountsProcessor: ObservableTransformer<CardAction.CalculateQuickCounts, CardResult.CalculateQuickCounts> =
             ObservableTransformer { action -> action
                     .map { act -> act.tracks }
-                    .map { list -> // return pair <liked, disliked>
-                        val likedCount = list.count { it.liked }
-                        val dislikedCount = list.count { it.disliked }
-                        Pair(likedCount, dislikedCount)
-                    }.observeOn(schedulerProvider.ui())
-                    .map { pair -> CardResult.CalculateQuickCounts.createSuccess(pair.first, pair.second) }
-                    .onErrorReturn { err -> CardResult.CalculateQuickCounts.createError(err) }
-                    .startWith(CardResult.CalculateQuickCounts.createLoading())
-                    .retry() // don't unsubscribe
-            }
-
-    // fetch TrackEntities from database => return as domain TrackModels
-    private val mapStashedTracksProcessor: ObservableTransformer<List<TrackEntity>, PlaylistCardResult.FetchPlaylistTracks> =
-            ObservableTransformer { list ->
-                    list.map { tracks -> tracks.map { TrackModel.createFromLocal(it) } }
-                        .observeOn(schedulerProvider.ui())
-                        .doOnNext { Utils.mLog(TAG, "mapping stashed tracks! count: ${it.size}")}
-                        .map { trackCards -> PlaylistCardResult.FetchPlaylistTracks.createSuccess(trackCards, fromLocal = true) }
-                        .onErrorReturn { err -> PlaylistCardResult.FetchPlaylistTracks.createError(err, true) }
-                        .startWith(PlaylistCardResult.FetchPlaylistTracks.createLoading(true))
-                        .retry() // don't unsubscribe
+                    .compose(calculateQuickCountsIntermediary)
             }
 
     // fetch all tracks - hits remote
@@ -149,14 +132,45 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                     .retry()
             }
 
-    // given playlist id => track entities in db
-    private val fetchStashedTracksForPlaylist: ObservableTransformer<PlaylistCardAction, List<TrackEntity>> = ObservableTransformer { action ->
-        action.switchMap { act ->
-            repository
-                    .fetchPlaylistStashedTracks(playlistId = act.playlistId!!)
-                    .toObservable()
-                    .subscribeOn(schedulerProvider.io())
-        }.share().doOnNext { Utils.mLog(TAG, "fetchStashedTracksForPlaylist! count: ${it.size} ")}
-    }
 
+    // ============= Intermediate processors ===========
+
+    // given playlist id => return list of its track entities in db
+    private val fetchStashedTracksIntermediary: ObservableTransformer<PlaylistCardAction, Pair<PlaylistCardAction, List<TrackEntity>>> =
+            ObservableTransformer {
+                action ->
+                action.switchMap { act ->
+                    repository.fetchPlaylistStashedTracks(playlistId = act.playlistId!!)
+                            .doOnNext { Utils.mLog(TAG, "fetchStashedTracksForPlaylist ")}
+                            .toObservable()
+                            .subscribeOn(schedulerProvider.io())
+                            .map { Pair(act, it) }
+                }.doOnNext { Utils.mLog(TAG, "fetchStashedTracksForPlaylist! count: ${it.second.size} ")}
+            }
+
+    // given list of TrackEntities=> return Result with domain TrackModels
+    private val mapStashedTracksProcessor: ObservableTransformer<Pair<PlaylistCardAction, List<TrackEntity>>,
+            PlaylistCardResult.FetchPlaylistTracks> =
+            ObservableTransformer { list ->
+                list.map { (act, tracks) -> Pair(act, tracks.map { TrackModel.createFromLocal(it) }) }
+                        .observeOn(schedulerProvider.ui())
+                        .map { pair -> PlaylistCardResult.FetchPlaylistTracks.createSuccess(pair.second, fromLocal = true) }
+                        .onErrorReturn { err -> PlaylistCardResult.FetchPlaylistTracks.createError(err, true) }
+                        .startWith(PlaylistCardResult.FetchPlaylistTracks.createLoading(true))
+                        .retry() // don't unsubscribe
+            }
+
+    // given list of track ids -> return Result with quickCounts
+    private val calculateQuickCountsIntermediary: ObservableTransformer<List<TrackModel>, CardResult.CalculateQuickCounts> =
+            ObservableTransformer { action -> action
+                    .map { list -> // return pair <liked, disliked>
+                        val likedCount = list.count { it.liked }
+                        val dislikedCount = list.count { it.disliked }
+                        Pair(likedCount, dislikedCount)
+                    }.observeOn(schedulerProvider.ui())
+                    .map { pair -> CardResult.CalculateQuickCounts.createSuccess(pair.first, pair.second) }
+                    .onErrorReturn { err -> CardResult.CalculateQuickCounts.createError(err) }
+                    .startWith(CardResult.CalculateQuickCounts.createLoading())
+                    .retry() // don't unsubscribe
+            }
 }

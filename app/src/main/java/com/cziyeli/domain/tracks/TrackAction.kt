@@ -2,7 +2,7 @@ package com.cziyeli.domain.tracks
 
 import com.cziyeli.commons.mvibase.MviAction
 import com.cziyeli.domain.player.PlayerInterface
-import com.cziyeli.domain.playlistcard.PlaylistCardActionMarker
+import com.cziyeli.domain.playlistcard.CardActionMarker
 import com.cziyeli.domain.playlists.Playlist
 
 /**
@@ -46,7 +46,7 @@ sealed class TrackAction : MviAction {
 
     // like/dislike a track
     class ChangeTrackPref(val track: TrackModel,
-                          val pref: TrackModel.Pref) : TrackAction(), PlaylistCardActionMarker {
+                          val pref: TrackModel.Pref) : TrackAction(), CardActionMarker {
         companion object {
             fun create(track: TrackModel, pref: TrackModel.Pref) : ChangeTrackPref {
                 return ChangeTrackPref(track, pref)

@@ -30,13 +30,6 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
                     shared.ofType<TrackAction.LoadTrackCards>(TrackAction.LoadTrackCards::class.java).compose(mLoadTrackCardsProcessor),
                     shared.ofType<TrackAction.CommandPlayer>(TrackAction.CommandPlayer::class.java).compose(commandPlayerProcessor),
                     shared.ofType<TrackAction.ChangeTrackPref>(TrackAction.ChangeTrackPref::class.java).compose(changePrefProcessor)
-            ).mergeWith(
-                    // Error for not implemented actions
-                    shared.filter { v ->
-                        (v !is TrackAction)
-                    }.flatMap { w ->
-                        Observable.error<TrackResult>(IllegalArgumentException("Unknown Action type: " + w))
-                    }
             ).doOnNext {
                 Utils.log(TAG, "commandPlayer processing --- ${it::class.simpleName}")
             }.retry() // don't ever unsubscribe

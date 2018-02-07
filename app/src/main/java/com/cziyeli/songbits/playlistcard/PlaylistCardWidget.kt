@@ -22,7 +22,8 @@ import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlistcard.PlaylistCardResult
 import com.cziyeli.domain.playlists.Playlist
-import com.cziyeli.domain.tracks.TrackModel
+import com.cziyeli.domain.summary.StatsResult
+import com.cziyeli.domain.tracks.TrackResult
 import com.cziyeli.songbits.R
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
@@ -77,11 +78,12 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
         startedInitialFetch = true
 
         // fetch stashed tracks -> get quick counts
+        // since this is the first, we have to notify the adapter
         eventsPublisher.onNext(PlaylistCardIntent.FetchSwipedTracks(
                 ownerId = playlist.owner.id,
                 playlistId = playlist.id,
-                onlySwiped = true)
-        )
+                onlySwiped = true
+        ))
 
         // fetch remote tracks and stats
         eventsPublisher.onNext(StatsIntent.FetchTracksWithStats(playlist))
@@ -138,10 +140,6 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
         tracks_recycler_view.disableTouchTheft()
     }
 
-    fun updateTrackPref(model: TrackModel, position: Int) {
-        adapter.updateTrack(model, position)
-    }
-
     override fun intents(): Observable<out CardIntentMarker> {
         return eventsPublisher
     }
@@ -151,21 +149,36 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
             "error rendering: ${state.error}".toast(context)
         }
 
+        Utils.mLog(TAG, "RENDER", "status", "${state.status}", "lastresult", "${state.lastResult}")
+
+        if (state.lastResult is TrackResult.ChangePrefResult) {
+            when {
+                state.isSuccess() -> {
+                    // refresh a single item
+                    val track = (state.lastResult as? TrackResult.ChangePrefResult)?.currentTrack
+                    adapter.updateTrack(track, true)
+                }
+            }
+        }
+
         // if we just loaded tracks
-        if (state.status == PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS) {
-//            Utils.mLog(TAG, "RENDER", "just got playlist tracks! stashed: ${state.stashedTracksList.size} all: ${state.allTracksList.size}")
+        if (state.isSuccess() && state.lastResult is PlaylistCardResult.FetchPlaylistTracks) {
+            Utils.mLog(TAG, "RENDER", "FetchPlaylistTracks -- stashed: ${state.stashedTracksList.size} all: ${state.allTracksList.size}")
             if (state.stashedTracksList.isNotEmpty()) {
                 // update the title
                 expansion_header_title.text = resources.getString(R.string.expand_tracks).format(state.stashedTracksList.size)
                 Utils.setVisible(headerIndicator, true)
-
-                // calculate the likes/dislikes of the stashed tracks
-                eventsPublisher.onNext(PlaylistCardIntent.CalculateQuickCounts(state.stashedTracksList))
             }
             // TODO this is very ui heavy - figure out better way than delaying until tapped
             Handler().postDelayed({
-                adapter.setTracksAndNotify(state.stashedTracksList)
+                // only notify if this isn't expanded
+                adapter.setTracksAndNotify(state.stashedTracksList, !expansionLayout.isExpanded)
             }, 1000)
+        }
+
+        // render the track stats widget from all tracks
+        if (state.isSuccess() && state.lastResult is StatsResult) {
+            stats_container.loadTrackStats(state.trackStats!!)
         }
 
         // render the quick counts
@@ -203,11 +216,6 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
             activity.invalidateOptionsMenu()
         }
 
-        // render the track stats widget with remote tracks
-        if (state.isSuccess() && state.trackStats != null) {
-            Utils.mLog(TAG, "RENDER", "we have track stats! rendering....")
-            stats_container.loadTrackStats(state.trackStats!!)
-        }
     }
 
     fun onBackPressed() {

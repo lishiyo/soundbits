@@ -6,7 +6,6 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviIntent
-import com.cziyeli.commons.mvibase.MviResult
 import com.cziyeli.commons.mvibase.MviViewModel
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.data.RepositoryImpl
@@ -44,7 +43,7 @@ class PlaylistCardViewModel @Inject constructor(
     // subject to publish ViewStates
     private val intentsSubject : PublishSubject<CardIntentMarker> by lazy { PublishSubject.create<CardIntentMarker>() }
     // reducer fn: Previous ViewState + Result => New ViewState
-    private val reducer: BiFunction<PlaylistCardViewState, PlaylistCardResultMarker, PlaylistCardViewState> = BiFunction {
+    private val reducer: BiFunction<PlaylistCardViewState, CardResultMarker, PlaylistCardViewState> = BiFunction {
         previousState, result ->
             when (result) {
                 is CardResult.CalculateQuickCounts -> return@BiFunction processQuickCounts(previousState, result)
@@ -58,9 +57,10 @@ class PlaylistCardViewModel @Inject constructor(
     private val intentFilter: ObservableTransformer<CardIntentMarker, CardIntentMarker> = ObservableTransformer { intents ->
         intents.publish { shared -> shared
             Observable.merge<CardIntentMarker>(
+                    // initial fetch (only if empty) - note this is triggered by Room afterwards
                     shared.ofType(PlaylistCardIntent.FetchSwipedTracks::class.java)
-                            .filter{ liveViewState.value?.allTracksList?.isEmpty() == true }, // only fetch if still empty
-                    shared.ofType(StatsIntent.FetchStats::class.java).take(1), // only hit once
+                            .filter{ liveViewState.value?.allTracksList?.isEmpty() == true },
+                    shared.ofType(StatsIntent.FetchStats::class.java).take(1), // only hit once since we don't hit remote
                     shared.filter({ intent ->
                         intent !is PlaylistCardIntent.FetchSwipedTracks && intent !is StatsIntent.FetchStats})
             )
@@ -69,11 +69,16 @@ class PlaylistCardViewModel @Inject constructor(
 
     private val compositeDisposable = CompositeDisposable()
 
-    // All swipeable tracks not currently in db
+    // Publish events into the stream from VM, in background
+    // These are NOT coming from UI events (view-driven), these are programmatic
+    private val programmaticEventsPublisher = PublishSubject.create<CardIntentMarker>()
+
     val playlist: Playlist?
         get() = liveViewState.value?.playlist
+    // All swipeable tracks we haven't swiped yet
     val tracksToSwipe: List<TrackModel>?
         get() = liveViewState.value?.unswipedTracks
+    // The swiped ones we liked
     val tracksToCreate: List<TrackModel>?
         get() = liveViewState.value?.tracksToCreate
 
@@ -83,14 +88,15 @@ class PlaylistCardViewModel @Inject constructor(
         liveViewState.value = initialState.copy()
 
         // create observable to push into states live data
-        val observable: Observable<PlaylistCardViewState> = intentsSubject
+        val observable: Observable<PlaylistCardViewState> = intentsSubject // View-driven events
+                .mergeWith(programmaticEventsPublisher) // programmatic events for ViewModel to call events
                 .subscribeOn(schedulerProvider.io())
                 .compose(intentFilter)
                 .map{ it -> actionFromIntent(it)}
                 .filter { act -> act != PlaylistCardAction.None }
                 .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
-                .observeOn(schedulerProvider.ui())
                 .compose(actionProcessor.combinedProcessor)
+                .observeOn(schedulerProvider.ui())
                 .scan(initialViewState, reducer)
 
         compositeDisposable.add(
@@ -103,11 +109,10 @@ class PlaylistCardViewModel @Inject constructor(
     }
 
     // transform intent -> action
-    private fun actionFromIntent(intent: MviIntent) : PlaylistCardActionMarker {
+    private fun actionFromIntent(intent: MviIntent) : CardActionMarker {
         return when (intent) {
             is PlaylistCardIntent.CalculateQuickCounts -> CardAction.CalculateQuickCounts(intent.tracks)
-            is PlaylistCardIntent.FetchSwipedTracks -> PlaylistCardAction.FetchPlaylistTracks(
-                    intent.ownerId, intent.playlistId)
+            is PlaylistCardIntent.FetchSwipedTracks -> PlaylistCardAction.FetchPlaylistTracks(intent.ownerId, intent.playlistId, intent.onlySwiped)
             is StatsIntent.FetchTracksWithStats -> StatsAction.FetchAllTracksWithStats(intent.playlist.owner.id, intent.playlist.id)
             is StatsIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
             is TrackIntent.ChangeTrackPref -> TrackAction.ChangeTrackPref(intent.track, intent.pref)
@@ -130,22 +135,19 @@ class PlaylistCardViewModel @Inject constructor(
     // ===== Individual reducers ======
 
     private fun processQuickCounts(previousState: PlaylistCardViewState, result: CardResult.CalculateQuickCounts) : PlaylistCardViewState {
-        val newState = previousState.copy()
-        newState.error = null
-
-        Utils.mLog(TAG, "processQuickCounts", "status: ${result.status}")
+        val newState = previousState.copy(lastResult = result)
 
         when (result.status) {
             CardResult.CalculateQuickCounts.Status.LOADING -> {
-                newState.status = CardResult.CalculateQuickCounts.Status.LOADING
+                newState.status = MviViewState.Status.LOADING
             }
             CardResult.CalculateQuickCounts.Status.SUCCESS -> {
-                newState.status = CardResult.CalculateQuickCounts.Status.SUCCESS
+                newState.status = MviViewState.Status.SUCCESS
                 newState.likedCount = result.likedCount
                 newState.dislikedCount = result.dislikedCount
             }
             CardResult.CalculateQuickCounts.Status.ERROR -> {
-                newState.status = CardResult.CalculateQuickCounts.Status.ERROR
+                newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
         }
@@ -158,22 +160,19 @@ class PlaylistCardViewModel @Inject constructor(
             previousState: PlaylistCardViewState,
             result: StatsResult.FetchAllTracksWithStats
     ) : PlaylistCardViewState {
-        val newState = previousState.copy()
-        newState.error = null
-
-        Utils.mLog(TAG, "processFetchAllTracksWithStats", "status: ${result.status}")
+        val newState = previousState.copy(lastResult = result)
 
         when (result.status) {
             StatsResultStatus.LOADING -> {
-                newState.status = PlaylistCardResult.FetchPlaylistTracks.Status.LOADING
+                newState.status = MviViewState.Status.LOADING
             }
             StatsResultStatus.SUCCESS -> {
-                newState.status = PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS
+                newState.status = MviViewState.Status.SUCCESS
                 newState.allTracksList = result.tracks
                 newState.trackStats = result.trackStats
             }
             StatsResultStatus.ERROR -> {
-                newState.status = PlaylistCardResult.FetchPlaylistTracks.Status.ERROR
+                newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
         }
@@ -186,23 +185,24 @@ class PlaylistCardViewModel @Inject constructor(
             previousState: PlaylistCardViewState,
             result: PlaylistCardResult.FetchPlaylistTracks
     ) : PlaylistCardViewState {
-        val newState = previousState.copy()
-        newState.error = null
+        val newState = previousState.copy(lastResult = result)
 
         when (result.status) {
             PlaylistCardResult.FetchPlaylistTracks.Status.LOADING -> {
-                newState.status = PlaylistCardResult.FetchPlaylistTracks.Status.LOADING
+                newState.status = MviViewState.Status.LOADING
             }
             PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS -> {
-                newState.status = PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS
+                newState.status = MviViewState.Status.SUCCESS
                 if (result.fromLocal) {
                     newState.stashedTracksList = result.items.toMutableList()
+                    // now calculate the counts!
+                    programmaticEventsPublisher.onNext(PlaylistCardIntent.CalculateQuickCounts(newState.stashedTracksList))
                 } else {
                     newState.allTracksList = result.items
                 }
             }
             PlaylistCardResult.FetchPlaylistTracks.Status.ERROR -> {
-                newState.status = PlaylistCardResult.FetchPlaylistTracks.Status.ERROR
+                newState.status = MviViewState.Status.SUCCESS
                 newState.error = result.error
             }
         }
@@ -214,20 +214,18 @@ class PlaylistCardViewModel @Inject constructor(
             previousState: PlaylistCardViewState,
             result: StatsResult.FetchStats
     ) : PlaylistCardViewState {
-        val newState = previousState.copy()
-        newState.error = null
+        val newState = previousState.copy(lastResult = result)
 
         when (result.status) {
             StatsResultStatus.LOADING -> {
-                newState.status = StatsResultStatus.LOADING
+                newState.status = MviViewState.Status.LOADING
             }
             StatsResultStatus.SUCCESS -> {
-                Utils.mLog(TAG, "processFetchStats success! ${result.trackStats.toString()}")
-                newState.status = StatsResultStatus.SUCCESS
+                newState.status = MviViewState.Status.SUCCESS
                 newState.trackStats = result.trackStats
             }
             StatsResultStatus.ERROR -> {
-                newState.status = StatsResultStatus.ERROR
+                newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
         }
@@ -236,21 +234,19 @@ class PlaylistCardViewModel @Inject constructor(
     }
 
     private fun processTrackChangePref(previousState: PlaylistCardViewState, result: TrackResult.ChangePrefResult) : PlaylistCardViewState {
-        val newState = previousState.copy()
-        newState.error = null
+        val newState = previousState.copy(lastResult = result)
 
         when (result.status) {
-            MviResult.Status.SUCCESS -> {
-                Utils.mLog(TAG, "change track pref success! ${result.currentTrack?.name}: ${result.currentTrack?.pref}")
-                result.currentTrack?.apply {
-                    val index = newState.stashedTracksList.indexOfFirst { it.id == this.id }
-                    if (index != -1) {
-                        newState.stashedTracksList[index] = this
-                    }
-                }
+            TrackResult.ChangePrefResult.Status.LOADING -> {
+                newState.status = MviViewState.Status.LOADING
             }
-            MviResult.Status.ERROR -> {
+            TrackResult.ChangePrefResult.Status.SUCCESS -> {
+                newState.status = MviViewState.Status.SUCCESS
+                Utils.mLog(TAG, "change track pref! ${result.currentTrack?.name}: ${result.currentTrack?.pref}")
+            }
+            TrackResult.ChangePrefResult.Status.ERROR -> {
                 Utils.mLog(TAG, "change track pref ERROR! ${result.error} ${result.currentTrack?.name}: ${result.currentTrack?.pref}")
+                newState.status = MviViewState.Status.ERROR
                 newState.error = result.error
             }
         }
@@ -260,51 +256,49 @@ class PlaylistCardViewModel @Inject constructor(
 
     // ======= VIEWSTATE =======
 
-    data class PlaylistCardViewState(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
+    data class PlaylistCardViewState(var status: MviViewState.StatusInterface = MviViewState.Status.IDLE,
                                      var error: Throwable? = null,
                                      var playlist: Playlist, // card's playlist - has total count
                                      var likedCount: Int = 0,
                                      var dislikedCount: Int = 0,
                                      var stashedTracksList: MutableList<TrackModel> = mutableListOf(), // swiped tracks in db
                                      var allTracksList: List<TrackModel> = listOf(), // all tracks (from remote)
-                                     var trackStats: TrackListStats? = null // stats for ALL tracks
+                                     var trackStats: TrackListStats? = null, // stats for ALL tracks
+                                     var lastResult: CardResultMarker? = null // track the triggering 'props'
     ) : MviViewState {
-        val allSwipeableTracksList: List<TrackModel> // ALL tracks that are also swipeable
-            get() = allTracksList.filter { it.isSwipeable }
-
+        // Creating playlist will
         val tracksToCreate: List<TrackModel>
             get() = stashedTracksList.filter { it.liked }
 
         val unswipedTracks: List<TrackModel>
-            get() = allSwipeableTracksList.filter { !stashedTracksList.map { it.id }.contains(it.id) }
-
-        val unswipedTrackIds: List<String>
-            get() =  unswipedTracks.map { it.id }
+            get() = allTracksList.filter { it.isSwipeable }.filter { !stashedTracksList.map { it.id }.contains(it.id) }
 
         val unswipedCount: Int
-            get() = unswipedTrackIds.size
+            get() =  unswipedTracks.size
 
         fun isSuccess(): Boolean {
-            return status == CardResult.CalculateQuickCounts.Status.SUCCESS
+            return status == MviViewState.Status.SUCCESS || status == CardResult.CalculateQuickCounts.Status.SUCCESS
                     || status == PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS
                     || status == StatsResultStatus.SUCCESS
         }
 
         fun isLoading(): Boolean {
-            return status == CardResult.CalculateQuickCounts.Status.LOADING
+            return status == MviViewState.Status.LOADING || status == CardResult.CalculateQuickCounts.Status.LOADING
                     || status == PlaylistCardResult.FetchPlaylistTracks.Status.LOADING
                     || status == StatsResultStatus.LOADING
         }
 
         fun isError(): Boolean {
-            return status == CardResult.CalculateQuickCounts.Status.ERROR
+            return status == MviViewState.Status.ERROR || status == CardResult.CalculateQuickCounts.Status.ERROR
                     || status == PlaylistCardResult.FetchPlaylistTracks.Status.ERROR
                     || status == StatsResultStatus.ERROR
         }
 
         // make sure the tracks are there!
         fun copy() : PlaylistCardViewState {
-            return PlaylistCardViewState(status, error, playlist, likedCount, dislikedCount, stashedTracksList, allTracksList, trackStats)
+            // on every copy, remove the error and flip notify back to false
+            return PlaylistCardViewState(status, null, playlist, likedCount, dislikedCount, stashedTracksList, allTracksList,
+                    trackStats, lastResult)
         }
 
         companion object {

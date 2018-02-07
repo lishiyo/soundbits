@@ -29,7 +29,6 @@ sealed class PlaylistCardIntent : CardIntentMarker {
     class FetchSwipedTracks(val ownerId: String,
                             val playlistId: String,
                             val onlySwiped: Boolean = true) : PlaylistCardIntent()
-
 }
 
 /**

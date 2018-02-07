@@ -2,8 +2,8 @@ package com.cziyeli.domain.summary
 
 import com.cziyeli.commons.mvibase.MviAction
 import com.cziyeli.commons.mvibase.MviResult
-import com.cziyeli.domain.playlistcard.PlaylistCardActionMarker
-import com.cziyeli.domain.playlistcard.PlaylistCardResultMarker
+import com.cziyeli.domain.playlistcard.CardActionMarker
+import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.tracks.TrackModel
 
 
@@ -16,7 +16,7 @@ interface StatsResultMarker : MviResult
 /**
  * Actions related to track stats.
  */
-sealed class StatsAction : StatsActionMarker, SummaryActionMarker, PlaylistCardActionMarker {
+sealed class StatsAction : StatsActionMarker, SummaryActionMarker, CardActionMarker {
 
     // fetch all tracks + stats given playlist id
     class FetchAllTracksWithStats(val ownerId: String,
@@ -40,7 +40,7 @@ enum class StatsResultStatus : MviResult.StatusInterface {
  * Results for the track stats widget
  */
 sealed class StatsResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
-                         var error: Throwable? = null) : StatsResultMarker, PlaylistCardResultMarker {
+                         var error: Throwable? = null) : StatsResultMarker, CardResultMarker {
 
     class FetchAllTracksWithStats(status: StatsResultStatus,
                                   error: Throwable?,

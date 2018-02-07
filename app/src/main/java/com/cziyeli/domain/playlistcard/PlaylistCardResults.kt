@@ -4,10 +4,10 @@ import com.cziyeli.commons.mvibase.MviResult
 import com.cziyeli.domain.tracks.TrackModel
 import java.util.*
 
-interface PlaylistCardResultMarker : MviResult
+interface CardResultMarker : MviResult
 
 sealed class CardResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
-                        var error: Throwable? = null) : PlaylistCardResultMarker {
+                        var error: Throwable? = null) : CardResultMarker {
     // calculate basic counts - liked, disliked, total
     class CalculateQuickCounts(status: Status,
                                error: Throwable?,
@@ -30,10 +30,12 @@ sealed class CardResult(var status: MviResult.StatusInterface = MviResult.Status
             }
         }
     }
+
+    class HeaderSet(val headerImageUrl: String) : CardResult(MviResult.Status.SUCCESS)
 }
 
 sealed class PlaylistCardResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
-                                var error: Throwable? = null) : PlaylistCardResultMarker {
+                                var error: Throwable? = null) : CardResultMarker {
 
     // return list of tracks from either local or remote
     class FetchPlaylistTracks(status: FetchPlaylistTracks.Status,
@@ -46,7 +48,7 @@ sealed class PlaylistCardResult(var status: MviResult.StatusInterface = MviResul
         }
 
         companion object {
-            fun createSuccess(items: List<TrackModel>, fromLocal: Boolean) : FetchPlaylistTracks{
+            fun createSuccess(items: List<TrackModel>, fromLocal: Boolean) : FetchPlaylistTracks {
                 return FetchPlaylistTracks(FetchPlaylistTracks.Status.SUCCESS, null, items, fromLocal)
             }
             fun createError(throwable: Throwable, fromLocal: Boolean) : FetchPlaylistTracks {
@@ -58,5 +60,4 @@ sealed class PlaylistCardResult(var status: MviResult.StatusInterface = MviResul
         }
     }
 
-    class CreateHeaderSet(val headerImageUrl: String) : PlaylistCardResult(MviResult.Status.SUCCESS)
 }

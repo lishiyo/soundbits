@@ -124,7 +124,8 @@ class PlaylistCardActivity : AppCompatActivity() {
         viewModel.let { lifecycle.addObserver(it) }
 
         // Subscribe to the viewmodel states with LiveData, not Rx
-        viewModel.states().observe(this, Observer { state ->
+        viewModel.states()
+                .observe(this, Observer { state ->
             state?.let {
                 // pass to the widget
                 render(state)
@@ -196,18 +197,15 @@ class PlaylistCardActivity : AppCompatActivity() {
         val onTouchListener = RecyclerTouchListener(this, tracks_recycler_view)
         onTouchListener
                 .setViewsToFade(R.id.track_status)
-//                .setClickable(object : RecyclerTouchListener.OnRowClickListener {
-//                    override fun onRowClicked(position: Int) {
-//                        Log.i(DTAG, "row @ ${position} clicked")
-//                    }
-//
-//                    override fun onIndependentViewClicked(independentViewID: Int, position: Int) {
-//                        Log.i(DTAG, "independent view @ ${position} clicked")
-//                    }
-//                })
-//                .setLongClickable(true) { position ->
-//                    Log.i(DTAG, "row @ ${position} long clicked")
-//                }
+                .setClickable(object : RecyclerTouchListener.OnRowClickListener {
+                    override fun onRowClicked(position: Int) {
+                        Utils.mLog(TAG, "row @ ${position} clicked")
+                    }
+
+                    override fun onIndependentViewClicked(independentViewID: Int, position: Int) {
+                        Utils.mLog(TAG,"independent view @ ${position} clicked")
+                    }
+                })
                 .setOnSwipeListener(swipeListener)
                 .setSwipeOptionViews(R.id.like_icon_container, R.id.dislike_icon_container)
                 .setSwipeable(R.id.row_foreground, R.id.row_background) { viewID, position ->
@@ -219,10 +217,9 @@ class PlaylistCardActivity : AppCompatActivity() {
                             message += "Liked: ${model?.name}: ${model?.liked}"
                             // only update if not already liked +
                             if (model?.liked == false) {
-                                val newModel = model.copy()
-                                newModel.pref = TrackModel.Pref.LIKED
+                                val newModel = model.copy(pref = TrackModel.Pref.LIKED)
                                 eventsPublisher.onNext(TrackIntent.ChangeTrackPref.like(newModel))
-                                playlist_card_widget.updateTrackPref(newModel, position)
+//                                playlist_card_widget.updateTrackPref(newModel, position)
                             }
                         }
                         R.id.dislike_icon_container -> {
@@ -230,10 +227,9 @@ class PlaylistCardActivity : AppCompatActivity() {
                             message += "Disliked: ${model?.name}: ${model?.disliked}"
                             // only update if not already disliked
                             if (model?.liked == true) {
-                                val newModel = model.copy()
-                                newModel.pref = TrackModel.Pref.DISLIKED
+                                val newModel = model.copy(pref = TrackModel.Pref.DISLIKED)
                                 eventsPublisher.onNext(TrackIntent.ChangeTrackPref.dislike(newModel))
-                                playlist_card_widget.updateTrackPref(newModel, position)
+//                                playlist_card_widget.updateTrackPref(newModel, position)
                             }
                         }
                     }

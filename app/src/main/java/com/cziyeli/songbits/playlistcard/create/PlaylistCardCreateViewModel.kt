@@ -50,12 +50,12 @@ class PlaylistCardCreateViewModel @Inject constructor(
         }
     }
     // reducer fn: Previous ViewState + Result => New ViewState
-    private val reducer: BiFunction<PlaylistCardCreateViewModel.ViewState, PlaylistCardResultMarker, PlaylistCardCreateViewModel.ViewState> =
+    private val reducer: BiFunction<PlaylistCardCreateViewModel.ViewState, CardResultMarker, PlaylistCardCreateViewModel.ViewState> =
             BiFunction { previousState, result ->
         when (result) {
             is StatsResult.FetchStats -> return@BiFunction processFetchStats(previousState, result)
             is SummaryResult.CreatePlaylistWithTracks -> return@BiFunction processCreatePlaylistResult(previousState, result)
-            is PlaylistCardResult.CreateHeaderSet -> return@BiFunction processSetHeaderUrl(previousState, result)
+            is CardResult.HeaderSet -> return@BiFunction processSetHeaderUrl(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -88,12 +88,12 @@ class PlaylistCardCreateViewModel @Inject constructor(
     }
 
     // transform intent -> action
-    private fun actionFromIntent(intent: MviIntent) : PlaylistCardActionMarker {
+    private fun actionFromIntent(intent: MviIntent) : CardActionMarker {
         return when (intent) {
             is StatsIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
             is SummaryIntent.CreatePlaylistWithTracks -> SummaryAction.CreatePlaylistWithTracks(intent.ownerId, intent.name,
                     intent.description, intent.public, intent.tracks)
-            is CardIntent.CreateHeaderSet -> PlaylistCardAction.CreateHeaderSet(intent.headerImageUrl)
+            is CardIntent.CreateHeaderSet -> CardAction.HeaderSet(intent.headerImageUrl)
             else -> PlaylistCardAction.None
         }
     }
@@ -124,7 +124,7 @@ class PlaylistCardCreateViewModel @Inject constructor(
     }
 
     private fun processSetHeaderUrl(previousState: PlaylistCardCreateViewModel.ViewState,
-                                    result: PlaylistCardResult.CreateHeaderSet
+                                    result: CardResult.HeaderSet
     ) : PlaylistCardCreateViewModel.ViewState {
         val newState = previousState.copy()
         newState.carouselHeaderUrl = result.headerImageUrl

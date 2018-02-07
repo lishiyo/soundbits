@@ -16,28 +16,37 @@ import com.cziyeli.songbits.base.LikeButton
 /**
  * The tracks in the expandable
  */
-// Wrapper around domain model - represents viewmodel for a track row
+// View model wrapper around domain model - represents viewmodel for a track row
 data class TrackRow(val model: TrackModel) {
+    var isOpen: Boolean = false
+
+    var liked: Boolean = model.liked
+        get() = model.liked
+
     val name: String
         get() = model.name
 
-    val primaryArtistName: String?
+    val artistName: String?
         get() = model.artistName
 
     val imageUrl: String?
         get() = model.imageUrl
-
-    val liked: Boolean
-        get() = model.liked
 }
 
 // Tracks adapter
 class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackModel>) : RecyclerView.Adapter<TrackRowsAdapter.MainViewHolder>() {
     private var inflater: LayoutInflater = LayoutInflater.from(context)
 
-    fun updateTrack(track: TrackModel, position: Int) {
-        trackRows[position] = track
-        notifyItemChanged(position)
+    fun updateTrack(track: TrackModel?, notify: Boolean = true) {
+        track?.apply {
+            val index = trackRows.indexOfFirst { it.id == this.id }
+            if (index != -1) { // refresh
+                trackRows[index] = track
+                if (notify) {
+                    notifyItemChanged(index)
+                }
+            }
+        }
     }
 
     fun setTracksAndNotify(tracks: List<TrackModel>, notify: Boolean = true) {

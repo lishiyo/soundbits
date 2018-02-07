@@ -594,6 +594,7 @@ public class RecyclerTouchListener implements RecyclerView.OnItemTouchListener, 
                     touchedY = motionEvent.getRawY();
                     touchedPosition = rView.getChildAdapterPosition(touchedView);
 
+                    Log.d(TAG, "touchedPosition: " + touchedPosition);
                     if (shouldIgnoreAction(touchedPosition)) {
                         touchedPosition = ListView.INVALID_POSITION;
                         return false;   // <-- guard here allows for ignoring events, allowing more than one view type and preventing NPE
