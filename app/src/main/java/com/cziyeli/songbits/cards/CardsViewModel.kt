@@ -1,6 +1,9 @@
 package com.cziyeli.songbits.cards
 
-import android.arch.lifecycle.*
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.OnLifecycleEvent
+import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviIntent
 import com.cziyeli.commons.mvibase.MviResult
@@ -13,10 +16,10 @@ import com.cziyeli.domain.tracks.TrackAction
 import com.cziyeli.domain.tracks.TrackActionProcessor
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.tracks.TrackResult
+import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
-import io.reactivex.subjects.PublishSubject
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
@@ -35,15 +38,9 @@ class CardsViewModel @Inject constructor(
 
     private val compositeDisposable = CompositeDisposable()
 
-    // LiveData-wrapped ViewState
-    private val liveViewState: MutableLiveData<TrackViewState> by lazy {
-        val liveData = MutableLiveData<TrackViewState>()
-        liveData.value = TrackViewState(playlist = playlist)
-        liveData
-    }
-
-    // subject to publish ViewStates
-    private val intentsSubject : PublishSubject<TrackIntent> by lazy { PublishSubject.create<TrackIntent>() }
+    // Intents stream and ViewStates stream
+    private val intentsSubject : PublishRelay<TrackIntent> by lazy { PublishRelay.create<TrackIntent>() }
+    private val viewStates: PublishRelay<TrackViewState> by lazy { PublishRelay.create<TrackViewState>() }
 
     // Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<TrackViewState, TrackResult, TrackViewState> = BiFunction { previousState, result ->
@@ -56,6 +53,7 @@ class CardsViewModel @Inject constructor(
     }
 
     init {
+        val initialViewState = TrackViewState(playlist = playlist)
         // create observable to push into states live data
         val observable: Observable<TrackViewState> = intentsSubject
                 .subscribeOn(schedulerProvider.io())
@@ -66,11 +64,11 @@ class CardsViewModel @Inject constructor(
                 .map{ it -> actionFromIntent(it)}
                 .doOnNext { intent -> Utils.log(TAG, "ViewModel ++ intentsSubject hitActionProcessor: ${intent.javaClass.name}") }
                 .compose(actionProcessor.combinedProcessor)
-                .scan(liveViewState.value, reducer)
+                .scan(initialViewState, reducer)
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
-                    liveViewState.postValue(viewState)
+                    viewStates.accept(viewState)
                 }, { err ->
                     Utils.log(TAG, "ViewModel ++ ERROR " + err.localizedMessage)
                 })
@@ -94,12 +92,12 @@ class CardsViewModel @Inject constructor(
 
     override fun processIntents(intents: Observable<out TrackIntent>) {
         compositeDisposable.add(
-            intents.subscribe(intentsSubject::onNext)
+            intents.subscribe(intentsSubject::accept)
         )
     }
 
-    override fun states(): LiveData<TrackViewState> {
-        return liveViewState
+    override fun states(): Observable<TrackViewState> {
+        return viewStates
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -109,9 +107,6 @@ class CardsViewModel @Inject constructor(
             compositeDisposable.addAll(disposable)
         }
         compositeDisposable.clear()
-
-        // reset
-        liveViewState.value = null
     }
 
     // ===== Individual reducers ======

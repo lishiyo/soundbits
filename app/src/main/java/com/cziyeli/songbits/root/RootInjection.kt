@@ -1,4 +1,4 @@
-package com.cziyeli.songbits.home
+package com.cziyeli.songbits.root
 
 import com.cziyeli.songbits.di.viewModels.ViewModelsModule
 import dagger.Module

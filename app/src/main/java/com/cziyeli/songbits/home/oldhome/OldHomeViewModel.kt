@@ -1,6 +1,9 @@
 package com.cziyeli.songbits.home.oldhome
 
-import android.arch.lifecycle.*
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.OnLifecycleEvent
+import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviIntent
 import com.cziyeli.commons.mvibase.MviViewModel
@@ -8,6 +11,7 @@ import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlists.*
 import com.cziyeli.songbits.home.HomeIntent
+import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
@@ -28,11 +32,9 @@ class OldHomeViewModel @Inject constructor(
 
     private val compositeDisposable = CompositeDisposable()
 
-    // LiveData-wrapped ViewState
-    private val liveViewState: MutableLiveData<HomeViewState> by lazy { MutableLiveData<HomeViewState>() }
-
     // subject to publish ViewStates
     private val intentsSubject : PublishSubject<HomeIntent> by lazy { PublishSubject.create<HomeIntent>() }
+    private val viewStates : PublishRelay<HomeViewState> by lazy { PublishRelay.create<HomeViewState>() }
 
     /**
      * take only the first ever InitialIntent and all intents of other types
@@ -80,7 +82,7 @@ class OldHomeViewModel @Inject constructor(
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
-                    liveViewState.postValue(viewState) // should be on main thread (if worker, use postValue)
+                    viewStates.accept(viewState)
                 }, { err ->
                     Utils.log(TAG, err.localizedMessage)
                 })
@@ -100,8 +102,8 @@ class OldHomeViewModel @Inject constructor(
         intents.subscribe(intentsSubject)
     }
 
-    override fun states(): LiveData<HomeViewState> {
-        return liveViewState
+    override fun states(): Observable<HomeViewState> {
+        return viewStates
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

@@ -26,7 +26,7 @@ fun Any.toast(context: Context, length: Int = Toast.LENGTH_LONG) {
     Toast.makeText(context, this.toString(), length).show()
 }
 
-// Mediator LiveData that only allows distinct object emissions from a source.
+// A LiveData that only allows distinct object emissions from a source.
 // https://medium.com/google-developers/7-pro-tips-for-room-fbadea4bfbd1
 fun <T> LiveData<T>.getDistinct(): LiveData<T> {
     val distinctLiveData = MediatorLiveData<T>()

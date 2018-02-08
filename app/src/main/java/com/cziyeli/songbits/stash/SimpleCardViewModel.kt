@@ -1,7 +1,6 @@
 package com.cziyeli.songbits.stash
 
 import android.arch.lifecycle.LifecycleObserver
-import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.mvibase.MviResult
 import com.cziyeli.commons.mvibase.MviViewModel
@@ -12,6 +11,7 @@ import com.cziyeli.domain.summary.SummaryResult
 import com.cziyeli.domain.summary.TrackListStats
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.playlistcard.CardIntentMarker
+import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
@@ -23,12 +23,15 @@ class SimpleCardViewModel @Inject constructor(
 ) : ViewModel(), LifecycleObserver, MviViewModel<CardIntentMarker, SimpleCardViewModel.ViewState> {
     private val TAG = SimpleCardViewModel::class.java.simpleName
 
+    private val viewStates: PublishRelay<SimpleCardViewModel.ViewState> by lazy {
+        PublishRelay.create<SimpleCardViewModel.ViewState>() }
+
     override fun processIntents(intents: Observable<out CardIntentMarker>) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun states(): LiveData<ViewState> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun states(): Observable<SimpleCardViewModel.ViewState> {
+        return viewStates
     }
 
     data class ViewState(var status: MviResult.StatusInterface = MviResult.Status.IDLE,

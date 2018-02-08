@@ -1,6 +1,9 @@
 package com.cziyeli.songbits.home
 
-import android.arch.lifecycle.*
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.OnLifecycleEvent
+import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviIntent
 import com.cziyeli.commons.mvibase.MviViewModel
@@ -25,11 +28,9 @@ class HomeViewModel @Inject constructor(
 
     private val compositeDisposable = CompositeDisposable()
 
-    // LiveData-wrapped ViewState
-    private val liveViewState: MutableLiveData<HomeViewState> by lazy { MutableLiveData<HomeViewState>() }
-
     // subject to publish ViewStates
     private val intentsSubject : PublishRelay<HomeIntent> by lazy { PublishRelay.create<HomeIntent>() }
+    private val viewStates: PublishRelay<HomeViewState> by lazy { PublishRelay.create<HomeViewState>() }
 
     /**
      * take only the first ever InitialIntent and all intents of other types
@@ -78,7 +79,7 @@ class HomeViewModel @Inject constructor(
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
-                    liveViewState.postValue(viewState) // should be on main thread (if worker, use postValue)
+                    viewStates.accept(viewState)
                 }, { err ->
                     Utils.log(TAG, err.localizedMessage)
                 })
@@ -101,8 +102,8 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    override fun states(): LiveData<HomeViewState> {
-        return liveViewState
+    override fun states(): Observable<HomeViewState> {
+        return viewStates
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

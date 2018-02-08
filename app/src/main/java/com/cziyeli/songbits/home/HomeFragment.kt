@@ -1,6 +1,5 @@
 package com.cziyeli.songbits.home
 
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
@@ -24,6 +23,7 @@ import dagger.android.support.AndroidSupportInjection
 import io.github.luizgrp.sectionedrecyclerviewadapter.Section
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import kaaes.spotify.webapi.android.SpotifyApi
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.widget_quickcounts_row.*
@@ -48,9 +48,8 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     private lateinit var mLayoutManager: GridLayoutManager
 
     // intents
-    private val eventsPublisher: PublishRelay<HomeIntent> by lazy {
-        PublishRelay.create<HomeIntent>()
-    }
+    private val eventsPublisher: PublishRelay<HomeIntent> by lazy { PublishRelay.create<HomeIntent>() }
+    private val compositeDisposable = CompositeDisposable()
 
     // adapter
     private lateinit var PLAYLIST_RECENT: PlaylistSection
@@ -140,12 +139,14 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
         // add viewmodel as an observer of this fragment lifecycle
         viewModel.let { lifecycle.addObserver(it) }
 
-        // Subscribe to the viewmodel states with LiveData, not Rx
-        viewModel.states().observe(this, Observer { state ->
-            state?.let {
-                this.render(state)
-            }
-        })
+        // Subscribe to the viewmodel states
+        compositeDisposable.add(
+                viewModel.states().subscribe({ state ->
+                    state?.let {
+                        this.render(state)
+                    }
+                })
+        )
 
         // Bind ViewModel to merged intents stream
         viewModel.processIntents(intents())
@@ -194,6 +195,11 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+    }
+
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
     }
 
     companion object {

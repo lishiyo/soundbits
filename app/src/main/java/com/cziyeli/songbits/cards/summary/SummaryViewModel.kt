@@ -1,6 +1,9 @@
 package com.cziyeli.songbits.cards.summary
 
-import android.arch.lifecycle.*
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.OnLifecycleEvent
+import android.arch.lifecycle.ViewModel
 import android.widget.Toast
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviIntent
@@ -13,6 +16,7 @@ import com.cziyeli.domain.summary.*
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.cards.TrackViewState
 import com.cziyeli.songbits.di.App
+import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
@@ -34,11 +38,10 @@ class SummaryViewModel @Inject constructor(
 
     private val compositeDisposable = CompositeDisposable()
 
-    // LiveData-wrapped ViewState
-    private val liveViewState: MutableLiveData<SummaryViewState> by lazy { MutableLiveData<SummaryViewState>() }
-
-    // subject to publish ViewStates
+    // intents stream, viewstates stream
     private val intentsSubject : PublishSubject<SummaryIntent> by lazy { PublishSubject.create<SummaryIntent>() }
+    private val viewStates: PublishRelay<SummaryViewState> by lazy { PublishRelay.create<SummaryViewState>() }
+    lateinit var currentViewState: SummaryViewState
 
     // reducer fn: Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<SummaryViewState, SummaryResultMarker, SummaryViewState> = BiFunction { previousState, result ->
@@ -54,7 +57,7 @@ class SummaryViewModel @Inject constructor(
     constructor(actionProcessor: SummaryActionProcessor,
                 schedulerProvider: BaseSchedulerProvider,
                 initialState: SummaryViewState) : this(actionProcessor, schedulerProvider) {
-        liveViewState.value = initialState.copy()
+        currentViewState = initialState.copy()
 
         // create observable to push into states live data
         val observable: Observable<SummaryViewState> = intentsSubject
@@ -65,13 +68,14 @@ class SummaryViewModel @Inject constructor(
                 .filter { act -> act != SummaryAction.None }
                 .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
                 .compose(actionProcessor.combinedProcessor)
-                .scan(liveViewState.value, reducer)
+                .scan(currentViewState, reducer)
                 .replay(1)
                 .autoConnect()
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
-                    liveViewState.postValue(viewState) // triggers render in the view
+                    currentViewState = viewState
+                    viewStates.accept(viewState)
                 }, { err ->
                     Utils.mLog(TAG, "subscription", "error", err.localizedMessage)
                 })
@@ -165,18 +169,16 @@ class SummaryViewModel @Inject constructor(
         )
     }
 
-    override fun states(): LiveData<SummaryViewState> {
-        return liveViewState
+    override fun states(): Observable<SummaryViewState> {
+        return viewStates
     }
+
 
     // ===== Lifecycle =====
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun unSubscribeViewModel() {
         compositeDisposable.clear()
-
-        // reset
-        liveViewState.value = null
     }
 }
 

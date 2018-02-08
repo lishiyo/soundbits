@@ -1,8 +1,6 @@
 package com.cziyeli.songbits.playlistcard.create
 
 import android.arch.lifecycle.LifecycleObserver
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviIntent
@@ -34,13 +32,15 @@ class PlaylistCardCreateViewModel @Inject constructor(
 
     private val TAG = PlaylistCardCreateViewModel::class.simpleName
 
-    // LiveData-wrapped ViewState
-    private val liveViewState: MutableLiveData<PlaylistCardCreateViewModel.ViewState> by lazy {
-        MutableLiveData<PlaylistCardCreateViewModel.ViewState>() }
-    // subject to publish ViewStates
+    // Full events stream to send for processing
     private val intentsSubject : PublishRelay<CardIntentMarker> by lazy { PublishRelay.create<CardIntentMarker>() }
-
+    // Simple already-processed events stream
     private val resultsSubject : PublishRelay<CardResultMarker> by lazy { PublishRelay.create<CardResultMarker>() }
+
+    // Subject to publish ViewStates
+    private val viewStates: PublishRelay<PlaylistCardCreateViewModel.ViewState> by lazy {
+        PublishRelay.create<PlaylistCardCreateViewModel.ViewState>() }
+    var currentViewState: PlaylistCardCreateViewModel.ViewState = initialState.copy()
 
     private val intentFilter: ObservableTransformer<CardIntentMarker, CardIntentMarker> = ObservableTransformer { intents ->
         intents.publish { shared -> shared
@@ -64,11 +64,9 @@ class PlaylistCardCreateViewModel @Inject constructor(
     private val compositeDisposable = CompositeDisposable()
 
     var pendingTracks: List<TrackModel> = listOf()
-        get() = if (liveViewState.value?.pendingTracks == null) listOf() else liveViewState.value!!.pendingTracks
+        get() = currentViewState.pendingTracks
 
     init {
-        liveViewState.value = initialState.copy()
-
         // create observable to push into states live data
         val observable: Observable<PlaylistCardCreateViewModel.ViewState> = intentsSubject
                 .subscribeOn(schedulerProvider.io())
@@ -79,11 +77,12 @@ class PlaylistCardCreateViewModel @Inject constructor(
                 .compose(actionProcessor.combinedProcessor)
                 .mergeWith(resultsSubject) // pipe in results directly!
                 .observeOn(schedulerProvider.ui())
-                .scan(liveViewState.value, reducer)
+                .scan(currentViewState, reducer)
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
-                    liveViewState.postValue(viewState) // triggers render in the view
+                    currentViewState = viewState
+                    viewStates.accept(viewState)
                 }, { err ->
                     Utils.mLog(TAG, "subscription", "error", err.localizedMessage)
                 })
@@ -96,7 +95,6 @@ class PlaylistCardCreateViewModel @Inject constructor(
             is StatsIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
             is SummaryIntent.CreatePlaylistWithTracks -> SummaryAction.CreatePlaylistWithTracks(intent.ownerId, intent.name,
                     intent.description, intent.public, intent.tracks)
-//            is CardIntent.HeaderSet -> CardAction.HeaderSet(intent.headerImageUrl)
             else -> PlaylistCardAction.None
         }
     }
@@ -171,8 +169,8 @@ class PlaylistCardCreateViewModel @Inject constructor(
         )
     }
 
-    override fun states(): LiveData<ViewState> {
-        return liveViewState
+    override fun states(): Observable<ViewState> {
+        return viewStates
     }
 
     data class ViewState(val status: MviResult.StatusInterface = MviResult.Status.IDLE,

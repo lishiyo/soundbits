@@ -1,6 +1,5 @@
 package com.cziyeli.songbits.playlistcard.create
 
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
@@ -16,6 +15,7 @@ import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import com.synnapps.carouselview.ViewListener
 import dagger.android.AndroidInjection
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_playlistcard_create.*
 import kotlinx.android.synthetic.main.widget_playlist_card_create.*
 import org.jetbrains.anko.intentFor
@@ -58,8 +58,8 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
         view
     }
     private lateinit var onTouchListener: RecyclerTouchListener
-
     private var carouselHeaderUrl: String? = null
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,7 +81,7 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
 
         // grab random track's header as the carousel header
         carouselHeaderUrl = when {
-            viewModel.states().value?.carouselHeaderUrl != null -> viewModel.states().value?.carouselHeaderUrl
+            viewModel.currentViewState.carouselHeaderUrl != null -> viewModel.currentViewState.carouselHeaderUrl
             savedInstanceState?.getString(EXTRA_HEADER_URL) != null -> savedInstanceState.getString(EXTRA_HEADER_URL)
             else -> {
                 val headerImageIndex = Random().nextInt(initialPendingTracks.size)
@@ -116,13 +116,14 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
         // add viewmodel as an observer of this fragment lifecycle
         viewModel.let { lifecycle.addObserver(it) }
 
-        // Subscribe to the viewmodel states with LiveData, not Rx
-        viewModel.states().observe(this, Observer { state ->
-            state?.let {
-                // pass to the widget
-                render(state)
-            }
-        })
+        // Subscribe to the viewmodel states
+        compositeDisposable.add(
+                viewModel.states().subscribe({ state ->
+                    state?.let {
+                        this.render(state)
+                    }
+                })
+        )
 
         // Bind ViewModel to merged intents stream
         viewModel.processIntents(intents())
@@ -152,5 +153,10 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         create_tracks_recycler_view.removeOnItemTouchListener(onTouchListener)
+    }
+
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
     }
 }

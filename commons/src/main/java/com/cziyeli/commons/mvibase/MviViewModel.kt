@@ -1,6 +1,5 @@
 package com.cziyeli.commons.mvibase
 
-import android.arch.lifecycle.LiveData
 import io.reactivex.Observable
 
 /**
@@ -12,9 +11,13 @@ import io.reactivex.Observable
  * @param <S> Top class of the [MviViewState] the [MviViewModel] will be emitting.
 </S></I> */
 interface MviViewModel<in I : MviIntent, S : MviViewState> {
-    // out means immutable, producer, ? extends I
-    // List<CurrencyIntent> is subtype of List<MviIntent>, can do List<MviIntent> = List<CurrencyIntent>
+    /**
+     * Bind view model to any intents (ex. from multiple views).
+     */
     fun processIntents(intents: Observable<out I>)
 
-    fun states(): LiveData<S>
+    /**
+     * Stream of view states for views to subscribe to.
+     */
+    fun states(): Observable<S>
 }

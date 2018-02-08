@@ -1,6 +1,5 @@
 package com.cziyeli.songbits.cards
 
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
@@ -26,6 +25,7 @@ import com.mindorks.placeholderview.SwipePlaceHolderView
 import com.mindorks.placeholderview.SwipeViewBuilder
 import dagger.android.AndroidInjection
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_cards.*
 import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
@@ -68,13 +68,15 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
 
     lateinit var playlist: Playlist
 
-    private var summaryShown : Boolean = false
+    private var summaryShown : Boolean = false // TODO move into viewmodel
     private val summaryLayout: SummaryLayout by lazy {
         val stub = findViewById<ViewStub>(R.id.summary_stub)
         val view = stub.inflate() as SummaryLayout
         Utils.setVisible(view, false)
         view
     }
+
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,11 +121,6 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         super.onPause()
 
         mPlayer.apply { onPause() }
-    }
-
-    override fun onDestroy() {
-        mPlayer.apply { onDestroy() }
-        super.onDestroy()
     }
 
     private fun initSwipeView() {
@@ -223,15 +220,22 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         // add viewmodel as an observer of this fragment lifecycle
         viewModel.let { lifecycle.addObserver(it) }
 
-        // Subscribe to the viewmodel states with LiveData, not Rx
-        viewModel.states().observe(this, Observer { state ->
-            state?.let {
-                this.render(state)
-            }
-        })
+        // Subscribe to the viewmodel states
+        compositeDisposable.add(
+                viewModel.states().subscribe({ state ->
+                    state?.let {
+                        this.render(state)
+                    }
+                })
+        )
 
         // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
         viewModel.processIntents(intents())
     }
 
+    override fun onDestroy() {
+        mPlayer.apply { onDestroy() }
+        compositeDisposable.clear()
+        super.onDestroy()
+    }
 }

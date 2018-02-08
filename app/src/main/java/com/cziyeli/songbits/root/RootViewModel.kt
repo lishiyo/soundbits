@@ -1,8 +1,6 @@
 package com.cziyeli.songbits.root
 
 import android.arch.lifecycle.LifecycleObserver
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.mvibase.MviViewModel
 import com.cziyeli.commons.mvibase.MviViewState
@@ -10,6 +8,7 @@ import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlists.HomeActionProcessor
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.user.QuickCounts
+import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
@@ -23,15 +22,14 @@ class RootViewModel @Inject constructor(
         schedulerProvider: BaseSchedulerProvider
 ) : ViewModel(), LifecycleObserver, MviViewModel<RootIntent, RootViewState> {
 
-    // LiveData-wrapped ViewState
-    private val liveViewState: MutableLiveData<RootViewState> by lazy { MutableLiveData<RootViewState>() }
+    private val viewStates: PublishRelay<RootViewState> by lazy { PublishRelay.create<RootViewState>() }
 
     override fun processIntents(intents: Observable<out RootIntent>) {
 
     }
 
-    override fun states(): LiveData<RootViewState> {
-        return liveViewState
+    override fun states(): Observable<RootViewState> {
+        return viewStates
     }
 
 }

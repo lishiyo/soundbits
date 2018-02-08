@@ -1,8 +1,6 @@
 package com.cziyeli.songbits.playlistcard
 
 import android.arch.lifecycle.LifecycleObserver
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviIntent
@@ -20,6 +18,7 @@ import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.tracks.TrackResult
 import com.cziyeli.songbits.cards.TrackIntent
 import com.cziyeli.songbits.cards.TrackViewState
+import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
@@ -37,11 +36,12 @@ class PlaylistCardViewModel @Inject constructor(
 ) : ViewModel(), LifecycleObserver, MviViewModel<CardIntentMarker, PlaylistCardViewModel.PlaylistCardViewState> {
     private val TAG = PlaylistCardViewModel::class.simpleName
 
-    private var initialViewState : PlaylistCardViewState
-    // LiveData-wrapped ViewState
-    private val liveViewState: MutableLiveData<PlaylistCardViewState> by lazy { MutableLiveData<PlaylistCardViewState>() }
-    // subject to publish ViewStates
+    // Full events stream to send for processing
     private val intentsSubject : PublishSubject<CardIntentMarker> by lazy { PublishSubject.create<CardIntentMarker>() }
+
+    // Subject to publish ViewStates
+    private val viewStates: PublishRelay<PlaylistCardViewState> by lazy { PublishRelay.create<PlaylistCardViewState>() }
+    var currentViewState: PlaylistCardViewState = initialState.copy()
 
     // reducer fn: Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<PlaylistCardViewState, CardResultMarker, PlaylistCardViewState> = BiFunction {
@@ -60,7 +60,7 @@ class PlaylistCardViewModel @Inject constructor(
             Observable.merge<CardIntentMarker>(
                     // initial fetch (only if empty) - note this is triggered by Room afterwards
                     shared.ofType(PlaylistCardIntent.FetchSwipedTracks::class.java)
-                            .filter{ liveViewState.value?.allTracksList?.isEmpty() == true },
+                            .filter{ currentViewState.allTracksList.isEmpty() },
                     shared.ofType(StatsIntent.FetchStats::class.java).take(1), // only hit once since we don't hit remote
                     shared.filter({ intent ->
                         intent !is PlaylistCardIntent.FetchSwipedTracks && intent !is StatsIntent.FetchStats})
@@ -75,19 +75,16 @@ class PlaylistCardViewModel @Inject constructor(
     private val programmaticEventsPublisher = PublishSubject.create<CardIntentMarker>()
 
     val playlist: Playlist?
-        get() = liveViewState.value?.playlist
+        get() = currentViewState.playlist
     // All swipeable tracks we haven't swiped yet
     val tracksToSwipe: List<TrackModel>?
-        get() = liveViewState.value?.unswipedTracks
+        get() = currentViewState.unswipedTracks
     // The swiped ones we liked
     val tracksToCreate: List<TrackModel>?
-        get() = liveViewState.value?.tracksToCreate
+        get() = currentViewState.tracksToCreate
 
     // secondary constructor to set initial playlist model
     init {
-        initialViewState = initialState.copy()
-        liveViewState.value = initialState.copy()
-
         // create observable to push into states live data
         val observable: Observable<PlaylistCardViewState> = intentsSubject // View-driven events
                 .mergeWith(programmaticEventsPublisher) // programmatic events for ViewModel to call events
@@ -98,11 +95,12 @@ class PlaylistCardViewModel @Inject constructor(
                 .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
                 .compose(actionProcessor.combinedProcessor)
                 .observeOn(schedulerProvider.ui())
-                .scan(initialViewState, reducer)
+                .scan(currentViewState, reducer)
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
-                    liveViewState.postValue(viewState) // triggers render in the view
+                    currentViewState = viewState
+                    viewStates.accept(viewState)
                 }, { err ->
                     Utils.mLog(TAG, "subscription", "error", err.localizedMessage)
                 })
@@ -129,8 +127,8 @@ class PlaylistCardViewModel @Inject constructor(
         )
     }
 
-    override fun states(): LiveData<PlaylistCardViewState> {
-        return liveViewState
+    override fun states(): Observable<PlaylistCardViewState> {
+        return viewStates
     }
 
     // ===== Individual reducers ======

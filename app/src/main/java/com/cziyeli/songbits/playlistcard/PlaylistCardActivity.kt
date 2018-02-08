@@ -1,6 +1,5 @@
 package com.cziyeli.songbits.playlistcard
 
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
@@ -22,6 +21,7 @@ import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import dagger.android.AndroidInjection
 import eu.gsottbauer.equalizerview.EqualizerView
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_playlistcard.*
 import kotlinx.android.synthetic.main.widget_playlist_card.*
@@ -75,6 +75,8 @@ class PlaylistCardActivity : AppCompatActivity() {
     @field:Named("PlaylistCardViewModel") lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var viewModel: PlaylistCardViewModel
 
+    private val compositeDisposable = CompositeDisposable()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -123,14 +125,14 @@ class PlaylistCardActivity : AppCompatActivity() {
         // add viewmodel as an observer of this fragment lifecycle
         viewModel.let { lifecycle.addObserver(it) }
 
-        // Subscribe to the viewmodel states with LiveData, not Rx
-        viewModel.states()
-                .observe(this, Observer { state ->
-            state?.let {
-                // pass to the widget
-                render(state)
-            }
-        })
+        // Subscribe to the viewmodel states
+        compositeDisposable.add(
+                viewModel.states().subscribe({ state ->
+                    state?.let {
+                        this.render(state) // pass to the widgets
+                    }
+                })
+        )
 
         // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
         viewModel.processIntents(intents())
@@ -213,23 +215,21 @@ class PlaylistCardActivity : AppCompatActivity() {
                     when (viewID) {
                         R.id.like_icon_container -> {
                             // send off like command
-                            val model = viewModel.states().value?.stashedTracksList?.get(position)
+                            val model = viewModel.currentViewState.stashedTracksList?.get(position)
                             message += "Liked: ${model?.name}: ${model?.liked}"
                             // only update if not already liked +
-                            if (model?.liked == false) {
+                            if (!model.liked) {
                                 val newModel = model.copy(pref = TrackModel.Pref.LIKED)
                                 eventsPublisher.onNext(TrackIntent.ChangeTrackPref.like(newModel))
-//                                playlist_card_widget.updateTrackPref(newModel, position)
                             }
                         }
                         R.id.dislike_icon_container -> {
-                            val model = viewModel.states().value?.stashedTracksList?.get(position)
+                            val model = viewModel.currentViewState.stashedTracksList?.get(position)
                             message += "Disliked: ${model?.name}: ${model?.disliked}"
                             // only update if not already disliked
-                            if (model?.liked == true) {
+                            if (model.liked) {
                                 val newModel = model.copy(pref = TrackModel.Pref.DISLIKED)
                                 eventsPublisher.onNext(TrackIntent.ChangeTrackPref.dislike(newModel))
-//                                playlist_card_widget.updateTrackPref(newModel, position)
                             }
                         }
                     }
@@ -258,6 +258,11 @@ class PlaylistCardActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         tracks_recycler_view.removeOnItemTouchListener(onTouchListener)
+    }
+
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {

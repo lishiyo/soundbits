@@ -1,6 +1,5 @@
 package com.cziyeli.songbits.root
 
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
@@ -21,6 +20,7 @@ import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_root.*
 import javax.inject.Inject
 
@@ -35,9 +35,9 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<Ro
     private lateinit var viewModel: RootViewModel
 
     // intents
-    private val eventsPublisher: PublishRelay<RootIntent> by lazy {
-        PublishRelay.create<RootIntent>()
-    }
+    private val eventsPublisher: PublishRelay<RootIntent> by lazy { PublishRelay.create<RootIntent>() }
+
+    private val compositeDisposable = CompositeDisposable()
 
     @Inject
     lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
@@ -63,12 +63,14 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<Ro
         // add viewmodel as an observer of this fragment lifecycle
         viewModel.let { lifecycle.addObserver(it) }
 
-        // Subscribe to the viewmodel states with LiveData, not Rx
-        viewModel.states().observe(this, Observer { state ->
-            state?.let {
-                this.render(state)
-            }
-        })
+        // Subscribe to the viewmodel states
+        compositeDisposable.add(
+                viewModel.states().subscribe({ state ->
+                    state?.let {
+                        this.render(state)
+                    }
+                })
+        )
 
         // Bind ViewModel to merged intents stream
         viewModel.processIntents(intents())
@@ -125,6 +127,11 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<Ro
             }
             true
         })
+    }
+
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
     }
 
 }

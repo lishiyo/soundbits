@@ -1,6 +1,5 @@
 package com.cziyeli.songbits
 
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
@@ -22,6 +21,7 @@ import com.spotify.sdk.android.player.ConnectionStateCallback
 import com.spotify.sdk.android.player.Error
 import dagger.android.AndroidInjection
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import kaaes.spotify.webapi.android.SpotifyApi
 import kotlinx.android.synthetic.main.activity_main.*
@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     // intents
     private val mUserPublisher = PublishSubject.create<HomeIntent.FetchUser>()
     private val mLogoutPublisher = PublishSubject.create<HomeIntent.LogoutUser>()
+    private val compositeDisposable = CompositeDisposable()
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -71,7 +72,6 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         initViewModel()
 
         val accessTokenValid = isAccessTokenValid()
-        Utils.mLog(TAG, "onCreate", "isAccessTokenValid: $accessTokenValid")
         if (accessTokenValid) { // already logged in
             // fetch current user and save to UserManager
             api.setAccessToken(userManager.accessToken)
@@ -126,12 +126,14 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         // add viewmodel as an observer of this fragment lifecycle
         viewModelOld.let { lifecycle.addObserver(it) }
 
-        // Subscribe to the viewmodel states with LiveData, not Rx
-        viewModelOld.states().observe(this, Observer { state ->
-            state?.let {
-                this.render(state)
-            }
-        })
+        // Subscribe to the viewmodel states
+        compositeDisposable.add(
+                viewModelOld.states().subscribe({ state ->
+                    state?.let {
+                        this.render(state)
+                    }
+                })
+        )
 
         // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
         viewModelOld.processIntents(intents())
@@ -229,4 +231,8 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         Utils.log(TAG, "Got authentication token!")
     }
 
+    override fun onDestroy() {
+        compositeDisposable.clear()
+        super.onDestroy()
+    }
 }

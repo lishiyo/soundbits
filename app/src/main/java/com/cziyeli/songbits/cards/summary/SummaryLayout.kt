@@ -1,6 +1,5 @@
 package com.cziyeli.songbits.cards.summary
 
-import android.arch.lifecycle.Observer
 import android.content.Context
 import android.support.v4.app.FragmentActivity
 import android.util.AttributeSet
@@ -15,6 +14,7 @@ import com.cziyeli.songbits.R
 import com.cziyeli.songbits.di.App
 import com.wang.avi.AVLoadingIndicatorView
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.layout_summary.view.*
 
@@ -45,6 +45,8 @@ class SummaryLayout @JvmOverloads constructor(
     lateinit var titleView: TextView
     lateinit var progressView: AVLoadingIndicatorView
 
+    private val compositeDisposable = CompositeDisposable()
+
     // create with initial state from previous screen
     fun initWith(context: FragmentActivity, viewModelFromActivity: SummaryViewModel) {
         // setup views
@@ -56,17 +58,18 @@ class SummaryLayout @JvmOverloads constructor(
         viewModel = viewModelFromActivity
         // Bind ViewModel to this view's intents stream
         viewModel.processIntents(intents())
-        // Subscribe to the viewmodel states with LiveData, not Rx
-        viewModel.states().observe(context, Observer { state ->
-            state?.let {
-                this.render(state)
-            }
-        })
-
+        // Subscribe to the viewmodel states
+        compositeDisposable.add(
+                viewModel.states().subscribe({ state ->
+                    state?.let {
+                        this.render(state) // pass to the widgets
+                    }
+                })
+        )
         // immediately fetch stats of the like ids
-        val initialViewState = viewModel.states().value
+        val initialViewState = viewModel.currentViewState
         Utils.mLog(TAG, "initWith", "$initialViewState")
-        mStatsPublisher.onNext(SummaryIntent.FetchStats(initialViewState!!.trackIdsForStats()))
+        mStatsPublisher.onNext(SummaryIntent.FetchStats(initialViewState.trackIdsForStats()))
 
         // init click listeners
         action_save_to_database.setOnClickListener {
