@@ -139,11 +139,13 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
         tracks_recycler_view.layoutManager = LinearLayoutManager(context)
         tracks_recycler_view.disableTouchTheft()
 
+        // try to force refresh upon click
         expansion_header.setOnClickListener {
             Utils.mLog(TAG, "expansionHeader -- onClick! expanded? ${expansionLayout.isExpanded}")
-            if (!expansionLayout.isExpanded) {
+            if (!expansionLayout.isExpanded) { // hidden, going to be opened
                 adapter.notifyDataSetChanged()
             }
+            expansionLayout.toggle(true)
         }
     }
 
@@ -163,7 +165,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
                 state.isSuccess() -> {
                     // refresh a single item
                     val track = (state.lastResult as? TrackResult.ChangePrefResult)?.currentTrack
-                    adapter.updateTrack(track, true)
+                    adapter.updateTrack(track, false)
                 }
             }
         }

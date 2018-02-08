@@ -37,13 +37,15 @@ data class TrackRow(val model: TrackModel) {
 class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackModel>) : RecyclerView.Adapter<TrackRowsAdapter.MainViewHolder>() {
     private var inflater: LayoutInflater = LayoutInflater.from(context)
 
-    fun updateTrack(track: TrackModel?, notify: Boolean = true) {
+    fun updateTrack(track: TrackModel?, notifyFull: Boolean = false) {
         track?.apply {
             val index = trackRows.indexOfFirst { it.id == this.id }
             if (index != -1) { // refresh
                 trackRows[index] = track
-                if (notify) {
+                if (notifyFull) {
                     notifyItemChanged(index)
+                } else {
+                    notifyItemChanged(index, track)
                 }
             }
         }
@@ -72,6 +74,16 @@ class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackModel>)
         holder.bindData(trackRows[position])
     }
 
+    override fun onBindViewHolder(holder: MainViewHolder, position: Int, payloads: MutableList<Any>?) {
+        if (payloads != null && !payloads.isEmpty() && (payloads[0] is TrackModel)){
+            // update only the specific pref view
+            val updatedModel = payloads[0] as TrackModel
+            holder.updatePrefOnly(updatedModel)
+        } else {
+            super.onBindViewHolder(holder,position, payloads);
+        }
+    }
+
     override fun getItemCount(): Int {
         return trackRows.size
     }
@@ -84,6 +96,11 @@ class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackModel>)
 
         private var likeButton: LikeButton = itemView.findViewById(R.id.like_icon_container)
         private var dislikeButton: DisLikeButton = itemView.findViewById(R.id.dislike_icon_container)
+
+        fun updatePrefOnly(rowModel: TrackModel) {
+            likeButton.setActive(rowModel.liked)
+            dislikeButton.setActive(!rowModel.liked)
+        }
 
         fun bindData(rowModel: TrackModel) {
             rowModel.imageUrl?.let {
