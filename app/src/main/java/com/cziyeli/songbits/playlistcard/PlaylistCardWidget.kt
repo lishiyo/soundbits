@@ -138,6 +138,13 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
         tracks_recycler_view.adapter = adapter
         tracks_recycler_view.layoutManager = LinearLayoutManager(context)
         tracks_recycler_view.disableTouchTheft()
+
+        expansion_header.setOnClickListener {
+            Utils.mLog(TAG, "expansionHeader -- onClick! expanded? ${expansionLayout.isExpanded}")
+            if (!expansionLayout.isExpanded) {
+                adapter.notifyDataSetChanged()
+            }
+        }
     }
 
     override fun intents(): Observable<out CardIntentMarker> {

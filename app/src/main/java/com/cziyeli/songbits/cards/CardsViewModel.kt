@@ -117,23 +117,27 @@ class CardsViewModel @Inject constructor(
     // ===== Individual reducers ======
 
     private fun processTrackCards(previousState: TrackViewState, result: TrackResult.LoadTrackCards): TrackViewState {
-        val newState = previousState.copy(error = null)
-
-        when (result.status) {
-            TrackResult.LoadTrackCards.Status.LOADING -> {
-                newState.status = TrackViewState.TracksLoadedStatus.LOADING
+        return when (result.status) {
+            TrackResult.LoadTrackCards.Status.LOADING,
+            TrackResult.LoadTrackCards.Status.ERROR -> {
+                val status = if (result.status == TrackResult.LoadTrackCards.Status.LOADING)
+                    TrackViewState.TracksLoadedStatus.LOADING
+                    else TrackViewState.TracksLoadedStatus.ERROR
+                previousState.copy(
+                        error = result.error,
+                        status = status
+                )
             }
             TrackResult.LoadTrackCards.Status.SUCCESS -> {
-                newState.status = TrackViewState.TracksLoadedStatus.SUCCESS
-                newState.allTracks.addAll(result.items.filter { it.isSwipeable })
-            }
-            TrackResult.LoadTrackCards.Status.ERROR -> {
-                newState.status = TrackViewState.TracksLoadedStatus.ERROR
-                newState.error = result.error
-            }
+                val newTracks = previousState.allTracks
+                newTracks.addAll(result.items.filter { it.isSwipeable })
+                previousState.copy(
+                        error = result.error,
+                        status = TrackViewState.TracksLoadedStatus.SUCCESS,
+                        allTracks = newTracks
+                )
+            } else -> previousState
         }
-
-        return newState
     }
 
     private fun processPlayerCommand(previousState: TrackViewState, result: TrackResult.CommandPlayerResult) : TrackViewState {

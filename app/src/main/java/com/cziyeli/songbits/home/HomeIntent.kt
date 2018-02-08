@@ -24,6 +24,4 @@ sealed class HomeIntent : MviIntent {
     // just the counts, not the tracks
     class FetchUserQuickCounts : HomeIntent()
 
-    // fetch all stashed tracks in database
-    class FetchAllStashedTracks : HomeIntent()
 }

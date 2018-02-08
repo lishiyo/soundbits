@@ -10,6 +10,7 @@ import com.cziyeli.songbits.di.viewModels.ViewModelsModule
 import com.cziyeli.songbits.home.HomeFragment
 import com.cziyeli.songbits.home.HomeModule
 import com.cziyeli.songbits.home.HomeSubcomponent
+import com.cziyeli.songbits.home.RootModule
 import com.cziyeli.songbits.home.oldhome.OldHomeActivity
 import com.cziyeli.songbits.home.oldhome.di.OldHomeActivitySubComponent
 import com.cziyeli.songbits.playlistcard.PlaylistCardActivity
@@ -25,7 +26,7 @@ import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 
 /**
- * Binds all activity subcomponents.
+ * Binds all activities and fragments to their corresponding modules.
  *
  * Created by connieli on 1/2/18.
  */
@@ -55,7 +56,7 @@ abstract class ActivitiesModule {
 
     @PerActivity
     @ContributesAndroidInjector(
-            modules = [ViewModelsModule::class]
+            modules = [RootModule::class]
     )
     abstract fun provideRootActivity(): RootActivity
 

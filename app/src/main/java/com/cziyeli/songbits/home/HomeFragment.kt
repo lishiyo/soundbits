@@ -48,7 +48,7 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     private lateinit var mLayoutManager: GridLayoutManager
 
     // intents
-    private val mLoadPublisher: PublishRelay<HomeIntent> by lazy {
+    private val eventsPublisher: PublishRelay<HomeIntent> by lazy {
         PublishRelay.create<HomeIntent>()
     }
 
@@ -58,7 +58,7 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     private lateinit var PLAYLIST_RECOMMENDED: PlaylistSection
     private val listener: PlaylistSection.ClickListener = object : PlaylistSection.ClickListener {
         override fun onFooterClick(section: PlaylistSection) {
-            mLoadPublisher.accept(HomeIntent.LoadPlaylists(offset = section.contentItemsTotal + 1))
+            eventsPublisher.accept(HomeIntent.LoadPlaylists(offset = section.contentItemsTotal + 1))
         }
 
         override fun onItemClick(view: View, item: Playlist) {
@@ -89,12 +89,12 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
         setUpSectionedAdapter(view, savedInstanceState)
 
         // fetch the playlists
-        mLoadPublisher.accept(HomeIntent.LoadPlaylists())
+        eventsPublisher.accept(HomeIntent.LoadPlaylists())
     }
 
     // the little mini card with the stats
     private fun loadUserCard() {
-        mLoadPublisher.accept(HomeIntent.FetchUserQuickCounts())
+        eventsPublisher.accept(HomeIntent.FetchUserQuickCounts())
 
         val userName = userManager.getCurrentUser().display_name
         val userImage = userManager.getCurrentUser().cover_image
@@ -152,10 +152,11 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     }
 
     override fun intents(): Observable<out HomeIntent> {
-        return mLoadPublisher
+        return eventsPublisher
     }
 
     override fun render(state: HomeViewState) {
+        Utils.mLog(TAG, "RENDER", "$state")
         when {
             // TODO this is assuming everything is for section PLAYLIST_RECENT
             state.status == MviViewState.Status.SUCCESS && state.playlists.isNotEmpty() -> {

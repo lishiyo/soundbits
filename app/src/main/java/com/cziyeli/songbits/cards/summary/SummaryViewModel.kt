@@ -92,72 +92,69 @@ class SummaryViewModel @Inject constructor(
     // ===== Individual reducers ======
 
     private fun processStats(previousState: SummaryViewState, result: SummaryResult.FetchLikedStats) : SummaryViewState {
-        val newState = previousState.copy()
-        newState.error = null
-
         Utils.mLog(TAG, "processStats! ${result.status}")
 
-        when (result.status) {
-            MviResult.Status.LOADING -> {
-                newState.status = MviViewState.Status.LOADING
+        return when (result.status) {
+            MviResult.Status.LOADING, MviResult.Status.ERROR -> {
+                val status = if (result.status == MviResult.Status.LOADING)
+                    MviViewState.Status.LOADING else MviViewState.Status.ERROR
+                previousState.copy(
+                        error = result.error,
+                        status = status
+                )
             }
             MviResult.Status.SUCCESS -> {
-                newState.status = MviViewState.Status.SUCCESS
-                newState.stats = result.trackStats
-            }
-            MviResult.Status.ERROR -> {
-                newState.status = MviViewState.Status.ERROR
-                newState.error = result.error
-            }
+                previousState.copy(
+                        error = result.error,
+                        status = MviViewState.Status.SUCCESS,
+                        stats = result.trackStats
+                )
+            } else -> previousState
         }
-
-        return newState
     }
 
     private fun processSaveResult(previousState: SummaryViewState, result: SummaryResult.SaveTracks) : SummaryViewState {
-        val newState = previousState.copy()
-        newState.error = null
-
-        when (result.status) {
-            MviResult.Status.LOADING -> {
-                newState.status = MviViewState.Status.LOADING
+        return when (result.status) {
+            MviResult.Status.LOADING, MviResult.Status.ERROR -> {
+                val status = if (result.status == MviResult.Status.LOADING)
+                    MviViewState.Status.LOADING else MviViewState.Status.ERROR
+                previousState.copy(
+                        error = result.error,
+                        status = status
+                )
             }
             MviResult.Status.SUCCESS -> {
-                newState.status = MviViewState.Status.SUCCESS
                 Utils.mLog(TAG, "processSaveResult SUCCESS", "insertedTracks: ",
                         "${result.insertedTracks!!.size} for playlist: ${result.playlistId}")
-            }
-            MviResult.Status.ERROR -> {
-                newState.status = MviViewState.Status.ERROR
-                newState.error = result.error
-            }
+                previousState.copy(
+                        error = result.error,
+                        status =  MviViewState.Status.SUCCESS
+                )
+            } else -> previousState
         }
-
-        return newState
     }
 
     private fun processCreatePlaylistResult(previousState: SummaryViewState, result: SummaryResult.CreatePlaylistWithTracks) : SummaryViewState {
-        val newState = previousState.copy()
-        newState.error = null
-
         Utils.mLog(TAG, "processCreatePlaylistResult", "status", result.status.toString(),
                 "created with snapshotId: ", "${result.snapshotId?.snapshot_id} for new playlist: ${result.playlistId}")
 
-        when (result.status) {
-            MviResult.Status.LOADING -> {
-                newState.status = MviViewState.Status.LOADING
+        return when (result.status) {
+            MviResult.Status.LOADING, MviResult.Status.ERROR -> {
+                val status = if (result.status == MviResult.Status.LOADING)
+                    MviViewState.Status.LOADING else MviViewState.Status.ERROR
+                previousState.copy(
+                        error = result.error,
+                        status = status
+                )
             }
             MviResult.Status.SUCCESS -> {
-                newState.status = MviViewState.Status.SUCCESS
                 "create playlist success! ${result.playlistId}".toast(App.appComponent.appContext(), Toast.LENGTH_SHORT)
-            }
-            MviResult.Status.ERROR -> {
-                newState.status = MviViewState.Status.ERROR
-                newState.error = result.error
-            }
+                previousState.copy(
+                        error = result.error,
+                        status =  MviViewState.Status.SUCCESS
+                )
+            } else -> previousState
         }
-
-        return newState
     }
 
     // ===== MviViewModel =====
@@ -183,11 +180,11 @@ class SummaryViewModel @Inject constructor(
     }
 }
 
-data class SummaryViewState(var status: MviViewState.Status = MviViewState.Status.IDLE,
-                            var error: Throwable? = null,
+data class SummaryViewState(val status: MviViewState.Status = MviViewState.Status.IDLE,
+                            val error: Throwable? = null,
                             val allTracks: List<TrackModel> = listOf(),
-                            var playlist: Playlist, // relevant playlist if coming from one
-                            var stats: TrackListStats? = null // main model
+                            val playlist: Playlist, // relevant playlist if coming from one
+                            val stats: TrackListStats? = null // main model
 ) : MviViewState {
     val currentLikes: MutableList<TrackModel>
         get() = allTracks.filter { it.pref == TrackModel.Pref.LIKED }.toMutableList()

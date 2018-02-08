@@ -1,30 +1,46 @@
 package com.cziyeli.songbits.root
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProvider
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem
+import com.cziyeli.commons.Utils
 import com.cziyeli.commons.fetchColor
+import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.home.HomeFragment
 import com.cziyeli.songbits.profile.UserFragment
 import com.cziyeli.songbits.stash.StashFragment
+import com.jakewharton.rxrelay2.PublishRelay
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
+import io.reactivex.Observable
 import kotlinx.android.synthetic.main.activity_root.*
 import javax.inject.Inject
 
 // Main activity with bottom nav, the three tabs
-class RootActivity : AppCompatActivity(), HasSupportFragmentInjector {
+class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<RootIntent, RootViewState> {
+    private val TAG = RootActivity::class.java.simpleName
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    // view models
+    private lateinit var viewModel: RootViewModel
+
+    // intents
+    private val eventsPublisher: PublishRelay<RootIntent> by lazy {
+        PublishRelay.create<RootIntent>()
+    }
+
     @Inject
     lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-
-    override fun supportFragmentInjector(): AndroidInjector<Fragment> {
-        return fragmentDispatchingAndroidInjector
-    }
 
     private lateinit var pagerAdapter: BottomNavAdapter
 
@@ -34,8 +50,41 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_root)
 
+        // bind the view model before events
+        initViewModel()
+
         setUpBottomNav()
         setUpViewPager()
+    }
+
+    private fun initViewModel() {
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(RootViewModel::class.java)
+
+        // add viewmodel as an observer of this fragment lifecycle
+        viewModel.let { lifecycle.addObserver(it) }
+
+        // Subscribe to the viewmodel states with LiveData, not Rx
+        viewModel.states().observe(this, Observer { state ->
+            state?.let {
+                this.render(state)
+            }
+        })
+
+        // Bind ViewModel to merged intents stream
+        viewModel.processIntents(intents())
+    }
+
+    override fun intents(): Observable<out RootIntent> {
+        return eventsPublisher
+    }
+
+    override fun render(state: RootViewState) {
+        Utils.mLog(TAG, "RENDER", "$state")
+        // render subviews?
+    }
+
+    override fun supportFragmentInjector(): AndroidInjector<Fragment> {
+        return fragmentDispatchingAndroidInjector
     }
 
     private fun setUpViewPager() {

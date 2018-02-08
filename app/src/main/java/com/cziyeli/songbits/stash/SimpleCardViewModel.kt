@@ -21,6 +21,7 @@ class SimpleCardViewModel @Inject constructor(
         val actionProcessor: SummaryActionProcessor,
         val schedulerProvider: BaseSchedulerProvider
 ) : ViewModel(), LifecycleObserver, MviViewModel<CardIntentMarker, SimpleCardViewModel.ViewState> {
+    private val TAG = SimpleCardViewModel::class.java.simpleName
 
     override fun processIntents(intents: Observable<out CardIntentMarker>) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -30,12 +31,9 @@ class SimpleCardViewModel @Inject constructor(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private val TAG = SimpleCardViewModel::class.java.simpleName
-
-
     data class ViewState(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
                          var error: Throwable? = null,
-                         var pendingTracks: List<TrackModel>,
+                         var tracks: List<TrackModel>,
                          var trackStats: TrackListStats? = null, // stats for ALL tracks
                          var carouselHeaderUrl: String? = null
     ) : MviViewState {
@@ -52,11 +50,6 @@ class SimpleCardViewModel @Inject constructor(
         fun isError(): Boolean {
             return status == MviResult.Status.ERROR || status == StatsResultStatus.ERROR
                     || status == SummaryResult.CreatePlaylistWithTracks.CreateStatus.ERROR
-        }
-
-        // make sure the tracks are there!
-        fun copy() : ViewState {
-            return ViewState(status, error, pendingTracks, trackStats, carouselHeaderUrl)
         }
     }
 }

@@ -65,8 +65,8 @@ class HomeViewModel @Inject constructor(
                 .doOnTerminate { Utils.log( TAG, "terminated!") }
                 .compose(intentFilter)
                 .map{ it -> actionFromIntent(it)}
-                .doOnNext { intent -> Utils.log(TAG, "intentsSubject hitActionProcessor: ${intent.javaClass.simpleName}") }
-                .compose(actionProcessor.combinedProcessor)
+                .compose(actionProcessor.combinedProcessor) // action -> result
+                .doOnNext { result -> Utils.log(TAG, "intentsSubject processed result: ${result.javaClass.simpleName}") }
                 .scan(HomeViewState(), reducer)
                 // Emit the last one event of the stream on subscription
                 // Useful when a View rebinds to the ViewModel after rotation.
@@ -96,7 +96,9 @@ class HomeViewModel @Inject constructor(
     }
 
     override fun processIntents(intents: Observable<out HomeIntent>) {
-        intents.subscribe(intentsSubject)
+        compositeDisposable.add(
+                intents.subscribe(intentsSubject::accept)
+        )
     }
 
     override fun states(): LiveData<HomeViewState> {
@@ -115,87 +117,94 @@ class HomeViewModel @Inject constructor(
     // ===== Individual reducers ======
 
     private fun processUserPlaylists(previousState: HomeViewState, result: PlaylistsResult.UserPlaylists): HomeViewState {
-        val newState: HomeViewState = previousState.copy()
-        newState.error = null
-
-        when (result.status) {
+        return when (result.status) {
             PlaylistsResult.Status.LOADING -> {
-                newState.status = MviViewState.Status.LOADING
+                previousState.copy(error = null, status = MviViewState.Status.LOADING)
             }
-            PlaylistsResult.Status.SUCCESS, PlaylistsResult.Status.IDLE -> {
-                newState.status = MviViewState.Status.SUCCESS
-                newState.playlists.addAll(result.playlists)
+            PlaylistsResult.Status.SUCCESS -> {
+                val newPlaylists = previousState.playlists
+                newPlaylists.addAll(result.playlists)
+                previousState.copy(
+                        error = null,
+                        status = MviViewState.Status.SUCCESS,
+                        playlists = newPlaylists
+                )
             }
             PlaylistsResult.Status.ERROR -> {
-                newState.status = MviViewState.Status.ERROR
-                newState.error = result.error
+                previousState.copy(error = result.error, status = MviViewState.Status.ERROR)
             }
+            else -> previousState
         }
-
-        return newState
     }
 
     private fun processUserQuickCounts(previousState: HomeViewState, result: UserResult.FetchQuickCounts) : HomeViewState {
-        val newState: HomeViewState = previousState.copy()
-        newState.error = null
         Utils.mLog(TAG, "processUserQuickCounts", "status", result.status.toString())
 
-        when (result.status) {
+        return when (result.status) {
             UserResult.FetchQuickCounts.Status.SUCCESS -> {
-                newState.status = MviViewState.Status.SUCCESS
-                newState.quickCounts = result.quickCounts
+                previousState.copy(
+                        error = null,
+                        status = MviViewState.Status.SUCCESS,
+                        quickCounts = result.quickCounts
+                )
             }
             UserResult.FetchQuickCounts.Status.ERROR -> {
-                newState.status = MviViewState.Status.SUCCESS
-                newState.error = result.error
+                previousState.copy(
+                        error = result.error,
+                        status = MviViewState.Status.ERROR,
+                        quickCounts = result.quickCounts
+                )
             }
+            else -> previousState
         }
-        return newState
     }
 
     private fun processClearedUser(previousState: HomeViewState, result: UserResult.ClearUser) : HomeViewState {
-        val newState: HomeViewState = previousState.copy()
-        newState.error = null
         Utils.mLog(TAG, "processClearedUser", "status", result.status.toString())
 
-        when (result.status) {
+        return when (result.status) {
             UserResult.Status.ERROR -> {
-                newState.error = result.error
+                previousState.copy(
+                        error = result.error,
+                        status = MviViewState.Status.ERROR
+                )
             }
+            else -> previousState
         }
-
-        return newState
     }
 
     private fun processCurrentUser(previousState: HomeViewState, result: UserResult.FetchUser) : HomeViewState {
-        val newState: HomeViewState = previousState.copy()
-        newState.error = null
-
         Utils.mLog(TAG, "processCurrentUser", "status", result.status.toString(), "result.currentUser",
                 result.currentUser?.toString())
 
-        when (result.status) {
+        return when (result.status) {
             UserResult.Status.LOADING -> {
-                newState.loggedInStatus = UserResult.Status.LOADING
+                previousState.copy(
+                        error = null,
+                        status = MviViewState.Status.LOADING
+                )
             }
             UserResult.Status.SUCCESS -> {
-                if (result.currentUser != null) {
-                    newState.loggedInStatus = UserResult.Status.SUCCESS
-                }
+                previousState.copy(
+                        error = null,
+                        status = MviViewState.Status.SUCCESS,
+                        loggedInStatus = UserResult.Status.SUCCESS
+                )
             }
             UserResult.Status.ERROR -> {
-                newState.loggedInStatus = UserResult.Status.ERROR
-                newState.error = result.error
+                previousState.copy(
+                        error = result.error,
+                        status = MviViewState.Status.ERROR
+                )
             }
+            else -> previousState
         }
-
-        return newState
     }
 }
 
-data class HomeViewState(var status: MviViewState.Status = MviViewState.Status.IDLE,
-                         var loggedInStatus: UserResult.Status = UserResult.Status.IDLE,
-                         var error: Throwable? = null,
+data class HomeViewState(val status: MviViewState.Status = MviViewState.Status.IDLE,
+                         val loggedInStatus: UserResult.Status = UserResult.Status.IDLE,
+                         val error: Throwable? = null,
                          val playlists: MutableList<Playlist> = mutableListOf(),
-                         var quickCounts: QuickCounts? = null
+                         val quickCounts: QuickCounts? = null
 ) : MviViewState

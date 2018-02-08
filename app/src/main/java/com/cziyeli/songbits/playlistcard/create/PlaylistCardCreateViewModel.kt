@@ -105,57 +105,58 @@ class PlaylistCardCreateViewModel @Inject constructor(
             previousState: PlaylistCardCreateViewModel.ViewState,
             result: StatsResult.FetchStats
     ) : PlaylistCardCreateViewModel.ViewState {
-        val newState = previousState.copy()
-        newState.error = null
-
-        when (result.status) {
+        return when (result.status) {
             StatsResultStatus.LOADING -> {
-                newState.status = StatsResultStatus.LOADING
+                previousState.copy(
+                        error = result.error,
+                        lastResult = result,
+                        status = StatsResultStatus.LOADING
+                )
             }
             StatsResultStatus.SUCCESS -> {
                 Utils.mLog(TAG, "processFetchStats success! ${result.trackStats.toString()}")
-                newState.status = StatsResultStatus.SUCCESS
-                newState.trackStats = result.trackStats
+                previousState.copy(
+                        error = result.error,
+                        lastResult = result,
+                        status = StatsResultStatus.SUCCESS,
+                        trackStats = result.trackStats
+                )
             }
             StatsResultStatus.ERROR -> {
-                newState.status = StatsResultStatus.ERROR
-                newState.error = result.error
-            }
+                previousState.copy(
+                        error = result.error,
+                        lastResult = result,
+                        status = StatsResultStatus.ERROR,
+                        trackStats = result.trackStats
+                )
+            } else -> return previousState
         }
 
-        return newState
+        return previousState
     }
 
     private fun processSetHeaderUrl(previousState: PlaylistCardCreateViewModel.ViewState,
                                     result: CardResult.HeaderSet
     ) : PlaylistCardCreateViewModel.ViewState {
-        val newState = previousState.copy()
-        newState.carouselHeaderUrl = result.headerImageUrl
-        return newState
+        return previousState.copy(carouselHeaderUrl = result.headerImageUrl)
     }
 
     private fun processCreatePlaylistResult(previousState: PlaylistCardCreateViewModel.ViewState,
                                             result: SummaryResult.CreatePlaylistWithTracks
     ) : PlaylistCardCreateViewModel.ViewState {
-        val newState = previousState.copy()
-        newState.error = null
-        newState.status = result.status
         Utils.mLog(TAG, "processCreatePlaylistResult", "status", result.status.toString(),
                 "created with snapshotId: ", "${result.snapshotId?.snapshot_id} for new playlist: ${result.playlistId}")
 
-        when (result.status) {
-            SummaryResult.CreatePlaylistWithTracks.CreateStatus.LOADING -> {
-
-            }
-            SummaryResult.CreatePlaylistWithTracks.CreateStatus.SUCCESS -> {
-
-            }
+       return when (result.status) {
+            SummaryResult.CreatePlaylistWithTracks.CreateStatus.LOADING,
+            SummaryResult.CreatePlaylistWithTracks.CreateStatus.SUCCESS,
             SummaryResult.CreatePlaylistWithTracks.CreateStatus.ERROR -> {
-                newState.error = result.error
-            }
+                return previousState.copy(
+                        error = result.error,
+                        status = result.status
+                )
+            } else -> previousState
         }
-
-        return newState
     }
 
     override fun processIntents(intents: Observable<out CardIntentMarker>) {
@@ -174,12 +175,13 @@ class PlaylistCardCreateViewModel @Inject constructor(
         return liveViewState
     }
 
-    data class ViewState(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
-                         var error: Throwable? = null,
-                         var playlistToAdd: Playlist? = null,
-                         var pendingTracks: List<TrackModel>,
-                         var trackStats: TrackListStats? = null, // stats for ALL tracks
-                         var carouselHeaderUrl: String? = null
+    data class ViewState(val status: MviResult.StatusInterface = MviResult.Status.IDLE,
+                         val error: Throwable? = null,
+                         val playlistToAdd: Playlist? = null,
+                         val pendingTracks: List<TrackModel>,
+                         val trackStats: TrackListStats? = null, // stats for ALL tracks
+                         val carouselHeaderUrl: String? = null,
+                         val lastResult: CardResultMarker? = null
     ) : MviViewState {
 
         fun isFetchStatsSuccess(): Boolean {
@@ -195,11 +197,6 @@ class PlaylistCardCreateViewModel @Inject constructor(
         fun isError(): Boolean {
             return status == MviResult.Status.ERROR || status == StatsResultStatus.ERROR
             || status == SummaryResult.CreatePlaylistWithTracks.CreateStatus.ERROR
-        }
-
-        // make sure the tracks are there!
-        fun copy() : ViewState {
-            return ViewState(status, error, playlistToAdd, pendingTracks, trackStats, carouselHeaderUrl)
         }
     }
 }
