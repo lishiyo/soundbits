@@ -5,9 +5,8 @@ import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.OnLifecycleEvent
 import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
-import com.cziyeli.commons.mvibase.MviIntent
-import com.cziyeli.commons.mvibase.MviViewModel
-import com.cziyeli.commons.mvibase.MviViewState
+import com.cziyeli.commons.actionFilter
+import com.cziyeli.commons.mvibase.*
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlists.*
 import com.cziyeli.songbits.home.HomeIntent
@@ -69,6 +68,7 @@ class OldHomeViewModel @Inject constructor(
                 .doOnTerminate { Utils.log( TAG, "terminated!") }
                 .compose(intentFilter)
                 .map{ it -> actionFromIntent(it)}
+                .compose(actionFilter<HomeAction>())
                 .doOnNext { intent -> Utils.log(TAG, "intentsSubject hitActionProcessor: ${intent.javaClass.simpleName}") }
                 .compose(actionProcessor.combinedProcessor)
                 .scan(HomeViewState(), reducer)
@@ -89,12 +89,12 @@ class OldHomeViewModel @Inject constructor(
         )
     }
 
-    private fun actionFromIntent(intent: MviIntent) : HomeAction {
+    private fun actionFromIntent(intent: MviIntent) : MviAction {
         return when(intent) {
             is HomeIntent.LoadPlaylists -> PlaylistsAction.UserPlaylists(intent.limit, intent.offset)
             is HomeIntent.FetchUser -> UserAction.FetchUser()
             is HomeIntent.LogoutUser -> UserAction.ClearUser()
-            else -> PlaylistsAction.None // no-op all other events
+            else -> None // no-op all other events
         }
     }
 

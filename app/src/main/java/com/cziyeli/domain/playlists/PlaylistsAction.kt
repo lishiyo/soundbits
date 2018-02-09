@@ -7,13 +7,11 @@ import com.cziyeli.commons.mvibase.MviAction
  */
 interface HomeAction : MviAction
 
+
 /**
  * Events for playlists on the home screen.
  */
 sealed class PlaylistsAction : HomeAction {
-    // no-op
-    object None : PlaylistsAction()
-
     // fetch current user's playlists (default to recent, first page)
     class UserPlaylists(val limit: Int = 20, val offset: Int = 0) : PlaylistsAction()
 

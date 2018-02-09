@@ -5,12 +5,13 @@ import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.OnLifecycleEvent
 import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
-import com.cziyeli.commons.mvibase.MviIntent
-import com.cziyeli.commons.mvibase.MviViewModel
-import com.cziyeli.commons.mvibase.MviViewState
+import com.cziyeli.commons.actionFilter
+import com.cziyeli.commons.mvibase.*
+import com.cziyeli.commons.resultFilter
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlists.*
 import com.cziyeli.domain.user.QuickCounts
+import com.cziyeli.songbits.root.RootViewState
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
@@ -25,11 +26,13 @@ class HomeViewModel @Inject constructor(
         schedulerProvider: BaseSchedulerProvider
 ) : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, HomeViewState> {
     private val TAG = HomeViewModel::class.simpleName
-
     private val compositeDisposable = CompositeDisposable()
 
-    // subject to publish ViewStates
+    // Listener for home-specific events
     private val intentsSubject : PublishRelay<HomeIntent> by lazy { PublishRelay.create<HomeIntent>() }
+    // Listener for root view states
+    private val rootStatesSubject: PublishRelay<RootViewState> by lazy { PublishRelay.create<RootViewState>() }
+    // Publisher for own view states
     private val viewStates: PublishRelay<HomeViewState> by lazy { PublishRelay.create<HomeViewState>() }
 
     /**
@@ -56,18 +59,34 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    // Root ViewState => result
+    private val rootResultProcessor: ObservableTransformer<RootViewState, MviResult> = ObservableTransformer { acts ->
+        acts.map { rootState ->
+            when {
+                (rootState.status == MviViewState.Status.SUCCESS && rootState.quickCounts != null) -> {
+                    UserResult.FetchQuickCounts.createSuccess(rootState.quickCounts!!)
+                } else -> NoResult()
+            }
+        }
+    }
+
     init {
+
         // create observable to push into states live data
-        val observable: Observable<HomeViewState> = intentsSubject
+        val observable = intentsSubject
                 .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
                 .doOnSubscribe{ Utils.log(TAG, "subscribed!") }
                 .doOnDispose{ Utils.log( TAG, "disposed!") }
                 .doOnTerminate { Utils.log( TAG, "terminated!") }
                 .compose(intentFilter)
                 .map{ it -> actionFromIntent(it)}
+                .compose(actionFilter<HomeAction>())
                 .compose(actionProcessor.combinedProcessor) // action -> result
-                .doOnNext { result -> Utils.log(TAG, "intentsSubject processed result: ${result.javaClass.simpleName}") }
+                .mergeWith( // root viewstate -> home result
+                        rootStatesSubject.compose(rootResultProcessor).compose(resultFilter<HomeResult>())
+                )
+                .observeOn(schedulerProvider.ui())
+                .doOnNext { result -> Utils.log(TAG, "intentsSubject scanning result: ${result.javaClass.simpleName}") }
                 .scan(HomeViewState(), reducer)
                 // Emit the last one event of the stream on subscription
                 // Useful when a View rebinds to the ViewModel after rotation.
@@ -78,7 +97,7 @@ class HomeViewModel @Inject constructor(
                 .autoConnect(0) // automatically connect
 
         compositeDisposable.add(
-                observable.subscribe({ viewState ->
+                observable.distinctUntilChanged().subscribe({ viewState ->
                     viewStates.accept(viewState)
                 }, { err ->
                     Utils.log(TAG, err.localizedMessage)
@@ -86,19 +105,24 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    private fun actionFromIntent(intent: MviIntent) : HomeAction {
+    private fun actionFromIntent(intent: MviIntent) : MviAction {
         return when(intent) {
             is HomeIntent.LoadPlaylists -> PlaylistsAction.UserPlaylists(intent.limit, intent.offset)
             is HomeIntent.FetchUser -> UserAction.FetchUser()
             is HomeIntent.LogoutUser -> UserAction.ClearUser()
-            is HomeIntent.FetchUserQuickCounts -> UserAction.FetchQuickCounts()
-            else -> PlaylistsAction.None // no-op all other events
+            else -> None // no-op all other events
         }
     }
 
     override fun processIntents(intents: Observable<out HomeIntent>) {
         compositeDisposable.add(
                 intents.subscribe(intentsSubject::accept)
+        )
+    }
+
+    fun processRootViewStates(intents: Observable<RootViewState>) {
+        compositeDisposable.add(
+                intents.subscribe(rootStatesSubject::accept)
         )
     }
 
@@ -123,8 +147,8 @@ class HomeViewModel @Inject constructor(
                 previousState.copy(error = null, status = MviViewState.Status.LOADING)
             }
             PlaylistsResult.Status.SUCCESS -> {
-                val newPlaylists = previousState.playlists
-                newPlaylists.addAll(result.playlists)
+                val newPlaylists = mutableListOf<Playlist>()
+                newPlaylists.addAll(previousState.playlists + result.playlists)
                 previousState.copy(
                         error = null,
                         status = MviViewState.Status.SUCCESS,
@@ -175,8 +199,8 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun processCurrentUser(previousState: HomeViewState, result: UserResult.FetchUser) : HomeViewState {
-        Utils.mLog(TAG, "processCurrentUser", "status", result.status.toString(), "result.currentUser",
-                result.currentUser?.toString())
+        Utils.mLog(TAG, "processCurrentUser", "status", result.status.toString(),
+                "result.currentUser", result.currentUser?.toString())
 
         return when (result.status) {
             UserResult.Status.LOADING -> {
@@ -188,8 +212,7 @@ class HomeViewModel @Inject constructor(
             UserResult.Status.SUCCESS -> {
                 previousState.copy(
                         error = null,
-                        status = MviViewState.Status.SUCCESS,
-                        loggedInStatus = UserResult.Status.SUCCESS
+                        status = MviViewState.Status.SUCCESS
                 )
             }
             UserResult.Status.ERROR -> {
@@ -204,8 +227,7 @@ class HomeViewModel @Inject constructor(
 }
 
 data class HomeViewState(val status: MviViewState.Status = MviViewState.Status.IDLE,
-                         val loggedInStatus: UserResult.Status = UserResult.Status.IDLE,
                          val error: Throwable? = null,
-                         val playlists: MutableList<Playlist> = mutableListOf(),
+                         val playlists: List<Playlist> = listOf(),
                          val quickCounts: QuickCounts? = null
 ) : MviViewState

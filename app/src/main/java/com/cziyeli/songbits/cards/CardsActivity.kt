@@ -49,12 +49,12 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         }
     }
 
-    @Inject @field:Named("CardsViewModel") lateinit var viewModelFactory: ViewModelProvider.Factory
     @Inject lateinit var summaryActionProcessor : SummaryActionProcessor
     @Inject @field:Named("Native") lateinit var mPlayer: PlayerInterface
     val schedulerProvider = SchedulerProvider
 
     // view models
+    @Inject @field:Named("CardsViewModel") lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var viewModel: CardsViewModel
 
     // intents

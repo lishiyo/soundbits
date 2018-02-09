@@ -5,10 +5,8 @@ import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.OnLifecycleEvent
 import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
-import com.cziyeli.commons.mvibase.MviIntent
-import com.cziyeli.commons.mvibase.MviResult
-import com.cziyeli.commons.mvibase.MviViewModel
-import com.cziyeli.commons.mvibase.MviViewState
+import com.cziyeli.commons.actionFilter
+import com.cziyeli.commons.mvibase.*
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
@@ -53,18 +51,15 @@ class CardsViewModel @Inject constructor(
     }
 
     init {
-        val initialViewState = TrackViewState(playlist = playlist)
         // create observable to push into states live data
         val observable: Observable<TrackViewState> = intentsSubject
                 .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
-                .doOnSubscribe{ Utils.log(TAG,"subscribed!") }
-                .doOnDispose{ Utils.log(TAG,"disposed!") }
-                .doOnTerminate { Utils.log(TAG, "terminated!") }
                 .map{ it -> actionFromIntent(it)}
+                .compose(actionFilter<TrackAction>())
                 .doOnNext { intent -> Utils.log(TAG, "ViewModel ++ intentsSubject hitActionProcessor: ${intent.javaClass.name}") }
                 .compose(actionProcessor.combinedProcessor)
-                .scan(initialViewState, reducer)
+                .observeOn(schedulerProvider.ui())
+                .scan(TrackViewState(playlist = playlist), reducer)
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
@@ -75,7 +70,7 @@ class CardsViewModel @Inject constructor(
         )
     }
 
-    private fun actionFromIntent(intent: MviIntent) : TrackAction {
+    private fun actionFromIntent(intent: MviIntent) : MviAction {
         return when(intent) {
             is TrackIntent.ScreenOpenedWithTracks -> TrackAction.SetTracks(intent.playlist, intent.tracks)
             is TrackIntent.ScreenOpenedNoTracks -> TrackAction.LoadTrackCards.create(
@@ -86,7 +81,7 @@ class CardsViewModel @Inject constructor(
             is TrackIntent.ChangeTrackPref -> TrackAction.ChangeTrackPref.create(
                     intent.track, intent.pref
             )
-            else -> TrackAction.None // no-op all other events
+            else -> None // no-op all other events
         }
     }
 

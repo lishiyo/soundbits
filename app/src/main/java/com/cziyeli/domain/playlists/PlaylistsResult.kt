@@ -9,6 +9,7 @@ import java.util.*
 interface HomeResult : MviResult
 
 sealed class PlaylistsResult(var status: Status = Status.IDLE, var error: Throwable? = null) : HomeResult {
+
     enum class Status {
         LOADING, SUCCESS, ERROR, IDLE
     }

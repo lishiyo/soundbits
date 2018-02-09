@@ -8,7 +8,6 @@ import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
 import com.cziyeli.commons.*
 import com.cziyeli.commons.mvibase.MviView
-import com.cziyeli.domain.playlists.UserResult
 import com.cziyeli.domain.user.UserManager
 import com.cziyeli.songbits.home.HomeIntent
 import com.cziyeli.songbits.home.HomeViewModel
@@ -143,11 +142,6 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         Utils.setVisible(login_button, !isAccessTokenValid())
         Utils.setVisible(nav_oldhome_activity, isAccessTokenValid())
         Utils.setVisible(nav_root_activity, isAccessTokenValid())
-
-        when (state.loggedInStatus) {
-            UserResult.Status.ERROR -> Utils.mLog(TAG, "render", "failed to save/logout current user")
-            UserResult.Status.SUCCESS -> Utils.mLog(TAG, "render", "saved/logged-out current user: ${userManager.getCurrentUser()}")
-        }
     }
 
     //   ____      _ _ _                _      __  __      _   _               _

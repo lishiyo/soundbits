@@ -21,7 +21,4 @@ sealed class HomeIntent : MviIntent {
     // opened home, already logged in -> load the playlists
     class LoadPlaylists(val limit: Int = 20, val offset: Int = 0) : HomeIntent()
 
-    // just the counts, not the tracks
-    class FetchUserQuickCounts : HomeIntent()
-
 }

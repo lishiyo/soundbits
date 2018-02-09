@@ -5,7 +5,9 @@ import com.cziyeli.domain.summary.StatsResultMarker
 import com.cziyeli.domain.user.QuickCounts
 import com.cziyeli.domain.user.User
 
-
+/**
+ * User actions.
+ */
 sealed class UserAction : HomeAction {
 
     class FetchUser : UserAction()
@@ -15,8 +17,13 @@ sealed class UserAction : HomeAction {
     class FetchQuickCounts : UserAction()
 }
 
+// ==== RESULTS ====
+
 interface UserStatusResult : MviResult.StatusInterface
 
+/**
+ * User results.
+ */
 sealed class UserResult(var status: UserStatusResult = Status.IDLE, var error: Throwable? = null)  : HomeResult {
     // personal status
     enum class Status : UserStatusResult {
@@ -56,7 +63,7 @@ sealed class UserResult(var status: UserStatusResult = Status.IDLE, var error: T
     ) : UserResult(status, error), StatsResultMarker {
         // counts status
         enum class Status : UserStatusResult {
-            LOADING, SUCCESS, ERROR, IDLE
+            LOADING, SUCCESS, ERROR
         }
 
         companion object {

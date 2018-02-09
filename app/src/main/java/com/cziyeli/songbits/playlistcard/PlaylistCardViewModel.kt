@@ -3,9 +3,8 @@ package com.cziyeli.songbits.playlistcard
 import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
-import com.cziyeli.commons.mvibase.MviIntent
-import com.cziyeli.commons.mvibase.MviViewModel
-import com.cziyeli.commons.mvibase.MviViewState
+import com.cziyeli.commons.actionFilter
+import com.cziyeli.commons.mvibase.*
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlistcard.*
 import com.cziyeli.domain.playlists.Playlist
@@ -91,11 +90,11 @@ class PlaylistCardViewModel @Inject constructor(
                 .subscribeOn(schedulerProvider.io())
                 .compose(intentFilter)
                 .map{ it -> actionFromIntent(it)}
-                .filter { act -> act != PlaylistCardAction.None }
+                .compose(actionFilter<CardActionMarker>())
                 .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
                 .compose(actionProcessor.combinedProcessor)
                 .observeOn(schedulerProvider.ui())
-                .scan(currentViewState, reducer)
+                .scan(currentViewState, reducer) // final reduction
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
@@ -108,14 +107,14 @@ class PlaylistCardViewModel @Inject constructor(
     }
 
     // transform intent -> action
-    private fun actionFromIntent(intent: MviIntent) : CardActionMarker {
+    private fun actionFromIntent(intent: MviIntent) : MviAction {
         return when (intent) {
             is PlaylistCardIntent.CalculateQuickCounts -> CardAction.CalculateQuickCounts(intent.tracks)
             is PlaylistCardIntent.FetchSwipedTracks -> PlaylistCardAction.FetchPlaylistTracks(intent.ownerId, intent.playlistId, intent.onlySwiped)
             is StatsIntent.FetchTracksWithStats -> StatsAction.FetchAllTracksWithStats(intent.playlist.owner.id, intent.playlist.id)
             is StatsIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
             is TrackIntent.ChangeTrackPref -> TrackAction.ChangeTrackPref(intent.track, intent.pref)
-            else -> PlaylistCardAction.None
+            else -> None
         }
     }
 

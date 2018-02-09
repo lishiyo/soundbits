@@ -18,6 +18,8 @@ import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.playlistcard.PlaylistCardActivity
+import com.cziyeli.songbits.root.RootActivity
+import com.cziyeli.songbits.root.RootIntent
 import com.jakewharton.rxrelay2.PublishRelay
 import dagger.android.support.AndroidSupportInjection
 import io.github.luizgrp.sectionedrecyclerviewadapter.Section
@@ -93,7 +95,8 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
 
     // the little mini card with the stats
     private fun loadUserCard() {
-        eventsPublisher.accept(HomeIntent.FetchUserQuickCounts())
+        // use root's publisher to process at the root level
+        (activity as RootActivity).getRootPublisher().accept(RootIntent.FetchUserQuickCounts())
 
         val userName = userManager.getCurrentUser().display_name
         val userImage = userManager.getCurrentUser().cover_image
@@ -150,6 +153,9 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
 
         // Bind ViewModel to merged intents stream
         viewModel.processIntents(intents())
+
+        // Bind ViewModel to root states stream to listen to global state changes
+        viewModel.processRootViewStates((activity as RootActivity).getStates())
     }
 
     override fun intents(): Observable<out HomeIntent> {
@@ -164,7 +170,7 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
                 val currentCount = Math.max(0, PLAYLIST_RECENT.contentItemsTotal)
                 val newPlaylists = state.playlists.subList(currentCount, state.playlists.size)
 
-                PLAYLIST_RECENT.addPlaylists(newPlaylists)
+                PLAYLIST_RECENT.addPlaylists(newPlaylists.toMutableList())
                 PLAYLIST_RECENT.state = Section.State.LOADED
                 sectionAdapter.notifyDataSetChanged()
             }
@@ -189,7 +195,6 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
             quickstats_dislikes.text = "${state.quickCounts?.dislikedCount} dislikes"
             quickstats_total.text = "${state.quickCounts?.totalCount} swiped"
         }
-
     }
 
     override fun onAttach(context: Context?) {

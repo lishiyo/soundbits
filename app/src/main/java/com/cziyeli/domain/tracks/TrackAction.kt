@@ -9,9 +9,6 @@ import com.cziyeli.domain.playlists.Playlist
  * Created by connieli on 1/1/18.
  */
 sealed class TrackAction : MviAction {
-    // no-op
-    object None : TrackAction()
-
     // don't fetch from remote
     class SetTracks(val playlist: Playlist, val tracks: List<TrackModel>): TrackAction()
 

@@ -20,8 +20,6 @@ sealed class CardAction : CardActionMarker {
  * Actions for the playlist card widget.
  */
 sealed class PlaylistCardAction(val playlistId: String? = "") : CardActionMarker {
-    object None : PlaylistCardAction()
-
     // get list of (swiped) tracks for a playlist
     class FetchPlaylistTracks(val ownerId: String,
                               playlistId: String,
@@ -30,5 +28,4 @@ sealed class PlaylistCardAction(val playlistId: String? = "") : CardActionMarker
                               val limit: Int = 100,
                               val offset: Int = 0
     ) : PlaylistCardAction(playlistId)
-
 }

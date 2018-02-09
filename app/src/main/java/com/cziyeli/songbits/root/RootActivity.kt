@@ -30,18 +30,16 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<Ro
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-
     // view models
     private lateinit var viewModel: RootViewModel
-
-    // intents
-    private val eventsPublisher: PublishRelay<RootIntent> by lazy { PublishRelay.create<RootIntent>() }
-
+    @Inject
+    lateinit var eventsPublisher: PublishRelay<RootIntent>
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
     lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
 
+    // Views
     private lateinit var pagerAdapter: BottomNavAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,6 +74,20 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<Ro
         viewModel.processIntents(intents())
     }
 
+    /**
+     * Exposed such that others can dispatch to the global stream.
+     */
+    fun getRootPublisher(): PublishRelay<RootIntent> {
+        return eventsPublisher
+    }
+
+    /**
+     * Exposed such that others can subscribe to the 'global' view state.
+     */
+    fun getStates() : Observable<RootViewState> {
+        return viewModel.states()
+    }
+
     override fun intents(): Observable<out RootIntent> {
         return eventsPublisher
     }
@@ -83,6 +95,7 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<Ro
     override fun render(state: RootViewState) {
         Utils.mLog(TAG, "RENDER", "$state")
         // render subviews?
+
     }
 
     override fun supportFragmentInjector(): AndroidInjector<Fragment> {

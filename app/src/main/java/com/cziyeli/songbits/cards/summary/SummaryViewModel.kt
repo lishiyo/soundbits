@@ -6,10 +6,8 @@ import android.arch.lifecycle.OnLifecycleEvent
 import android.arch.lifecycle.ViewModel
 import android.widget.Toast
 import com.cziyeli.commons.Utils
-import com.cziyeli.commons.mvibase.MviIntent
-import com.cziyeli.commons.mvibase.MviResult
-import com.cziyeli.commons.mvibase.MviViewModel
-import com.cziyeli.commons.mvibase.MviViewState
+import com.cziyeli.commons.actionFilter
+import com.cziyeli.commons.mvibase.*
 import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.*
@@ -65,7 +63,7 @@ class SummaryViewModel @Inject constructor(
                 .subscribeOn(schedulerProvider.io())
                 .observeOn(schedulerProvider.ui())
                 .map{ it -> actionFromIntent(it)}
-                .filter { act -> act != SummaryAction.None }
+                .compose(actionFilter<SummaryActionMarker>())
                 .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
                 .compose(actionProcessor.combinedProcessor)
                 .scan(currentViewState, reducer)
@@ -83,13 +81,13 @@ class SummaryViewModel @Inject constructor(
     }
 
     // transform intent -> action
-    private fun actionFromIntent(intent: MviIntent) : SummaryActionMarker {
+    private fun actionFromIntent(intent: MviIntent) : MviAction {
         return when(intent) {
             is SummaryIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
             is SummaryIntent.SaveAllTracks -> SummaryAction.SaveTracks(intent.tracks, intent.playlistId)
             is SummaryIntent.CreatePlaylistWithTracks -> SummaryAction.CreatePlaylistWithTracks(intent.ownerId, intent.name,
                     intent.description, intent.public, intent.tracks)
-            else -> SummaryAction.None // no-op all other events
+            else -> None // no-op all other events
         }
     }
 

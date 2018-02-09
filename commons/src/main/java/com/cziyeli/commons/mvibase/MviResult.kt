@@ -12,3 +12,5 @@ interface MviResult {
         LOADING, SUCCESS, ERROR, IDLE
     }
 }
+
+class NoResult : MviResult

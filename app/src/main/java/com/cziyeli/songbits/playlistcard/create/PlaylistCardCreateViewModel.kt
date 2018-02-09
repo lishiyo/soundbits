@@ -3,12 +3,13 @@ package com.cziyeli.songbits.playlistcard.create
 import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
-import com.cziyeli.commons.mvibase.MviIntent
-import com.cziyeli.commons.mvibase.MviResult
-import com.cziyeli.commons.mvibase.MviViewModel
-import com.cziyeli.commons.mvibase.MviViewState
+import com.cziyeli.commons.actionFilter
+import com.cziyeli.commons.mvibase.*
 import com.cziyeli.data.RepositoryImpl
-import com.cziyeli.domain.playlistcard.*
+import com.cziyeli.domain.playlistcard.CardActionMarker
+import com.cziyeli.domain.playlistcard.CardResult
+import com.cziyeli.domain.playlistcard.CardResultMarker
+import com.cziyeli.domain.playlistcard.PlaylistCardCreateActionProcessor
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.*
 import com.cziyeli.domain.tracks.TrackModel
@@ -72,12 +73,12 @@ class PlaylistCardCreateViewModel @Inject constructor(
                 .subscribeOn(schedulerProvider.io())
                 .compose(intentFilter)
                 .map{ it -> actionFromIntent(it)}
-                .filter { act -> act != PlaylistCardAction.None }
+                .compose(actionFilter<CardActionMarker>())
                 .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
                 .compose(actionProcessor.combinedProcessor)
-                .mergeWith(resultsSubject) // pipe in results directly!
+                .mergeWith(resultsSubject) // <--- pipe in direct results
                 .observeOn(schedulerProvider.ui())
-                .scan(currentViewState, reducer)
+                .scan(currentViewState, reducer) // final scan
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
@@ -90,12 +91,12 @@ class PlaylistCardCreateViewModel @Inject constructor(
     }
 
     // transform intent -> action
-    private fun actionFromIntent(intent: MviIntent) : CardActionMarker {
+    private fun actionFromIntent(intent: MviIntent) : MviAction {
         return when (intent) {
             is StatsIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
             is SummaryIntent.CreatePlaylistWithTracks -> SummaryAction.CreatePlaylistWithTracks(intent.ownerId, intent.name,
                     intent.description, intent.public, intent.tracks)
-            else -> PlaylistCardAction.None
+            else -> None
         }
     }
 

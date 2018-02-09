@@ -10,8 +10,6 @@ import com.cziyeli.domain.tracks.TrackModel
 interface SummaryActionMarker : MviAction
 
 sealed class SummaryAction : SummaryActionMarker {
-    object None : SummaryAction()
-
     // Create a new playlist
     // https://developer.spotify.com/web-api/console/post-playlists/
     class CreatePlaylistWithTracks(val ownerId: String,
