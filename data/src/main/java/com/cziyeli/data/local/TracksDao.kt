@@ -15,6 +15,9 @@ abstract class TracksDao {
     @Query("SELECT * FROM Tracks WHERE track_id = :trackId")
     abstract fun getTrackByTrackId(trackId: String): Flowable<TrackEntity>
 
+    @Query("SELECT * FROM Tracks WHERE track_id IN :trackIds")
+    abstract fun getTracksForTrackIds(trackIds: List<String>): Flowable<TrackEntity>
+
     // includes non-visible (i.e. cleared) tracks
     @Query("SELECT * FROM Tracks WHERE playlist_id = :playlistId")
     abstract fun getTracksByPlaylistId(playlistId: String): Flowable<List<TrackEntity>>
