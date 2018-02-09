@@ -19,7 +19,9 @@
 		android:theme="@style/AppTheme">
 
 		<activity
-			android:name=".MainActivity">
+			android:name=".MainActivity"
+			android:screenOrientation="portrait"
+			>
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
@@ -27,10 +29,11 @@
 		</activity>
 
 		<activity android:name="com.cziyeli.songbits.home.oldhome.OldHomeActivity" />
-		<activity android:name=".cards.CardsActivity" />
+		<activity android:name=".cards.CardsActivity"
+			android:screenOrientation="portrait" />
 
 		<!-- Spotify sdk demo -->
-		<activity android:name=".DemoActivity" />
+		<activity android:name=".DemoActivity" android:screenOrientation="portrait" />
 
 		<!-- Needed for LoginActivity to work -->
 		<!--<activity-->
@@ -66,10 +69,12 @@
 		<activity
 			android:name="com.cziyeli.songbits.playlistcard.PlaylistCardActivity"
 			android:theme="@style/HomeToPlaylist.Back"
+			android:screenOrientation="portrait"
 			/>
 		<activity
 			android:name=".playlistcard.create.PlaylistCardCreateActivity"
 			android:theme="@style/CreatePlaylist"
+			android:screenOrientation="portrait"
 			/>
 
 		<meta-data
