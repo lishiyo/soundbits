@@ -9,11 +9,11 @@ import com.cziyeli.songbits.playlistcard.CardIntentMarker
 /**
  * Created by connieli on 1/1/18.
  */
-sealed class TrackIntent : MviIntent {
+sealed class CardsIntent : MviIntent {
 
     // opened CardsActivity *with* tracks to swipe
     class ScreenOpenedWithTracks(val playlist: Playlist,
-                                 val tracks: List<TrackModel>) : TrackIntent()
+                                 val tracks: List<TrackModel>) : CardsIntent()
 
     // opened CardsActivity, no tracks given - fetch tracks from remote
     class ScreenOpenedNoTracks(val ownerId: String,
@@ -22,7 +22,7 @@ sealed class TrackIntent : MviIntent {
                                val fields: String? = null,
                                val limit: Int = 100,
                                val offset: Int = 0
-    ) : TrackIntent() {
+    ) : CardsIntent() {
         companion object {
             fun create(ownerId: String,
                        playlistId: String,
@@ -37,7 +37,7 @@ sealed class TrackIntent : MviIntent {
 
     // command the player to play/pause/stop a track
     class CommandPlayer(val command: PlayerInterface.Command,
-                        val track: TrackModel) : TrackIntent() {
+                        val track: TrackModel) : CardsIntent() {
         companion object {
             fun create(command: PlayerInterface.Command, track: TrackModel) : CommandPlayer {
                 return CommandPlayer(command, track)
@@ -48,7 +48,7 @@ sealed class TrackIntent : MviIntent {
     // like or dislike a track
     class ChangeTrackPref(val track: TrackModel,
                           val pref: TrackModel.Pref
-    ) : TrackIntent(), CardIntentMarker {
+    ) : CardsIntent(), CardIntentMarker {
         companion object {
             fun like(track: TrackModel) : ChangeTrackPref {
                 return ChangeTrackPref(track, TrackModel.Pref.LIKED)

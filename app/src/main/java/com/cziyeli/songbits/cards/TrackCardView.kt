@@ -68,7 +68,7 @@ class TrackCardView(private val context: Context,
     private val trackImageClickListener = android.view.View.OnClickListener {
         // pause/resume
         listener.getPlayerIntents()
-                .onNext(TrackIntent.CommandPlayer.create(PlayerInterface.Command.PAUSE_OR_RESUME, model))
+                .onNext(CardsIntent.CommandPlayer.create(PlayerInterface.Command.PAUSE_OR_RESUME, model))
 
         // switch icon
         val icon = if (isPlaying) R.drawable.basic_pause else R.drawable.basic_play
@@ -98,11 +98,11 @@ class TrackCardView(private val context: Context,
 
         // immediately start playing
         listener.getPlayerIntents().onNext(
-                TrackIntent.CommandPlayer.create(PlayerInterface.Command.PLAY_NEW, model))
+                CardsIntent.CommandPlayer.create(PlayerInterface.Command.PLAY_NEW, model))
 
         // 'undo' clears liked/disliked pref
         listener.getTrackIntents().onNext(
-                TrackIntent.ChangeTrackPref.clear(model)
+                CardsIntent.ChangeTrackPref.clear(model)
         )
 
         trackImageContainer.alpha = 1f
@@ -118,7 +118,7 @@ class TrackCardView(private val context: Context,
 
         // add this track to the Pass list
         listener.getTrackIntents().onNext(
-                TrackIntent.ChangeTrackPref.dislike(model)
+                CardsIntent.ChangeTrackPref.dislike(model)
         )
     }
 
@@ -135,14 +135,14 @@ class TrackCardView(private val context: Context,
 
         // add this track to the Liked list
         listener.getTrackIntents().onNext(
-                TrackIntent.ChangeTrackPref.like(model)
+                CardsIntent.ChangeTrackPref.like(model)
         )
     }
 
     private fun finishTrack() {
         // stop playing this track
         listener.getPlayerIntents().onNext(
-                TrackIntent.CommandPlayer.create(PlayerInterface.Command.END_TRACK, model))
+                CardsIntent.CommandPlayer.create(PlayerInterface.Command.END_TRACK, model))
 
         Utils.setVisible(trackTitleWrapper, false)
         trackImage.setOnCircularBarChangeListener(null)
@@ -161,9 +161,9 @@ class TrackCardView(private val context: Context,
 
     interface TrackListener {
         // emit events to the audio player
-        fun getPlayerIntents(): PublishSubject<TrackIntent.CommandPlayer>
+        fun getPlayerIntents(): PublishSubject<CardsIntent.CommandPlayer>
 
         // emit like/dislike events
-        fun getTrackIntents(): PublishSubject<TrackIntent.ChangeTrackPref>
+        fun getTrackIntents(): PublishSubject<CardsIntent.ChangeTrackPref>
     }
 }

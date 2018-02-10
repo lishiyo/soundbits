@@ -31,13 +31,13 @@ class CardsViewModel @Inject constructor(
         val actionProcessor: TrackActionProcessor,
         val schedulerProvider: BaseSchedulerProvider,
         val playlist: Playlist
-): ViewModel(), LifecycleObserver, MviViewModel<TrackIntent, TrackViewState> {
+): ViewModel(), LifecycleObserver, MviViewModel<CardsIntent, TrackViewState> {
     private val TAG = CardsViewModel::class.simpleName
 
     private val compositeDisposable = CompositeDisposable()
 
     // Intents stream and ViewStates stream
-    private val intentsSubject : PublishRelay<TrackIntent> by lazy { PublishRelay.create<TrackIntent>() }
+    private val intentsSubject : PublishRelay<CardsIntent> by lazy { PublishRelay.create<CardsIntent>() }
     private val viewStates: PublishRelay<TrackViewState> by lazy { PublishRelay.create<TrackViewState>() }
 
     // Previous ViewState + Result => New ViewState
@@ -72,20 +72,20 @@ class CardsViewModel @Inject constructor(
 
     private fun actionFromIntent(intent: MviIntent) : MviAction {
         return when(intent) {
-            is TrackIntent.ScreenOpenedWithTracks -> TrackAction.SetTracks(intent.playlist, intent.tracks)
-            is TrackIntent.ScreenOpenedNoTracks -> TrackAction.LoadTrackCards.create(
+            is CardsIntent.ScreenOpenedWithTracks -> TrackAction.SetTracks(intent.playlist, intent.tracks)
+            is CardsIntent.ScreenOpenedNoTracks -> TrackAction.LoadTrackCards.create(
                     intent.ownerId, intent.playlistId, intent.onlyTrackIds, intent.fields, intent.limit, intent.offset)
-            is TrackIntent.CommandPlayer -> TrackAction.CommandPlayer.create(
+            is CardsIntent.CommandPlayer -> TrackAction.CommandPlayer.create(
                     intent.command, intent.track
             )
-            is TrackIntent.ChangeTrackPref -> TrackAction.ChangeTrackPref.create(
+            is CardsIntent.ChangeTrackPref -> TrackAction.ChangeTrackPref.create(
                     intent.track, intent.pref
             )
             else -> None // no-op all other events
         }
     }
 
-    override fun processIntents(intents: Observable<out TrackIntent>) {
+    override fun processIntents(intents: Observable<out CardsIntent>) {
         compositeDisposable.add(
             intents.subscribe(intentsSubject::accept)
         )

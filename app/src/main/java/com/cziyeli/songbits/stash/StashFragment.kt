@@ -42,10 +42,12 @@ class StashFragment : Fragment(), MviView<RootIntent, RootViewState> {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // load all the cards
         initCards()
     }
 
-    fun initCards() {
+    private fun initCards() {
         // likes
         likes_card.load("likes", mutableListOf(), null, null, null)
 

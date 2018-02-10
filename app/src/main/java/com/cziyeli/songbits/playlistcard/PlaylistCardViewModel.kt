@@ -15,7 +15,7 @@ import com.cziyeli.domain.summary.TrackListStats
 import com.cziyeli.domain.tracks.TrackAction
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.tracks.TrackResult
-import com.cziyeli.songbits.cards.TrackIntent
+import com.cziyeli.songbits.cards.CardsIntent
 import com.cziyeli.songbits.cards.TrackViewState
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
@@ -113,7 +113,7 @@ class PlaylistCardViewModel @Inject constructor(
             is PlaylistCardIntent.FetchSwipedTracks -> PlaylistCardAction.FetchPlaylistTracks(intent.ownerId, intent.playlistId, intent.onlySwiped)
             is StatsIntent.FetchTracksWithStats -> StatsAction.FetchAllTracksWithStats(intent.playlist.owner.id, intent.playlist.id)
             is StatsIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
-            is TrackIntent.ChangeTrackPref -> TrackAction.ChangeTrackPref(intent.track, intent.pref)
+            is CardsIntent.ChangeTrackPref -> TrackAction.ChangeTrackPref(intent.track, intent.pref)
             else -> None
         }
     }

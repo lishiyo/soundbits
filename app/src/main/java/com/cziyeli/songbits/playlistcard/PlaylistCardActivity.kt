@@ -14,7 +14,7 @@ import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.cards.CardsActivity
-import com.cziyeli.songbits.cards.TrackIntent
+import com.cziyeli.songbits.cards.CardsIntent
 import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateActivity
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
@@ -220,7 +220,7 @@ class PlaylistCardActivity : AppCompatActivity() {
                             // only update if not already liked +
                             if (!model.liked) {
                                 val newModel = model.copy(pref = TrackModel.Pref.LIKED)
-                                eventsPublisher.onNext(TrackIntent.ChangeTrackPref.like(newModel))
+                                eventsPublisher.onNext(CardsIntent.ChangeTrackPref.like(newModel))
                             }
                         }
                         R.id.dislike_icon_container -> {
@@ -229,7 +229,7 @@ class PlaylistCardActivity : AppCompatActivity() {
                             // only update if not already disliked
                             if (model.liked) {
                                 val newModel = model.copy(pref = TrackModel.Pref.DISLIKED)
-                                eventsPublisher.onNext(TrackIntent.ChangeTrackPref.dislike(newModel))
+                                eventsPublisher.onNext(CardsIntent.ChangeTrackPref.dislike(newModel))
                             }
                         }
                     }

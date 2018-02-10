@@ -37,7 +37,7 @@ import javax.inject.Named
 /**
  * Created by connieli on 1/1/18.
  */
-class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>, TrackCardView.TrackListener {
+class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>, TrackCardView.TrackListener {
 
     companion object {
         const val EXTRA_PLAYLIST = "extra_playlist"
@@ -58,12 +58,12 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
     private lateinit var viewModel: CardsViewModel
 
     // intents
-    private val mLoadPublisher = PublishSubject.create<TrackIntent>()
-    private val mPlayerPublisher: PublishSubject<TrackIntent.CommandPlayer> by lazy {
-        PublishSubject.create<TrackIntent.CommandPlayer>()
+    private val mLoadPublisher = PublishSubject.create<CardsIntent>()
+    private val mPlayerPublisher: PublishSubject<CardsIntent.CommandPlayer> by lazy {
+        PublishSubject.create<CardsIntent.CommandPlayer>()
     }
-    private val mTrackPrefPublisher : PublishSubject<TrackIntent.ChangeTrackPref> by lazy {
-        PublishSubject.create<TrackIntent.ChangeTrackPref>()
+    private val mCardsPrefPublisher: PublishSubject<CardsIntent.ChangeTrackPref> by lazy {
+        PublishSubject.create<CardsIntent.ChangeTrackPref>()
     }
 
     lateinit var playlist: Playlist
@@ -99,11 +99,11 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         if (tracksToSwipe != null && tracksToSwipe.isNotEmpty()) {
             // tracks were passed - just use these
             Utils.mLog(TAG, "got tracksToSwipe: ${tracksToSwipe.size}")
-            mLoadPublisher.onNext(TrackIntent.ScreenOpenedWithTracks(playlist, tracksToSwipe))
+            mLoadPublisher.onNext(CardsIntent.ScreenOpenedWithTracks(playlist, tracksToSwipe))
         } else {
             // no tracks passed - fetch all from remote
             Utils.mLog(TAG, "no tracksToSwipe, fetching from remote")
-            mLoadPublisher.onNext(TrackIntent.ScreenOpenedNoTracks.create(
+            mLoadPublisher.onNext(CardsIntent.ScreenOpenedNoTracks.create(
                     ownerId = playlist.owner.id,
                     playlistId = playlist.id)
             )
@@ -159,20 +159,20 @@ class CardsActivity : AppCompatActivity(), MviView<TrackIntent, TrackViewState>,
         })
     }
 
-    override fun intents(): Observable<out TrackIntent> {
+    override fun intents(): Observable<out CardsIntent> {
         return Observable.merge(
                 mLoadPublisher,
                 mPlayerPublisher,
-                mTrackPrefPublisher
+                mCardsPrefPublisher
         )
     }
 
-    override fun getPlayerIntents(): PublishSubject<TrackIntent.CommandPlayer> {
+    override fun getPlayerIntents(): PublishSubject<CardsIntent.CommandPlayer> {
         return mPlayerPublisher
     }
 
-    override fun getTrackIntents(): PublishSubject<TrackIntent.ChangeTrackPref> {
-        return mTrackPrefPublisher
+    override fun getTrackIntents(): PublishSubject<CardsIntent.ChangeTrackPref> {
+        return mCardsPrefPublisher
     }
 
     override fun render(state: TrackViewState) {
