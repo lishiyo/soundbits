@@ -9,6 +9,8 @@ import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlists.*
+import com.cziyeli.domain.user.UserAction
+import com.cziyeli.domain.user.UserResult
 import com.cziyeli.songbits.home.HomeIntent
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
@@ -68,7 +70,7 @@ class OldHomeViewModel @Inject constructor(
                 .doOnTerminate { Utils.log( TAG, "terminated!") }
                 .compose(intentFilter)
                 .map{ it -> actionFromIntent(it)}
-                .compose(actionFilter<HomeAction>())
+                .compose(actionFilter<HomeActionMarker>())
                 .doOnNext { intent -> Utils.log(TAG, "intentsSubject hitActionProcessor: ${intent.javaClass.simpleName}") }
                 .compose(actionProcessor.combinedProcessor)
                 .scan(HomeViewState(), reducer)

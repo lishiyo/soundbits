@@ -11,10 +11,6 @@ import kaaes.spotify.webapi.android.models.SnapshotId
  */
 interface SummaryResultMarker : MviResult
 
-enum class SinglePlaylistResult : MviResult.StatusInterface {
-    SUCCESS, ERROR, LOADING
-}
-
 sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE, var error: Throwable? = null) : SummaryResultMarker {
     companion object {
         private val TAG = SummaryResult::class.simpleName

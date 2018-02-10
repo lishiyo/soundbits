@@ -68,7 +68,6 @@ class SummaryLayout @JvmOverloads constructor(
         )
         // immediately fetch stats of the like ids
         val initialViewState = viewModel.currentViewState
-        Utils.mLog(TAG, "initWith", "$initialViewState")
         mStatsPublisher.onNext(SummaryIntent.FetchStats(initialViewState.trackIdsForStats()))
 
         // init click listeners

@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProvider
 import com.cziyeli.songbits.home.HomeViewModel
 import com.cziyeli.songbits.home.oldhome.OldHomeViewModel
 import com.cziyeli.songbits.root.RootViewModel
+import com.cziyeli.songbits.stash.StashViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -30,6 +31,11 @@ abstract class ViewModelsModule {
     @IntoMap
     @ViewModelKey(RootViewModel::class)
     abstract fun bindRootViewModel(viewModel: RootViewModel) : ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(StashViewModel::class)
+    abstract fun bindStashViewModel(viewModel: StashViewModel) : ViewModel
 
     @Binds
     abstract fun bindViewModelFactory(factory: ViewModelFactory) : ViewModelProvider.Factory

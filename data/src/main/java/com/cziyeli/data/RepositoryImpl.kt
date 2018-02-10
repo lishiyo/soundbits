@@ -78,6 +78,14 @@ class RepositoryImpl @Inject constructor(
         )
     }
 
+    override fun fetchUserLikedTracks(limit: Int, offset: Int): Flowable<List<TrackEntity>> {
+        return tracksDatabase.tracksDao().getLikedTracks(limit, offset)
+    }
+
+    override fun fetchUserDislikedTracks(limit: Int, offset: Int): Flowable<List<TrackEntity>> {
+        return tracksDatabase.tracksDao().getDislikedTracks(limit, offset)
+    }
+
     ///////////////////////
     // ====== REMOTE ======
     ///////////////////////

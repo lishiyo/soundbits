@@ -11,6 +11,8 @@ import com.cziyeli.commons.resultFilter
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlists.*
 import com.cziyeli.domain.user.QuickCounts
+import com.cziyeli.domain.user.UserAction
+import com.cziyeli.domain.user.UserResult
 import com.cziyeli.songbits.root.RootViewState
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
@@ -71,7 +73,6 @@ class HomeViewModel @Inject constructor(
     }
 
     init {
-
         // create observable to push into states live data
         val observable = intentsSubject
                 .subscribeOn(schedulerProvider.io())
@@ -80,7 +81,7 @@ class HomeViewModel @Inject constructor(
                 .doOnTerminate { Utils.log( TAG, "terminated!") }
                 .compose(intentFilter)
                 .map{ it -> actionFromIntent(it)}
-                .compose(actionFilter<HomeAction>())
+                .compose(actionFilter<HomeActionMarker>())
                 .compose(actionProcessor.combinedProcessor) // action -> result
                 .mergeWith( // root viewstate -> home result
                         rootStatesSubject.compose(rootResultProcessor).compose(resultFilter<HomeResult>())
@@ -114,15 +115,18 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    override fun processIntents(intents: Observable<out HomeIntent>) {
-        compositeDisposable.add(
-                intents.subscribe(intentsSubject::accept)
-        )
-    }
-
+    /**
+     * Bind to the root stream.
+     */
     fun processRootViewStates(intents: Observable<RootViewState>) {
         compositeDisposable.add(
                 intents.subscribe(rootStatesSubject::accept)
+        )
+    }
+
+    override fun processIntents(intents: Observable<out HomeIntent>) {
+        compositeDisposable.add(
+                intents.subscribe(intentsSubject::accept)
         )
     }
 

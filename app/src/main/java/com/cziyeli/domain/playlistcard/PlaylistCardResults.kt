@@ -6,6 +6,9 @@ import java.util.*
 
 interface CardResultMarker : MviResult
 
+/**
+ * Any kind of card.
+ */
 sealed class CardResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
                         var error: Throwable? = null) : CardResultMarker {
     // calculate basic counts - liked, disliked, total
@@ -34,6 +37,9 @@ sealed class CardResult(var status: MviResult.StatusInterface = MviResult.Status
     class HeaderSet(val headerImageUrl: String) : CardResult(MviResult.Status.SUCCESS)
 }
 
+/**
+ * Results for a single-playlist card.
+ */
 sealed class PlaylistCardResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
                                 var error: Throwable? = null) : CardResultMarker {
 
@@ -48,8 +54,8 @@ sealed class PlaylistCardResult(var status: MviResult.StatusInterface = MviResul
         }
 
         companion object {
-            fun createSuccess(items: List<TrackModel>, fromLocal: Boolean) : FetchPlaylistTracks {
-                return FetchPlaylistTracks(FetchPlaylistTracks.Status.SUCCESS, null, items, fromLocal)
+            fun createSuccess(tracks: List<TrackModel>, fromLocal: Boolean) : FetchPlaylistTracks {
+                return FetchPlaylistTracks(FetchPlaylistTracks.Status.SUCCESS, null, tracks, fromLocal)
             }
             fun createError(throwable: Throwable, fromLocal: Boolean) : FetchPlaylistTracks {
                 return FetchPlaylistTracks(FetchPlaylistTracks.Status.ERROR, throwable, fromLocal = fromLocal)

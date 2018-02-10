@@ -3,7 +3,6 @@ package com.cziyeli.songbits.cards.summary
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.OnLifecycleEvent
-import android.arch.lifecycle.ViewModel
 import android.widget.Toast
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.actionFilter
@@ -20,18 +19,18 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.subjects.PublishSubject
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
-import javax.inject.Inject
 
 /**
+ * Not a real arch components view model.
+ *
  * Shown after you finish surfing all the cards.
  *
  * Created by connieli on 1/6/18.
  */
-
-class SummaryViewModel @Inject constructor(
+class SummaryViewModel constructor(
         val actionProcessor: SummaryActionProcessor,
         val schedulerProvider: BaseSchedulerProvider
-) : ViewModel(), LifecycleObserver, MviViewModel<SummaryIntent, SummaryViewState> {
+) : LifecycleObserver, MviViewModel<SummaryIntent, SummaryViewState> {
     private val TAG = SummaryViewModel::class.simpleName
 
     private val compositeDisposable = CompositeDisposable()

@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
+import com.cziyeli.commons.Utils
 import com.cziyeli.commons.disableTouchTheft
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.toast
@@ -21,7 +22,9 @@ import com.cziyeli.songbits.playlistcard.TrackRowsAdapter
 import com.jakewharton.rxrelay2.PublishRelay
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.widget_simple_card.view.*
+import java.util.*
 
 /**
  * Very similar to [PlaylistCardWidget], but doesn't need to be instantiated with a playlist
@@ -30,17 +33,22 @@ import kotlinx.android.synthetic.main.widget_simple_card.view.*
 class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker, SimpleCardViewModel.ViewState> {
     val TAG = SimpleCardWidget::class.simpleName
 
-    // viewmodel's backing model is list of tracks
+    // backing viewmodel for this card
+    lateinit var viewModel: SimpleCardViewModel
+    private val compositeDisposable = CompositeDisposable()
 
     // intents
     private val eventsPublisher = PublishRelay.create<CardIntentMarker>()
     // stream to pipe in basic results (skips intent -> action processing)
-    val simpleResultsPublisher = PublishRelay.create<CardResultMarker>()
+    private val simpleResultsPublisher: PublishRelay<CardResultMarker> = PublishRelay.create<CardResultMarker>()
 
     // Listener for the track rows
     private lateinit var adapter: TrackRowsAdapter
     private var onTouchListener: RecyclerTouchListener? = null
     private var onSwipeListener: RecyclerTouchListener.OnSwipeListener? = null
+
+    private var carouselImageSet: Boolean = false
+    private var carouselHeaderUrl: String? = null
 
     @JvmOverloads
     constructor(
@@ -57,27 +65,57 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker, SimpleCardV
             "clicked!".toast(context)
             expansionLayout.toggle(true)
         }
+
     }
 
-    fun load(title: String,
-             tracks: List<TrackModel>,
-             swipeListener: RecyclerTouchListener.OnSwipeListener? = null,
-             touchListener: RecyclerTouchListener? = null,
-             carouselHeaderUrl: String?
-    ) {
-        onSwipeListener = swipeListener
-        onTouchListener = touchListener
+    // passed from StashFragment
+    fun loadTracks(tracks: List<TrackModel>) {
+        Utils.mLog(TAG, "loadTracks", "got tracks: ${tracks.size}")
 
-        // set header
-        playlist_title.text = title
+        // fetch the track stats of these tracks
+        eventsPublisher.accept(StatsIntent.FetchStats(tracks.map { it.id }))
 
+        // set the carousel header
+        carouselHeaderUrl = when {
+            viewModel.currentViewState.carouselHeaderUrl != null -> viewModel.currentViewState.carouselHeaderUrl
+            else -> {
+                val headerImageIndex = Random().nextInt(tracks.size)
+                tracks[headerImageIndex].imageUrl
+            }
+        }
         carouselHeaderUrl?.let {
             // set directly onto ViewModel
             simpleResultsPublisher.accept(CardResult.HeaderSet(it))
         }
+    }
 
-        // fetch the track stats of these pending tracks
-        eventsPublisher.accept(StatsIntent.FetchStats(tracks.map { it.id }))
+    /**
+     * Container fragment initializes the widget.
+     */
+    fun initWith(title: String,
+                 tracks: List<TrackModel>,
+                 swipeListener: RecyclerTouchListener.OnSwipeListener? = null,
+                 touchListener: RecyclerTouchListener? = null,
+                 initialViewModel: SimpleCardViewModel
+    ) {
+        // Bind the view model
+        viewModel = initialViewModel
+        // Bind ViewModel to this view's intents stream
+        viewModel.processIntents(intents())
+        // Subscribe to the viewmodel states
+        compositeDisposable.add(
+                viewModel.states().subscribe({ state ->
+                    state?.let {
+                        this.render(state) // pass to the widgets
+                    }
+                })
+        )
+
+        onSwipeListener = swipeListener
+        onTouchListener = touchListener
+
+        // set header
+        card_title.text = title
 
         // set up tracks list (don't need to re-render)
         adapter = TrackRowsAdapter(context, tracks.toMutableList())
@@ -90,15 +128,14 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker, SimpleCardV
         return eventsPublisher
     }
 
-    private var carouselImageSet: Boolean = false
-
     override fun render(state: SimpleCardViewModel.ViewState) {
+        Utils.mLog(TAG, "RENDER", "$state")
+
         if (state.carouselHeaderUrl != null && !carouselImageSet) {
-            setCarousel(state) // set the carousel image (once)
+            setCarousel(state) // set the header image (once)
         }
 
         if (state.isFetchStatsSuccess()) {
-            // render the track stats widget with pending tracks
             stats_container_left.loadTrackStats(state.trackStats!!)
         }
     }
@@ -110,6 +147,6 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker, SimpleCardV
 
         Glide.with(this)
                 .load(state.carouselHeaderUrl)
-                .into(playlist_image_background)
+                .into(card_image_background)
     }
 }

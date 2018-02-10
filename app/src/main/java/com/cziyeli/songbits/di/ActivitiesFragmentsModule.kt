@@ -10,7 +10,6 @@ import com.cziyeli.songbits.di.viewModels.ViewModelsModule
 import com.cziyeli.songbits.home.HomeFragment
 import com.cziyeli.songbits.home.HomeModule
 import com.cziyeli.songbits.home.HomeSubcomponent
-import com.cziyeli.songbits.root.RootModule
 import com.cziyeli.songbits.home.oldhome.OldHomeActivity
 import com.cziyeli.songbits.home.oldhome.di.OldHomeActivitySubComponent
 import com.cziyeli.songbits.playlistcard.PlaylistCardActivity
@@ -18,6 +17,10 @@ import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateActivity
 import com.cziyeli.songbits.playlistcard.di.PlaylistCardCreateModule
 import com.cziyeli.songbits.playlistcard.di.PlaylistCardModule
 import com.cziyeli.songbits.root.RootActivity
+import com.cziyeli.songbits.root.RootModule
+import com.cziyeli.songbits.stash.StashFragment
+import com.cziyeli.songbits.stash.StashModule
+import com.cziyeli.songbits.stash.StashSubcomponent
 import dagger.Binds
 import dagger.Module
 import dagger.android.ActivityKey
@@ -74,7 +77,8 @@ abstract class ActivitiesModule {
 }
 
 @Module(subcomponents = [
-    HomeSubcomponent::class
+    HomeSubcomponent::class,
+    StashSubcomponent::class
 ])
 abstract class FragmentsModule {
 
@@ -84,4 +88,9 @@ abstract class FragmentsModule {
     )
     internal abstract fun homeFragmentInjector(): HomeFragment
 
+    @PerFragment
+    @ContributesAndroidInjector(
+            modules = [(StashModule::class)]
+    )
+    internal abstract fun stashFragmentInjector(): StashFragment
 }

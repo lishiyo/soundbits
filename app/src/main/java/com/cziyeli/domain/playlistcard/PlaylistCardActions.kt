@@ -20,7 +20,7 @@ sealed class CardAction : CardActionMarker {
  * Actions for the playlist card widget.
  */
 sealed class PlaylistCardAction(val playlistId: String? = "") : CardActionMarker {
-    // get list of (swiped) tracks for a playlist
+    // get list of stashed tracks for the playlist
     class FetchPlaylistTracks(val ownerId: String,
                               playlistId: String,
                               val onlySwiped: Boolean = true,

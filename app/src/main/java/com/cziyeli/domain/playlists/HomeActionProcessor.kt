@@ -2,9 +2,10 @@ package com.cziyeli.domain.playlists
 
 import com.cziyeli.commons.Utils
 import com.cziyeli.data.Repository
-import com.cziyeli.domain.user.QuickCounts
 import com.cziyeli.domain.user.User
+import com.cziyeli.domain.user.UserAction
 import com.cziyeli.domain.user.UserManager
+import com.cziyeli.domain.user.UserResult
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -23,13 +24,12 @@ class HomeActionProcessor @Inject constructor(private val repository: Repository
                                               private val userManager : UserManager) {
     private val TAG = HomeActionProcessor::class.java.simpleName
 
-    val combinedProcessor: ObservableTransformer<HomeAction, HomeResult> = ObservableTransformer { acts ->
+    val combinedProcessor: ObservableTransformer<HomeActionMarker, HomeResult> = ObservableTransformer { acts ->
         acts.publish { shared ->
             Observable.merge<HomeResult>(
                     shared.ofType<PlaylistsAction.UserPlaylists>(PlaylistsAction.UserPlaylists::class.java).compose(userPlaylistsProcessor),
                     shared.ofType<UserAction.FetchUser>(UserAction.FetchUser::class.java).compose(fetchUserProcessor),
-                    shared.ofType<UserAction.ClearUser>(UserAction.ClearUser::class.java).compose(clearUserProcessor),
-                    shared.ofType<UserAction.FetchQuickCounts>(UserAction.FetchQuickCounts::class.java).compose(fetchQuickCountsProcessor)
+                    shared.ofType<UserAction.ClearUser>(UserAction.ClearUser::class.java).compose(clearUserProcessor)
             ).retry() // don't unsubscribe ever
         }
     }
@@ -50,19 +50,6 @@ class HomeActionProcessor @Inject constructor(private val repository: Repository
                     .onErrorReturn { err -> PlaylistsResult.UserPlaylists.createError(err) }
                     .startWith(PlaylistsResult.UserPlaylists.createLoading())
                     .retry()
-            }
-
-    private val fetchQuickCountsProcessor : ObservableTransformer<UserAction.FetchQuickCounts, UserResult.FetchQuickCounts> =
-            ObservableTransformer { action ->
-                action.switchMap { act ->
-                    repository.fetchUserQuickStats().subscribeOn(schedulerProvider.io()).toObservable()
-                }.map { (total, liked, disliked) -> QuickCounts(total, liked, disliked) }
-                .doOnNext { Utils.mLog(TAG, "fetchQuickCountsProcessor","got quickCounts: $it")}
-                .observeOn(schedulerProvider.ui())
-                .map { quickCounts -> UserResult.FetchQuickCounts.createSuccess(quickCounts) }
-                .onErrorReturn { err -> UserResult.FetchQuickCounts.createError(err) }
-                .startWith(UserResult.FetchQuickCounts.createLoading())
-                .retry()
             }
 
     // fetch and save the current user in UserManager

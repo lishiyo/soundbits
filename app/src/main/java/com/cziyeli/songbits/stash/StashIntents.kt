@@ -1,6 +1,7 @@
 package com.cziyeli.songbits.stash
 
 import com.cziyeli.commons.mvibase.MviIntent
+import com.cziyeli.songbits.playlistcard.CardIntentMarker
 
 
 /**
@@ -8,19 +9,20 @@ import com.cziyeli.commons.mvibase.MviIntent
  *
  * Created by connieli on 12/31/17.
  */
-sealed class StashIntent : MviIntent {
+sealed class StashIntent : MviIntent, CardIntentMarker {
 
-    // load likes SimpleCard
-    class LoadLikesCard : StashIntent()
+    // Swiped to first time
+    class InitialLoad : StashIntent()
 
-    // load dislikes SimpleCard
-    class LoadDisLikesCard : StashIntent()
+    // initWith /top tracks
+    class FetchTopTracks(val limit: Int = 20,
+                         val offset: Int = 0,
+                         val fields: String? = null
+    ) : StashIntent()
 
-    // load /top tracks
-    class LoadTopTracksCard : StashIntent()
-
-    // load recommended tracks based on seeds
+    // initWith recommended tracks based on seeds
     // https://developer.spotify.com/web-api/console/get-recommendations/#complete
-    class LoadRecommendedCard(val limit: Int = 20, val offset: Int = 0) : StashIntent()
-
+    class FetchRecommendedTracks(val limit: Int = 20,
+                                 val offset: Int = 0
+    ) : StashIntent()
 }

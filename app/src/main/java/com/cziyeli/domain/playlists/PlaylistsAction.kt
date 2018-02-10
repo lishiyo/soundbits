@@ -5,13 +5,13 @@ import com.cziyeli.commons.mvibase.MviAction
 /**
  * Marker for events on the home screen.
  */
-interface HomeAction : MviAction
+interface HomeActionMarker : MviAction
 
 
 /**
  * Events for playlists on the home screen.
  */
-sealed class PlaylistsAction : HomeAction {
+sealed class PlaylistsAction : HomeActionMarker {
     // fetch current user's playlists (default to recent, first page)
     class UserPlaylists(val limit: Int = 20, val offset: Int = 0) : PlaylistsAction()
 

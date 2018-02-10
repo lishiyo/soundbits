@@ -4,10 +4,11 @@ import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviAction
 import com.cziyeli.commons.mvibase.MviResult
 import com.cziyeli.data.Repository
-import com.cziyeli.domain.playlists.UserAction
-import com.cziyeli.domain.playlists.UserResult
+import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.user.QuickCounts
+import com.cziyeli.domain.user.UserAction
 import com.cziyeli.domain.user.UserManager
+import com.cziyeli.domain.user.UserResult
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -30,7 +31,8 @@ class RootActionProcessor @Inject constructor(private val repository: Repository
         acts.publish { shared ->
             Observable.merge<MviResult>(
                     shared.ofType<UserAction.FetchQuickCounts>(UserAction.FetchQuickCounts::class.java).compose(fetchQuickCountsProcessor),
-                    Observable.empty()
+                    shared.ofType<UserAction.LoadLikedTracks>(UserAction.LoadLikedTracks::class.java).compose(likedTracksProcessor),
+                    shared.ofType<UserAction.LoadDislikedTracks>(UserAction.LoadDislikedTracks::class.java).compose(dislikedTracksProcessor)
             ).retry() // don't unsubscribe ever
         }
     }
@@ -50,4 +52,36 @@ class RootActionProcessor @Inject constructor(private val repository: Repository
                         .retry()
             }
 
+
+    private val likedTracksProcessor : ObservableTransformer<UserAction.LoadLikedTracks, UserResult.LoadLikesCard>
+            = ObservableTransformer { action -> action.switchMap {
+        act -> repository
+            .fetchUserLikedTracks(act.limit, act.offset)
+            .toObservable()
+            .subscribeOn(schedulerProvider.io())
+    }.map { resp ->
+                resp.map {  TrackModel.createFromLocal(it) }
+            }
+            .observeOn(schedulerProvider.ui())
+            .map { tracks -> UserResult.LoadLikesCard.createSuccess(tracks) }
+            .onErrorReturn { err -> UserResult.LoadLikesCard.createError(err) }
+            .startWith(UserResult.LoadLikesCard.createLoading())
+            .retry()
+    }
+
+    private val dislikedTracksProcessor : ObservableTransformer<UserAction.LoadDislikedTracks, UserResult.LoadDislikesCard>
+            = ObservableTransformer { action -> action.switchMap {
+        act -> repository
+            .fetchUserDislikedTracks(act.limit, act.offset)
+            .toObservable()
+            .subscribeOn(schedulerProvider.io())
+    }.map { resp ->
+                resp.map {  TrackModel.createFromLocal(it) }
+            }
+            .observeOn(schedulerProvider.ui())
+            .map { tracks -> UserResult.LoadDislikesCard.createSuccess(tracks) }
+            .onErrorReturn { err -> UserResult.LoadDislikesCard.createError(err) }
+            .startWith(UserResult.LoadDislikesCard.createLoading())
+            .retry()
+    }
 }

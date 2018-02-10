@@ -18,7 +18,7 @@ interface Repository {
 
     fun debug(limit: Int = -1)
 
-    // ============ ROOT and HOME ============
+    // ============ ROOT, HOME, STASH ============
 
     fun fetchCurrentUser() : Single<UserPrivate>
 
@@ -28,6 +28,10 @@ interface Repository {
     ): Observable<Pager<PlaylistSimple>>
 
     fun fetchUserQuickStats() : Flowable<Triple<Int, Int, Int>>
+
+    fun fetchUserLikedTracks(limit: Int = 20, offset: Int = 0) : Flowable<List<TrackEntity>>
+
+    fun fetchUserDislikedTracks(limit: Int = 20, offset: Int = 0) : Flowable<List<TrackEntity>>
 
     // ============ SINGLE PLAYLIST ACTIONS ============
 
@@ -50,6 +54,7 @@ interface Repository {
 
     // ============ TRACKS ============
 
+    // update a track's liked/disliked status in db
     fun updateTrackPref(trackId: String, liked: Boolean)
 
     // ============ STATS ============

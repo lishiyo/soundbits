@@ -4,9 +4,26 @@ import com.cziyeli.commons.mvibase.MviIntent
 
 sealed class RootIntent : MviIntent {
 
-    // just the counts, not the tracks
+    // initWith just the counts, not the tracks
     class FetchUserQuickCounts : RootIntent()
 
-    // fetch all stashed tracks in database
-    class FetchAllStashedTracks : RootIntent()
+    // initWith all stashed tracks in database
+    class LoadAllStashedTracks(val limit: Int = 20,
+                                val offset: Int = 0,
+                                val fields: String? = null
+    ) : RootIntent()
+
+    // initWith all liked stashed in database
+    class LoadLikedTracks(val limit: Int = 20,
+                           val offset: Int = 0,
+                           val fields: String? = null
+    ) : RootIntent()
+
+    // initWith all liked stashed in database
+    class LoadDislikedTracks(val limit: Int = 20,
+                              val offset: Int = 0,
+                              val fields: String? = null
+    ) : RootIntent()
+
+
 }

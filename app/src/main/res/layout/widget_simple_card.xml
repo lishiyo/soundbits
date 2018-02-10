@@ -37,7 +37,7 @@
 					>
 					<!-- the shared element - cover image -->
 					<ImageView
-						android:id="@+id/playlist_image_background"
+						android:id="@+id/card_image_background"
 						android:scaleType="centerCrop"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/simple_card_header_height"
@@ -54,9 +54,9 @@
 						android:alpha=".4"
 						/>
 
-					<!-- overlay playlist title - bottom left -->
+					<!-- overlay card title - bottom left -->
 					<TextView
-						android:id="@+id/playlist_title"
+						android:id="@+id/card_title"
 						android:fontFamily="@font/raleway_light"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
