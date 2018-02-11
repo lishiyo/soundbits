@@ -141,11 +141,11 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
 
         // try to force refresh upon click
         expansion_header.setOnClickListener {
-            Utils.mLog(TAG, "expansionHeader -- onClick! expanded? ${expansionLayout.isExpanded}")
-            if (!expansionLayout.isExpanded) { // hidden, going to be opened
+            Utils.mLog(TAG, "expansionHeader -- onClick! expanded? ${expansion_layout.isExpanded}")
+            if (!expansion_layout.isExpanded) { // hidden, going to be opened
                 adapter.notifyDataSetChanged()
             }
-            expansionLayout.toggle(true)
+            expansion_layout.toggle(true)
         }
     }
 
@@ -176,12 +176,12 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
             if (state.stashedTracksList.isNotEmpty()) {
                 // update the title
                 expansion_header_title.text = resources.getString(R.string.expand_tracks).format(state.stashedTracksList.size)
-                Utils.setVisible(headerIndicator, true)
+                Utils.setVisible(header_indicator, true)
             }
             // TODO this is very ui heavy - figure out better way than delaying until tapped
             Handler().postDelayed({
                 // only notify if this isn't expanded
-                adapter.setTracksAndNotify(state.stashedTracksList, !expansionLayout.isExpanded)
+                adapter.setTracksAndNotify(state.stashedTracksList, !expansion_layout.isExpanded)
             }, 1000)
         }
 
@@ -228,7 +228,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
     }
 
     fun onBackPressed() {
-        if (expansionLayout.isExpanded) Utils.setVisible(expansionLayout, false)
+        if (expansion_layout.isExpanded) Utils.setVisible(expansion_layout, false)
         if (fab_menu != null && fab_menu.isShowing) {
             fab_menu.closeMenu()
         }

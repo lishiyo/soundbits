@@ -195,8 +195,8 @@
 						android:id="@+id/expansion_header"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						app:expansion_headerIndicator="@id/headerIndicator"
-						app:expansion_layout="@id/expansionLayout"
+						app:expansion_headerIndicator="@id/header_indicator"
+						app:expansion_layout="@id/expansion_layout"
 						app:expansion_toggleOnClick="true"
 						>
 
@@ -216,8 +216,8 @@
 								android:textColor="@color/colorWhite" />
 
 							<android.support.v7.widget.AppCompatImageView
+								android:id="@+id/header_indicator"
 								android:adjustViewBounds="true"
-								android:id="@+id/headerIndicator"
 								android:layout_alignParentRight="true"
 								android:layout_centerVertical="true"
 								android:layout_height="wrap_content"
@@ -232,7 +232,7 @@
 
 					<!-- BODY CONTENT: LIST of TRACKS (COLLAPSED) -->
 					<com.github.florent37.expansionpanel.ExpansionLayout
-						android:id="@+id/expansionLayout"
+						android:id="@+id/expansion_layout"
 						android:textSize="@dimen/small_text_size"
 						app:expansion_expanded="false"
 						android:layout_width="match_parent"

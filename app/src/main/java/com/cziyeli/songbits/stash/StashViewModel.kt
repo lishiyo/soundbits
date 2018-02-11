@@ -50,8 +50,11 @@ class StashViewModel @Inject constructor(
     private val rootResultProcessor: ObservableTransformer<RootViewState, MviResult> = ObservableTransformer { acts ->
         acts.map { rootState ->
             when {
-                rootState.status == MviViewState.Status.SUCCESS && rootState.likedTracks.isNotEmpty() -> {
+                rootState.status == MviViewState.Status.SUCCESS && rootState.lastResult is UserResult.LoadLikesCard -> {
                     UserResult.LoadLikesCard.createSuccess(rootState.likedTracks)
+                }
+                rootState.status == MviViewState.Status.SUCCESS && rootState.lastResult is UserResult.LoadDislikesCard -> {
+                    UserResult.LoadDislikesCard.createSuccess(rootState.dislikedTracks)
                 } else -> NoResult()
             }
         }
@@ -61,6 +64,7 @@ class StashViewModel @Inject constructor(
     private val reducer: BiFunction<ViewState, StashResultMarker, ViewState> = BiFunction { previousState, result ->
         when (result) {
             is UserResult.LoadLikesCard -> return@BiFunction processLikedTracks(previousState, result)
+            is UserResult.LoadDislikesCard -> return@BiFunction processDislikedTracks(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -123,7 +127,6 @@ class StashViewModel @Inject constructor(
             previousState: ViewState,
             result: UserResult.LoadLikesCard
     ) : ViewState {
-        Utils.mLog(TAG, "processLikedTracks", "status", "${result.status}", "tracks", "${result.items}")
         return when (result.status) {
             UserResult.Status.LOADING, MviResult.Status.LOADING -> {
                 previousState.copy(
@@ -152,6 +155,37 @@ class StashViewModel @Inject constructor(
         }
     }
 
+    private fun processDislikedTracks(
+            previousState: ViewState,
+            result: UserResult.LoadDislikesCard
+    ) : ViewState {
+        return when (result.status) {
+            UserResult.Status.LOADING, MviResult.Status.LOADING -> {
+                previousState.copy(
+                        error = null,
+                        lastResult = result,
+                        status = MviViewState.Status.LOADING
+                )
+            }
+            UserResult.Status.SUCCESS, MviResult.Status.SUCCESS -> {
+                previousState.copy(
+                        error = null,
+                        lastResult = result,
+                        status = MviViewState.Status.SUCCESS,
+                        dislikedTracks = result.items.toMutableList()
+                )
+
+            }
+            UserResult.Status.ERROR, MviResult.Status.ERROR -> {
+                previousState.copy(
+                        error = result.error,
+                        lastResult = result,
+                        status = MviViewState.Status.ERROR
+                )
+            }
+            else -> previousState
+        }
+    }
 
     data class ViewState(val status: MviViewState.Status = MviViewState.Status.IDLE,
                          val error: Throwable? = null,

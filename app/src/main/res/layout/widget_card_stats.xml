@@ -11,9 +11,9 @@
 	android:descendantFocusability="beforeDescendants"
 	>
 
-	<!-- danceability -->
+	<!-- danceability/popular -->
 	<TextView
-		android:id="@+id/danceability_title"
+		android:id="@+id/title_row_one"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:text="calculating..."
@@ -23,7 +23,7 @@
 		/>
 
 	<me.bendik.simplerangeview.SimpleRangeView
-		android:id="@+id/danceability_range"
+		android:id="@+id/range_one"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		style="@style/simpleRangeView"
@@ -31,7 +31,7 @@
 
 	<!-- energy -->
 	<TextView
-		android:id="@+id/energy_title"
+		android:id="@+id/title_row_two"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:text="calculating..."
@@ -41,7 +41,7 @@
 		/>
 
 	<me.bendik.simplerangeview.SimpleRangeView
-		android:id="@+id/energy_range"
+		android:id="@+id/range_two"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		style="@style/simpleRangeView"
@@ -49,7 +49,7 @@
 
 	<!-- valence -->
 	<TextView
-		android:id="@+id/valence_title"
+		android:id="@+id/title_row_three"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:text="calculating..."
@@ -59,7 +59,7 @@
 		/>
 
 	<me.bendik.simplerangeview.SimpleRangeView
-		android:id="@+id/valence_range"
+		android:id="@+id/range_three"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		style="@style/simpleRangeView"

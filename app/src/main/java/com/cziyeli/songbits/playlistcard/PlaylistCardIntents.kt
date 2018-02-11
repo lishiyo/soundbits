@@ -38,4 +38,6 @@ sealed class StatsIntent : CardIntentMarker {
 
     // fetch stats for given list of track ids
     class FetchStats(val trackIds: List<String>) : StatsIntent()
+
+    class FetchFullStats(val trackModels: List<TrackModel>) : StatsIntent()
 }

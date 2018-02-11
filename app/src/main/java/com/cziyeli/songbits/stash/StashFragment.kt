@@ -8,19 +8,21 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.domain.stash.SimpleCardActionProcessor
 import com.cziyeli.domain.user.UserResult
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.cards.TracksRecyclerViewDelegate
 import com.cziyeli.songbits.root.RootActivity
 import com.cziyeli.songbits.root.RootIntent
 import com.jakewharton.rxrelay2.PublishRelay
+import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_stash.*
+import kotlinx.android.synthetic.main.widget_simple_card.*
 import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import javax.inject.Inject
 
@@ -43,6 +45,12 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
     private val eventsPublisher: PublishRelay<StashIntent> by lazy { PublishRelay.create<StashIntent>() }
     private val compositeDisposable = CompositeDisposable()
 
+    private lateinit var tracksRecyclerViewDelegate: TracksRecyclerViewDelegate
+    var onSwipeListener: RecyclerTouchListener.OnSwipeListener? = null
+        get() = tracksRecyclerViewDelegate.onSwipeListener
+    var onTouchListener: RecyclerTouchListener? = null
+        get() = tracksRecyclerViewDelegate.onTouchListener
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         return inflater.inflate(R.layout.fragment_stash, container, false)
@@ -59,6 +67,7 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
         // fire fetch events
         eventsPublisher.accept(StashIntent.InitialLoad())
         (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
+        (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadDislikedTracks())
     }
 
     override fun intents(): Observable<out StashIntent> {
@@ -66,18 +75,25 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
     }
 
     override fun render(state: StashViewModel.ViewState) {
-        Utils.mLog(TAG, "RENDER", "$state")
-
         // pass to simple cards
-        if (state.status == MviViewState.Status.SUCCESS && state.lastResult is UserResult.LoadLikesCard) {
-            Utils.mLog(TAG, "got liked tracks! ${state.likedTracks}")
-            likes_card.loadTracks(state.likedTracks)
+        when {
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is UserResult.LoadLikesCard -> {
+                likes_card.loadTracks(state.likedTracks)
+            }
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is UserResult.LoadDislikesCard -> {
+                dislikes_card.loadTracks(state.dislikedTracks)
+            }
         }
     }
 
     private fun initCards() {
+        val activity = activity as RootActivity
+        tracksRecyclerViewDelegate = TracksRecyclerViewDelegate(activity, card_tracks_recycler_view)
+
         // likes
-        likes_card.initWith("likes", mutableListOf(), null, null,
+        likes_card.initWith("likes", mutableListOf(),
+                tracksRecyclerViewDelegate.onSwipeListener,
+                tracksRecyclerViewDelegate.onTouchListener,
                 SimpleCardViewModel(
                         simpleCardActionProcessor,
                         schedulerProvider,
@@ -86,7 +102,9 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
         )
 
         // dislikes
-        dislikes_card.initWith("dislikes", mutableListOf(), null, null,
+        dislikes_card.initWith("dislikes", mutableListOf(),
+                tracksRecyclerViewDelegate.onSwipeListener,
+                tracksRecyclerViewDelegate.onTouchListener,
                 SimpleCardViewModel(
                         simpleCardActionProcessor,
                         schedulerProvider,
@@ -131,6 +149,17 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        card_tracks_recycler_view.addOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        card_tracks_recycler_view.removeOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
     }
 
     override fun onDestroy() {

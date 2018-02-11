@@ -54,7 +54,6 @@ class PlaylistCardActivity : AppCompatActivity() {
                 startSwipingTracks(true)
             }
             R.id.menu_create_playlist -> {
-
                 if (viewModel.tracksToCreate?.isEmpty() == true) {
                     "no liked tracks yet! swipe first?".toast(this@PlaylistCardActivity)
                 } else {
@@ -74,7 +73,7 @@ class PlaylistCardActivity : AppCompatActivity() {
     @Inject
     @field:Named("PlaylistCardViewModel") lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var viewModel: PlaylistCardViewModel
-
+    private val eventsPublisher: PublishSubject<CardIntentMarker> by lazy { PublishSubject.create<CardIntentMarker>() }
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -192,8 +191,6 @@ class PlaylistCardActivity : AppCompatActivity() {
             }
         }
     }
-
-    private val eventsPublisher: PublishSubject<CardIntentMarker> by lazy { PublishSubject.create<CardIntentMarker>() }
 
     private fun createOnTouchListener(swipeListener: RecyclerTouchListener.OnSwipeListener) : RecyclerTouchListener {
         val onTouchListener = RecyclerTouchListener(this, tracks_recycler_view)

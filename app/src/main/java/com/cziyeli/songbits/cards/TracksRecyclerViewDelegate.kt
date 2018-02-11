@@ -1,0 +1,117 @@
+package com.cziyeli.songbits.cards
+
+import android.app.Activity
+import android.support.v7.widget.RecyclerView
+import android.view.View
+import android.view.ViewGroup
+import com.cziyeli.commons.Utils
+import com.cziyeli.songbits.R
+import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
+import eu.gsottbauer.equalizerview.EqualizerView
+
+/**
+ * Wrapper for the tracks view handling.
+ */
+class TracksRecyclerViewDelegate(val activity: Activity, private val tracksRecyclerView: RecyclerView) {
+    private val TAG = TracksRecyclerViewDelegate::class.java.simpleName
+
+    var onSwipeListener: RecyclerTouchListener.OnSwipeListener
+    var onTouchListener: RecyclerTouchListener
+
+    init {
+        onSwipeListener = createOnSwipeListener()
+        onTouchListener = createOnTouchListener(onSwipeListener)
+    }
+
+    private fun createOnSwipeListener() : RecyclerTouchListener.OnSwipeListener {
+        return object : RecyclerTouchListener.OnSwipeListener {
+            override fun onForegroundAnimationStart(isFgOpening: Boolean, duration: Long, foregroundView: View, backgroundView: View?) {
+                // shrink the textview size
+                val scale = if (isFgOpening) 0.7f else 1.0f
+                val parentView = foregroundView as ViewGroup
+                val shrinkingViews = listOf<View>(
+                        parentView.findViewById(R.id.track_left_container),
+                        parentView.findViewById(R.id.track_image)
+                )
+                shrinkingViews.forEach { view ->
+                    view.pivotX = 0f
+                    view.animate()
+                            .scaleX(scale)
+                            .scaleY(scale)
+                            .setDuration(duration)
+                            .start()
+                }
+
+                // animate the wave
+                val toAlpha = if (isFgOpening) 1.0f else 0.0f
+                val animatedView = foregroundView.findViewById<EqualizerView>(R.id.equalizer_animation)
+//                val animatedView = foregroundView.findViewById<LottieAnimationView>(R.id.wave_animation)
+                animatedView.animate().alpha(toAlpha).withEndAction {
+                    if (isFgOpening) {
+                        animatedView.visibility = View.VISIBLE
+                        animatedView.animateBars()
+//                        animatedView.playAnimation()
+                    } else {
+                        animatedView.visibility = View.INVISIBLE
+                        animatedView.stopBars()
+//                        animatedView.pauseAnimation()
+                    }
+                }.setDuration(duration).start()
+            }
+
+            override fun onSwipeOptionsOpened(foregroundView: View, backgroundView: View?) {
+
+            }
+
+            override fun onSwipeOptionsClosed(foregroundView: View, backgroundView: View?) {
+                val animatedView = foregroundView.findViewById<EqualizerView>(R.id.equalizer_animation)
+                animatedView.stopBars()
+            }
+        }
+    }
+
+    private fun createOnTouchListener(swipeListener: RecyclerTouchListener.OnSwipeListener) : RecyclerTouchListener {
+        val onTouchListener = RecyclerTouchListener(activity, tracksRecyclerView)
+        onTouchListener
+                .setViewsToFade(R.id.track_status)
+                .setClickable(object : RecyclerTouchListener.OnRowClickListener {
+                    override fun onRowClicked(position: Int) {
+                        Utils.mLog(TAG, "row @ ${position} clicked")
+                    }
+
+                    override fun onIndependentViewClicked(independentViewID: Int, position: Int) {
+                        Utils.mLog(TAG,"independent view @ ${position} clicked")
+                    }
+                })
+                .setOnSwipeListener(swipeListener)
+                .setSwipeOptionViews(R.id.like_icon_container, R.id.dislike_icon_container)
+                .setSwipeable(R.id.row_foreground, R.id.row_background) { viewID, position ->
+                    var message = ""
+                    when (viewID) {
+                        R.id.like_icon_container -> {
+                            // send off like command
+//                            val model = viewModel.currentViewState.stashedTracksList?.get(position)
+//                            message += "Liked: ${model?.name}: ${model?.liked}"
+//                            // only update if not already liked +
+//                            if (!model.liked) {
+//                                val newModel = model.copy(pref = TrackModel.Pref.LIKED)
+//                                eventsPublisher.accept(CardsIntent.ChangeTrackPref.like(newModel))
+//                            }
+                        }
+                        R.id.dislike_icon_container -> {
+//                            val model = viewModel.currentViewState.stashedTracksList?.get(position)
+//                            message += "Disliked: ${model?.name}: ${model?.disliked}"
+//                            // only update if not already disliked
+//                            if (model.liked) {
+//                                val newModel = model.copy(pref = TrackModel.Pref.DISLIKED)
+//                                eventsPublisher.accept(CardsIntent.ChangeTrackPref.dislike(newModel))
+//                            }
+                        }
+                    }
+                    Utils.mLog(TAG, message)
+                }
+
+        return onTouchListener
+    }
+
+}

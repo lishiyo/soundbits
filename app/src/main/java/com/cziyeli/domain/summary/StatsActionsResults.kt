@@ -27,6 +27,8 @@ sealed class StatsAction : StatsActionMarker, SummaryActionMarker, CardActionMar
 
     // fetch stats for a given list of tracks
     class FetchStats(val trackIds: List<String>) : StatsAction()
+
+    class FetchFullStats(val trackModels: List<TrackModel>) : StatsAction()
 }
 
 /**
@@ -62,6 +64,7 @@ sealed class StatsResult(var status: MviResult.StatusInterface = MviResult.Statu
         }
     }
 
+    // fetch stats for given list of track ids
     class FetchStats(status: StatsResultStatus,
                      error: Throwable?,
                      val trackStats: TrackListStats? // domain model for stats
@@ -76,6 +79,25 @@ sealed class StatsResult(var status: MviResult.StatusInterface = MviResult.Statu
             }
             fun createLoading(): StatsResult.FetchStats {
                 return StatsResult.FetchStats(StatsResultStatus.LOADING, null, null)
+            }
+        }
+    }
+
+    // the full six-stats
+    class FetchFullStats(status: StatsResultStatus,
+                         error: Throwable?,
+                         val trackStats: TrackListStats? // domain model for stats
+    ) : StatsResult(status, error) {
+        companion object {
+            fun createSuccess(trackStats: TrackListStats) : StatsResult.FetchFullStats {
+                return StatsResult.FetchFullStats(StatsResultStatus.SUCCESS, null, trackStats)
+            }
+            fun createError(throwable: Throwable,
+                            trackStats: TrackListStats? = null) : StatsResult.FetchFullStats {
+                return StatsResult.FetchFullStats(StatsResultStatus.ERROR, throwable, trackStats)
+            }
+            fun createLoading(): StatsResult.FetchFullStats {
+                return StatsResult.FetchFullStats(StatsResultStatus.LOADING, null, null)
             }
         }
     }

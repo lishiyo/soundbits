@@ -11,10 +11,12 @@ import com.cziyeli.commons.Utils
 import com.cziyeli.commons.fetchColor
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.cards.TracksRecyclerViewDelegate
 import com.cziyeli.songbits.home.HomeFragment
 import com.cziyeli.songbits.profile.UserFragment
 import com.cziyeli.songbits.stash.StashFragment
 import com.jakewharton.rxrelay2.PublishRelay
+import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -22,6 +24,7 @@ import dagger.android.support.HasSupportFragmentInjector
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_root.*
+import kotlinx.android.synthetic.main.widget_simple_card.*
 import javax.inject.Inject
 
 // Main activity with bottom nav, the three tabs
@@ -41,6 +44,7 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<Ro
 
     // Views
     private lateinit var pagerAdapter: BottomNavAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -101,6 +105,7 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<Ro
     override fun supportFragmentInjector(): AndroidInjector<Fragment> {
         return fragmentDispatchingAndroidInjector
     }
+
 
     private fun setUpViewPager() {
         pagerAdapter = BottomNavAdapter(supportFragmentManager)

@@ -30,6 +30,7 @@
 	<dimen name="track_dislike_width">21dp</dimen>
 	<dimen name="list_item_track_height">60dp</dimen>
 	<dimen name="fake_fab_diameter">32dp</dimen>
+	<dimen name="fake_fab_diameter_small">26dp</dimen>
 	<dimen name="fake_fab_icon_margin">4dp</dimen>
 	<dimen name="fake_fab_padding">11dp</dimen>
 	<dimen name="fake_fab_create_diameter">45dp</dimen>
@@ -54,7 +55,7 @@
 
 	<!-- Stash -->
 	<dimen name="tab_strip_height">48dp</dimen>
-	<dimen name="simple_card_header_height">130dp</dimen>
+	<dimen name="simple_card_header_height">180dp</dimen>
 	<dimen name="simple_card_padding">20dp</dimen>
 
 	<!-- Stash multiselect -->

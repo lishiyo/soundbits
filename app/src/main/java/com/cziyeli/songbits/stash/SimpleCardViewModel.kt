@@ -34,30 +34,18 @@ class SimpleCardViewModel constructor(
 
     // Listener for home-specific events
     private val intentsSubject : PublishRelay<CardIntentMarker> by lazy { PublishRelay.create<CardIntentMarker>() }
-    // Listener for root view states
-//    private val rootStatesSubject: PublishRelay<RootViewState> by lazy { PublishRelay.create<RootViewState>() }
+    // Simple already-processed events stream
+    private val resultsSubject : PublishRelay<CardResultMarker> by lazy { PublishRelay.create<CardResultMarker>() }
     // Publisher for own view states
     private val viewStates: PublishRelay<SimpleCardViewModel.ViewState> by lazy {
         PublishRelay.create<SimpleCardViewModel.ViewState>() }
     var currentViewState: SimpleCardViewModel.ViewState = ViewState()
 
-    // Root ViewState => Result
-//    private val rootResultProcessor: ObservableTransformer<RootViewState, MviResult> = ObservableTransformer { acts ->
-//        acts.map { rootState ->
-//            when {
-//                rootState.status == MviViewState.Status.SUCCESS && rootState.likedTracks.isNotEmpty() -> {
-//                    UserResult.LoadLikesCard.createSuccess(rootState.likedTracks!!)
-//                } else -> NoResult()
-//            }
-//        }
-//    }
-
     // Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<ViewState, CardResultMarker, ViewState> = BiFunction { previousState, result ->
         when (result) {
-//            is UserResult.LoadLikesCard -> return@BiFunction processLikedTracks(previousState, result)
             is CardResult.HeaderSet -> return@BiFunction processSetHeaderUrl(previousState, result)
-            is StatsResult.FetchStats -> return@BiFunction processFetchStats(previousState, result)
+            is StatsResult.FetchFullStats -> return@BiFunction processFetchFullStats(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -71,13 +59,10 @@ class SimpleCardViewModel constructor(
         // create observable to push into states live data
         val observable = intentsSubject
                 .subscribeOn(schedulerProvider.io())
-//                .compose(intentFilter)
                 .map{ it -> actionFromIntent(it)}
                 .compose(actionFilter<CardActionMarker>())
                 .compose(actionProcessor.combinedProcessor) // action -> result
-//                .mergeWith( // root viewstate -> home result
-//                        rootStatesSubject.compose(rootResultProcessor).compose(resultFilter<CardResultMarker>())
-//                )
+                .mergeWith(resultsSubject) // <--- pipe in direct results
                 .observeOn(schedulerProvider.ui())
                 .doOnNext { result -> Utils.log(TAG, "intentsSubject scanning result: ${result.javaClass.simpleName}") }
                 .scan(ViewState(), reducer)
@@ -96,9 +81,15 @@ class SimpleCardViewModel constructor(
 
     private fun actionFromIntent(intent: MviIntent) : MviAction {
         return when(intent) {
-            is StatsIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
+            is StatsIntent.FetchFullStats -> StatsAction.FetchFullStats(intent.trackModels)
             else -> None // no-op all other events
         }
+    }
+
+    fun processSimpleResults(results: Observable<out CardResultMarker>) {
+        compositeDisposable.add(
+                results.subscribe(resultsSubject::accept)
+        )
     }
 
     override fun processIntents(intents: Observable<out CardIntentMarker>) {
@@ -119,9 +110,9 @@ class SimpleCardViewModel constructor(
         return previousState.copy(carouselHeaderUrl = result.headerImageUrl)
     }
 
-    private fun processFetchStats(
+    private fun processFetchFullStats(
             previousState: ViewState,
-            result: StatsResult.FetchStats
+            result: StatsResult.FetchFullStats
     ) : ViewState {
         return when (result.status) {
             StatsResultStatus.LOADING, StatsResultStatus.ERROR -> {
@@ -144,8 +135,6 @@ class SimpleCardViewModel constructor(
             }
             else -> return previousState
         }
-
-        return previousState
     }
 
     data class ViewState(val status: MviViewState.Status = MviViewState.Status.IDLE,
@@ -156,7 +145,7 @@ class SimpleCardViewModel constructor(
                          val trackStats: TrackListStats? = null // stats for ALL tracks
     ) : MviViewState {
         fun isFetchStatsSuccess(): Boolean {
-            return lastResult == StatsResultStatus.SUCCESS && trackStats != null
+            return lastResult is StatsResult.FetchFullStats && trackStats != null
         }
     }
 }

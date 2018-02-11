@@ -10,7 +10,6 @@ import com.bumptech.glide.Glide
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.disableTouchTheft
 import com.cziyeli.commons.mvibase.MviView
-import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlistcard.CardResult
 import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.tracks.TrackModel
@@ -60,31 +59,34 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker, SimpleCardV
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_simple_card, this, true)
         descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
-
-        expansion_header_view.setOnClickListener { v ->
-            "clicked!".toast(context)
-            expansionLayout.toggle(true)
-        }
-
     }
 
     // passed from StashFragment
     fun loadTracks(tracks: List<TrackModel>) {
-        Utils.mLog(TAG, "loadTracks", "got tracks: ${tracks.size}")
+        Utils.mLog(TAG, "loadTracks", "${tracks.size}")
+        adapter.setTracksAndNotify(tracks, !card_expansion_layout.isExpanded)
 
-        // fetch the track stats of these tracks
-        eventsPublisher.accept(StatsIntent.FetchStats(tracks.map { it.id }))
+        if (tracks.isNotEmpty()) {
+            // update the title
+            card_expansion_header_title.text = resources.getString(R.string.expand_tracks).format(tracks.size)
+            Utils.setVisible(card_header_indicator, true)
+
+            // fetch the track stats of these tracks
+            eventsPublisher.accept(StatsIntent.FetchFullStats(tracks))
+
+
+        }
 
         // set the carousel header
         carouselHeaderUrl = when {
             viewModel.currentViewState.carouselHeaderUrl != null -> viewModel.currentViewState.carouselHeaderUrl
-            else -> {
+            tracks.isNotEmpty() -> {
                 val headerImageIndex = Random().nextInt(tracks.size)
                 tracks[headerImageIndex].imageUrl
             }
+            else -> null
         }
         carouselHeaderUrl?.let {
-            // set directly onto ViewModel
             simpleResultsPublisher.accept(CardResult.HeaderSet(it))
         }
     }
@@ -102,6 +104,9 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker, SimpleCardV
         viewModel = initialViewModel
         // Bind ViewModel to this view's intents stream
         viewModel.processIntents(intents())
+        // Bind ViewModel to thisview's simple results stream
+        viewModel.processSimpleResults(simpleResultsPublisher)
+
         // Subscribe to the viewmodel states
         compositeDisposable.add(
                 viewModel.states().subscribe({ state ->
@@ -119,9 +124,9 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker, SimpleCardV
 
         // set up tracks list (don't need to re-render)
         adapter = TrackRowsAdapter(context, tracks.toMutableList())
-        tracks_recycler_view.adapter = adapter
-        tracks_recycler_view.layoutManager = LinearLayoutManager(context)
-        tracks_recycler_view.disableTouchTheft()
+        card_tracks_recycler_view.adapter = adapter
+        card_tracks_recycler_view.layoutManager = LinearLayoutManager(context)
+        card_tracks_recycler_view.disableTouchTheft()
     }
 
     override fun intents(): Observable<out CardIntentMarker> {
@@ -131,12 +136,15 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker, SimpleCardV
     override fun render(state: SimpleCardViewModel.ViewState) {
         Utils.mLog(TAG, "RENDER", "$state")
 
+        card_fab_text.text = "${state.tracks.size}"
+
         if (state.carouselHeaderUrl != null && !carouselImageSet) {
             setCarousel(state) // set the header image (once)
         }
 
         if (state.isFetchStatsSuccess()) {
             stats_container_left.loadTrackStats(state.trackStats!!)
+            stats_container_right.loadTrackStats(state.trackStats, true)
         }
     }
 
@@ -148,5 +156,7 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker, SimpleCardV
         Glide.with(this)
                 .load(state.carouselHeaderUrl)
                 .into(card_image_background)
+
+        carouselImageSet = true
     }
 }

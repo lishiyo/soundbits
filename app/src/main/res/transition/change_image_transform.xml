@@ -10,7 +10,7 @@
 	<changeImageTransform />
 
 	<targets>
-		<target android:excludeId="@id/expansionLayout"/>
+		<target android:excludeId="@id/expansion_layout"/>
 		<target android:excludeId="@id/expansion_header"/>
 		<target android:excludeId="@id/stats_container"/>
 	</targets>

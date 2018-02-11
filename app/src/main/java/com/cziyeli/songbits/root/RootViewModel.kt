@@ -42,6 +42,7 @@ class RootViewModel @Inject constructor(
         when (result) {
             is UserResult.FetchQuickCounts -> return@BiFunction processUserQuickCounts(previousState, result)
             is UserResult.LoadLikesCard -> return@BiFunction processLikedTracks(previousState, result)
+            is UserResult.LoadDislikesCard -> return@BiFunction processDislikedTracks(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -136,6 +137,39 @@ class RootViewModel @Inject constructor(
         }
     }
 
+    private fun processDislikedTracks(
+            previousState: RootViewState,
+            result: UserResult.LoadDislikesCard
+    ) : RootViewState {
+        Utils.mLog(TAG, "processDislikedTracks!", "${result.status} -- ${result.items.size}")
+        return when (result.status) {
+            UserResult.Status.LOADING, MviResult.Status.LOADING -> {
+                previousState.copy(
+                        error = null,
+                        lastResult = result,
+                        status = MviViewState.Status.LOADING
+                )
+            }
+            UserResult.Status.SUCCESS, MviResult.Status.SUCCESS -> {
+                previousState.copy(
+                        error = null,
+                        lastResult = result,
+                        status = MviViewState.Status.SUCCESS,
+                        dislikedTracks = result.items.toMutableList()
+                )
+
+            }
+            UserResult.Status.ERROR, MviResult.Status.ERROR -> {
+                previousState.copy(
+                        error = result.error,
+                        lastResult = result,
+                        status = MviViewState.Status.ERROR
+                )
+            }
+            else -> previousState
+        }
+    }
+
     override fun processIntents(intents: Observable<out RootIntent>) {
         compositeDisposable.add(
                 intents.subscribe(intentsSubject::accept)
@@ -154,4 +188,9 @@ data class RootViewState(val status: MviViewState.Status = MviViewState.Status.I
                          val quickCounts: QuickCounts? = null,
                          val likedTracks: MutableList<TrackModel> = mutableListOf(),
                          val dislikedTracks: MutableList<TrackModel> = mutableListOf()
-) : MviViewState
+) : MviViewState {
+
+    override fun toString(): String {
+        return "status: $status -- lastResult: $lastResult -- liked: ${likedTracks.size} -- disliked: ${dislikedTracks.size}"
+    }
+}

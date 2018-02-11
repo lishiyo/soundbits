@@ -3,4 +3,9 @@
 	<declare-styleable name="action_buttons">
 		<attr name="active" format="boolean" />
 	</declare-styleable>
+
+
+	<declare-styleable name="TrackStatsView">
+		<attr name="two_column" format="boolean" />
+	</declare-styleable>
 </resources>
