@@ -10,7 +10,7 @@
 		>
 
 		<android.support.v7.widget.CardView
-			android:id="@+id/card_view"
+			android:id="@+id/sc_card_view"
 			android:layout_gravity="center"
 			android:layout_margin="10dp"
 			android:layout_width="match_parent"
@@ -38,7 +38,7 @@
 					<!-- the shared element - cover image -->
 					<ImageView
 						android:id="@+id/card_image_background"
-						android:src="@drawable/gradient_purples"
+						android:src="@drawable/gradient_yellows"
 						android:scaleType="centerCrop"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/simple_card_header_height"
@@ -47,27 +47,54 @@
 
 					<!-- fake opacity on the background image -->
 					<View
-						android:id="@+id/image_dim_overlay"
-						android:visibility="gone"
+						android:id="@+id/card_image_dim_overlay"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/simple_card_header_height"
 						android:background="#000000"
-						android:alpha=".4"
+						android:alpha="0.4"
 						/>
 
 					<!-- overlay card title - bottom left -->
-					<TextView
-						android:id="@+id/card_title"
-						android:fontFamily="@font/raleway_light"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:singleLine="true"
-						android:paddingLeft="16dp"
-						android:paddingBottom="16dp"
-						android:textSize="@dimen/default_title_size"
-						android:textColor="#ffffff"
-						android:layout_gravity="bottom|start"
-						/>
+					<RelativeLayout
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:layout_gravity="center"
+						android:elevation="12dp"
+						>
+						<!-- input new title -->
+						<EditText
+							android:id="@+id/card_title"
+							android:focusable="false"
+							android:enabled="false"
+							android:layout_width="@dimen/title_input_width"
+							android:layout_height="wrap_content"
+							android:layout_above="@id/dotted_line"
+							android:layout_centerInParent="true"
+							android:layout_gravity="center"
+							android:background="@null"
+							android:backgroundTint="@android:color/transparent"
+							android:fontFamily="@font/fredericka_the_great"
+							android:singleLine="true"
+							android:textAppearance="?android:attr/textAppearanceLarge"
+							android:textAlignment="center"
+							android:textColor="#ffffff"
+							android:textSize="@dimen/default_title_size"
+							/>
+
+						<!-- dotted line -->
+						<View
+							android:id="@+id/dotted_line"
+							android:visibility="invisible"
+							android:layout_width="@dimen/title_input_width"
+							android:alpha="0.7"
+							android:layout_height="8dp"
+							android:background="@drawable/edittext_dotted_line"
+							android:layout_gravity="bottom|start"
+							android:layout_centerInParent="true"
+							android:layerType="software"
+							/>
+					</RelativeLayout>
+
 				</FrameLayout>
 
 				<!-- FAB + menu container row -->
@@ -88,15 +115,41 @@
 					>
 
 					<FrameLayout
-						android:id="@+id/fab_button"
+						android:id="@+id/card_fab_button"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:background="@drawable/fake_fab"
 						android:layout_gravity="right"
 						android:gravity="right"
 						android:transitionName="@string/playlist_fab_transition"
-						android:padding="@dimen/fake_fab_padding"
 						>
+
+						<!-- icon when in create mode -->
+						<io.saeid.fabloading.LoadingView
+							android:id="@+id/card_fab_create"
+							android:visibility="gone"
+							android:layout_width="@dimen/fake_fab_diameter_small"
+							android:layout_height="@dimen/fake_fab_diameter_small"
+							android:src="@drawable/basic_plus_fab"
+							app:mfl_onclickLoading="true"
+							app:mfl_duration="200"
+							app:mfl_repeat="24"
+							android:transitionName="@string/playlist_fab_transition"
+							android:layout_gravity="right"
+							android:gravity="right"
+							android:elevation="4dp"
+							/>
+
+						<!-- default icon -->
+						<ImageView
+							android:id="@+id/card_fab"
+							android:padding="@dimen/fake_fab_padding"
+							android:layout_marginLeft="@dimen/fake_fab_icon_margin_small"
+							android:layout_marginTop="@dimen/fake_fab_icon_margin_small"
+							android:layout_width="@dimen/fake_fab_diameter_small"
+							android:layout_height="@dimen/fake_fab_diameter_small"
+							android:src="@drawable/note_happy_colored"
+							/>
 
 						<TextView
 							android:id="@+id/card_fab_text"
@@ -109,27 +162,17 @@
 							android:fontFamily="@font/indie_flower"
 							/>
 
-						<!-- icon -->
-						<ImageView
-							android:id="@+id/fab"
-							android:layout_marginLeft="@dimen/fake_fab_icon_margin"
-							android:layout_marginTop="@dimen/fake_fab_icon_margin"
-							android:layout_width="@dimen/fake_fab_diameter_small"
-							android:layout_height="@dimen/fake_fab_diameter_small"
-							android:src="@drawable/note_happy_colored"
-							/>
-
 					</FrameLayout>
 
 					<com.hlab.fabrevealmenu.view.FABRevealMenu
-						android:id="@+id/fab_menu"
+						android:id="@+id/card_fab_menu"
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"
-						android:minWidth="300dp"
+						android:minWidth="240dp"
 						app:animateItems="true"
 						app:menuBackgroundColor="@color/colorFab"
 						app:menuDirection="left"
-						app:menuRes="@menu/menu_playlist_card"
+						app:menuRes="@menu/menu_simple_card"
 						app:menuTitleTextColor="@color/colorBlack"
 						app:menuTitleDisabledTextColor="@color/colorDisabled"
 						app:showOverlay="false"

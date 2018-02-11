@@ -35,6 +35,8 @@ sealed class CardResult(var status: MviResult.StatusInterface = MviResult.Status
     }
 
     class HeaderSet(val headerImageUrl: String) : CardResult(MviResult.Status.SUCCESS)
+
+    class TracksSet(val tracks: List<TrackModel>) : CardResult(MviResult.Status.SUCCESS)
 }
 
 /**

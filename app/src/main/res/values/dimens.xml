@@ -32,6 +32,7 @@
 	<dimen name="fake_fab_diameter">32dp</dimen>
 	<dimen name="fake_fab_diameter_small">26dp</dimen>
 	<dimen name="fake_fab_icon_margin">4dp</dimen>
+	<dimen name="fake_fab_icon_margin_small">8dp</dimen>
 	<dimen name="fake_fab_padding">11dp</dimen>
 	<dimen name="fake_fab_create_diameter">45dp</dimen>
 	<dimen name="fab_number_sp">14sp</dimen>

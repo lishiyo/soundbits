@@ -15,21 +15,22 @@ abstract class TracksDao {
     @Query("SELECT * FROM Tracks WHERE track_id = :trackId")
     abstract fun getTrackByTrackId(trackId: String): Flowable<TrackEntity>
 
-    @Query("SELECT * FROM Tracks WHERE track_id IN(:trackIds)")
-    abstract fun getTracksForTrackIds(trackIds: List<String>): Flowable<List<TrackEntity>>
+    @Query("SELECT * FROM Tracks WHERE track_id IN(:trackIds) AND cleared = 0 AND track_id > :offset LIMIT :limit")
+    abstract fun getTracksForTrackIds(trackIds: List<String>, limit: Int, offset: Int): Flowable<List<TrackEntity>>
 
-    // includes non-visible (i.e. cleared) tracks
-    @Query("SELECT * FROM Tracks WHERE playlist_id = :playlistId")
-    abstract fun getTracksByPlaylistId(playlistId: String): Flowable<List<TrackEntity>>
+    // get *all* tracks for a playlist including cleared ones
+    @Query("SELECT * FROM Tracks WHERE playlist_id = :playlistId AND track_id > :offset LIMIT :limit")
+    abstract fun getTracksByPlaylistId(playlistId: String, limit: Int, offset: Int): Flowable<List<TrackEntity>>
 
-    // only non-cleared tracks for playlist
-    @Query("SELECT * FROM Tracks WHERE playlist_id = :playlistId AND cleared = 0")
-    abstract fun getVisibleTracksByPlaylistId(playlistId: String): Flowable<List<TrackEntity>>
+    // get non-cleared tracks for single playlist
+    @Query("SELECT * FROM Tracks WHERE playlist_id = :playlistId AND cleared = 0 AND track_id > :offset LIMIT :limit")
+    abstract fun getVisibleTracksByPlaylistId(playlistId: String, limit: Int, offset: Int): Flowable<List<TrackEntity>>
 
-    // get all visible
-    @Query("SELECT * FROM Tracks WHERE cleared = 0 LIMIT :limit")
-    abstract fun getVisibleTracks(limit: Int): Flowable<List<TrackEntity>>
+    // get all non-cleared
+    @Query("SELECT * FROM Tracks WHERE cleared = 0 AND track_id > :offset LIMIT :limit")
+    abstract fun getVisibleTracks(limit: Int, offset: Int): Flowable<List<TrackEntity>>
 
+    // get total non-cleared tracks count
     @Query("SELECT COUNT(*) FROM Tracks WHERE cleared = 0")
     abstract fun getStashedTracksCount(): Flowable<Int>
 
@@ -46,7 +47,6 @@ abstract class TracksDao {
     // get all visible and disliked
     @Query("SELECT * FROM Tracks WHERE cleared = 0 AND liked = 0  AND track_id > :offset LIMIT :limit")
     abstract fun getDislikedTracks(limit: Int, offset: Int): Flowable<List<TrackEntity>>
-
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun saveTrack(track: TrackEntity)

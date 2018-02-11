@@ -127,7 +127,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
                 })
                 .into(playlist_image_background)
 
-        // bing the fab menu
+        // bind the fab menu
         if (fab_menu != null && fab_button != null) {
             fab_menu!!.bindAnchorView(fab_button!!)
             fab_menu!!.setOnFABMenuSelectedListener(onFabSelectedListener)
@@ -172,7 +172,6 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
 
         // if we just loaded tracks
         if (state.isSuccess() && state.lastResult is PlaylistCardResult.FetchPlaylistTracks) {
-            Utils.mLog(TAG, "RENDER", "FetchPlaylistTracks -- stashed: ${state.stashedTracksList.size} all: ${state.allTracksList.size}")
             if (state.stashedTracksList.isNotEmpty()) {
                 // update the title
                 expansion_header_title.text = resources.getString(R.string.expand_tracks).format(state.stashedTracksList.size)

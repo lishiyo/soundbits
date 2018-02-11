@@ -41,6 +41,7 @@
 	<string name="fab_swipe_remaining">swipe\n%1$d left</string>
 	<string name="fab_swipe_all">reswipe\nall</string>
 	<string name="fab_create">create\nplaylist</string>
+	<string name="fab_clear">clear</string>
 
 	<string name="home_see_more">See more</string>
 	<string name="playlist_section_recent">Recent</string>
@@ -52,4 +53,5 @@
 	<string name="create_expand_tracks">playlist tracks</string>
 	<string name="create_card_label">Nice! Create a new playlist or</string>
 	<string name="create_card_label_2">add to an existing one with\nthese %1$d tracks!</string>
+	<string name="new_playlist_description">via songbits</string>
 </resources>

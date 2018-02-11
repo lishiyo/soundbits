@@ -12,16 +12,15 @@ import eu.gsottbauer.equalizerview.EqualizerView
 /**
  * Wrapper for the tracks view handling.
  */
-class TracksRecyclerViewDelegate(val activity: Activity, private val tracksRecyclerView: RecyclerView) {
+class TracksRecyclerViewDelegate(val activity: Activity,
+                                 private val tracksRecyclerView: RecyclerView,
+                                 private val listener: ActionButtonListener
+) {
     private val TAG = TracksRecyclerViewDelegate::class.java.simpleName
 
-    var onSwipeListener: RecyclerTouchListener.OnSwipeListener
-    var onTouchListener: RecyclerTouchListener
+    val onSwipeListener: RecyclerTouchListener.OnSwipeListener = createOnSwipeListener()
+    val onTouchListener: RecyclerTouchListener = createOnTouchListener(onSwipeListener)
 
-    init {
-        onSwipeListener = createOnSwipeListener()
-        onTouchListener = createOnTouchListener(onSwipeListener)
-    }
 
     private fun createOnSwipeListener() : RecyclerTouchListener.OnSwipeListener {
         return object : RecyclerTouchListener.OnSwipeListener {
@@ -89,29 +88,23 @@ class TracksRecyclerViewDelegate(val activity: Activity, private val tracksRecyc
                     var message = ""
                     when (viewID) {
                         R.id.like_icon_container -> {
-                            // send off like command
-//                            val model = viewModel.currentViewState.stashedTracksList?.get(position)
-//                            message += "Liked: ${model?.name}: ${model?.liked}"
-//                            // only update if not already liked +
-//                            if (!model.liked) {
-//                                val newModel = model.copy(pref = TrackModel.Pref.LIKED)
-//                                eventsPublisher.accept(CardsIntent.ChangeTrackPref.like(newModel))
-//                            }
+                            listener.onLiked(position)
+
                         }
                         R.id.dislike_icon_container -> {
-//                            val model = viewModel.currentViewState.stashedTracksList?.get(position)
-//                            message += "Disliked: ${model?.name}: ${model?.disliked}"
-//                            // only update if not already disliked
-//                            if (model.liked) {
-//                                val newModel = model.copy(pref = TrackModel.Pref.DISLIKED)
-//                                eventsPublisher.accept(CardsIntent.ChangeTrackPref.dislike(newModel))
-//                            }
+                            listener.onDisliked(position)
+
                         }
                     }
                     Utils.mLog(TAG, message)
                 }
 
         return onTouchListener
+    }
+
+    interface ActionButtonListener {
+        fun onLiked(position: Int = -1)
+        fun onDisliked(position: Int = -1)
     }
 
 }

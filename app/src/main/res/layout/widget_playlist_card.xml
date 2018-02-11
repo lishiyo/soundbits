@@ -51,7 +51,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/playlist_card_image_height"
 						android:background="#000000"
-						android:alpha=".4"
+						android:alpha="0.4"
 						/>
 
 					<!-- overlay playlist title - bottom left -->
@@ -98,17 +98,6 @@
 						android:padding="@dimen/fake_fab_padding"
 						>
 
-						<TextView
-							android:id="@+id/fab_text"
-							android:layout_width="match_parent"
-							android:layout_height="match_parent"
-							android:textSize="@dimen/fab_number_sp"
-							android:textStyle="bold"
-							android:textAlignment="textStart"
-							android:textColor="@color/colorYellow"
-							android:fontFamily="@font/indie_flower"
-							/>
-
 						<!-- icon -->
 						<ImageView
 							android:id="@+id/fab"
@@ -119,19 +108,16 @@
 							android:src="@drawable/note_happy_colored"
 							/>
 
-						<!--<io.saeid.fabloading.LoadingView-->
-							<!--android:id="@+id/fab"-->
-							<!--android:layout_marginLeft="@dimen/fake_fab_icon_margin"-->
-							<!--android:layout_marginTop="@dimen/fake_fab_icon_margin"-->
-							<!--android:layout_width="@dimen/fake_fab_diameter"-->
-							<!--android:layout_height="@dimen/fake_fab_diameter"-->
-							<!--android:src="@drawable/note_happy_colored"-->
-							<!--android:scaleX="1.5"-->
-							<!--android:scaleY="1.5"-->
-							<!--app:mfl_onclickLoading="false"-->
-							<!--app:mfl_duration="400"-->
-							<!--/>-->
-
+						<TextView
+							android:id="@+id/fab_text"
+							android:layout_width="match_parent"
+							android:layout_height="match_parent"
+							android:textSize="@dimen/fab_number_sp"
+							android:textStyle="bold"
+							android:textAlignment="textStart"
+							android:textColor="@color/colorYellow"
+							android:fontFamily="@font/indie_flower"
+							/>
 
 					</FrameLayout>
 

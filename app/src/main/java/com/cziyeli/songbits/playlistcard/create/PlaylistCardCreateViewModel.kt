@@ -74,18 +74,18 @@ class PlaylistCardCreateViewModel @Inject constructor(
                 .compose(intentFilter)
                 .map{ it -> actionFromIntent(it)}
                 .compose(actionFilter<CardActionMarker>())
-                .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
                 .compose(actionProcessor.combinedProcessor)
                 .mergeWith(resultsSubject) // <--- pipe in direct results
                 .observeOn(schedulerProvider.ui())
+                .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
                 .scan(currentViewState, reducer) // final scan
 
         compositeDisposable.add(
-                observable.subscribe({ viewState ->
+                observable.distinctUntilChanged().subscribe({ viewState ->
                     currentViewState = viewState
                     viewStates.accept(viewState)
                 }, { err ->
-                    Utils.mLog(TAG, "subscription", "error", err.localizedMessage)
+                    Utils.mLog(TAG, "init", "error", err.localizedMessage)
                 })
         )
     }

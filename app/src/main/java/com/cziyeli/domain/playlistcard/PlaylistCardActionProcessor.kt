@@ -123,7 +123,7 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
     }
 
     // like, dislike, undo track AND save in db
-    private val changePrefAndSaveProcessor : ObservableTransformer<TrackAction.ChangeTrackPref, TrackResult.ChangePrefResult> =
+    val changePrefAndSaveProcessor : ObservableTransformer<TrackAction.ChangeTrackPref, TrackResult.ChangePrefResult> =
             ObservableTransformer { action -> action
                     .map { act -> act.track.copy(pref = act.pref) } // return new for immutability
                     .doOnNext { track -> repository.updateTrackPref(track.id, track.liked) }

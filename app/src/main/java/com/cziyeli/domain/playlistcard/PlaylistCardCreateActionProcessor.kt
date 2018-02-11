@@ -23,7 +23,7 @@ class PlaylistCardCreateActionProcessor @Inject constructor(private val reposito
                             .compose(fetchStatsProcessor),
                     // create new playlist from tracks
                     shared.ofType<SummaryAction.CreatePlaylistWithTracks>(SummaryAction.CreatePlaylistWithTracks::class.java)
-                            .compose(mCreatePlaylistProcessor)
+                            .compose(createPlaylistProcessor)
             ).doOnNext {
                 Utils.mLog(TAG, "PlaylistCardActionProcessor: --- ${it::class.simpleName}")
             }.retry() // don't ever unsubscribe
@@ -44,7 +44,7 @@ class PlaylistCardCreateActionProcessor @Inject constructor(private val reposito
             .retry() // don't unsubscribe
     }
 
-    private val mCreatePlaylistProcessor: ObservableTransformer<SummaryAction.CreatePlaylistWithTracks,
+    val createPlaylistProcessor: ObservableTransformer<SummaryAction.CreatePlaylistWithTracks,
             SummaryResult.CreatePlaylistWithTracks> = ObservableTransformer {
         action -> action.switchMap {
             act -> repository

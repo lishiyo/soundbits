@@ -40,7 +40,7 @@ interface Repository {
                             ownerId: String,
                             playlistId: String,
                             fields: String?,
-                            limit: Int = 100,
+                            limit: Int = 40,
                             offset: Int = 0
     ): Observable<Pager<PlaylistTrack>>
 
@@ -48,7 +48,7 @@ interface Repository {
     fun fetchPlaylistStashedTracks(source: Repository.Source = Source.LOCAL,
                                    playlistId: String,
                                    fields: String? = null,
-                                   limit: Int = 100,
+                                   limit: Int = 40,
                                    offset: Int = 0
     ): Flowable<List<TrackEntity>>
 

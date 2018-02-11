@@ -53,7 +53,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
     private var onTouchListener: RecyclerTouchListener? = null
     private var onSwipeListener: RecyclerTouchListener.OnSwipeListener? = null
 
-    // Flag for whether we've created this playlsit or not
+    // Flag for whether we've created the new playlist or not
     private var isFinished: Boolean = false
     private var carouselImageSet: Boolean = false
 
@@ -141,7 +141,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
         eventsPublisher.accept(SummaryIntent.CreatePlaylistWithTracks(
                 ownerId = ownerId,
                 name = create_playlist_new_title.text.toString(),
-                description = "via songbits",
+                description = resources.getString(R.string.new_playlist_description),
                 public = false,
                 tracks = tracks
         ))
@@ -160,6 +160,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
         Glide.with(this).load(state.carouselHeaderUrl).into(imageView)
 
         Utils.setVisible(create_header_carousel, false)
+        create_image_dim_overlay.alpha = 0.4f
 
         isEnabled = false
         descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS

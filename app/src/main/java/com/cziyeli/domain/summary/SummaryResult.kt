@@ -47,7 +47,6 @@ sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Sta
                                    error: Throwable? = null,
                                    val playlistId: String? = null,
                                    val snapshotId: SnapshotId? = null
-//                                   val tracks: List<TrackModel> = listOf()
     ) : SummaryResult(status, error), CardResultMarker {
         enum class CreateStatus : MviResult.StatusInterface {
            LOADING, SUCCESS, ERROR
@@ -55,7 +54,6 @@ sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Sta
         companion object {
             fun createSuccess(playlistId: String,
                               snapshotId: SnapshotId
-//                              tracks: List<TrackModel> = listOf()
             ) : CreatePlaylistWithTracks {
                 return CreatePlaylistWithTracks(CreateStatus.SUCCESS, playlistId = playlistId, snapshotId = snapshotId)
             }

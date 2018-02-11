@@ -39,10 +39,6 @@ class RepositoryImpl @Inject constructor(
         return fetchPlaylistTracksRemote(ownerId, playlistId, fields, limit, offset)
     }
 
-    override fun fetchPlaylistStashedTracks(source: Repository.Source, playlistId: String, fields: String?, limit: Int, offset: Int): Flowable<List<TrackEntity>> {
-        return tracksDatabase.tracksDao().getTracksByPlaylistId(playlistId).distinctUntilChanged()
-    }
-
     // fetch the audio features for list of tracks
     override fun fetchTracksStats(source: Repository.Source, trackIds: List<String>) : Observable<AudioFeaturesTracks> {
         return fetchTracksDataRemote(trackIds)
@@ -60,6 +56,10 @@ class RepositoryImpl @Inject constructor(
     ///////////////////////
     // ====== LOCAL ======
     ///////////////////////
+
+    override fun fetchPlaylistStashedTracks(source: Repository.Source, playlistId: String, fields: String?, limit: Int, offset: Int): Flowable<List<TrackEntity>> {
+        return tracksDatabase.tracksDao().getVisibleTracksByPlaylistId(playlistId, limit, offset).distinctUntilChanged()
+    }
 
     override fun saveTracksLocal(tracks: List<TrackEntity>) {
         Observable.just(tracks)
@@ -79,11 +79,11 @@ class RepositoryImpl @Inject constructor(
     }
 
     override fun fetchUserLikedTracks(limit: Int, offset: Int): Flowable<List<TrackEntity>> {
-        return tracksDatabase.tracksDao().getLikedTracks(limit, offset)
+        return tracksDatabase.tracksDao().getLikedTracks(limit, offset).distinctUntilChanged()
     }
 
     override fun fetchUserDislikedTracks(limit: Int, offset: Int): Flowable<List<TrackEntity>> {
-        return tracksDatabase.tracksDao().getDislikedTracks(limit, offset)
+        return tracksDatabase.tracksDao().getDislikedTracks(limit, offset).distinctUntilChanged()
     }
 
     ///////////////////////
