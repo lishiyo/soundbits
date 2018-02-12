@@ -58,7 +58,7 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     // adapter
     private lateinit var PLAYLIST_RECENT: PlaylistSection
     private lateinit var PLAYLIST_FEATURED: PlaylistSection
-    private val listener: PlaylistSection.ClickListener = object : PlaylistSection.ClickListener {
+    private val recentListener: PlaylistSection.ClickListener = object : PlaylistSection.ClickListener {
         override fun onFooterClick(section: PlaylistSection) {
             eventsPublisher.accept(HomeIntent.LoadUserPlaylists(offset = section.contentItemsTotal + 1))
         }
@@ -72,6 +72,22 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
             startActivity(PlaylistCardActivity.create(context!!, item), bundle)
         }
     }
+
+    private val featuredListener: PlaylistSection.ClickListener = object : PlaylistSection.ClickListener {
+        override fun onFooterClick(section: PlaylistSection) {
+            eventsPublisher.accept(HomeIntent.LoadFeaturedPlaylists(offset = section.contentItemsTotal + 1))
+        }
+
+        override fun onItemClick(view: View, item: Playlist) {
+            val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(activity!!,
+                    view.findViewById(R.id.playlist_image),
+                    ViewCompat.getTransitionName(view.findViewById(R.id.playlist_image))
+            ).toBundle()
+
+            startActivity(PlaylistCardActivity.create(context!!, item), bundle)
+        }
+    }
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
@@ -118,8 +134,8 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
         sectionAdapter = SectionedRecyclerViewAdapter()
 
         // add the sections (to fill in later)
-        PLAYLIST_RECENT = PlaylistSection(getString(R.string.playlist_section_recent), mutableListOf(), listener)
-        PLAYLIST_FEATURED = PlaylistSection(getString(R.string.playlist_section_featured), mutableListOf(), listener)
+        PLAYLIST_RECENT = PlaylistSection(getString(R.string.playlist_section_recent), mutableListOf(), recentListener)
+        PLAYLIST_FEATURED = PlaylistSection(getString(R.string.playlist_section_featured), mutableListOf(), featuredListener)
         sectionAdapter.addSection(PLAYLIST_RECENT)
         sectionAdapter.addSection(PLAYLIST_FEATURED)
 

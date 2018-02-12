@@ -68,7 +68,6 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
 
     // Views
     private lateinit var activity: Activity
-//    private var carouselImageSet: Boolean = false
     private var carouselHeaderUrl: String? = null
 
     private lateinit var onClearedListener: StashFragment.OnCleared
@@ -203,13 +202,12 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
             // cleared tracks, reset the title and header image
             card_expansion_header_title.text = resources.getString(R.string.expand_tracks_default)
             Utils.setVisible(card_header_indicator, false)
-
-            simpleResultsPublisher.accept(CardResult.HeaderSet(""))
         }
 
         // set the carousel header
         carouselHeaderUrl = when {
-            viewModel.currentViewState.carouselHeaderUrl != null -> viewModel.currentViewState.carouselHeaderUrl
+            tracks.isEmpty() -> "" // in case we cleared
+            viewModel.currentViewState.carouselHeaderUrl?.isNotBlank() == true -> viewModel.currentViewState.carouselHeaderUrl
             tracks.isNotEmpty() -> {
                 val headerImageIndex = Random().nextInt(tracks.size)
                 tracks[headerImageIndex].imageUrl
@@ -227,6 +225,9 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
 
     override fun render(state: SimpleCardViewModel.ViewState) {
         when {
+            state.lastResult is CardResult.HeaderSet -> {
+                setCarousel(state)
+            }
             state.status == MviViewState.Status.SUCCESS && state.lastResult is TrackResult.ChangePrefResult -> {
                 val track = (state.lastResult as? TrackResult.ChangePrefResult)?.currentTrack
                 // remove the track completely upon change or else the indices get out of date
@@ -249,10 +250,6 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
                 card_fab_create.resumeAnimation()
             }
             state.isError() -> "something went wrong".toast(context)
-        }
-
-        if (state.carouselHeaderUrl != null) {
-            setCarousel(state) // set the header image (once)
         }
     }
 
@@ -336,8 +333,6 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
                     .load(state.carouselHeaderUrl)
                     .into(card_image_background)
         }
-
-//        carouselImageSet = true
     }
 
     override fun onTouchEvent(me: MotionEvent): Boolean {
