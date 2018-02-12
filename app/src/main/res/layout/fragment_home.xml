@@ -6,6 +6,7 @@
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:paddingBottom="@dimen/scrollview_padding_top"
 	xmlns:card_view="http://schemas.android.com/apk/res-auto">
 
 	<!-- placeholder the header -->

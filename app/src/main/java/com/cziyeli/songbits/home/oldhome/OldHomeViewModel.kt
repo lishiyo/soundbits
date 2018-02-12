@@ -93,7 +93,7 @@ class OldHomeViewModel @Inject constructor(
 
     private fun actionFromIntent(intent: MviIntent) : MviAction {
         return when(intent) {
-            is HomeIntent.LoadPlaylists -> PlaylistsAction.UserPlaylists(intent.limit, intent.offset)
+            is HomeIntent.LoadUserPlaylists -> PlaylistsAction.UserPlaylists(intent.limit, intent.offset)
             is HomeIntent.FetchUser -> UserAction.FetchUser()
             is HomeIntent.LogoutUser -> UserAction.ClearUser()
             else -> None // no-op all other events

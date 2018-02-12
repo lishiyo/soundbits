@@ -36,7 +36,7 @@ class OldHomeActivity : AppCompatActivity(), MviView<HomeIntent, HomeViewState> 
     private lateinit var playlistsAdapter: InfinitePlaylistsAdapter
 
     // intents
-    private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadPlaylists>()
+    private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadUserPlaylists>()
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -54,7 +54,7 @@ class OldHomeActivity : AppCompatActivity(), MviView<HomeIntent, HomeViewState> 
         // bind the view model after all views are done
         initViewModel()
 
-        mLoadPublisher.onNext(HomeIntent.LoadPlaylists())
+        mLoadPublisher.onNext(HomeIntent.LoadUserPlaylists())
     }
 
     override fun intents(): Observable<out HomeIntent> {

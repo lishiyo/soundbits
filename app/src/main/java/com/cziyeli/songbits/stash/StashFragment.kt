@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.mvibase.MviViewState
+import com.cziyeli.data.Repository
 import com.cziyeli.domain.stash.SimpleCardActionProcessor
 import com.cziyeli.domain.user.UserResult
 import com.cziyeli.songbits.R
@@ -42,6 +43,21 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
     private val eventsPublisher: PublishRelay<StashIntent> by lazy { PublishRelay.create<StashIntent>() }
     private val compositeDisposable = CompositeDisposable()
 
+    // Listener for the FAB menu 'clear' tap
+    interface OnCleared {
+        fun onCleared()
+    }
+    private val onClearedLikes = object : OnCleared {
+        override fun onCleared() {
+            eventsPublisher.accept(StashIntent.ClearTracks(Repository.Pref.LIKED))
+        }
+    }
+    private val onClearedDislikes = object : OnCleared {
+        override fun onCleared() {
+            eventsPublisher.accept(StashIntent.ClearTracks(Repository.Pref.DISLIKED))
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         return inflater.inflate(R.layout.fragment_stash, container, false)
@@ -57,8 +73,6 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
 
         // fire fetch events
         eventsPublisher.accept(StashIntent.InitialLoad())
-//        (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
-//        (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadDislikedTracks())
     }
 
     override fun intents(): Observable<out StashIntent> {
@@ -87,7 +101,8 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
                         simpleCardActionProcessor,
                         schedulerProvider,
                         SimpleCardViewModel.ViewState()
-                )
+                ),
+                onClearedLikes
         )
 
         // dislikes
@@ -97,7 +112,8 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
                         simpleCardActionProcessor,
                         schedulerProvider,
                         SimpleCardViewModel.ViewState()
-                )
+                ),
+                onClearedDislikes
         )
 
         // recommended

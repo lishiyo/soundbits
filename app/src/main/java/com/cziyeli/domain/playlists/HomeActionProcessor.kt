@@ -1,11 +1,7 @@
 package com.cziyeli.domain.playlists
 
-import com.cziyeli.commons.Utils
 import com.cziyeli.data.Repository
-import com.cziyeli.domain.user.User
 import com.cziyeli.domain.user.UserAction
-import com.cziyeli.domain.user.UserManager
-import com.cziyeli.domain.user.UserResult
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -21,15 +17,16 @@ import javax.inject.Singleton
 @Singleton
 class HomeActionProcessor @Inject constructor(private val repository: Repository,
                                               private val schedulerProvider: BaseSchedulerProvider,
-                                              private val userManager : UserManager) {
+                                              private val userActionProcessor: UserActionProcessor) {
     private val TAG = HomeActionProcessor::class.java.simpleName
 
     val combinedProcessor: ObservableTransformer<HomeActionMarker, HomeResult> = ObservableTransformer { acts ->
         acts.publish { shared ->
             Observable.merge<HomeResult>(
                     shared.ofType<PlaylistsAction.UserPlaylists>(PlaylistsAction.UserPlaylists::class.java).compose(userPlaylistsProcessor),
-                    shared.ofType<UserAction.FetchUser>(UserAction.FetchUser::class.java).compose(fetchUserProcessor),
-                    shared.ofType<UserAction.ClearUser>(UserAction.ClearUser::class.java).compose(clearUserProcessor)
+                    shared.ofType<PlaylistsAction.FeaturedPlaylists>(PlaylistsAction.FeaturedPlaylists::class.java).compose(featuredPlaylistsProcessor),
+                    shared.ofType<UserAction.FetchUser>(UserAction.FetchUser::class.java).compose(userActionProcessor.fetchUserProcessor),
+                    shared.ofType<UserAction.ClearUser>(UserAction.ClearUser::class.java).compose(userActionProcessor.clearUserProcessor)
             ).retry() // don't unsubscribe ever
         }
     }
@@ -41,8 +38,7 @@ class HomeActionProcessor @Inject constructor(private val repository: Repository
                     act -> repository
                                 .fetchUserPlaylists(Repository.Source.REMOTE, act.limit, act.offset)
                                 .subscribeOn(schedulerProvider.io())
-                }.filter { resp -> resp.total > 0 } // check if we have playlists
-                    .map { resp ->
+                    }.map { resp ->
                         resp.items.map { Playlist.create(it) }
                     }
                     .observeOn(schedulerProvider.ui())
@@ -52,31 +48,18 @@ class HomeActionProcessor @Inject constructor(private val repository: Repository
                     .retry()
             }
 
-    // fetch and save the current user in UserManager
-    private val fetchUserProcessor : ObservableTransformer<UserAction.FetchUser, UserResult.FetchUser>
+    private val featuredPlaylistsProcessor : ObservableTransformer<PlaylistsAction.FeaturedPlaylists, PlaylistsResult.FeaturedPlaylists>
             = ObservableTransformer { action -> action.switchMap {
-                _ -> repository
-                    .fetchCurrentUser()
-                    .subscribeOn(schedulerProvider.io())
-                    .toObservable()
+        act -> repository
+            .fetchFeaturedPlaylists(Repository.Source.REMOTE, act.limit, act.offset)
+            .subscribeOn(schedulerProvider.io())
+            }.map { resp ->
+                resp.items.map { Playlist.create(it) }
             }
-            .map { User.create(it) }
-            .doOnNext { user ->
-                userManager.saveUser(user)
-            }
-            .map { user -> UserResult.FetchUser.createSuccess(currentUser = user)}
-            .onErrorReturn { err -> UserResult.FetchUser.createError(err) }
-            .startWith(UserResult.FetchUser.createLoading())
+            .observeOn(schedulerProvider.ui())
+            .map { playlists -> PlaylistsResult.FeaturedPlaylists.createSuccess(playlists) }
+            .onErrorReturn { err -> PlaylistsResult.FeaturedPlaylists.createError(err) }
+            .startWith(PlaylistsResult.FeaturedPlaylists.createLoading())
             .retry()
-    }
-
-    // logout the user
-    private val clearUserProcessor : ObservableTransformer<UserAction.ClearUser, UserResult.ClearUser> = ObservableTransformer { action ->
-        action.doOnNext { _ -> userManager.clearUser() }
-                .doOnNext { Utils.mLog(TAG, "clearUserProcessor", "user: ${it} ")}
-                .map { _ -> UserResult.ClearUser.createSuccess() }
-                .onErrorReturn { err -> UserResult.ClearUser.createError(err) }
-                .startWith(UserResult.ClearUser.createLoading())
-                .retry()
     }
 }

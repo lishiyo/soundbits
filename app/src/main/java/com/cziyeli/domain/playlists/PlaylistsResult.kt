@@ -30,4 +30,18 @@ sealed class PlaylistsResult(var status: Status = Status.IDLE, var error: Throwa
         }
     }
 
+    class FeaturedPlaylists(status: Status, error: Throwable?, val playlists: List<Playlist> = Collections.emptyList())
+        : PlaylistsResult(status, error) {
+        companion object {
+            fun createSuccess(playlists: List<Playlist>) : FeaturedPlaylists {
+                return FeaturedPlaylists(Status.SUCCESS, null, playlists)
+            }
+            fun createError(throwable: Throwable) : FeaturedPlaylists {
+                return FeaturedPlaylists(Status.ERROR, throwable)
+            }
+            fun createLoading(): FeaturedPlaylists {
+                return FeaturedPlaylists(Status.LOADING, null)
+            }
+        }
+    }
 }

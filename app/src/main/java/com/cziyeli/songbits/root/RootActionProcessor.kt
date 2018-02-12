@@ -56,10 +56,10 @@ class RootActionProcessor @Inject constructor(private val repository: Repository
     private val likedTracksProcessor : ObservableTransformer<UserAction.LoadLikedTracks, UserResult.LoadLikesCard>
             = ObservableTransformer { action -> action.switchMap {
         act -> repository
-            .fetchUserLikedTracks(act.limit, act.offset)
+            .fetchUserTracks(Repository.Pref.LIKED, act.limit, act.offset)
             .toObservable()
             .subscribeOn(schedulerProvider.io())
-    }.map { resp ->
+            }.map { resp ->
                 resp.map {  TrackModel.createFromLocal(it) }
             }
             .observeOn(schedulerProvider.ui())
@@ -72,10 +72,10 @@ class RootActionProcessor @Inject constructor(private val repository: Repository
     private val dislikedTracksProcessor : ObservableTransformer<UserAction.LoadDislikedTracks, UserResult.LoadDislikesCard>
             = ObservableTransformer { action -> action.switchMap {
         act -> repository
-            .fetchUserDislikedTracks(act.limit, act.offset)
-            .toObservable()
-            .subscribeOn(schedulerProvider.io())
-    }.map { resp ->
+                .fetchUserTracks(Repository.Pref.DISLIKED, act.limit, act.offset)
+                .toObservable()
+                .subscribeOn(schedulerProvider.io())
+            }.map { resp ->
                 resp.map {  TrackModel.createFromLocal(it) }
             }
             .observeOn(schedulerProvider.ui())

@@ -37,7 +37,7 @@
 					<!-- the shared element - cover image -->
 					<ImageView
 						android:id="@+id/card_image_background"
-						android:src="@drawable/gradient_yellows"
+						android:src="@drawable/gradient_purples"
 						android:scaleType="centerCrop"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/simple_card_header_height"

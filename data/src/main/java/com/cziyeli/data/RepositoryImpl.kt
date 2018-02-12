@@ -34,6 +34,10 @@ class RepositoryImpl @Inject constructor(
         return fetchUserPlaylistsRemote(limit, offset)
     }
 
+    override fun fetchFeaturedPlaylists(source: Repository.Source, limit: Int, offset: Int): Observable<Pager<PlaylistSimple>> {
+        return fetchFeaturedPlaylistsRemote(limit, offset)
+    }
+
     override fun fetchPlaylistTracks(source: Repository.Source, ownerId: String, playlistId: String, fields: String?, limit: Int, offset: Int):
             Observable<Pager<PlaylistTrack>> {
         return fetchPlaylistTracksRemote(ownerId, playlistId, fields, limit, offset)
@@ -78,11 +82,31 @@ class RepositoryImpl @Inject constructor(
         )
     }
 
-    override fun fetchUserLikedTracks(limit: Int, offset: Int): Flowable<List<TrackEntity>> {
+    override fun fetchUserTracks(pref: Repository.Pref, limit: Int, offset: Int): Flowable<List<TrackEntity>> {
+        return when (pref) {
+            Repository.Pref.LIKED -> fetchUserLikedTracks(limit, offset)
+            Repository.Pref.DISLIKED -> fetchUserDislikedTracks(limit, offset)
+            else -> Flowable.empty()
+        }
+    }
+
+    override fun clearStashedTracks(pref: Repository.Pref) {
+        Observable.just(pref)
+                .subscribeOn(SchedulerProvider.io())
+                .subscribe {
+                    when (pref) {
+                        Repository.Pref.LIKED -> tracksDatabase.tracksDao().clearTracks(true)
+                        Repository.Pref.DISLIKED -> tracksDatabase.tracksDao().clearTracks(false)
+                        else -> tracksDatabase.tracksDao().clearAllTracks()
+                    }
+                }
+    }
+
+    private fun fetchUserLikedTracks(limit: Int, offset: Int): Flowable<List<TrackEntity>> {
         return tracksDatabase.tracksDao().getLikedTracks(limit, offset).distinctUntilChanged()
     }
 
-    override fun fetchUserDislikedTracks(limit: Int, offset: Int): Flowable<List<TrackEntity>> {
+    private fun fetchUserDislikedTracks(limit: Int, offset: Int): Flowable<List<TrackEntity>> {
         return tracksDatabase.tracksDao().getDislikedTracks(limit, offset).distinctUntilChanged()
     }
 
@@ -101,6 +125,10 @@ class RepositoryImpl @Inject constructor(
 
     private fun fetchUserPlaylistsRemote(limit: Int, offset: Int): Observable<Pager<PlaylistSimple>> {
         return remoteDataSource.fetchUserPlaylists(limit, offset)
+    }
+
+    private fun fetchFeaturedPlaylistsRemote(limit: Int, offset: Int): Observable<Pager<PlaylistSimple>> {
+        return remoteDataSource.fetchFeaturedPlaylists(limit, offset).map { it.playlists }
     }
 
     private fun fetchPlaylistTracksRemote(ownerId: String, playlistId: String, fields: String?, limit: Int, offset: Int):

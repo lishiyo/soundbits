@@ -12,6 +12,9 @@ import kaaes.spotify.webapi.android.models.*
  * Created by connieli on 12/31/17.
  */
 interface Repository {
+    enum class Pref {
+        LIKED, DISLIKED, ALL
+    }
     enum class Source {
         LOCAL, REMOTE
     }
@@ -27,11 +30,15 @@ interface Repository {
                            limit: Int = 20, offset: Int = 0
     ): Observable<Pager<PlaylistSimple>>
 
+    fun fetchFeaturedPlaylists(source: Repository.Source = Source.REMOTE,
+                               limit: Int = 20, offset: Int = 0
+    ): Observable<Pager<PlaylistSimple>>
+
     fun fetchUserQuickStats() : Flowable<Triple<Int, Int, Int>>
 
-    fun fetchUserLikedTracks(limit: Int = 20, offset: Int = 0) : Flowable<List<TrackEntity>>
+    fun fetchUserTracks(pref: Pref = Pref.ALL, limit: Int = 20, offset: Int = 0) : Flowable<List<TrackEntity>>
 
-    fun fetchUserDislikedTracks(limit: Int = 20, offset: Int = 0) : Flowable<List<TrackEntity>>
+    fun clearStashedTracks(pref: Pref = Pref.ALL)
 
     // ============ SINGLE PLAYLIST ACTIONS ============
 

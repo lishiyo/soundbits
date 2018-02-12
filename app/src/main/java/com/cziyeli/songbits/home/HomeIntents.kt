@@ -19,6 +19,7 @@ sealed class HomeIntent : MviIntent {
     class LogoutUser : HomeIntent()
 
     // opened home, already logged in -> load the playlists
-    class LoadPlaylists(val limit: Int = 20, val offset: Int = 0) : HomeIntent()
+    class LoadUserPlaylists(val limit: Int = 20, val offset: Int = 0) : HomeIntent()
 
+    class LoadFeaturedPlaylists(val limit: Int = 20, val offset: Int = 0) : HomeIntent()
 }

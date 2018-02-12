@@ -118,7 +118,7 @@ class SimpleCardViewModel constructor(
     private fun processSetHeaderUrl(previousState: ViewState,
                                     result: CardResult.HeaderSet
     ) : ViewState {
-        return previousState.copy(carouselHeaderUrl = result.headerImageUrl)
+        return previousState.copy(carouselHeaderUrl = result.headerImageUrl, lastResult = result)
     }
 
     private fun processSetTracks(previousState: ViewState,
@@ -126,7 +126,9 @@ class SimpleCardViewModel constructor(
     ) : ViewState {
         return previousState.copy(
                 status = MviViewState.Status.SUCCESS,
-                tracks = result.tracks.toMutableList())
+                tracks = result.tracks.toMutableList(),
+                lastResult = result
+        )
     }
 
     private fun processFetchFullStats(

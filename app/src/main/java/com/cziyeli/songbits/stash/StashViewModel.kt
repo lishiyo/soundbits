@@ -7,10 +7,7 @@ import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
 import com.cziyeli.commons.resultFilter
 import com.cziyeli.data.RepositoryImpl
-import com.cziyeli.domain.stash.StashAction
-import com.cziyeli.domain.stash.StashActionMarker
-import com.cziyeli.domain.stash.StashActionProcessor
-import com.cziyeli.domain.stash.StashResultMarker
+import com.cziyeli.domain.stash.*
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.user.UserResult
 import com.cziyeli.songbits.root.RootViewState
@@ -65,6 +62,7 @@ class StashViewModel @Inject constructor(
         when (result) {
             is UserResult.LoadLikesCard -> return@BiFunction processLikedTracks(previousState, result)
             is UserResult.LoadDislikesCard -> return@BiFunction processDislikedTracks(previousState, result)
+            is StashResult.ClearTracks -> return@BiFunction processClearedTracks(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -95,9 +93,10 @@ class StashViewModel @Inject constructor(
         )
     }
 
-    private fun actionFromIntent(intent: MviIntent) : MviAction {
-        return when(intent) {
-            StashIntent.InitialLoad() -> StashAction.InitialLoad()
+    private fun actionFromIntent(intent: StashIntent) : MviAction {
+        return when (intent) {
+            is StashIntent.InitialLoad -> StashAction.InitialLoad()
+            is StashIntent.ClearTracks -> StashAction.ClearTracks(intent.pref)
             else -> None // no-op all other events
         }
     }
@@ -185,6 +184,20 @@ class StashViewModel @Inject constructor(
             }
             else -> previousState
         }
+    }
+
+    private fun processClearedTracks(
+            previousState: ViewState,
+            result: StashResult.ClearTracks
+    ) : ViewState {
+        Utils.mLog(TAG, "processClearedTracks!")
+        val status = when (result.status) {
+            MviResult.Status.SUCCESS -> MviViewState.Status.SUCCESS
+            MviResult.Status.LOADING -> MviViewState.Status.LOADING
+            MviResult.Status.ERROR -> MviViewState.Status.ERROR
+            else -> MviViewState.Status.IDLE
+        }
+        return previousState.copy(status = status, lastResult = result, error = result.error)
     }
 
     data class ViewState(val status: MviViewState.Status = MviViewState.Status.IDLE,

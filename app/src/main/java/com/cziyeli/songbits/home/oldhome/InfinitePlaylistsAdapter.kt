@@ -21,7 +21,7 @@ import io.reactivex.subjects.PublishSubject
 @Layout(R.layout.load_more_view)
 class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderView) : MviView<HomeIntent, HomeViewState> {
     private val TAG = InfinitePlaylistsAdapter::class.simpleName
-    private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadPlaylists>()
+    private val mLoadPublisher = PublishSubject.create<HomeIntent.LoadUserPlaylists>()
 
     override fun render(state: HomeViewState) {
         var reachedEnd = state.status != MviViewState.Status.LOADING && state.status != MviViewState.Status.SUCCESS
@@ -57,6 +57,6 @@ class InfinitePlaylistsAdapter(private val mLoadMoreView: InfinitePlaceHolderVie
         Utils.log(TAG, "playlistAdapter onLoadMore ++ currentCount: ${mLoadMoreView.viewCount}")
 
         // post intent to load playlists
-        mLoadPublisher.onNext(HomeIntent.LoadPlaylists(offset = mLoadMoreView.viewCount))
+        mLoadPublisher.onNext(HomeIntent.LoadUserPlaylists(offset = mLoadMoreView.viewCount))
     }
 }

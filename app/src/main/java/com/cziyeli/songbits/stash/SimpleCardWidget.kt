@@ -56,6 +56,7 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
         const val HEADER_DIM_DARK: Float = 0.7f
     }
 
+
     // backing viewmodel for this card
     lateinit var viewModel: SimpleCardViewModel
 
@@ -67,13 +68,15 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
 
     // Views
     private lateinit var activity: Activity
-    private var carouselImageSet: Boolean = false
+//    private var carouselImageSet: Boolean = false
     private var carouselHeaderUrl: String? = null
+
+    private lateinit var onClearedListener: StashFragment.OnCleared
     // Listener for the FAB menu
     private val onFabSelectedListener = OnFABMenuSelectedListener { view, id ->
         when (id) {
             R.id.menu_clear -> {
-                //
+                onClearedListener.onCleared()
             }
             R.id.menu_create_playlist -> {
                 if (viewModel.pendingTracks.isEmpty()) {
@@ -119,6 +122,8 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
         card_fab_create.setOnClickListener { _ ->
             createPlaylist(App.getCurrentUserId(), viewModel.pendingTracks)
         }
+
+        enableCreateTitle(false)
     }
 
     /**
@@ -127,9 +132,11 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
     fun initWith(title: String,
                  tracks: List<TrackModel>,
                  activity: Activity,
-                 initialViewModel: SimpleCardViewModel
+                 initialViewModel: SimpleCardViewModel,
+                 onClearedListener: StashFragment.OnCleared
     ) {
         this.activity = activity
+        this.onClearedListener = onClearedListener
 
         // Bind the view model
         viewModel = initialViewModel
@@ -183,7 +190,7 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
     fun loadTracks(tracks: List<TrackModel>) {
         Utils.mLog(TAG, "loadTracks: ${tracks.size}")
         simpleResultsPublisher.accept(CardResult.TracksSet(tracks))
-        adapter.setTracksAndNotify(tracks, !card_expansion_layout.isExpanded)
+        adapter.setTracksAndNotify(tracks, !card_expansion_layout.isExpanded || (tracks.isEmpty()))
 
         if (tracks.isNotEmpty()) {
             // update the title
@@ -192,6 +199,12 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
 
             // fetch the track stats of these tracks
             eventsPublisher.accept(StatsIntent.FetchFullStats(tracks))
+        } else {
+            // cleared tracks, reset the title and header image
+            card_expansion_header_title.text = resources.getString(R.string.expand_tracks_default)
+            Utils.setVisible(card_header_indicator, false)
+
+            simpleResultsPublisher.accept(CardResult.HeaderSet(""))
         }
 
         // set the carousel header
@@ -238,13 +251,12 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
             state.isError() -> "something went wrong".toast(context)
         }
 
-        if (state.carouselHeaderUrl != null && !carouselImageSet) {
+        if (state.carouselHeaderUrl != null) {
             setCarousel(state) // set the header image (once)
         }
     }
 
     override fun onLiked(position: Int) {
-        // TODO: fix this
         val model = adapter.tracks[position]
         val newModel = model.copy(pref = TrackModel.Pref.LIKED)
         eventsPublisher.accept(CardsIntent.ChangeTrackPref.like(newModel))
@@ -291,11 +303,14 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
 
     private fun enableCreateTitle(enable: Boolean = true) {
         if (!enable) {
+            Utils.mLog(TAG, "disabling create title")
             card_title.isFocusable = false
             card_title.isEnabled = false
+            card_title.isClickable = false
             Utils.setVisible(dotted_line, false)
             card_image_dim_overlay.alpha = HEADER_DIM
         } else {
+            Utils.mLog(TAG, "enabling create title")
             card_title.disableTouchTheft()
             Utils.setVisible(dotted_line, true)
             card_image_dim_overlay.alpha = HEADER_DIM_DARK
@@ -308,15 +323,21 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
     }
 
     private fun setCarousel(state: SimpleCardViewModel.ViewState) {
-        if (state.carouselHeaderUrl == null || carouselImageSet) {
+        if (state.carouselHeaderUrl == null) {
             return
         }
 
-        Glide.with(this)
-                .load(state.carouselHeaderUrl)
-                .into(card_image_background)
+        if (state.carouselHeaderUrl.isEmpty()) {
+            // go back to default
+            card_image_background.setImageResource(R.drawable.gradient_purples)
+            Utils.setVisible(card_image_dim_overlay, false)
+        } else {
+            Glide.with(this)
+                    .load(state.carouselHeaderUrl)
+                    .into(card_image_background)
+        }
 
-        carouselImageSet = true
+//        carouselImageSet = true
     }
 
     override fun onTouchEvent(me: MotionEvent): Boolean {

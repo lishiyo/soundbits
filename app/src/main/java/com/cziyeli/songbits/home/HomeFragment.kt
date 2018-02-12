@@ -16,6 +16,8 @@ import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.domain.playlists.Playlist
+import com.cziyeli.domain.playlists.PlaylistsResult
+import com.cziyeli.domain.user.UserResult
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.playlistcard.PlaylistCardActivity
 import com.cziyeli.songbits.root.RootActivity
@@ -56,10 +58,9 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     // adapter
     private lateinit var PLAYLIST_RECENT: PlaylistSection
     private lateinit var PLAYLIST_FEATURED: PlaylistSection
-    private lateinit var PLAYLIST_RECOMMENDED: PlaylistSection
     private val listener: PlaylistSection.ClickListener = object : PlaylistSection.ClickListener {
         override fun onFooterClick(section: PlaylistSection) {
-            eventsPublisher.accept(HomeIntent.LoadPlaylists(offset = section.contentItemsTotal + 1))
+            eventsPublisher.accept(HomeIntent.LoadUserPlaylists(offset = section.contentItemsTotal + 1))
         }
 
         override fun onItemClick(view: View, item: Playlist) {
@@ -90,7 +91,8 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
         setUpSectionedAdapter(view, savedInstanceState)
 
         // fetch the playlists
-        eventsPublisher.accept(HomeIntent.LoadPlaylists())
+        eventsPublisher.accept(HomeIntent.LoadUserPlaylists(limit = 11))
+        eventsPublisher.accept(HomeIntent.LoadFeaturedPlaylists(limit = 11))
     }
 
     // the little mini card with the stats
@@ -118,9 +120,7 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
         // add the sections (to fill in later)
         PLAYLIST_RECENT = PlaylistSection(getString(R.string.playlist_section_recent), mutableListOf(), listener)
         PLAYLIST_FEATURED = PlaylistSection(getString(R.string.playlist_section_featured), mutableListOf(), listener)
-        PLAYLIST_RECOMMENDED = PlaylistSection(getString(R.string.playlist_section_recommended), mutableListOf(), listener)
         sectionAdapter.addSection(PLAYLIST_RECENT)
-        sectionAdapter.addSection(PLAYLIST_RECOMMENDED)
         sectionAdapter.addSection(PLAYLIST_FEATURED)
 
         mLayoutManager = GridLayoutManager(context, PLAYLISTS_COLUMN_COUNT)
@@ -165,21 +165,39 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
     override fun render(state: HomeViewState) {
         Utils.mLog(TAG, "RENDER", "$state")
         when {
-            // TODO this is assuming everything is for section PLAYLIST_RECENT
-            state.status == MviViewState.Status.SUCCESS && state.playlists.isNotEmpty() -> {
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is PlaylistsResult.UserPlaylists
+                    && state.userPlaylists.isNotEmpty() -> {
                 val currentCount = Math.max(0, PLAYLIST_RECENT.contentItemsTotal)
-                val newPlaylists = state.playlists.subList(currentCount, state.playlists.size)
+                val newPlaylists = state.userPlaylists.subList(currentCount, state.userPlaylists.size)
 
                 PLAYLIST_RECENT.addPlaylists(newPlaylists.toMutableList())
                 PLAYLIST_RECENT.state = Section.State.LOADED
                 sectionAdapter.notifyDataSetChanged()
             }
-            state.status == MviViewState.Status.SUCCESS && state.playlists.isEmpty() -> {
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is PlaylistsResult.UserPlaylists
+                    && state.userPlaylists.isEmpty() -> {
                 // todo show empty state
-                Utils.mLog(TAG, "RENDER", "successful but empty")
+                Utils.mLog(TAG, "RENDER", "no user playlists")
             }
-            state.status == MviViewState.Status.LOADING -> {
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is PlaylistsResult.FeaturedPlaylists
+                    && state.featuredPlaylists.isNotEmpty() -> {
+                val currentCount = Math.max(0, PLAYLIST_FEATURED.contentItemsTotal)
+                val newPlaylists = state.featuredPlaylists.subList(currentCount, state.featuredPlaylists.size)
+
+                PLAYLIST_FEATURED.addPlaylists(newPlaylists.toMutableList())
+                PLAYLIST_FEATURED.state = Section.State.LOADED
+                sectionAdapter.notifyDataSetChanged()
+            }
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is PlaylistsResult.FeaturedPlaylists
+                    && state.featuredPlaylists.isEmpty() -> {
+                // todo show empty state
+                Utils.mLog(TAG, "RENDER", "no featured playlists")
+            }
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is PlaylistsResult.UserPlaylists -> {
                 showLoading(PLAYLIST_RECENT)
+            }
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is PlaylistsResult.FeaturedPlaylists -> {
+                showLoading(PLAYLIST_FEATURED)
             }
             state.status == MviViewState.Status.ERROR -> {
                 // todo show error state
@@ -187,7 +205,7 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
             }
         }
 
-        if (state.status == MviViewState.Status.SUCCESS) {
+        if (state.status == MviViewState.Status.SUCCESS && state.lastResult is UserResult.FetchQuickCounts) {
             quickstats_likes.setTextColor(resources.getColor(R.color.colorWhite))
             quickstats_dislikes.setTextColor(resources.getColor(R.color.colorWhite))
             quickstats_total.setTextColor(resources.getColor(R.color.colorWhite))

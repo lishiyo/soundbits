@@ -50,6 +50,24 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
         })
     }
 
+    fun fetchFeaturedPlaylists(limit: Int = 20, offset: Int = 0): Observable<FeaturedPlaylists> {
+        return Observable.create<FeaturedPlaylists>({ emitter ->
+            // get all the com.cziyeli.domain.tracks in a playlist
+            val params = mapOf("limit" to limit, "offset" to offset)
+
+            api.service.getFeaturedPlaylists(params, object : Callback<FeaturedPlaylists> {
+                override fun success(t: FeaturedPlaylists, response: Response?) {
+                    emitter.onNext(t)
+                }
+
+                override fun failure(error: RetrofitError) {
+                    Utils.log(TAG, "fetch playlists error: ${error.localizedMessage}")
+                    Utils.log(TAG, "fetch playlists error: ${error.localizedMessage}")
+                }
+            })
+        })
+    }
+
     fun fetchPlaylistTracks(ownerId: String,
                             playlistId: String,
                             fields: String?,

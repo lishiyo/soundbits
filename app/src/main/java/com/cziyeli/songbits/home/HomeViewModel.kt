@@ -54,6 +54,7 @@ class HomeViewModel @Inject constructor(
     private val reducer: BiFunction<HomeViewState, HomeResult, HomeViewState> = BiFunction { previousState, result ->
         when (result) {
             is PlaylistsResult.UserPlaylists -> return@BiFunction processUserPlaylists(previousState, result)
+            is PlaylistsResult.FeaturedPlaylists -> return@BiFunction processFeaturedPlaylists(previousState, result)
             is UserResult.FetchUser -> return@BiFunction processCurrentUser(previousState, result)
             is UserResult.ClearUser -> return@BiFunction processClearedUser(previousState, result)
             is UserResult.FetchQuickCounts -> return@BiFunction processUserQuickCounts(previousState, result)
@@ -108,7 +109,8 @@ class HomeViewModel @Inject constructor(
 
     private fun actionFromIntent(intent: MviIntent) : MviAction {
         return when(intent) {
-            is HomeIntent.LoadPlaylists -> PlaylistsAction.UserPlaylists(intent.limit, intent.offset)
+            is HomeIntent.LoadUserPlaylists -> PlaylistsAction.UserPlaylists(intent.limit, intent.offset)
+            is HomeIntent.LoadFeaturedPlaylists -> PlaylistsAction.FeaturedPlaylists(intent.limit, intent.offset)
             is HomeIntent.FetchUser -> UserAction.FetchUser()
             is HomeIntent.LogoutUser -> UserAction.ClearUser()
             else -> None // no-op all other events
@@ -148,19 +150,43 @@ class HomeViewModel @Inject constructor(
     private fun processUserPlaylists(previousState: HomeViewState, result: PlaylistsResult.UserPlaylists): HomeViewState {
         return when (result.status) {
             PlaylistsResult.Status.LOADING -> {
-                previousState.copy(error = null, status = MviViewState.Status.LOADING)
+                previousState.copy(error = null, status = MviViewState.Status.LOADING, lastResult = result)
             }
             PlaylistsResult.Status.SUCCESS -> {
                 val newPlaylists = mutableListOf<Playlist>()
-                newPlaylists.addAll(previousState.playlists + result.playlists)
+                newPlaylists.addAll(previousState.userPlaylists + result.playlists)
                 previousState.copy(
                         error = null,
                         status = MviViewState.Status.SUCCESS,
-                        playlists = newPlaylists
+                        lastResult = result,
+                        userPlaylists = newPlaylists
                 )
             }
             PlaylistsResult.Status.ERROR -> {
-                previousState.copy(error = result.error, status = MviViewState.Status.ERROR)
+                previousState.copy(error = result.error, status = MviViewState.Status.ERROR, lastResult = result)
+            }
+            else -> previousState
+        }
+    }
+
+    private fun processFeaturedPlaylists(previousState: HomeViewState, result: PlaylistsResult.FeaturedPlaylists): HomeViewState {
+        Utils.mLog(TAG, "processFeaturedPlaylists", "${result.status} -- ${result.playlists.size}")
+        return when (result.status) {
+            PlaylistsResult.Status.LOADING -> {
+                previousState.copy(error = null, status = MviViewState.Status.LOADING, lastResult = result)
+            }
+            PlaylistsResult.Status.SUCCESS -> {
+                val newPlaylists = mutableListOf<Playlist>()
+                newPlaylists.addAll(previousState.featuredPlaylists + result.playlists)
+                previousState.copy(
+                        error = null,
+                        status = MviViewState.Status.SUCCESS,
+                        lastResult = result,
+                        featuredPlaylists = newPlaylists
+                )
+            }
+            PlaylistsResult.Status.ERROR -> {
+                previousState.copy(error = result.error, status = MviViewState.Status.ERROR, lastResult = result)
             }
             else -> previousState
         }
@@ -174,6 +200,7 @@ class HomeViewModel @Inject constructor(
                 previousState.copy(
                         error = null,
                         status = MviViewState.Status.SUCCESS,
+                        lastResult = result,
                         quickCounts = result.quickCounts
                 )
             }
@@ -181,7 +208,7 @@ class HomeViewModel @Inject constructor(
                 previousState.copy(
                         error = result.error,
                         status = MviViewState.Status.ERROR,
-                        quickCounts = result.quickCounts
+                        lastResult = result
                 )
             }
             else -> previousState
@@ -195,7 +222,8 @@ class HomeViewModel @Inject constructor(
             UserResult.Status.ERROR -> {
                 previousState.copy(
                         error = result.error,
-                        status = MviViewState.Status.ERROR
+                        status = MviViewState.Status.ERROR,
+                        lastResult = result
                 )
             }
             else -> previousState
@@ -207,23 +235,12 @@ class HomeViewModel @Inject constructor(
                 "result.currentUser", result.currentUser?.toString())
 
         return when (result.status) {
-            UserResult.Status.LOADING -> {
-                previousState.copy(
-                        error = null,
-                        status = MviViewState.Status.LOADING
-                )
+            UserResult.Status.LOADING, UserResult.Status.ERROR -> {
+                val status = if (result.status == UserResult.Status.LOADING) MviViewState.Status.LOADING else MviViewState.Status.ERROR
+                previousState.copy(error = result.error, status = status, lastResult = result)
             }
             UserResult.Status.SUCCESS -> {
-                previousState.copy(
-                        error = null,
-                        status = MviViewState.Status.SUCCESS
-                )
-            }
-            UserResult.Status.ERROR -> {
-                previousState.copy(
-                        error = result.error,
-                        status = MviViewState.Status.ERROR
-                )
+                previousState.copy(error = null, status = MviViewState.Status.SUCCESS, lastResult = result)
             }
             else -> previousState
         }
@@ -232,6 +249,13 @@ class HomeViewModel @Inject constructor(
 
 data class HomeViewState(val status: MviViewState.Status = MviViewState.Status.IDLE,
                          val error: Throwable? = null,
-                         val playlists: List<Playlist> = listOf(),
+                         val lastResult: MviResult = NoResult(),
+                         val userPlaylists: List<Playlist> = listOf(),
+                         val featuredPlaylists: List<Playlist> = listOf(),
                          val quickCounts: QuickCounts? = null
-) : MviViewState
+) : MviViewState {
+
+    override fun toString(): String {
+        return "status: $status -- $lastResult -- user: ${userPlaylists.size} -- featured: ${featuredPlaylists.size}"
+    }
+}
