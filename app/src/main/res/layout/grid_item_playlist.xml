@@ -13,6 +13,7 @@
 	android:layout_margin="@dimen/grid_playlist_margin"
 	android:foreground="?android:attr/selectableItemBackground"
 	android:layout_gravity="center"
+	card_view:cardBackgroundColor="@color/colorPrimaryShade"
 	>
 
 	<LinearLayout
@@ -34,16 +35,19 @@
 
 		<TextView
 			android:id="@+id/title"
-			android:layout_gravity="center"
-			android:textAlignment="center"
-			android:gravity="center"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:textSize="12sp"
+			android:textColor="@color/colorWhite"
+			android:layout_gravity="center"
+			android:textAlignment="center"
+			android:gravity="center"
 			android:layout_marginLeft="10dp"
 			android:layout_marginRight="10dp"
 			android:layout_marginTop="5dp"
 			android:layout_marginBottom="5dp"
+			android:maxLines="2"
+			android:ellipsize="end"
 			/>
 
 	</LinearLayout>

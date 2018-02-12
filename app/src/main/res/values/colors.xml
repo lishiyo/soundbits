@@ -5,6 +5,7 @@
 	<color name="colorPrimary">@color/quartet_red</color>
 	<!--<color name="colorPrimaryShade">#FF1641</color>-->
 	<color name="colorPrimaryShade">@color/brilliant_rose</color>
+	<color name="watermelon">#F97D9D</color>
 	<color name="colorPrimaryDark">@color/space_time</color>
 	<color name="colorPurple">#5A1299</color>
 	<color name="colorAccent">@color/quartet_blue</color>
