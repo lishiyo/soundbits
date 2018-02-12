@@ -89,11 +89,9 @@ class TracksRecyclerViewDelegate(val activity: Activity,
                     when (viewID) {
                         R.id.like_icon_container -> {
                             listener.onLiked(position)
-
                         }
                         R.id.dislike_icon_container -> {
                             listener.onDisliked(position)
-
                         }
                     }
                     Utils.mLog(TAG, message)

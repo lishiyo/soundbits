@@ -213,6 +213,7 @@ class PlaylistCardActivity : AppCompatActivity() {
                         R.id.like_icon_container -> {
                             // send off like command
                             val model = viewModel.currentViewState.stashedTracksList?.get(position)
+
                             message += "Liked: ${model?.name}: ${model?.liked}"
                             // only update if not already liked +
                             if (!model.liked) {

@@ -37,6 +37,19 @@ data class TrackRow(val model: TrackModel) {
 class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackModel>) : RecyclerView.Adapter<TrackRowsAdapter.MainViewHolder>() {
     private var inflater: LayoutInflater = LayoutInflater.from(context)
 
+    val tracks: List<TrackModel>
+        get() = trackRows
+
+    fun removeTrack(track: TrackModel?) {
+        track?.apply {
+            val index = trackRows.indexOfFirst { it.id == this.id }
+            if (index != -1) { // refresh
+                 trackRows.removeAt(index)
+                notifyItemRemoved(index)
+            }
+        }
+    }
+
     fun updateTrack(track: TrackModel?, notifyFull: Boolean = false) {
         track?.apply {
             val index = trackRows.indexOfFirst { it.id == this.id }

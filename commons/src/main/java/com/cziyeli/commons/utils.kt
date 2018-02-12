@@ -66,4 +66,11 @@ object Utils {
         val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
         imm?.hideSoftInputFromWindow(focusedView.windowToken, 0)
     }
+
+    fun showKeyboard(context: Context, focusedView: View) {
+        focusedView.post({
+            val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(focusedView, InputMethodManager.SHOW_IMPLICIT)
+        })
+    }
 }

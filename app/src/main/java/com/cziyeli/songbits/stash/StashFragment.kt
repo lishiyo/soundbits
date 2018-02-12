@@ -57,8 +57,8 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
 
         // fire fetch events
         eventsPublisher.accept(StashIntent.InitialLoad())
-        (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
-        (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadDislikedTracks())
+//        (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
+//        (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadDislikedTracks())
     }
 
     override fun intents(): Observable<out StashIntent> {
@@ -127,13 +127,6 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
         viewModel.processRootViewStates((activity as RootActivity).getStates())
     }
 
-//    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
-//        super.setUserVisibleHint(isVisibleToUser)
-//        if (userVisibleHint) {
-//            (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
-//        }
-//    }
-
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
@@ -141,6 +134,9 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
 
     override fun onResume() {
         super.onResume()
+
+        (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
+        (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadDislikedTracks())
 
         likes_card.onResume()
         dislikes_card.onResume()

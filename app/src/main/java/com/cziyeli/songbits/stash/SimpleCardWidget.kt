@@ -16,7 +16,6 @@ import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlistcard.CardResult
 import com.cziyeli.domain.playlistcard.CardResultMarker
-import com.cziyeli.domain.summary.SummaryResult
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.tracks.TrackResult
 import com.cziyeli.songbits.R
@@ -28,13 +27,20 @@ import com.cziyeli.songbits.playlistcard.CardIntentMarker
 import com.cziyeli.songbits.playlistcard.PlaylistCardWidget
 import com.cziyeli.songbits.playlistcard.StatsIntent
 import com.cziyeli.songbits.playlistcard.TrackRowsAdapter
+import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateWidget.Companion.FAB_CREATE_COLOR_0
+import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateWidget.Companion.FAB_CREATE_COLOR_1
+import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateWidget.Companion.FAB_CREATE_COLOR_2
+import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateWidget.Companion.FAB_CREATE_COLOR_3
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.jakewharton.rxrelay2.PublishRelay
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import io.saeid.fabloading.LoadingView
 import kotlinx.android.synthetic.main.widget_simple_card.view.*
 import java.util.*
+
+
 
 /**
  * Very similar to [PlaylistCardWidget], but doesn't need to be instantiated with a playlist
@@ -154,6 +160,16 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
             card_fab_menu!!.setOnFABMenuSelectedListener(onFabSelectedListener)
         }
 
+        // set up the loading fab
+        card_fab_create.addAnimation(FAB_CREATE_COLOR_0, R.drawable.basic_plus_fab,
+                LoadingView.FROM_LEFT)
+        card_fab_create.addAnimation(FAB_CREATE_COLOR_1, R.drawable.basic_play_fab,
+                LoadingView.FROM_LEFT)
+        card_fab_create.addAnimation(FAB_CREATE_COLOR_2, R.drawable.basic_pause_fab,
+                LoadingView.FROM_TOP)
+        card_fab_create.addAnimation(FAB_CREATE_COLOR_3, R.drawable.basic_stop_1_fab,
+                LoadingView.FROM_RIGHT)
+
         // set up tracks list (don't need to re-render)
         adapter = TrackRowsAdapter(context, tracks.toMutableList())
         card_tracks_recycler_view.adapter = adapter
@@ -165,8 +181,8 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
      * Container fragment passes on tracks from [RootActivity]
      */
     fun loadTracks(tracks: List<TrackModel>) {
+        Utils.mLog(TAG, "loadTracks: ${tracks.size}")
         simpleResultsPublisher.accept(CardResult.TracksSet(tracks))
-
         adapter.setTracksAndNotify(tracks, !card_expansion_layout.isExpanded)
 
         if (tracks.isNotEmpty()) {
@@ -197,26 +213,24 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
     }
 
     override fun render(state: SimpleCardViewModel.ViewState) {
-        card_fab_text.text = "${state.tracks.size}"
-
         when {
             state.status == MviViewState.Status.SUCCESS && state.lastResult is TrackResult.ChangePrefResult -> {
-                // refresh a single item
                 val track = (state.lastResult as? TrackResult.ChangePrefResult)?.currentTrack
-                adapter.updateTrack(track, false)
+                // remove the track completely upon change or else the indices get out of date
+                if (!state.tracks.contains(track)) { // track no longer matches the others
+                    adapter.removeTrack(track)
+                } else {
+                    adapter.updateTrack(track, false)
+                }
             }
             state.isFetchStatsSuccess() -> {
                 stats_container_left.loadTrackStats(state.trackStats!!)
                 stats_container_right.loadTrackStats(state.trackStats, true)
             }
-            state.status == SummaryResult.CreatePlaylistWithTracks.CreateStatus.SUCCESS -> {
-                "success!".toast(context)
+            state.isCreateFinished() && state.status == MviViewState.Status.SUCCESS -> {
                 onPlaylistCreated(card_title.text.toString(), state)
                 card_fab_create.pauseAnimation()
-                card_fab.setImageResource(R.drawable.note_happy_colored) // switch fab
-            }
-            state.isCreateFinished() -> {
-                card_fab_create.pauseAnimation()
+                card_fab.setImageResource(R.drawable.note_happy_colored) // switch fab back
             }
             state.isCreateLoading() -> {
                 card_fab_create.resumeAnimation()
@@ -230,22 +244,16 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
     }
 
     override fun onLiked(position: Int) {
-        // send off like command
-        val model = viewModel.currentViewState.tracks[position]
-        // only update if not already liked
-        if (!model.liked) {
-            val newModel = model.copy(pref = TrackModel.Pref.LIKED)
-            eventsPublisher.accept(CardsIntent.ChangeTrackPref.like(newModel))
-        }
+        // TODO: fix this
+        val model = adapter.tracks[position]
+        val newModel = model.copy(pref = TrackModel.Pref.LIKED)
+        eventsPublisher.accept(CardsIntent.ChangeTrackPref.like(newModel))
     }
 
     override fun onDisliked(position: Int) {
-        val model = viewModel.currentViewState.tracks[position]
-        // only update if not already disliked
-        if (model.liked) {
-            val newModel = model.copy(pref = TrackModel.Pref.DISLIKED)
-            eventsPublisher.accept(CardsIntent.ChangeTrackPref.dislike(newModel))
-        }
+        val model = adapter.tracks[position]
+        val newModel = model.copy(pref = TrackModel.Pref.DISLIKED)
+        eventsPublisher.accept(CardsIntent.ChangeTrackPref.dislike(newModel))
     }
 
     // Actually create the playlist now
@@ -288,12 +296,14 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
             Utils.setVisible(dotted_line, false)
             card_image_dim_overlay.alpha = HEADER_DIM
         } else {
+            card_title.disableTouchTheft()
             Utils.setVisible(dotted_line, true)
             card_image_dim_overlay.alpha = HEADER_DIM_DARK
             card_title.isFocusable = true
             card_title.isEnabled = true
             card_title.isClickable = true
             card_title.setText("")
+            card_title.requestFocus()
         }
     }
 

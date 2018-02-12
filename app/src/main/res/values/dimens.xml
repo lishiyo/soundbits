@@ -30,7 +30,7 @@
 	<dimen name="track_dislike_width">21dp</dimen>
 	<dimen name="list_item_track_height">60dp</dimen>
 	<dimen name="fake_fab_diameter">32dp</dimen>
-	<dimen name="fake_fab_diameter_small">26dp</dimen>
+	<dimen name="fake_fab_diameter_small">34dp</dimen>
 	<dimen name="fake_fab_icon_margin">4dp</dimen>
 	<dimen name="fake_fab_icon_margin_small">8dp</dimen>
 	<dimen name="fake_fab_padding">11dp</dimen>

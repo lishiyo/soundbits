@@ -21,6 +21,7 @@ import com.cziyeli.domain.summary.SummaryResult
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.cards.summary.SummaryIntent
+import com.cziyeli.songbits.di.App
 import com.cziyeli.songbits.playlistcard.CardIntentMarker
 import com.cziyeli.songbits.playlistcard.StatsIntent
 import com.cziyeli.songbits.playlistcard.TrackRowsAdapter
@@ -39,15 +40,17 @@ import kotlinx.android.synthetic.main.widget_playlist_card_create.view.*
 class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistCardCreateViewModel.ViewState> {
     private val TAG = PlaylistCardCreateViewModel::class.java.simpleName
 
-    val FAB_CREATE_COLOR_0 = resources.getColor(R.color.colorFab)
-    val FAB_CREATE_COLOR_1 = resources.getColor(R.color.colorPurple)
-    val FAB_CREATE_COLOR_2 = resources.getColor(R.color.colorAccent)
-    val FAB_CREATE_COLOR_3 = resources.getColor(R.color.venice_verde)
+    companion object {
+        val FAB_CREATE_COLOR_0 = App.appComponent.appContext().resources.getColor(R.color.colorFab)
+        val FAB_CREATE_COLOR_1 = App.appComponent.appContext().resources.getColor(R.color.colorPurple)
+        val FAB_CREATE_COLOR_2 = App.appComponent.appContext().resources.getColor(R.color.colorAccent)
+        val FAB_CREATE_COLOR_3 = App.appComponent.appContext().resources.getColor(R.color.venice_verde)
+    }
 
     // intents
     private val eventsPublisher = PublishRelay.create<CardIntentMarker>()
     // stream to pipe in basic results (skips intent -> action processing)
-    val simpleResultsPublisher = PublishRelay.create<CardResultMarker>()
+    val simpleResultsPublisher: PublishRelay<CardResultMarker> = PublishRelay.create<CardResultMarker>()
 
     private lateinit var adapter: TrackRowsAdapter
     private var onTouchListener: RecyclerTouchListener? = null

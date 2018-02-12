@@ -12,7 +12,6 @@
 		<android.support.v7.widget.CardView
 			android:id="@+id/sc_card_view"
 			android:layout_gravity="center"
-			android:layout_margin="10dp"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:elevation="2dp"
@@ -60,12 +59,11 @@
 						android:layout_height="match_parent"
 						android:layout_gravity="center"
 						android:elevation="12dp"
+						android:descendantFocusability="afterDescendants"
 						>
 						<!-- input new title -->
 						<EditText
 							android:id="@+id/card_title"
-							android:focusable="false"
-							android:enabled="false"
 							android:layout_width="@dimen/title_input_width"
 							android:layout_height="wrap_content"
 							android:layout_above="@id/dotted_line"
@@ -128,8 +126,8 @@
 						<io.saeid.fabloading.LoadingView
 							android:id="@+id/card_fab_create"
 							android:visibility="gone"
-							android:layout_width="@dimen/fake_fab_diameter_small"
-							android:layout_height="@dimen/fake_fab_diameter_small"
+							android:layout_width="@dimen/fake_fab_create_diameter"
+							android:layout_height="@dimen/fake_fab_create_diameter"
 							android:src="@drawable/basic_plus_fab"
 							app:mfl_onclickLoading="true"
 							app:mfl_duration="200"
@@ -137,29 +135,16 @@
 							android:transitionName="@string/playlist_fab_transition"
 							android:layout_gravity="right"
 							android:gravity="right"
-							android:elevation="4dp"
+							android:elevation="1dp"
 							/>
 
 						<!-- default icon -->
 						<ImageView
 							android:id="@+id/card_fab"
-							android:padding="@dimen/fake_fab_padding"
-							android:layout_marginLeft="@dimen/fake_fab_icon_margin_small"
-							android:layout_marginTop="@dimen/fake_fab_icon_margin_small"
+							android:layout_margin="@dimen/fake_fab_padding"
 							android:layout_width="@dimen/fake_fab_diameter_small"
 							android:layout_height="@dimen/fake_fab_diameter_small"
 							android:src="@drawable/note_happy_colored"
-							/>
-
-						<TextView
-							android:id="@+id/card_fab_text"
-							android:layout_width="match_parent"
-							android:layout_height="match_parent"
-							android:textSize="@dimen/fab_number_sp"
-							android:textStyle="bold"
-							android:textAlignment="textStart"
-							android:textColor="@color/colorYellow"
-							android:fontFamily="@font/indie_flower"
 							/>
 
 					</FrameLayout>
