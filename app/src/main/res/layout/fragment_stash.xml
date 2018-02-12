@@ -6,14 +6,22 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:background="@drawable/gradient_blues"
-	android:paddingTop="@dimen/scrollview_padding_top"
-	android:paddingBottom="@dimen/scrollview_padding_top"
 	>
 
 	<LinearLayout
 		android:orientation="vertical"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		android:layout_marginTop="@dimen/scrollview_padding_top"
+		android:paddingBottom="80dp"
+		>
+
+		<TextView
+			android:text="@string/title_stash_frag"
+			style="@style/FragmentTitle"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			/>
 
 		<com.cziyeli.songbits.stash.SimpleCardWidget
 			android:id="@+id/likes_card"

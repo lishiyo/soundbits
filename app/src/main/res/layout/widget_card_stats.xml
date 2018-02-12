@@ -1,26 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/stats_container"
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:clickable="true"
 	android:focusable="true"
-	android:descendantFocusability="beforeDescendants"
-	>
+	android:descendantFocusability="beforeDescendants">
 
 	<!-- danceability/popular -->
-	<TextView
-		android:id="@+id/title_row_one"
+	<com.google.android.flexbox.FlexboxLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:text="calculating..."
-		android:clickable="false"
-		android:focusable="false"
+		android:layout_height="match_parent"
+		app:flexWrap="wrap"
+		app:alignContent="stretch"
+		app:justifyContent="space_between"
 		android:paddingLeft="@dimen/track_stats_padding_text"
-		/>
+		android:paddingRight="@dimen/track_stats_padding_text"
+		>
+
+		<TextView
+			android:id="@+id/title_row_one"
+			style="@style/StatsTitle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="calculating..."
+			android:layout_alignParentStart="true"
+			tools:text="more danceable"
+			app:layout_flexGrow="1"
+			/>
+
+		<TextView
+			android:id="@+id/title_row_one_number"
+			style="@style/StatsTitle.Num"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentEnd="true"
+			android:text="/"
+			tools:text="0.43/1"
+			app:layout_flexGrow="1"
+			app:layout_alignSelf="flex_end"
+			/>
+
+	</com.google.android.flexbox.FlexboxLayout>
 
 	<me.bendik.simplerangeview.SimpleRangeView
 		android:id="@+id/range_one"
@@ -30,15 +56,42 @@
 		/>
 
 	<!-- energy -->
-	<TextView
-		android:id="@+id/title_row_two"
+	<com.google.android.flexbox.FlexboxLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:text="calculating..."
-		android:clickable="false"
-		android:focusable="false"
+		android:layout_height="match_parent"
+		app:flexWrap="wrap"
+		app:alignContent="stretch"
 		android:paddingLeft="@dimen/track_stats_padding_text"
-		/>
+		android:paddingRight="@dimen/track_stats_padding_text"
+		>
+
+		<TextView
+			android:id="@+id/title_row_two"
+			style="@style/StatsTitle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="calculating..."
+			android:layout_alignParentStart="true"
+			tools:text="more danceable"
+			app:layout_flexGrow="1"
+			/>
+
+		<TextView
+			android:id="@+id/title_row_two_number"
+			style="@style/StatsTitle.Num"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentEnd="true"
+			android:text="/"
+			tools:text="0.43/1"
+			app:layout_flexGrow="1"
+			app:layout_alignSelf="flex_end"
+			/>
+
+	<!--</RelativeLayout>-->
+	</com.google.android.flexbox.FlexboxLayout>
 
 	<me.bendik.simplerangeview.SimpleRangeView
 		android:id="@+id/range_two"
@@ -47,16 +100,41 @@
 		style="@style/simpleRangeView"
 		/>
 
-	<!-- valence -->
-	<TextView
-		android:id="@+id/title_row_three"
+
+	<com.google.android.flexbox.FlexboxLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:text="calculating..."
-		android:clickable="false"
-		android:focusable="false"
+		android:layout_height="match_parent"
+		app:flexWrap="wrap"
+		app:alignContent="stretch"
 		android:paddingLeft="@dimen/track_stats_padding_text"
-		/>
+		android:paddingRight="@dimen/track_stats_padding_text"
+		>
+
+		<TextView
+			android:id="@+id/title_row_three"
+			style="@style/StatsTitle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="calculating..."
+			android:layout_alignParentStart="true"
+			tools:text="more danceable"
+			app:layout_flexGrow="1"
+			/>
+
+		<TextView
+			android:id="@+id/title_row_three_number"
+			style="@style/StatsTitle.Num"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentEnd="true"
+			android:text="/"
+			tools:text="0.43/1"
+			app:layout_flexGrow="1"
+			app:layout_alignSelf="flex_end"
+			/>
+	</com.google.android.flexbox.FlexboxLayout>
 
 	<me.bendik.simplerangeview.SimpleRangeView
 		android:id="@+id/range_three"

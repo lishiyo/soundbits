@@ -54,6 +54,33 @@
 		<!--<item name="android:windowIsFloating">false</item>-->
 	</style>
 
+	<style name="FragmentTitle">
+		<item name="android:textSize">@dimen/fragment_title_size</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:textAlignment">center</item>
+		<item name="android:textColor">@color/colorWhite</item>
+		<item name="android:gravity">center</item>
+		<item name="android:layout_marginBottom">10dp</item>
+		<item name="android:layout_marginTop">10dp</item>
+		<item name="android:textAllCaps">true</item>
+		<item name="android:fontFamily">@font/amatic_sc</item>
+	</style>
+
+	<style name="StatsTitle">
+		<item name="android:textSize">@dimen/default_text_size</item>
+		<item name="android:baselineAlignBottom">true</item>
+		<item name="android:gravity">bottom|start</item>
+	</style>
+
+	<style name="StatsTitle.Num">
+		<item name="android:textSize">16sp</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:fontFamily">@font/amatic_sc</item>
+		<item name="android:textColor">@color/colorStat</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:textAlignment">textEnd</item>
+	</style>
+
 	<style name="simpleRangeView">
 		<item name="android:clickable">false</item>
 		<item name="android:focusable">false</item>
@@ -66,9 +93,9 @@
 		<item name="startFixed">0</item>
 		<item name="endFixed">9</item>
 		<item name="movable">false</item>
-		<item name="activeLineColor">@color/colorAccent</item>
+		<item name="activeLineColor">@color/colorStat</item>
 		<item name="activeTickColor">@color/ghost_white</item>
-		<item name="activeThumbColor">@color/colorAccent</item>
+		<item name="activeThumbColor">@color/colorStat</item>
 		<item name="fixedLineColor">@color/colorGrey</item>
 		<item name="fixedThumbLabelColor">@color/colorGrey</item>
 		<item name="fixedThumbColor">@color/colorGrey</item>

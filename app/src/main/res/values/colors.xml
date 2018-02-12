@@ -8,6 +8,7 @@
 	<color name="colorPrimaryDark">@color/space_time</color>
 	<color name="colorPurple">#5A1299</color>
 	<color name="colorAccent">@color/quartet_blue</color>
+	<color name="colorStat">@color/colorPurple</color>
 	<color name="colorRed">@color/violet_red</color>
 	<color name="colorWhite">@color/ghost_white</color>
 	<color name="colorGrey">@color/quartz</color>

@@ -16,7 +16,7 @@
 			android:layout_height="wrap_content"
 			android:elevation="2dp"
 			card_view:cardCornerRadius="@dimen/card_radius"
-			card_view:cardElevation="2dp"
+			card_view:cardElevation="@dimen/playlist_card_elevation"
 			card_view:cardPreventCornerOverlap="false"
 			android:descendantFocusability="afterDescendants"
 			>
