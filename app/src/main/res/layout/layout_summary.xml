@@ -1,81 +1,212 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.cziyeli.songbits.cards.summary.SummaryLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+
+<com.cziyeli.songbits.cards.summary.SummaryLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:orientation="vertical"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	android:background="@color/colorGrey">
 
-	<TextView
-		android:id="@+id/title"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="10dp"
-		android:textSize="14sp"
-		android:typeface="sans"
-		android:textStyle="normal"/>
-
-	<FrameLayout
+	<ScrollView
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent">
+		android:layout_height="wrap_content">
 
-		<!-- progress indicator -->
-		<com.wang.avi.AVLoadingIndicatorView
-			android:id="@+id/progress"
-			android:layout_width="50dp"
-			android:layout_height="wrap_content"
-			style="@style/AVLoadingIndicatorView"
-			android:layout_gravity="center"
-			android:gravity="center"
-			android:visibility="visible"
-			app:indicatorName="LineScalePulseOutIndicator"
-			app:indicatorColor="@color/colorAccent"
-			/>
-
-		<!-- show card/stats -->
 		<LinearLayout
-			android:id="@+id/stats_container"
-			android:visibility="gone"
-			android:orientation="vertical"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent">
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:paddingTop="@dimen/scrollview_padding_top"
+			android:paddingBottom="@dimen/scrollview_padding_top"
+			>
 
 			<TextView
-				android:id="@+id/stats_summary"
-				android:layout_width="wrap_content"
+				android:id="@+id/summary_title"
+				android:text="@string/summary_title"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_gravity="center"
-				android:textSize="14sp"
-				android:typeface="sans"
-				android:textStyle="normal"/>
+				android:layout_marginTop="10dp"
+				android:textSize="@dimen/default_title_size"
+				android:textAlignment="center"
+				/>
 
-			<Button
-				android:id="@+id/action_create_playlist"
-				android:text="create playlist out of your likes"
+			<!--<ImageView-->
+				<!--android:id="@+id/summary_image"-->
+				<!--android:layout_marginTop="20dp"-->
+				<!--android:layout_gravity="center"-->
+				<!--android:scaleType="centerCrop"-->
+				<!--android:layout_width="100dp"-->
+				<!--android:layout_height="100dp"-->
+				<!--android:src="@drawable/note_happy_colored"-->
+				<!--/>-->
+			<com.airbnb.lottie.LottieAnimationView
+				android:id="@+id/summary_image"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content" />
+				android:layout_height="100dp"
+				app:lottie_fileName="love_explosion.json"
+				app:lottie_loop="true"
+				app:lottie_autoPlay="true"
+				app:lottie_scale="5"
+				/>
+
+			<!-- quick counts -->
+			<include
+				layout="@layout/widget_quickcounts_row"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				/>
+
+			<FrameLayout
+				android:id="@+id/stats_flipper"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:paddingStart="20dp"
+				android:paddingEnd="20dp"
+				>
+
+				<RelativeLayout
+					android:id="@+id/stats_container_first"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:visibility="gone"
+					tools:visibility="visible"
+					>
+
+					<LinearLayout
+						android:id="@+id/stats_container_header"
+						android:visibility="invisible"
+						android:orientation="horizontal"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_alignParentTop="true"
+						>
+
+						<TextView
+							android:text="Likes"
+							android:layout_width="0dp"
+							android:layout_weight="1"
+							android:layout_height="wrap_content"
+							android:layout_marginRight="10dp"
+							style="@style/StatsColumn"
+							/>
+						<TextView
+							android:text="Dislikes"
+							android:layout_width="0dp"
+							android:layout_weight="1"
+							android:layout_height="wrap_content"
+							android:layout_marginRight="10dp"
+							style="@style/StatsColumn"
+							/>
+					</LinearLayout>
+
+					<!-- two column view -->
+					<LinearLayout
+						android:orientation="horizontal"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_below="@id/stats_container_header"
+						>
+
+						<!-- LIKES - first set -->
+						<com.cziyeli.songbits.playlistcard.TrackStatsView
+							android:id="@+id/stats_container_likes_first"
+							android:orientation="vertical"
+							android:layout_width="0dp"
+							android:layout_weight="1"
+							android:layout_height="wrap_content"
+							android:minWidth="100dp"
+							android:clickable="false"
+							android:focusable="false"
+							android:layout_marginRight="10dp"
+							app:two_column="true"
+							>
+						</com.cziyeli.songbits.playlistcard.TrackStatsView>
+
+						<!-- DISLIKES - first set -->
+						<com.cziyeli.songbits.playlistcard.TrackStatsView
+							android:id="@+id/stats_container_dislikes_first"
+							android:orientation="vertical"
+							android:layout_width="0dp"
+							android:layout_weight="1"
+							android:layout_height="wrap_content"
+							android:minWidth="100dp"
+							android:clickable="false"
+							android:focusable="false"
+							android:layout_marginRight="10dp"
+							app:two_column="true"
+							>
+						</com.cziyeli.songbits.playlistcard.TrackStatsView>
+					</LinearLayout>
+
+				</RelativeLayout>
+
+				<!-- progress indicator -->
+				<com.wang.avi.AVLoadingIndicatorView
+					android:id="@+id/progress_stats"
+					android:layout_width="50dp"
+					android:layout_height="wrap_content"
+					style="@style/AVLoadingIndicatorView"
+					android:layout_gravity="center"
+					android:gravity="center"
+					app:indicatorName="LineScalePulseOutIndicator"
+					app:indicatorColor="@color/colorAccent"
+					tools:visibility="gone"
+					/>
+
+			</FrameLayout>
+
+			<!-- buttons -->
+			<LinearLayout
+				android:orientation="vertical"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="30dp"
+				android:gravity="center"
+				>
+
+				<Button
+					android:id="@+id/action_create_playlist"
+					android:text="@string/summary_create_playlist"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					style="@style/SummaryButton"
+					android:background="@drawable/gradient_reds"
+					/>
+
+				<Button
+					android:id="@+id/action_save_to_database"
+					android:text="@string/summary_stash_swipes"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					style="@style/SummaryButton"
+					android:background="@drawable/gradient_blues"
+					/>
+
+				<Button
+					android:id="@+id/action_review_tracks"
+					android:text="@string/summary_review_swipes"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:background="@drawable/gradient_yellows"
+					style="@style/SummaryButton"
+					/>
+
+			</LinearLayout>
 
 			<Button
-				android:id="@+id/action_save_to_database"
-				android:text="stash your likes and keep surfing"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content" />
-
-			<Button
-				android:id="@+id/action_review_tracks"
-				android:text="review your selections"
+				android:id="@+id/nuke"
+				android:visibility="gone"
+				android:background="@android:color/holo_red_dark"
+				android:text="NUKE DATABASE"
+				android:layout_gravity="bottom|center_horizontal"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content" />
 
 		</LinearLayout>
 
-	<Button
-		android:id="@+id/nuke"
-		android:background="@android:color/holo_red_dark"
-		android:text="NUKE DATABASE"
-		android:layout_gravity="bottom|center_horizontal"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" />
+	</ScrollView>
 
-	</FrameLayout>
 </com.cziyeli.songbits.cards.summary.SummaryLayout>
+

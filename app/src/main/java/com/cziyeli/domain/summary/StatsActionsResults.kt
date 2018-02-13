@@ -2,6 +2,7 @@ package com.cziyeli.domain.summary
 
 import com.cziyeli.commons.mvibase.MviAction
 import com.cziyeli.commons.mvibase.MviResult
+import com.cziyeli.data.Repository
 import com.cziyeli.domain.playlistcard.CardActionMarker
 import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.tracks.TrackModel
@@ -26,9 +27,10 @@ sealed class StatsAction : StatsActionMarker, SummaryActionMarker, CardActionMar
                                   val offset: Int = 0) : StatsAction()
 
     // fetch stats for a given list of tracks
-    class FetchStats(val trackIds: List<String>) : StatsAction()
+    class FetchStats(val trackIds: List<String>, val pref: Repository.Pref = Repository.Pref.ALL) : StatsAction()
 
-    class FetchFullStats(val trackModels: List<TrackModel>) : StatsAction()
+    // fetch full stats for a given list of tracks
+    class FetchFullStats(val trackModels: List<TrackModel>, val pref: Repository.Pref = Repository.Pref.ALL) : StatsAction()
 }
 
 /**

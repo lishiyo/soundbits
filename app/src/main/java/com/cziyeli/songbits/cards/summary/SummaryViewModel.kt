@@ -7,7 +7,9 @@ import android.widget.Toast
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
+import com.cziyeli.commons.resultFilter
 import com.cziyeli.commons.toast
+import com.cziyeli.data.Repository
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.*
 import com.cziyeli.domain.tracks.TrackModel
@@ -43,7 +45,8 @@ class SummaryViewModel constructor(
     // reducer fn: Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<SummaryViewState, SummaryResultMarker, SummaryViewState> = BiFunction { previousState, result ->
         when (result) {
-            is SummaryResult.FetchLikedStats -> return@BiFunction processStats(previousState, result)
+            is SummaryResult.FetchLikedStats -> return@BiFunction processLikedStats(previousState, result)
+            is SummaryResult.FetchDislikedStats -> return@BiFunction processDislikedStats(previousState, result)
             is SummaryResult.SaveTracks -> return@BiFunction processSaveResult(previousState, result)
             is SummaryResult.CreatePlaylistWithTracks -> return@BiFunction processCreatePlaylistResult(previousState, result)
             else -> return@BiFunction previousState
@@ -60,14 +63,13 @@ class SummaryViewModel constructor(
         val observable: Observable<SummaryViewState> = intentsSubject
                 .filter { initialState.allTracks.isNotEmpty() }
                 .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
                 .map{ it -> actionFromIntent(it)}
                 .compose(actionFilter<SummaryActionMarker>())
-                .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
                 .compose(actionProcessor.combinedProcessor)
+                .compose(resultFilter<SummaryResultMarker>())
+                .observeOn(schedulerProvider.ui())
+                .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
                 .scan(currentViewState, reducer)
-                .replay(1)
-                .autoConnect()
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
@@ -82,7 +84,7 @@ class SummaryViewModel constructor(
     // transform intent -> action
     private fun actionFromIntent(intent: MviIntent) : MviAction {
         return when(intent) {
-            is SummaryIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
+            is SummaryIntent.FetchFullStats -> StatsAction.FetchFullStats(intent.tracks, intent.pref)
             is SummaryIntent.SaveAllTracks -> SummaryAction.SaveTracks(intent.tracks, intent.playlistId)
             is SummaryIntent.CreatePlaylistWithTracks -> SummaryAction.CreatePlaylistWithTracks(intent.ownerId, intent.name,
                     intent.description, intent.public, intent.tracks)
@@ -92,25 +94,53 @@ class SummaryViewModel constructor(
 
     // ===== Individual reducers ======
 
-    private fun processStats(previousState: SummaryViewState, result: SummaryResult.FetchLikedStats) : SummaryViewState {
-        Utils.mLog(TAG, "processStats! ${result.status}")
+    private fun processLikedStats(previousState: SummaryViewState, result: SummaryResult.FetchLikedStats) : SummaryViewState {
+        Utils.mLog(TAG, "processLikedStats! ${result.pref} -- ${result.status}")
 
-        return when (result.status) {
-            MviResult.Status.LOADING, MviResult.Status.ERROR -> {
+        return when {
+            (result.status == MviResult.Status.LOADING || result.status == MviResult.Status.ERROR) -> {
                 val status = if (result.status == MviResult.Status.LOADING)
                     MviViewState.Status.LOADING else MviViewState.Status.ERROR
                 previousState.copy(
                         error = result.error,
-                        status = status
+                        status = status,
+                        lastResult = result
                 )
             }
-            MviResult.Status.SUCCESS -> {
+            result.pref == Repository.Pref.LIKED && result.status == MviResult.Status.SUCCESS -> {
                 previousState.copy(
                         error = result.error,
                         status = MviViewState.Status.SUCCESS,
-                        stats = result.trackStats
+                        lastResult = result,
+                        likedStats = result.trackStats
                 )
-            } else -> previousState
+            }
+            else -> previousState
+        }
+    }
+
+    private fun processDislikedStats(previousState: SummaryViewState, result: SummaryResult.FetchDislikedStats) : SummaryViewState {
+        Utils.mLog(TAG, "processDislikedStats! ${result.pref} -- ${result.status}")
+
+        return when {
+            (result.status == MviResult.Status.LOADING || result.status == MviResult.Status.ERROR) -> {
+                val status = if (result.status == MviResult.Status.LOADING)
+                    MviViewState.Status.LOADING else MviViewState.Status.ERROR
+                previousState.copy(
+                        error = result.error,
+                        status = status,
+                        lastResult = result
+                )
+            }
+            result.pref == Repository.Pref.DISLIKED && result.status == MviResult.Status.SUCCESS -> {
+                previousState.copy(
+                        error = result.error,
+                        status = MviViewState.Status.SUCCESS,
+                        lastResult = result,
+                        dislikedStats = result.trackStats
+                )
+            }
+            else -> previousState
         }
     }
 
@@ -170,7 +200,6 @@ class SummaryViewModel constructor(
         return viewStates
     }
 
-
     // ===== Lifecycle =====
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -181,9 +210,11 @@ class SummaryViewModel constructor(
 
 data class SummaryViewState(val status: MviViewState.Status = MviViewState.Status.IDLE,
                             val error: Throwable? = null,
+                            val lastResult: MviResult,
                             val allTracks: List<TrackModel> = listOf(),
                             val playlist: Playlist, // relevant playlist if coming from one
-                            val stats: TrackListStats? = null // main model
+                            val likedStats: TrackListStats? = null,
+                            val dislikedStats: TrackListStats? = null
 ) : MviViewState {
     val currentLikes: MutableList<TrackModel>
         get() = allTracks.filter { it.pref == TrackModel.Pref.LIKED }.toMutableList()
@@ -194,23 +225,16 @@ data class SummaryViewState(val status: MviViewState.Status = MviViewState.Statu
     val unseen: MutableList<TrackModel>
         get() = (allTracks - (currentLikes + currentDislikes)).toMutableList()
 
-    // fetch stats of likes
-    fun trackIdsForStats() : List<String> {
-        return currentLikes.map { it.id }
-    }
-
-    fun copy() : SummaryViewState {
-        return SummaryViewState(this.status, this.error, this.allTracks.toList(), this.playlist, this.stats)
-    }
-
     override fun toString(): String {
-        return "allTracks: ${allTracks.size} -- playlist: ${playlist.id} -- status: ${status}"
+        return "lastResult: ${lastResult} -- status: ${status} -- allTracks: ${allTracks.size} -- likedStats: $likedStats -- disliked: " +
+                "$dislikedStats"
     }
 
     companion object {
         fun create(state: TrackViewState) : SummaryViewState {
             return SummaryViewState(
                     allTracks = state.allTracks,
+                    lastResult = NoResult(),
                     playlist = state.playlist!! // we require a playlist here
             )
         }

@@ -4,6 +4,7 @@ import android.arch.lifecycle.LifecycleObserver
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
+import com.cziyeli.commons.resultFilter
 import com.cziyeli.domain.playlistcard.CardActionMarker
 import com.cziyeli.domain.playlistcard.CardResult
 import com.cziyeli.domain.playlistcard.CardResultMarker
@@ -73,6 +74,7 @@ class SimpleCardViewModel constructor(
                 .compose(actionFilter<CardActionMarker>())
                 .compose(actionProcessor.combinedProcessor) // action -> result
                 .mergeWith(resultsSubject) // <--- pipe in direct results
+                .compose(resultFilter<CardResultMarker>())
                 .observeOn(schedulerProvider.ui())
                 .doOnNext { result -> Utils.log(TAG, "intentsSubject scanning result: ${result.javaClass.simpleName}") }
                 .scan(ViewState(), reducer)

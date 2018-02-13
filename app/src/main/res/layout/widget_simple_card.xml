@@ -212,6 +212,7 @@
 							android:clickable="false"
 							android:focusable="false"
 							app:two_column="true"
+							app:second_set="true"
 							>
 						</com.cziyeli.songbits.playlistcard.TrackStatsView>
 					</LinearLayout>

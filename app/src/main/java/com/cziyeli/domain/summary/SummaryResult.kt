@@ -2,6 +2,7 @@ package com.cziyeli.domain.summary
 
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviResult
+import com.cziyeli.data.Repository
 import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.tracks.TrackModel
 import kaaes.spotify.webapi.android.models.SnapshotId
@@ -21,7 +22,8 @@ sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Sta
      */
     class FetchLikedStats(status: MviResult.Status,
                           error: Throwable?,
-                          val trackStats: TrackListStats? // domain model for stats
+                          val trackStats: TrackListStats?,
+                          val pref: Repository.Pref = Repository.Pref.LIKED
     ) : SummaryResult(status, error), StatsResultMarker {
         companion object {
             fun createSuccess(trackStats: TrackListStats) : FetchLikedStats {
@@ -34,8 +36,28 @@ sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Sta
                 return FetchLikedStats(MviResult.Status.ERROR, throwable, trackStats)
             }
             fun createLoading(): FetchLikedStats {
-                Utils.mLog(TAG, "FetchLikedStats loading!")
                 return FetchLikedStats(MviResult.Status.LOADING, null, null)
+            }
+        }
+    }
+
+    class FetchDislikedStats(status: MviResult.Status,
+                          error: Throwable?,
+                          val trackStats: TrackListStats?,
+                          val pref: Repository.Pref = Repository.Pref.DISLIKED
+    ) : SummaryResult(status, error), StatsResultMarker {
+        companion object {
+            fun createSuccess(trackStats: TrackListStats) : FetchDislikedStats {
+                Utils.mLog(TAG, "FetchDislikedStats success!")
+                return FetchDislikedStats(MviResult.Status.SUCCESS, null, trackStats)
+            }
+            fun createError(throwable: Throwable,
+                            trackStats: TrackListStats? = null) : FetchDislikedStats {
+                Utils.mLog(TAG, "FetchDislikedStats error!")
+                return FetchDislikedStats(MviResult.Status.ERROR, throwable, trackStats)
+            }
+            fun createLoading(): FetchDislikedStats {
+                return FetchDislikedStats(MviResult.Status.LOADING, null, null)
             }
         }
     }

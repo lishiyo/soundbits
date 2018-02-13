@@ -12,7 +12,7 @@
 	<color name="colorStat">@color/colorPurple</color>
 	<color name="colorRed">@color/violet_red</color>
 	<color name="colorWhite">@color/ghost_white</color>
-	<color name="colorGrey">@color/quartz</color>
+	<color name="colorGrey">#d9d9d9</color>
 	<color name="colorYellow">#FED600</color>
 	<color name="colorDark">@color/moss_river</color>
 	<color name="colorSoftAccent">@color/venice_verde</color>
@@ -31,7 +31,7 @@
 	<color name="violet_red">#F71FB5</color>
 	<color name="persian_blue">#3136A8</color>
 	<color name="ghost_white">#F7F7FA</color>
-	<color name="heather">#9FB5C9 </color>
+	<color name="heather">#9FB5C9</color>
 
 	<!-- https://www.uplabs.com/posts/music-player-app-icons -->
 	<color name="turquoise_blue">#67CAE4</color>

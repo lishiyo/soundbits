@@ -33,6 +33,7 @@ class TrackStatsView@JvmOverloads constructor(
 
     // Whether this is the two-column "full" stats view
     var twoColumnView: Boolean = false
+    var isSecondSet: Boolean = false
 
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_card_stats, this, true)
@@ -42,6 +43,7 @@ class TrackStatsView@JvmOverloads constructor(
             val typedArray = context.obtainStyledAttributes(it,
                     R.styleable.TrackStatsView, 0, 0)
             twoColumnView = typedArray.getBoolean(R.styleable.TrackStatsView_two_column, false)
+            isSecondSet = typedArray.getBoolean(R.styleable.TrackStatsView_second_set, false)
             typedArray.recycle()
         }
 
@@ -68,48 +70,56 @@ class TrackStatsView@JvmOverloads constructor(
         return true // don't allow the range sliders to move
     }
 
-    fun loadTrackStats(trackStats: TrackListStats, secondSet: Boolean = false) {
-        if (!secondSet) {
-            val normalizedDanceability = getNormalizedStat(trackStats.avgDanceability)
-            val normalizedEnergy = getNormalizedStat(trackStats.avgEnergy)
-            val normalizedValence = getNormalizedStat(trackStats.avgValence)
-
-            loadAudioFeatures(
-                    StatLabel(
-                            getStatTitle("danceable", normalizedDanceability, trackStats.avgDanceability),
-                            getStatTitleNum(trackStats.avgDanceability, 1.0),
-                            Pair(0, normalizedDanceability.roundToInt())
-                    ),
-                    StatLabel(
-                            getStatTitle("energetic", normalizedEnergy, trackStats.avgEnergy),
-                            getStatTitleNum(trackStats.avgEnergy, 1.0),
-                            Pair(0, normalizedEnergy.roundToInt())),
-                    StatLabel(
-                            getStatTitle("positive", normalizedValence, trackStats.avgValence),
-                            getStatTitleNum(trackStats.avgValence, 1.0),
-                            Pair(0, normalizedValence.roundToInt())
-                    ))
+    fun loadTrackStats(trackStats: TrackListStats) {
+        if (!isSecondSet) {
+            loadFirstSet(trackStats)
         } else {
-            val normalizedPopularity = getNormalizedStat(trackStats.avgPopularity!! / 100)
-            val normalizedAcousticness = getNormalizedStat(trackStats.avgAcousticness)
-            val normalizedTempo = getNormalizedStat((trackStats.avgTempo-60) / (200-60))
-
-            loadAudioFeatures(
-                    StatLabel(
-                            getStatTitle("popular", normalizedPopularity, trackStats.avgPopularity!!),
-                            getStatTitleNum(trackStats.avgPopularity!!, 100.0),
-                            Pair(0, normalizedPopularity.roundToInt())
-                    ),
-                    StatLabel(
-                            getStatTitle("acoustic", normalizedAcousticness, trackStats.avgAcousticness),
-                            getStatTitleNum(trackStats.avgAcousticness, 1.0),
-                            Pair(0, normalizedAcousticness.roundToInt())),
-                    StatLabel(
-                            getStatTitle("high-tempo", normalizedTempo, trackStats.avgTempo),
-                            getStatTitleNum(trackStats.avgTempo, 200.0),
-                            Pair(0, normalizedTempo.roundToInt())
-                    ))
+            loadSecondSet(trackStats)
         }
+    }
+
+    private fun loadFirstSet(trackStats: TrackListStats) {
+        val normalizedDanceability = getNormalizedStat(trackStats.avgDanceability)
+        val normalizedEnergy = getNormalizedStat(trackStats.avgEnergy)
+        val normalizedValence = getNormalizedStat(trackStats.avgValence)
+
+        loadAudioFeatures(
+                StatLabel(
+                        getStatTitle("danceable", normalizedDanceability, trackStats.avgDanceability),
+                        getStatTitleNum(trackStats.avgDanceability, 1.0),
+                        Pair(0, normalizedDanceability.roundToInt())
+                ),
+                StatLabel(
+                        getStatTitle("energetic", normalizedEnergy, trackStats.avgEnergy),
+                        getStatTitleNum(trackStats.avgEnergy, 1.0),
+                        Pair(0, normalizedEnergy.roundToInt())),
+                StatLabel(
+                        getStatTitle("positive", normalizedValence, trackStats.avgValence),
+                        getStatTitleNum(trackStats.avgValence, 1.0),
+                        Pair(0, normalizedValence.roundToInt())
+                ))
+    }
+
+    private fun loadSecondSet(trackStats: TrackListStats) {
+        val normalizedPopularity = getNormalizedStat(trackStats.avgPopularity!! / 100)
+        val normalizedAcousticness = getNormalizedStat(trackStats.avgAcousticness)
+        val normalizedTempo = getNormalizedStat((trackStats.avgTempo-60) / (200-60))
+
+        loadAudioFeatures(
+                StatLabel(
+                        getStatTitle("popular", normalizedPopularity, trackStats.avgPopularity!!),
+                        getStatTitleNum(trackStats.avgPopularity!!, 100.0),
+                        Pair(0, normalizedPopularity.roundToInt())
+                ),
+                StatLabel(
+                        getStatTitle("acoustic", normalizedAcousticness, trackStats.avgAcousticness),
+                        getStatTitleNum(trackStats.avgAcousticness, 1.0),
+                        Pair(0, normalizedAcousticness.roundToInt())),
+                StatLabel(
+                        getStatTitle("high-tempo", normalizedTempo, trackStats.avgTempo),
+                        getStatTitleNum(trackStats.avgTempo, 200.0),
+                        Pair(0, normalizedTempo.roundToInt())
+                ))
     }
 
     private fun getNormalizedStat(value: Double) : Double {

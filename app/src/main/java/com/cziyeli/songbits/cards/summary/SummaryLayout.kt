@@ -1,22 +1,22 @@
 package com.cziyeli.songbits.cards.summary
 
+import android.app.Activity
 import android.content.Context
-import android.support.v4.app.FragmentActivity
 import android.util.AttributeSet
-import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.TextView
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.commons.toast
+import com.cziyeli.data.Repository
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.di.App
-import com.wang.avi.AVLoadingIndicatorView
+import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateActivity
+import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.layout_summary.view.*
+import kotlinx.android.synthetic.main.widget_quickcounts_row.view.*
 
 
 /**
@@ -35,25 +35,15 @@ class SummaryLayout @JvmOverloads constructor(
     // view models
     private lateinit var viewModel: SummaryViewModel
 
-    // fire off intents
-    private val mStatsPublisher = PublishSubject.create<SummaryIntent.FetchStats>()
-    private val mUserSavePublisher = PublishSubject.create<SummaryIntent.SaveAllTracks>()
-    private val mCreatePlaylistPublisher = PublishSubject.create<SummaryIntent.CreatePlaylistWithTracks>()
-
-    // views
-    lateinit var rootView: ViewGroup
-    lateinit var titleView: TextView
-    lateinit var progressView: AVLoadingIndicatorView
-
+    private val eventsPublisher = PublishRelay.create<SummaryIntent>()
+    private lateinit var callingActivity: Activity
     private val compositeDisposable = CompositeDisposable()
-
+    
     // create with initial state from previous screen
-    fun initWith(context: FragmentActivity, viewModelFromActivity: SummaryViewModel) {
-        // setup views
-        rootView = inflate(context, R.layout.layout_summary, this) as ViewGroup
-        titleView = findViewById(R.id.title)
-        progressView = findViewById(R.id.progress)
+    fun initWith(activity: Activity, viewModelFromActivity: SummaryViewModel) {
+        setClickListeners()
 
+        callingActivity = activity
         // Bind the view model
         viewModel = viewModelFromActivity
         // Bind ViewModel to this view's intents stream
@@ -62,27 +52,28 @@ class SummaryLayout @JvmOverloads constructor(
         compositeDisposable.add(
                 viewModel.states().subscribe({ state ->
                     state?.let {
-                        this.render(state) // pass to the widgets
+                        this.render(state)
                     }
                 })
         )
-        // immediately fetch stats of the like ids
-        val initialViewState = viewModel.currentViewState
-        mStatsPublisher.onNext(SummaryIntent.FetchStats(initialViewState.trackIdsForStats()))
 
+        // immediately fetch stats
+        eventsPublisher.accept(SummaryIntent.FetchFullStats(viewModel.currentViewState.currentLikes, Repository.Pref.LIKED))
+        eventsPublisher.accept(SummaryIntent.FetchFullStats(viewModel.currentViewState.currentDislikes, Repository.Pref.DISLIKED))
+    }
+
+    private fun setClickListeners() {
         // init click listeners
         action_save_to_database.setOnClickListener {
-            mUserSavePublisher.onNext(SummaryIntent.SaveAllTracks(initialViewState.allTracks, initialViewState.playlist!!.id))
+            eventsPublisher.accept(SummaryIntent.SaveAllTracks(
+                    viewModel.currentViewState.allTracks,
+                    viewModel.currentViewState.playlist.id
+            ))
         }
 
         action_create_playlist.setOnClickListener {
-            // just testing
-            mCreatePlaylistPublisher.onNext(SummaryIntent.CreatePlaylistWithTracks(
-                    ownerId = App.getCurrentUserId(),
-                    name = "songbits test",
-                    description = "a little test",
-                    public = false,
-                    tracks = initialViewState.currentLikes)
+            callingActivity.startActivity(
+                    PlaylistCardCreateActivity.create(context, viewModel.currentViewState.currentLikes)
             )
         }
 
@@ -93,29 +84,37 @@ class SummaryLayout @JvmOverloads constructor(
     }
 
     override fun intents(): Observable<out SummaryIntent> {
-        return Observable.merge(
-                mStatsPublisher,
-                mUserSavePublisher,
-                mCreatePlaylistPublisher
-        )
+        return eventsPublisher
     }
 
     override fun render(state: SummaryViewState) {
-        val title = "Liked ${state.currentLikes.size} and disliked ${state.currentDislikes.size} " +
-                "out of ${state.allTracks.size} tracks!"
-        titleView.text = title // for debugging
+        Utils.mLog(TAG, "render", "state", "$state")
 
-        Utils.setVisible(stats_container, true)
+        summary_title.text = resources.getString(R.string.summary_title).format(state.currentLikes.size, state.currentDislikes.size) // for
 
-        when (state.status) {
-            MviViewState.Status.SUCCESS -> {
-                progressView.smoothToHide()
-                stats_summary.text = "stats: ${state.stats?.toString()}"
+        when {
+            state.status == MviViewState.Status.SUCCESS && state.likedStats != null && state.dislikedStats != null -> {
+                progress_stats.smoothToHide()
+                stats_container_likes_first.loadTrackStats(state.likedStats)
+                stats_container_dislikes_first.loadTrackStats(state.dislikedStats)
+                Utils.setVisible(stats_container_first, true)
             }
-            MviViewState.Status.ERROR -> {
+            state.status == MviViewState.Status.ERROR -> {
                 "error in rendering: ${state.error?.localizedMessage}".toast(context)
             }
-            else -> progressView.smoothToShow()
+            else -> {
+                Utils.setVisible(stats_container_first, false)
+                progress_stats.smoothToShow()
+            }
+        }
+
+        if (state.status == MviViewState.Status.SUCCESS) {
+            quickstats_likes.setTextColor(resources.getColor(R.color.colorWhite))
+            quickstats_dislikes.setTextColor(resources.getColor(R.color.colorWhite))
+            quickstats_total.setTextColor(resources.getColor(R.color.colorWhite))
+            quickstats_likes.text = "${state.currentLikes.size} likes"
+            quickstats_dislikes.text = "${state.currentDislikes.size} dislikes"
+            quickstats_total.text = "${state.allTracks.size} swiped"
         }
     }
 

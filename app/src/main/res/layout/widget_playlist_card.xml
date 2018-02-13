@@ -57,7 +57,7 @@
 					<!-- overlay playlist title - bottom left -->
 					<TextView
 						android:id="@+id/playlist_title"
-						android:fontFamily="@font/raleway_light"
+						android:fontFamily="@font/quicksand"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:textAppearance="?android:attr/textAppearanceLarge"

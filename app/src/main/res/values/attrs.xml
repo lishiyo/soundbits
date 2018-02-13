@@ -7,5 +7,6 @@
 
 	<declare-styleable name="TrackStatsView">
 		<attr name="two_column" format="boolean" />
+		<attr name="second_set" format="boolean" />
 	</declare-styleable>
 </resources>

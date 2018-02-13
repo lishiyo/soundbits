@@ -57,4 +57,11 @@
 	<string name="create_card_label">Nice! Create a new playlist or</string>
 	<string name="create_card_label_2">add to an existing one with\nthese %1$d tracks!</string>
 	<string name="new_playlist_description">via songbits</string>
+
+	<!-- summary stuff -->
+	<string name="summary_title">Nice! You liked %1$d \n and disliked %1$d tracks!</string>
+	<string name="summary_create_playlist">Create a new playlist out of your likes</string>
+	<string name="summary_stash_swipes">Stash your swipes for now (they’ll be saved in your Tracks tab)</string>
+	<string name="summary_review_swipes">Review your swipes</string>
+
 </resources>

@@ -239,7 +239,7 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
             }
             state.isFetchStatsSuccess() -> {
                 stats_container_left.loadTrackStats(state.trackStats!!)
-                stats_container_right.loadTrackStats(state.trackStats, true)
+                stats_container_right.loadTrackStats(state.trackStats)
             }
             state.isCreateFinished() && state.status == MviViewState.Status.SUCCESS -> {
                 onPlaylistCreated(card_title.text.toString(), state)
