@@ -31,21 +31,21 @@ class RepositoryImpl @Inject constructor(
     }
 
     override fun fetchUserPlaylists(source: Repository.Source, limit: Int, offset: Int): Observable<Pager<PlaylistSimple>> {
-        return fetchUserPlaylistsRemote(limit, offset)
+        return fetchUserPlaylistsRemote(limit, offset).distinctUntilChanged()
     }
 
     override fun fetchFeaturedPlaylists(source: Repository.Source, limit: Int, offset: Int): Observable<Pager<PlaylistSimple>> {
-        return fetchFeaturedPlaylistsRemote(limit, offset)
+        return fetchFeaturedPlaylistsRemote(limit, offset).distinctUntilChanged()
     }
 
     override fun fetchPlaylistTracks(source: Repository.Source, ownerId: String, playlistId: String, fields: String?, limit: Int, offset: Int):
             Observable<Pager<PlaylistTrack>> {
-        return fetchPlaylistTracksRemote(ownerId, playlistId, fields, limit, offset)
+        return fetchPlaylistTracksRemote(ownerId, playlistId, fields, limit, offset).distinctUntilChanged()
     }
 
     // fetch the audio features for list of tracks
     override fun fetchTracksStats(source: Repository.Source, trackIds: List<String>) : Observable<AudioFeaturesTracks> {
-        return fetchTracksDataRemote(trackIds)
+        return fetchTracksDataRemote(trackIds).distinctUntilChanged()
     }
 
     override fun updateTrackPref(trackId: String, liked: Boolean) {
@@ -72,10 +72,10 @@ class RepositoryImpl @Inject constructor(
     }
 
     override fun fetchUserQuickStats() : Flowable<Triple<Int, Int, Int>> {
-        return Flowables.zip<Int, Int, Int, Triple<Int, Int, Int>>(
-                tracksDatabase.tracksDao().getStashedTracksCount(),
-                tracksDatabase.tracksDao().getStashedTracksLikedCount(),
-                tracksDatabase.tracksDao().getStashedTracksDislikedCount(),
+        return Flowables.combineLatest<Int, Int, Int, Triple<Int, Int, Int>>(
+                tracksDatabase.tracksDao().getStashedTracksCount().distinctUntilChanged(),
+                tracksDatabase.tracksDao().getStashedTracksLikedCount().distinctUntilChanged(),
+                tracksDatabase.tracksDao().getStashedTracksDislikedCount().distinctUntilChanged(),
                 { totalCount: Int, likedCount: Int, dislikedCount: Int ->
                     Triple(totalCount, likedCount, dislikedCount)
                 }
@@ -84,9 +84,9 @@ class RepositoryImpl @Inject constructor(
 
     override fun fetchUserTracks(pref: Repository.Pref, limit: Int, offset: Int): Flowable<List<TrackEntity>> {
         return when (pref) {
-            Repository.Pref.LIKED -> fetchUserLikedTracks(limit, offset)
-            Repository.Pref.DISLIKED -> fetchUserDislikedTracks(limit, offset)
-            else -> Flowable.empty()
+            Repository.Pref.LIKED -> fetchUserLikedTracks(limit, offset).distinctUntilChanged()
+            Repository.Pref.DISLIKED -> fetchUserDislikedTracks(limit, offset).distinctUntilChanged()
+            else -> tracksDatabase.tracksDao().getVisibleTracks(limit, offset).distinctUntilChanged()
         }
     }
 

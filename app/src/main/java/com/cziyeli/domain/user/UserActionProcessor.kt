@@ -1,11 +1,10 @@
-package com.cziyeli.domain.playlists
+package com.cziyeli.domain.user
 
 import com.cziyeli.commons.Utils
 import com.cziyeli.data.Repository
-import com.cziyeli.domain.user.User
-import com.cziyeli.domain.user.UserAction
-import com.cziyeli.domain.user.UserManager
-import com.cziyeli.domain.user.UserResult
+import com.cziyeli.domain.playlists.HomeActionMarker
+import com.cziyeli.domain.playlists.HomeActionProcessor
+import com.cziyeli.domain.playlists.HomeResult
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider

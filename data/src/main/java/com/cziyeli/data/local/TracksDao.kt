@@ -7,6 +7,9 @@ import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 /**
  * Dao to access the likes/dislikes database - includes all tracks ever seen.
  *
+ * Note that for the methods returning Flowables, any update to the table triggers emission,
+ * so use [distinctUntilChanged] (https://medium.com/google-developers/7-pro-tips-for-room-fbadea4bfbd1).
+ *
  * Created by connieli on 12/31/17.
  */
 @Dao
@@ -26,10 +29,6 @@ abstract class TracksDao {
     @Query("SELECT * FROM Tracks WHERE playlist_id = :playlistId AND cleared = 0 AND track_id > :offset LIMIT :limit")
     abstract fun getVisibleTracksByPlaylistId(playlistId: String, limit: Int, offset: Int): Flowable<List<TrackEntity>>
 
-    // get all non-cleared
-    @Query("SELECT * FROM Tracks WHERE cleared = 0 AND track_id > :offset LIMIT :limit")
-    abstract fun getVisibleTracks(limit: Int, offset: Int): Flowable<List<TrackEntity>>
-
     // get total non-cleared tracks count
     @Query("SELECT COUNT(*) FROM Tracks WHERE cleared = 0")
     abstract fun getStashedTracksCount(): Flowable<Int>
@@ -39,6 +38,10 @@ abstract class TracksDao {
 
     @Query("SELECT COUNT(*) FROM Tracks WHERE cleared = 0 AND liked = 0")
     abstract fun getStashedTracksDislikedCount(): Flowable<Int>
+
+    // get all non-cleared in database
+    @Query("SELECT * FROM Tracks WHERE cleared = 0 AND track_id > :offset LIMIT :limit")
+    abstract fun getVisibleTracks(limit: Int, offset: Int): Flowable<List<TrackEntity>>
 
     // get all visible and liked
     @Query("SELECT * FROM Tracks WHERE cleared = 0 AND liked = 1 AND track_id > :offset LIMIT :limit")
