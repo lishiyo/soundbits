@@ -48,10 +48,6 @@ class TrackStatsView@JvmOverloads constructor(
         }
 
         if (twoColumnView) {
-            title_row_one.height = FULL_HEIGHT_PX
-            title_row_two.height = FULL_HEIGHT_PX
-            title_row_three.height = FULL_HEIGHT_PX
-
             val numberSize = resources.getDimension(R.dimen.default_title_size)
             title_row_one_number.setTextSize(TypedValue.COMPLEX_UNIT_PX, numberSize)
             title_row_two_number.setTextSize(TypedValue.COMPLEX_UNIT_PX, numberSize)

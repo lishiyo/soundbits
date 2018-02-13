@@ -18,7 +18,7 @@
 		android:layout_height="match_parent"
 		app:flexWrap="wrap"
 		app:alignContent="stretch"
-		app:justifyContent="space_between"
+		app:justifyContent="space_around"
 		android:paddingLeft="@dimen/track_stats_padding_text"
 		android:paddingRight="@dimen/track_stats_padding_text"
 		>

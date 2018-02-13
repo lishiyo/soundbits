@@ -28,7 +28,9 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="10dp"
-				android:textSize="@dimen/default_title_size"
+				android:paddingStart="30dp"
+				android:paddingEnd="30dp"
+				android:textSize="22sp"
 				android:textAlignment="center"
 				/>
 
@@ -45,7 +47,7 @@
 				android:id="@+id/summary_image"
 				android:layout_width="wrap_content"
 				android:layout_height="100dp"
-				app:lottie_fileName="love_explosion.json"
+				app:lottie_fileName="floating_cloud.json"
 				app:lottie_loop="true"
 				app:lottie_autoPlay="true"
 				app:lottie_scale="5"
@@ -62,8 +64,7 @@
 				android:id="@+id/stats_flipper"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:paddingStart="20dp"
-				android:paddingEnd="20dp"
+				android:padding="20dp"
 				>
 
 				<RelativeLayout
@@ -71,12 +72,13 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:visibility="gone"
+					android:paddingStart="10dp"
+					android:paddingEnd="10dp"
 					tools:visibility="visible"
 					>
 
 					<LinearLayout
 						android:id="@+id/stats_container_header"
-						android:visibility="invisible"
 						android:orientation="horizontal"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -88,7 +90,7 @@
 							android:layout_width="0dp"
 							android:layout_weight="1"
 							android:layout_height="wrap_content"
-							android:layout_marginRight="10dp"
+							android:layout_marginStart="10dp"
 							style="@style/StatsColumn"
 							/>
 						<TextView
@@ -96,7 +98,7 @@
 							android:layout_width="0dp"
 							android:layout_weight="1"
 							android:layout_height="wrap_content"
-							android:layout_marginRight="10dp"
+							android:layout_marginStart="10dp"
 							style="@style/StatsColumn"
 							/>
 					</LinearLayout>
@@ -116,10 +118,8 @@
 							android:layout_width="0dp"
 							android:layout_weight="1"
 							android:layout_height="wrap_content"
-							android:minWidth="100dp"
 							android:clickable="false"
 							android:focusable="false"
-							android:layout_marginRight="10dp"
 							app:two_column="true"
 							>
 						</com.cziyeli.songbits.playlistcard.TrackStatsView>
@@ -131,10 +131,8 @@
 							android:layout_width="0dp"
 							android:layout_weight="1"
 							android:layout_height="wrap_content"
-							android:minWidth="100dp"
 							android:clickable="false"
 							android:focusable="false"
-							android:layout_marginRight="10dp"
 							app:two_column="true"
 							>
 						</com.cziyeli.songbits.playlistcard.TrackStatsView>
@@ -158,11 +156,24 @@
 			</FrameLayout>
 
 			<!-- buttons -->
+			<TextView
+				android:id="@+id/summary_subtitle"
+				android:text="@string/summary_subtitle"
+				android:paddingStart="30dp"
+				android:paddingEnd="30dp"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="10dp"
+				android:textSize="@dimen/default_title_size"
+				android:textAlignment="center"
+				/>
+
 			<LinearLayout
 				android:orientation="vertical"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:padding="30dp"
+				android:paddingStart="30dp"
+				android:paddingEnd="30dp"
 				android:gravity="center"
 				>
 

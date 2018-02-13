@@ -38,7 +38,7 @@ class SummaryLayout @JvmOverloads constructor(
     private val eventsPublisher = PublishRelay.create<SummaryIntent>()
     private lateinit var callingActivity: Activity
     private val compositeDisposable = CompositeDisposable()
-    
+
     // create with initial state from previous screen
     fun initWith(activity: Activity, viewModelFromActivity: SummaryViewModel) {
         setClickListeners()
@@ -109,9 +109,9 @@ class SummaryLayout @JvmOverloads constructor(
         }
 
         if (state.status == MviViewState.Status.SUCCESS) {
-            quickstats_likes.setTextColor(resources.getColor(R.color.colorWhite))
-            quickstats_dislikes.setTextColor(resources.getColor(R.color.colorWhite))
-            quickstats_total.setTextColor(resources.getColor(R.color.colorWhite))
+//            quickstats_likes.setTextColor(resources.getColor(R.color.colorPrimary))
+//            quickstats_dislikes.setTextColor(resources.getColor(R.color.colorPrimary))
+//            quickstats_total.setTextColor(resources.getColor(R.color.colorPrimary))
             quickstats_likes.text = "${state.currentLikes.size} likes"
             quickstats_dislikes.text = "${state.currentDislikes.size} dislikes"
             quickstats_total.text = "${state.allTracks.size} swiped"
