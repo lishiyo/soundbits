@@ -29,6 +29,7 @@ import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
+import kotlinx.android.synthetic.main.widget_expandable_tracks.view.*
 import kotlinx.android.synthetic.main.widget_playlist_card.view.*
 import kotlinx.android.synthetic.main.widget_quickcounts_row.view.*
 
@@ -51,8 +52,8 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
     // views
     private lateinit var adapter: TrackRowsAdapter
     private lateinit var onTouchListener: RecyclerTouchListener
-    private lateinit var onFabSelectedListener: OnFABMenuSelectedListener
     private lateinit var onSwipeListener: RecyclerTouchListener.OnSwipeListener
+    private lateinit var onFabSelectedListener: OnFABMenuSelectedListener
 
     // flag to throttle loading
     private var startedInitialFetch: Boolean = false

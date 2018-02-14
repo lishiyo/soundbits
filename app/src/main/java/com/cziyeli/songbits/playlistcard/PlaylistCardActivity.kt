@@ -24,6 +24,7 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_playlistcard.*
+import kotlinx.android.synthetic.main.widget_expandable_tracks.*
 import kotlinx.android.synthetic.main.widget_playlist_card.*
 import org.jetbrains.anko.intentFor
 import javax.inject.Inject

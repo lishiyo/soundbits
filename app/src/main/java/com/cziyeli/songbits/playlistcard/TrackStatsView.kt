@@ -33,7 +33,7 @@ class TrackStatsView@JvmOverloads constructor(
 
     // Whether this is the two-column "full" stats view
     var twoColumnView: Boolean = false
-    var isSecondSet: Boolean = false
+    var set: Int = 0
 
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_card_stats, this, true)
@@ -43,7 +43,7 @@ class TrackStatsView@JvmOverloads constructor(
             val typedArray = context.obtainStyledAttributes(it,
                     R.styleable.TrackStatsView, 0, 0)
             twoColumnView = typedArray.getBoolean(R.styleable.TrackStatsView_two_column, false)
-            isSecondSet = typedArray.getBoolean(R.styleable.TrackStatsView_second_set, false)
+            set = typedArray.getInt(R.styleable.TrackStatsView_set, 0)
             typedArray.recycle()
         }
 
@@ -67,7 +67,7 @@ class TrackStatsView@JvmOverloads constructor(
     }
 
     fun loadTrackStats(trackStats: TrackListStats) {
-        if (!isSecondSet) {
+        if (set == 0) {
             loadFirstSet(trackStats)
         } else {
             loadSecondSet(trackStats)

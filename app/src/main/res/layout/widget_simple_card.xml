@@ -199,6 +199,7 @@
 							android:clickable="false"
 							android:focusable="false"
 							app:two_column="true"
+							app:set="first"
 							>
 						</com.cziyeli.songbits.playlistcard.TrackStatsView>
 
@@ -212,7 +213,7 @@
 							android:clickable="false"
 							android:focusable="false"
 							app:two_column="true"
-							app:second_set="true"
+							app:set="second"
 							>
 						</com.cziyeli.songbits.playlistcard.TrackStatsView>
 					</LinearLayout>

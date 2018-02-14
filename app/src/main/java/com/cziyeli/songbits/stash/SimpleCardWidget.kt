@@ -33,7 +33,6 @@ import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateWidget.Compani
 import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateWidget.Companion.FAB_CREATE_COLOR_3
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.jakewharton.rxrelay2.PublishRelay
-import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.saeid.fabloading.LoadingView
@@ -91,10 +90,6 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
     }
     private lateinit var adapter: TrackRowsAdapter
     private lateinit var tracksRecyclerViewDelegate: TracksRecyclerViewDelegate
-    private var onSwipeListener: RecyclerTouchListener.OnSwipeListener? = null
-        get() = tracksRecyclerViewDelegate.onSwipeListener
-    private var onTouchListener: RecyclerTouchListener? = null
-        get() = tracksRecyclerViewDelegate.onTouchListener
 
     // Flag for whether we've created the new playlist or not
     private var isFinished: Boolean = false
@@ -154,8 +149,6 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
         )
 
         tracksRecyclerViewDelegate = TracksRecyclerViewDelegate(activity, card_tracks_recycler_view, this)
-        onSwipeListener = tracksRecyclerViewDelegate.onSwipeListener
-        onTouchListener = tracksRecyclerViewDelegate.onTouchListener
 
         // set header
         card_title.setText(title)

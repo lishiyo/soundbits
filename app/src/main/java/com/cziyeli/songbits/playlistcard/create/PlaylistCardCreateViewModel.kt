@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
+import com.cziyeli.commons.resultFilter
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlistcard.CardActionMarker
 import com.cziyeli.domain.playlistcard.CardResult
@@ -76,6 +77,7 @@ class PlaylistCardCreateViewModel @Inject constructor(
                 .compose(actionFilter<CardActionMarker>())
                 .compose(actionProcessor.combinedProcessor)
                 .mergeWith(resultsSubject) // <--- pipe in direct results
+                .compose(resultFilter<CardResultMarker>())
                 .observeOn(schedulerProvider.ui())
                 .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
                 .scan(currentViewState, reducer) // final scan
@@ -158,7 +160,9 @@ class PlaylistCardCreateViewModel @Inject constructor(
         }
     }
 
-    override fun processIntents(intents: Observable<out CardIntentMarker>) {
+    // ===== MviViewModel =====
+
+     override fun processIntents(intents: Observable<out CardIntentMarker>) {
         compositeDisposable.add(
                 intents.subscribe(intentsSubject::accept)
         )
@@ -173,6 +177,8 @@ class PlaylistCardCreateViewModel @Inject constructor(
     override fun states(): Observable<ViewState> {
         return viewStates
     }
+
+    // ==== View States ===
 
     data class ViewState(val status: MviResult.StatusInterface = MviResult.Status.IDLE,
                          val error: Throwable? = null,

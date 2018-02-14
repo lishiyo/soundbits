@@ -21,7 +21,6 @@ class TracksRecyclerViewDelegate(val activity: Activity,
     val onSwipeListener: RecyclerTouchListener.OnSwipeListener = createOnSwipeListener()
     val onTouchListener: RecyclerTouchListener = createOnTouchListener(onSwipeListener)
 
-
     private fun createOnSwipeListener() : RecyclerTouchListener.OnSwipeListener {
         return object : RecyclerTouchListener.OnSwipeListener {
             override fun onForegroundAnimationStart(isFgOpening: Boolean, duration: Long, foregroundView: View, backgroundView: View?) {
