@@ -3,6 +3,7 @@
 	<declare-styleable name="action_buttons">
 		<attr name="active" format="boolean" />
 		<attr name="bg_color" format="color" />
+		<attr name="rounded_border_color" format="color" />
 	</declare-styleable>
 
 	<declare-styleable name="TrackStatsView">

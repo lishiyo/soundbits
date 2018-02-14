@@ -1,9 +1,13 @@
 package com.cziyeli.songbits.base
 
 import android.content.Context
+import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
+import android.widget.Button
 import android.widget.ImageView
 import com.cziyeli.songbits.R
+
+
 
 
 class LikeButton @JvmOverloads constructor(
@@ -66,3 +70,37 @@ class DisLikeButton @JvmOverloads constructor(
     }
 }
 
+/**
+ * Basic button with rounded borders.
+ */
+class RoundedCornerButton @JvmOverloads constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyle: Int = 0,
+        defStyleRes: Int = 0
+) : Button(context, attrs, defStyle, defStyleRes) {
+
+    private val BACKGROUND_DRAWABLE: GradientDrawable = resources.getDrawable(R.drawable.rounded_borders) as GradientDrawable
+
+    private var backgroundColorRes : Int? = null
+    private var borderColorRes : Int? = null
+
+    init {
+        background = BACKGROUND_DRAWABLE
+        attrs?.let {
+            val typedArray = context.obtainStyledAttributes(it,
+                    R.styleable.action_buttons, 0, 0)
+            backgroundColorRes = typedArray.getColor(R.styleable.action_buttons_bg_color, resources.getColor(R.color.colorPrimaryShade))
+            borderColorRes = typedArray.getColor(R.styleable.action_buttons_rounded_border_color,
+                    resources.getColor(R.color.colorPrimaryShade))
+
+            typedArray.recycle()
+        }
+        backgroundColorRes?.run {
+            BACKGROUND_DRAWABLE.setColor(this)
+        }
+        borderColorRes?.run {
+            BACKGROUND_DRAWABLE.setStroke(1, resources.getColor(this))
+        }
+    }
+}

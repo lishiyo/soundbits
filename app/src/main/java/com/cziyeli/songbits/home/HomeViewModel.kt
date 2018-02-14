@@ -31,7 +31,7 @@ class HomeViewModel @Inject constructor(
     private val compositeDisposable = CompositeDisposable()
 
     // Listener for home-specific events
-    private val intentsSubject : PublishRelay<HomeIntent> by lazy { PublishRelay.create<HomeIntent>() }
+    private val intentsSubject: PublishRelay<HomeIntent> by lazy { PublishRelay.create<HomeIntent>() }
     // Listener for root view states
     private val rootStatesSubject: PublishRelay<RootViewState> by lazy { PublishRelay.create<RootViewState>() }
     // Publisher for own view states

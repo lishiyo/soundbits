@@ -18,6 +18,11 @@ sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Sta
     }
 
     /**
+     * Single event - set tracks upon load.
+     */
+    class SetTracks : SummaryResult(MviResult.Status.SUCCESS)
+
+    /**
      * Load stats for the Liked tracks.
      */
     class FetchLikedStats(status: MviResult.Status,

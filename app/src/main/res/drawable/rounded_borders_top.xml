@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+	android:shape="rectangle">
+	<!-- border color -->
+	<stroke
+		android:width="0dp"
+		android:color="@color/turquoise_blue" />
 
-</selector>
+	<!-- background color -->
+	<solid
+		android:color="@color/quartet_blue"
+		/>
+
+	<corners android:topLeftRadius="@dimen/action_button_radius"
+		android:topRightRadius="@dimen/action_button_radius" />
+
+	<padding
+		android:left="20dp"
+		android:right="20dp"
+		android:top="10dp"
+		android:bottom="10dp" >
+	</padding>
+
+</shape>
