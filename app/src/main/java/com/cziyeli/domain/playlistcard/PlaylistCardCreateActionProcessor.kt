@@ -32,36 +32,34 @@ class PlaylistCardCreateActionProcessor @Inject constructor(private val reposito
 
     // given list of track ids -> fetch track stats
     private val fetchStatsProcessor: ObservableTransformer<StatsAction.FetchStats, StatsResult.FetchStats> = ObservableTransformer {
-        action -> action.switchMap {
-        act -> repository
-            .fetchTracksStats(Repository.Source.REMOTE, act.trackIds)
-            .subscribeOn(schedulerProvider.io())
-    }.map { resp -> TrackListStats.create(resp) }
-            .observeOn(schedulerProvider.ui())
-            .map { trackStats -> StatsResult.FetchStats.createSuccess(trackStats) }
-            .onErrorReturn { err -> StatsResult.FetchStats.createError(err) }
-            .startWith(StatsResult.FetchStats.createLoading())
-            .retry() // don't unsubscribe
+        action -> action.switchMap { act ->
+        repository.fetchTracksStats(Repository.Source.REMOTE, act.trackIds)
+                .map { resp -> TrackListStats.create(resp) }
+                .map { trackStats -> StatsResult.FetchStats.createSuccess(trackStats) }
+                .onErrorReturn { err -> StatsResult.FetchStats.createError(err) }
+                .subscribeOn(schedulerProvider.io())
+                .observeOn(schedulerProvider.ui())
+                .startWith(StatsResult.FetchStats.createLoading())
+        }
     }
 
-    val createPlaylistProcessor: ObservableTransformer<SummaryAction.CreatePlaylistWithTracks,
-            SummaryResult.CreatePlaylistWithTracks> = ObservableTransformer {
-        action -> action.switchMap {
-            act -> repository
+    // Create a playlist
+    val createPlaylistProcessor: ObservableTransformer<
+            SummaryAction.CreatePlaylistWithTracks, SummaryResult.CreatePlaylistWithTracks> = ObservableTransformer {
+        actions -> actions.switchMap { act ->
+        repository
                 .createPlaylist(act.ownerId, act.name, act.description, act.public)
-                .subscribeOn(schedulerProvider.io())
                 .flatMapObservable { playlist ->
-                Utils.mLog(TAG, "createPlaylistProcessor", "doAfterSuccess!", playlist.toString())
-                repository
-                        .addTracksToPlaylist(act.ownerId, playlist.id, act.tracks.map { it.uri })
-                        .subscribeOn(schedulerProvider.io())
+                    repository
+                            .addTracksToPlaylist(act.ownerId, playlist.id, act.tracks.map { it.uri })
+                            .subscribeOn(schedulerProvider.io())
                 }
-            }
-            .observeOn(schedulerProvider.ui())
-            .map { pair -> SummaryResult.CreatePlaylistWithTracks.createSuccess(pair.first, pair.second) }
-            .onErrorReturn { SummaryResult.CreatePlaylistWithTracks.createError(it) }
-            .startWith(SummaryResult.CreatePlaylistWithTracks.createLoading())
-            .retry() // don't unsubscribe
+                .map { pair -> SummaryResult.CreatePlaylistWithTracks.createSuccess(pair.first, pair.second) }
+                .onErrorReturn { SummaryResult.CreatePlaylistWithTracks.createError(it) }
+                .subscribeOn(schedulerProvider.io())
+                .observeOn(schedulerProvider.ui())
+                .startWith(SummaryResult.CreatePlaylistWithTracks.createLoading())
+        }
     }
 
 }
