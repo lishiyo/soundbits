@@ -59,12 +59,13 @@
 	<string name="new_playlist_description">via songbits</string>
 
 	<!-- summary stuff -->
-	<string name="summary_title">Awesome! You finished the stack!</string>
+	<string name="summary_title">Awesome! You liked %1$d and disliked %1$d tracks!</string>
 	<string name="summary_subtitle">Would you like to…</string>
-	<string name="summary_create_playlist">Create a new playlist out of your likes</string>
+	<string name="summary_subtitle_two">Summary Card</string>
+	<string name="summary_create_playlist">Create a new playlist out of your Likes</string>
 	<string name="summary_stash_swipes">Stash your swipes for now (they’ll be saved in your Tracks tab)</string>
-	<string name="summary_review_swipes">Review your swipes</string>
+	<string name="summary_review_swipes">Edit your swipes</string>
 	<string name="action_error">Something went wrong :(</string>
-	<string name="save_success">Successfully Saved!</string>
+	<string name="general_success">Great Success!</string>
 
 </resources>

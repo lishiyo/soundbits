@@ -1,5 +1,6 @@
 package com.cziyeli.domain.summary
 
+import com.cziyeli.commons.Utils
 import com.cziyeli.domain.tracks.TrackModel
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks
@@ -48,23 +49,21 @@ data class TrackStats(val apiModel: AudioFeaturesTrack) {
 // Stats of a list of tracks
 // Wraps [AudioFeaturesTracks]
 data class TrackListStats(private val apiModel: AudioFeaturesTracks, var tracks: List<TrackModel>? = null) {
-
-    // corresponding list of track ids
-    var trackIds: List<String> = apiModel.audio_features.map { it.id }
-    var trackStats: List<TrackStats> = apiModel.audio_features.map { TrackStats(it) }
+    var trackIds: List<String> = apiModel.audio_features?.map { it.id } ?: listOf()
+    var trackStats: List<TrackStats> = apiModel.audio_features?.map { TrackStats(it) } ?: listOf()
 
     // danceability from 0 -> 1, higher is more danceable
-    val avgDanceability by lazy { calculateAvgDanceability(trackStats) }
-    // average energy
-    val avgEnergy by lazy { calculateAvgEnergy(trackStats) }
+    val avgDanceability by lazy { Utils.unlessEmpty(trackStats, 0.toDouble(), { calculateAvgDanceability(trackStats) }) }
+    // average energy from 0 -> 1, higher is more eneretic
+    val avgEnergy by lazy { Utils.unlessEmpty(trackStats, 0.toDouble(), { calculateAvgEnergy(trackStats) }) }
     // average positivity (0 -> 1, higher is more positive)
-    val avgValence by lazy { calculateAvgValence(trackStats) }
+    val avgValence by lazy { Utils.unlessEmpty(trackStats, 0.toDouble(), { calculateAvgValence(trackStats) }) }
 
-    // for full stats
-    val avgAcousticness by lazy { calculateAvgAcousticness(trackStats) }
-    // 40-200 - Hip Hop is around 80-115 BPM
+    // SECOND set - for full stats
+    val avgAcousticness by lazy { Utils.unlessEmpty(trackStats, 0.toDouble(), { calculateAvgAcousticness(trackStats) }) }
+    // 40-200 - ex Hip Hop is around 80-115 BPM
     // https://music.stackexchange.com/questions/4525/list-of-average-genre-tempo-bpm-levels
-    val avgTempo by lazy { calculateAvgTempo(trackStats) }
+    val avgTempo by lazy { Utils.unlessEmpty(trackStats, 0.toDouble(), { calculateAvgTempo(trackStats) }) }
     // 0-100
     val avgPopularity by lazy { tracks?.let { calculateAveragePopularity(it) }}
 
@@ -73,6 +72,8 @@ data class TrackListStats(private val apiModel: AudioFeaturesTracks, var tracks:
     }
 
     companion object {
+        val EMPTY = TrackListStats(AudioFeaturesTracks(), null)
+
         fun create(apiModel: AudioFeaturesTracks, tracks: List<TrackModel>? = null) : TrackListStats {
             return TrackListStats(apiModel, tracks)
         }
@@ -115,6 +116,5 @@ data class TrackListStats(private val apiModel: AudioFeaturesTracks, var tracks:
                     .reduce { sum, el -> sum + el }
                     .div(tracks.size.toDouble())
         }
-
     }
 }

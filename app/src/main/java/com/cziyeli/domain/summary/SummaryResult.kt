@@ -23,6 +23,10 @@ sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Sta
     class SetTracks : SummaryResult(MviResult.Status.SUCCESS)
 
     /**
+     * Set a new track.
+     */
+    class ChangeTrackPref(val track: TrackModel) : SummaryResult(MviResult.Status.SUCCESS, null)
+    /**
      * Load stats for the Liked tracks.
      */
     class FetchLikedStats(status: MviResult.Status,
@@ -32,12 +36,10 @@ sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Sta
     ) : SummaryResult(status, error), StatsResultMarker {
         companion object {
             fun createSuccess(trackStats: TrackListStats) : FetchLikedStats {
-                Utils.mLog(TAG, "FetchLikedStats success!")
                 return FetchLikedStats(MviResult.Status.SUCCESS, null, trackStats)
             }
             fun createError(throwable: Throwable,
                             trackStats: TrackListStats? = null) : FetchLikedStats {
-                Utils.mLog(TAG, "FetchLikedStats error!")
                 return FetchLikedStats(MviResult.Status.ERROR, throwable, trackStats)
             }
             fun createLoading(): FetchLikedStats {

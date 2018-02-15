@@ -21,7 +21,7 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
     val combinedProcessor: ObservableTransformer<SummaryActionMarker, SummaryResultMarker> = ObservableTransformer { acts ->
         acts.publish { shared ->
             Observable.merge<SummaryResultMarker>(
-                    shared.ofType<SummaryAction.SaveTracks>(SummaryAction.SaveTracks::class.java).compose(mSaveTracksProcessor),
+                    shared.ofType<SummaryAction.SaveTracks>(SummaryAction.SaveTracks::class.java).compose(saveTracksProcessor),
                     shared.ofType<SummaryAction.CreatePlaylistWithTracks>(SummaryAction.CreatePlaylistWithTracks::class.java).compose
                     (mCreatePlaylistProcessor),
                     shared.ofType<StatsAction.FetchFullStats>(StatsAction.FetchFullStats::class.java)
@@ -42,65 +42,83 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
                             }
             ).doOnNext {
                 Utils.mLog(TAG, "processing --- ${it::class.simpleName}")
-            }.retry() // don't ever unsubscribe
+            }.retry() // don't unsubscribe
         }
     }
 
-    // fetch full for liked tracks
+    /**
+     * Fetch full stats for liked track ids.
+     */
     private val mFetchLikedStatsProcessor: ObservableTransformer<StatsAction.FetchFullStats, SummaryResult.FetchLikedStats> =
             ObservableTransformer {
-        action -> action.compose(fetchStatsIntermediary)
-            .observeOn(schedulerProvider.ui())
-            .map { trackStats -> SummaryResult.FetchLikedStats.createSuccess(trackStats) }
-            .onErrorReturn { err -> SummaryResult.FetchLikedStats.createError(err) }
-            .startWith(SummaryResult.FetchLikedStats.createLoading())
-            .retry() // don't unsubscribe
-    }
-
-    private val mFetchDislikedStatsProcessor: ObservableTransformer<StatsAction.FetchFullStats, SummaryResult.FetchDislikedStats> =
-            ObservableTransformer {
-                action -> action.compose(fetchStatsIntermediary)
+                actions -> actions.compose(fetchStatsIntermediary)
+                    .map { trackStats -> SummaryResult.FetchLikedStats.createSuccess(trackStats) }
+                    .onErrorReturn { err -> SummaryResult.FetchLikedStats.createError(err) }
+                    .subscribeOn(schedulerProvider.io())
                     .observeOn(schedulerProvider.ui())
-                    .map { trackStats -> SummaryResult.FetchDislikedStats.createSuccess(trackStats) }
-                    .onErrorReturn { err -> SummaryResult.FetchDislikedStats.createError(err) }
-                    .startWith(SummaryResult.FetchDislikedStats.createLoading())
-                    .retry() // don't unsubscribe
+                    .startWith(SummaryResult.FetchLikedStats.createLoading())
             }
 
+    /**
+     * Fetch full stats for disliked track ids.
+     */
+    private val mFetchDislikedStatsProcessor: ObservableTransformer<StatsAction.FetchFullStats, SummaryResult.FetchDislikedStats> =
+            ObservableTransformer {
+                actions -> actions.compose(fetchStatsIntermediary)
+                    .map { trackStats -> SummaryResult.FetchDislikedStats.createSuccess(trackStats) }
+                    .onErrorReturn { err -> SummaryResult.FetchDislikedStats.createError(err) }
+                    .subscribeOn(schedulerProvider.io())
+                    .observeOn(schedulerProvider.ui())
+                    .startWith(SummaryResult.FetchDislikedStats.createLoading())
+            }
+
+    /**
+     * Create playlist from tracks.
+     */
     private val mCreatePlaylistProcessor: ObservableTransformer<SummaryAction.CreatePlaylistWithTracks,
             SummaryResult.CreatePlaylistWithTracks> = ObservableTransformer {
-                action -> action.switchMap {
-                    act -> repository
-                            .createPlaylist(act.ownerId, act.name, act.description, act.public)
-                            .subscribeOn(schedulerProvider.io())
-                            .flatMapObservable { playlist ->
-                                Utils.mLog(TAG, "createPlaylistProcessor", "doAfterSuccess!", playlist.toString())
-                                repository.addTracksToPlaylist(act.ownerId, playlist.id, act.tracks.map { it.uri }).subscribeOn(schedulerProvider.io())
-                            }
-                }
-                .map { pair -> SummaryResult.CreatePlaylistWithTracks.createSuccess(pair.first, pair.second) }
-                .onErrorReturn { SummaryResult.CreatePlaylistWithTracks.createError(it) }
-                .startWith(SummaryResult.CreatePlaylistWithTracks.createLoading())
-                .retry() // don't unsubscribe
+                actions -> actions.switchMap({ action ->
+                repository.createPlaylist(action.ownerId, action.name, action.description, action.public)
+                        .flatMapObservable { playlist ->
+                            repository.addTracksToPlaylist(
+                                    action.ownerId,
+                                    playlist.id,
+                                    action.tracks.map { it.uri }
+                            ).subscribeOn(schedulerProvider.io())
+                        }
+                        .map { pair -> SummaryResult.CreatePlaylistWithTracks.createSuccess(pair.first, pair.second) }
+                        .onErrorReturn { SummaryResult.CreatePlaylistWithTracks.createError(it) }
+                        .subscribeOn(schedulerProvider.io())
+                        .observeOn(schedulerProvider.ui())
+                        .startWith(SummaryResult.CreatePlaylistWithTracks.createLoading())
+            })
     }
 
-    private val mSaveTracksProcessor: ObservableTransformer<SummaryAction.SaveTracks, SummaryResult.SaveTracks> = ObservableTransformer {
-        action -> action
-            .doOnNext { repository.saveTracksLocal(mapNewTracks(it)) }
-            .map { act -> SummaryResult.SaveTracks.createSuccess(act.tracks, act.playlistId) }
-            .observeOn(schedulerProvider.ui())
-            .onErrorReturn { err -> SummaryResult.SaveTracks.createError(err) }
-            .startWith(SummaryResult.SaveTracks.createLoading())
-            .retry() // don't unsubscribe
+    /**
+     * Stash tracks in database.
+     */
+    private val saveTracksProcessor: ObservableTransformer<SummaryAction.SaveTracks, SummaryResult.SaveTracks> = ObservableTransformer {
+        actions -> actions.switchMap({ action ->
+            Observable.just(action)
+                    .doOnNext { repository.saveTracksLocal(mapNewTracks(action)) }
+                    .map { act -> SummaryResult.SaveTracks.createSuccess(act.tracks, act.playlistId) }
+                    .onErrorReturn { err -> SummaryResult.SaveTracks.createError(err) }
+                    .subscribeOn(schedulerProvider.io())
+                    .observeOn(schedulerProvider.ui())
+                    .startWith(SummaryResult.SaveTracks.createLoading())
+        })
     }
+
+    // ==== INTERMEDIARY ====
 
     private val fetchStatsIntermediary: ObservableTransformer<StatsAction.FetchFullStats, TrackListStats> = ObservableTransformer {
-        action -> action.switchMap {
-        act -> repository
-            .fetchTracksStats(Repository.Source.REMOTE, act.trackModels.map {it.id} )
-            .map { Pair(it, act.trackModels)}
-            .subscribeOn(schedulerProvider.io())
-        }.map { resp -> TrackListStats.create(resp.first, resp.second) }
+        actions -> actions.switchMap { action ->
+            repository
+                    .fetchTracksStats(Repository.Source.REMOTE, action.trackModels.map { it.id })
+                .map { Pair(it, action.trackModels) }
+                .subscribeOn(schedulerProvider.io())
+                .map { resp -> TrackListStats.create(resp.first, resp.second) }
+        }
     }
 
     private fun mapNewTracks(act: SummaryAction.SaveTracks) : List<TrackEntity> {

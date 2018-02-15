@@ -13,7 +13,9 @@
 		xmlns:android="http://schemas.android.com/apk/res/android"
 		xmlns:app="http://schemas.android.com/apk/res-auto"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
+		android:layout_height="wrap_content"
+		android:descendantFocusability="afterDescendants"
+		>
 
 		<LinearLayout
 			android:layout_width="match_parent"
@@ -28,7 +30,6 @@
 				android:text="@string/summary_title"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginTop="10dp"
 				android:paddingStart="30dp"
 				android:paddingEnd="30dp"
 				android:textSize="22sp"
@@ -45,13 +46,6 @@
 				app:lottie_scale="5"
 				/>
 
-
-			<!-- quick counts -->
-			<include
-				layout="@layout/widget_quickcounts_row"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				/>
 
 			<!-- buttons -->
 			<LinearLayout
@@ -70,11 +64,9 @@
 					android:paddingEnd="30dp"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:layout_marginTop="10dp"
 					android:textSize="@dimen/default_text_size"
 					android:textAlignment="center"
 					/>
-
 
 				<LinearLayout
 					android:layout_width="match_parent"
@@ -87,9 +79,9 @@
 						android:text="@string/summary_create_playlist"
 						android:layout_width="0dp"
 						android:layout_weight="1"
-						android:layout_height="match_parent"
 						style="@style/SummaryButton"
 						button:bg_color="@color/colorPrimaryShade"
+						button:rounded_border_color="@color/colorPrimary"
 						/>
 
 					<com.cziyeli.songbits.base.RoundedCornerButton
@@ -97,7 +89,6 @@
 						android:text="@string/summary_stash_swipes"
 						android:layout_width="0dp"
 						android:layout_weight="1"
-						android:layout_height="match_parent"
 						style="@style/SummaryButton"
 						button:bg_color="@color/colorPurple"
 						button:rounded_border_color="@color/persian_blue"
@@ -125,12 +116,13 @@
 
 						<TextView
 							android:id="@+id/summary_expansion_header_title"
-							android:font="@font/waiting_for_the_sunrise"
 							android:layout_centerVertical="true"
 							android:layout_height="wrap_content"
 							android:layout_width="wrap_content"
 							android:text="@string/summary_review_swipes"
-							android:textColor="@color/colorWhite" />
+							android:textColor="@color/colorWhite"
+							android:textSize="12sp"
+							/>
 
 						<android.support.v7.widget.AppCompatImageView
 							android:id="@+id/summary_header_indicator"
@@ -163,6 +155,27 @@
 				</com.github.florent37.expansionpanel.ExpansionLayout>
 
 			</LinearLayout>
+
+			<!-- a little report -->
+			<TextView
+				android:id="@+id/summary_subtitle_two"
+				android:text="@string/summary_subtitle_two"
+				android:paddingStart="30dp"
+				android:paddingEnd="30dp"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="30dp"
+				android:layout_marginBottom="10dp"
+				style="@style/StatsColumn"
+				android:textAlignment="center"
+				/>
+
+			<!-- quick counts -->
+			<include
+				layout="@layout/widget_quickcounts_row"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				/>
 
 			<!-- stats report -->
 			<FrameLayout

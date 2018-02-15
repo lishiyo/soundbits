@@ -73,4 +73,12 @@ object Utils {
             imm.showSoftInput(focusedView, InputMethodManager.SHOW_IMPLICIT)
         })
     }
+
+    fun <T> unlessEmpty(list: List<*>, defaultVal: T, fn: (List<*>) -> T): T {
+        if (list.isEmpty()) {
+            return defaultVal
+        } else {
+            return fn(list)
+        }
+    }
 }

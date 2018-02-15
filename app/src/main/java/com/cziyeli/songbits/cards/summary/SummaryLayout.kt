@@ -6,7 +6,6 @@ import android.support.annotation.StringRes
 import android.support.v7.widget.LinearLayoutManager
 import android.util.AttributeSet
 import android.widget.LinearLayout
-import android.widget.TextView
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.disableTouchTheft
 import com.cziyeli.commons.mvibase.MviView
@@ -17,6 +16,7 @@ import com.cziyeli.domain.summary.SummaryResult
 import com.cziyeli.domain.summary.SummaryResultMarker
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.base.RoundedCornerButton
 import com.cziyeli.songbits.cards.TracksRecyclerViewDelegate
 import com.cziyeli.songbits.di.App
 import com.cziyeli.songbits.playlistcard.TrackRowsAdapter
@@ -74,6 +74,8 @@ class SummaryLayout @JvmOverloads constructor(
 
         // set up tracks list (we already have tracks list, so don't need to do it in render)
         tracksRecyclerViewDelegate = TracksRecyclerViewDelegate(activity, summary_tracks_recycler_view, this)
+        summary_tracks_recycler_view.addOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
+
         adapter = TrackRowsAdapter(context, mutableListOf())
         summary_tracks_recycler_view.adapter = adapter
         summary_tracks_recycler_view.layoutManager = LinearLayoutManager(context)
@@ -101,7 +103,7 @@ class SummaryLayout @JvmOverloads constructor(
             )
         }
 
-        // debugging
+        // === DEBUGGING ===
         nuke.setOnClickListener {
             App.nukeDatabase()
             "NUKED!".toast(context)
@@ -115,24 +117,36 @@ class SummaryLayout @JvmOverloads constructor(
     override fun render(state: SummaryViewState) {
         Utils.mLog(TAG, "render", "state", "$state")
 
-        summary_title.text = resources.getString(R.string.summary_title).format(state.currentLikes.size, state.currentDislikes.size) // for
+        summary_title.text = resources.getString(R.string.summary_title)
+                .format(state.currentLikes.size, state.currentDislikes.size)
 
         when {
             state.lastResult is SummaryResult.SetTracks -> {
-                Utils.mLog(TAG, " got set tracks! loading...")
                 adapter.setTracksAndNotify(state.allTracks)
             }
             state.lastResult is SummaryResult.SaveTracks -> {
-                renderButton(state, action_save_to_database, R.string.save_success, R.string.action_error)
+                renderButton(state, action_save_to_database, R.string.general_success, R.string.action_error)
+            }
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is SummaryResult.ChangeTrackPref -> {
+                val track = (state.lastResult as? SummaryResult.ChangeTrackPref)?.track
+                adapter.updateTrack(track, false)
             }
             state.lastResult is SummaryResult.CreatePlaylistWithTracks -> {
                 // todo actually implement this
-                renderButton(state, action_create_playlist, R.string.save_success, R.string.action_error)
+                renderButton(state, action_create_playlist, R.string.general_success, R.string.action_error)
             }
-            state.status == MviViewState.Status.SUCCESS && state.likedStats != null && state.dislikedStats != null -> {
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is SummaryResult.FetchLikedStats -> {
                 progress_stats.smoothToHide()
-                stats_container_likes_first.loadTrackStats(state.likedStats)
-                stats_container_dislikes_first.loadTrackStats(state.dislikedStats)
+                state.likedStats?.let {
+                    stats_container_likes_first.loadTrackStats(it)
+                }
+                Utils.setVisible(stats_container_first, true)
+            }
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is SummaryResult.FetchDislikedStats -> {
+                progress_stats.smoothToHide()
+                state.dislikedStats?.let {
+                    stats_container_dislikes_first.loadTrackStats(it)
+                }
                 Utils.setVisible(stats_container_first, true)
             }
             state.status == MviViewState.Status.ERROR -> {
@@ -154,18 +168,16 @@ class SummaryLayout @JvmOverloads constructor(
     override fun onLiked(position: Int) {
         val model = adapter.tracks[position]
         val newModel = model.copy(pref = TrackModel.Pref.LIKED)
-        // modify it in viewmodel
-//        eventsPublisher.accept(CardsIntent.ChangeTrackPref.like(newModel))
+        simpleResultsPublisher.accept(SummaryResult.ChangeTrackPref(newModel))
     }
 
     override fun onDisliked(position: Int) {
         val model = adapter.tracks[position]
         val newModel = model.copy(pref = TrackModel.Pref.DISLIKED)
-        // modify it in viewmodel
-//        eventsPublisher.accept(CardsIntent.ChangeTrackPref.dislike(newModel))
+        simpleResultsPublisher.accept(SummaryResult.ChangeTrackPref(newModel))
     }
 
-    private fun renderButton(state: SummaryViewState, button: TextView, @StringRes successResId: Int, @StringRes errorResId: Int) {
+    private fun renderButton(state: SummaryViewState, button: RoundedCornerButton, @StringRes successResId: Int, @StringRes errorResId: Int) {
         when {
             state.status == MviViewState.Status.LOADING -> {
                 button.isEnabled = false
@@ -175,6 +187,7 @@ class SummaryLayout @JvmOverloads constructor(
                 button.alpha = 1f
                 button.isEnabled = false
                 button.text = resources.getString(successResId)
+                button.setColor(R.color.venice_verde)
             }
             state.status == MviViewState.Status.ERROR -> {
                 button.alpha = 1f
@@ -182,6 +195,11 @@ class SummaryLayout @JvmOverloads constructor(
                 action_save_to_database.text = resources.getString(errorResId)
             }
         }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        summary_tracks_recycler_view.removeOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
     }
 
 }

@@ -11,7 +11,6 @@ import com.cziyeli.songbits.playlistcard.CardIntentMarker
  * Created by connieli on 1/6/18.
  */
 sealed class SummaryIntent : MviIntent, CardIntentMarker {
-    // TODO: what do I need to create pending PlaylistCard on open
     // fetch audio features for liked/disliked/all => transform to domain model TrackListStats
     class FetchFullStats(val pref: Repository.Pref = Repository.Pref.ALL) : SummaryIntent()
 

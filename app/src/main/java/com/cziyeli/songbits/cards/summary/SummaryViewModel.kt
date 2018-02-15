@@ -51,6 +51,7 @@ class SummaryViewModel constructor(
             is SummaryResult.SaveTracks -> return@BiFunction processSaveResult(previousState, result)
             is SummaryResult.CreatePlaylistWithTracks -> return@BiFunction processCreatePlaylistResult(previousState, result)
             is SummaryResult.SetTracks -> return@BiFunction processSetTracks(previousState, result)
+            is SummaryResult.ChangeTrackPref -> return@BiFunction processChangeTrackPref(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -88,9 +89,12 @@ class SummaryViewModel constructor(
     private fun actionFromIntent(intent: MviIntent) : MviAction {
         return when(intent) {
             is SummaryIntent.FetchFullStats -> {
-                when (intent.pref) {
-                    Repository.Pref.LIKED -> StatsAction.FetchFullStats(currentViewState.currentLikes, intent.pref)
-                    else -> StatsAction.FetchFullStats(currentViewState.currentDislikes, intent.pref)
+                when {
+                    intent.pref == Repository.Pref.LIKED && currentViewState.currentLikes.isNotEmpty() ->
+                        StatsAction.FetchFullStats(currentViewState.currentLikes, intent.pref)
+                    intent.pref == Repository.Pref.DISLIKED && currentViewState.currentDislikes.isNotEmpty() ->
+                        StatsAction.FetchFullStats(currentViewState.currentDislikes, intent.pref)
+                    else -> None
                 }
             }
             is SummaryIntent.SaveAllTracks -> SummaryAction.SaveTracks(intent.tracks, intent.playlistId)
@@ -103,13 +107,30 @@ class SummaryViewModel constructor(
     // ===== Individual reducers ======
 
     private fun processSetTracks(previousState: SummaryViewState, result: SummaryResult.SetTracks) : SummaryViewState {
-        Utils.mLog(TAG, "processSetTracks! ${result.status}")
         val status = when (result.status) {
             MviResult.Status.LOADING -> MviViewState.Status.LOADING
             MviResult.Status.SUCCESS -> MviViewState.Status.SUCCESS
             else -> MviViewState.Status.ERROR
         }
         return previousState.copy(lastResult = result, status = status)
+    }
+
+    // Viewmodel only - this does NOT save in database.
+    private fun processChangeTrackPref(previousState: SummaryViewState, result: SummaryResult.ChangeTrackPref) : SummaryViewState {
+        Utils.mLog(TAG, "processChangeTrackPref! ${result.status}")
+        val status = when (result.status) {
+            MviResult.Status.LOADING -> MviViewState.Status.LOADING
+            MviResult.Status.SUCCESS -> MviViewState.Status.SUCCESS
+            else -> MviViewState.Status.ERROR
+        }
+        val changedTrackIndex = previousState.allTracks.indexOfLast { it.id == result.track.id }
+        val newTracks = previousState.allTracks.toMutableList()
+        newTracks[changedTrackIndex] = result.track
+        return previousState.copy(
+                lastResult = result,
+                status = status,
+                allTracks = newTracks
+        )
     }
 
     private fun processLikedStats(previousState: SummaryViewState, result: SummaryResult.FetchLikedStats) : SummaryViewState {
