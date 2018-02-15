@@ -4,11 +4,11 @@
 	<!-- border color -->
 	<stroke
 		android:width="0dp"
-		android:color="@color/turquoise_blue" />
+		android:color="@color/colorPrimaryShade" />
 
 	<!-- background color -->
 	<solid
-		android:color="@color/quartet_blue"
+		android:color="@color/colorPrimary"
 		/>
 
 	<corners android:topLeftRadius="@dimen/action_button_radius"

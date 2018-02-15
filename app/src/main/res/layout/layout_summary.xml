@@ -80,8 +80,8 @@
 						android:layout_width="0dp"
 						android:layout_weight="1"
 						style="@style/SummaryButton"
-						button:bg_color="@color/colorPrimaryShade"
-						button:rounded_border_color="@color/colorPrimary"
+						button:bg_color="@color/quartet_blue"
+						button:rounded_border_color="@color/turquoise_blue"
 						/>
 
 					<com.cziyeli.songbits.base.RoundedCornerButton
