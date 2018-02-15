@@ -66,6 +66,7 @@
 	<string name="summary_stash_swipes">Stash your swipes for now (they’ll be saved in your Tracks tab)</string>
 	<string name="summary_review_swipes">Edit your swipes</string>
 	<string name="action_error">Something went wrong :(</string>
-	<string name="general_success">SUCCESS!</string>
+	<string name="save_success_cta">Success!\nTap to go to your stash</string>
+	<string name="create_success_cta">Success!\nTap to go to your playlists</string>
 
 </resources>

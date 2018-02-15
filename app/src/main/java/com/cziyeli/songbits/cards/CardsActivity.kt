@@ -1,5 +1,6 @@
 package com.cziyeli.songbits.cards
 
+import android.app.Activity
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
@@ -40,6 +41,8 @@ import javax.inject.Named
 class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>, TrackCardView.TrackListener {
 
     companion object {
+        // open Create activity with request code
+        const val REQUEST_CODE_CREATE = 99
         const val EXTRA_PLAYLIST = "extra_playlist"
         const val EXTRA_TRACKS_TO_SWIPE = "key_tracks_to_swipe"
         const val TAG: String = "CardsActivity"
@@ -231,6 +234,13 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
 
         // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
         viewModel.processIntents(intents())
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+        // Check which request we're responding to
+        if (requestCode == REQUEST_CODE_CREATE && resultCode == Activity.RESULT_OK) {
+            summaryLayout.notifyPlaylistCreated()
+        }
     }
 
     override fun onDestroy() {

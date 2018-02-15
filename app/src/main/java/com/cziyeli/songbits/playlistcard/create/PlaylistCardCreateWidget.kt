@@ -55,6 +55,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
     private lateinit var adapter: TrackRowsAdapter
     private var onTouchListener: RecyclerTouchListener? = null
     private var onSwipeListener: RecyclerTouchListener.OnSwipeListener? = null
+    private var playlistCreatedListener: PlaylistCreatedListener? = null
 
     // Flag for whether we've created the new playlist or not
     private var isFinished: Boolean = false
@@ -74,10 +75,12 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
     fun loadTracks(tracks: List<TrackModel>,
                    swipeListener: RecyclerTouchListener.OnSwipeListener? = null,
                    touchListener: RecyclerTouchListener? = null,
-                   carouselHeaderUrl: String?
+                   carouselHeaderUrl: String?,
+                   listener: PlaylistCreatedListener? = null
     ) {
         onSwipeListener = swipeListener
         onTouchListener = touchListener
+        playlistCreatedListener = listener
 
         carouselHeaderUrl?.let {
             simpleResultsPublisher.accept(CardResult.HeaderSet(it))
@@ -167,6 +170,11 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
 
         isEnabled = false
         descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
+
+        // notify calling activity
+        playlistCreatedListener?.run {
+            onPlaylistCreated()
+        }
     }
 
     override fun intents(): Observable<out CardIntentMarker> {
@@ -190,5 +198,9 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
             Glide.with(this).load(state.carouselHeaderUrl).into(add_playlist_image_background)
             carouselImageSet = true
         }
+    }
+
+    interface PlaylistCreatedListener {
+        fun onPlaylistCreated()
     }
 }

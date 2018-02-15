@@ -2,6 +2,8 @@ package com.cziyeli.songbits.root
 
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
@@ -11,12 +13,10 @@ import com.cziyeli.commons.Utils
 import com.cziyeli.commons.fetchColor
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.songbits.R
-import com.cziyeli.songbits.cards.TracksRecyclerViewDelegate
 import com.cziyeli.songbits.home.HomeFragment
 import com.cziyeli.songbits.profile.UserFragment
 import com.cziyeli.songbits.stash.StashFragment
 import com.jakewharton.rxrelay2.PublishRelay
-import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -24,13 +24,26 @@ import dagger.android.support.HasSupportFragmentInjector
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_root.*
-import kotlinx.android.synthetic.main.widget_simple_card.*
+import org.jetbrains.anko.intentFor
 import javax.inject.Inject
 
 // Main activity with bottom nav, the three tabs
 class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<RootIntent, RootViewState> {
     private val TAG = RootActivity::class.java.simpleName
 
+    enum class Tab(val tabPosition: Int) {
+        HOME(0),
+        STASH(1),
+        PROFILE(2)
+    }
+
+    companion object {
+        private const val EXTRA_OPENING_TAB = "extra_open_to_tab"
+
+        fun create(context: Context, tab: Tab? = Tab.HOME) : Intent {
+            return context.intentFor<RootActivity>(EXTRA_OPENING_TAB to tab?.tabPosition)
+        }
+    }
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     // view models
@@ -57,6 +70,10 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<Ro
 
         setUpBottomNav()
         setUpViewPager()
+
+        // check if we should open to a particular tab
+        val tabPosition = intent.getIntExtra(EXTRA_OPENING_TAB, 0)
+        view_pager.currentItem = tabPosition
     }
 
     private fun initViewModel() {

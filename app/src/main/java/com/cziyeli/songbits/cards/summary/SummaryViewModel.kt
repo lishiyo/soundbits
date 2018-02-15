@@ -51,6 +51,7 @@ class SummaryViewModel constructor(
             is SummaryResult.SaveTracks -> return@BiFunction processSaveResult(previousState, result)
             is SummaryResult.CreatePlaylistWithTracks -> return@BiFunction processCreatePlaylistResult(previousState, result)
             is SummaryResult.SetTracks -> return@BiFunction processSetTracks(previousState, result)
+            is SummaryResult.PlaylistCreated -> return@BiFunction processPlaylistCreated(previousState, result)
             is SummaryResult.ChangeTrackPref -> return@BiFunction processChangeTrackPref(previousState, result)
             else -> return@BiFunction previousState
         }
@@ -115,9 +116,17 @@ class SummaryViewModel constructor(
         return previousState.copy(lastResult = result, status = status)
     }
 
+    private fun processPlaylistCreated(previousState: SummaryViewState, result: SummaryResult.PlaylistCreated) : SummaryViewState {
+        val status = when (result.status) {
+            MviResult.Status.LOADING -> MviViewState.Status.LOADING
+            MviResult.Status.SUCCESS -> MviViewState.Status.SUCCESS
+            else -> MviViewState.Status.ERROR
+        }
+        return previousState.copy(lastResult = result, status = status)
+    }
+
     // Viewmodel only - this does NOT save in database.
     private fun processChangeTrackPref(previousState: SummaryViewState, result: SummaryResult.ChangeTrackPref) : SummaryViewState {
-        Utils.mLog(TAG, "processChangeTrackPref! ${result.status}")
         val status = when (result.status) {
             MviResult.Status.LOADING -> MviViewState.Status.LOADING
             MviResult.Status.SUCCESS -> MviViewState.Status.SUCCESS

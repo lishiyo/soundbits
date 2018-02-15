@@ -26,6 +26,12 @@ sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Sta
      * Set a new track.
      */
     class ChangeTrackPref(val track: TrackModel) : SummaryResult(MviResult.Status.SUCCESS, null)
+
+    /**
+     * Single event - mark playlist created.
+     */
+    class PlaylistCreated : SummaryResult(MviResult.Status.SUCCESS)
+
     /**
      * Load stats for the Liked tracks.
      */

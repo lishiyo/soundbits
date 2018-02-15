@@ -5,6 +5,7 @@ import android.content.Context
 import android.support.annotation.StringRes
 import android.support.v7.widget.LinearLayoutManager
 import android.util.AttributeSet
+import android.view.View.OnClickListener
 import android.widget.LinearLayout
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.disableTouchTheft
@@ -17,15 +18,19 @@ import com.cziyeli.domain.summary.SummaryResultMarker
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.base.RoundedCornerButton
+import com.cziyeli.songbits.cards.CardsActivity.Companion.REQUEST_CODE_CREATE
 import com.cziyeli.songbits.cards.TracksRecyclerViewDelegate
 import com.cziyeli.songbits.di.App
 import com.cziyeli.songbits.playlistcard.TrackRowsAdapter
 import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateActivity
+import com.cziyeli.songbits.root.RootActivity
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.layout_summary.view.*
 import kotlinx.android.synthetic.main.widget_quickcounts_row.view.*
+
+
 
 /**
  * View to show the summary at the end of swiping
@@ -98,8 +103,8 @@ class SummaryLayout @JvmOverloads constructor(
 
         // create playlist from likes
         action_create_playlist.setOnClickListener {
-            callingActivity.startActivity(
-                    PlaylistCardCreateActivity.create(context, viewModel.currentViewState.currentLikes)
+            callingActivity.startActivityForResult(
+                    PlaylistCardCreateActivity.create(context, viewModel.currentViewState.currentLikes), REQUEST_CODE_CREATE
             )
         }
 
@@ -124,16 +129,24 @@ class SummaryLayout @JvmOverloads constructor(
             state.lastResult is SummaryResult.SetTracks -> {
                 adapter.setTracksAndNotify(state.allTracks)
             }
-            state.lastResult is SummaryResult.SaveTracks -> {
-                renderButton(state, action_save_to_database, R.string.general_success, R.string.action_error)
+            state.lastResult is SummaryResult.SaveTracks -> { renderButton(state,
+                    action_save_to_database, R.string.save_success_cta, R.string.action_error,
+                    OnClickListener {
+                        callingActivity.startActivity(RootActivity.create(callingActivity, RootActivity.Tab.STASH))
+                    }
+                )
             }
             state.status == MviViewState.Status.SUCCESS && state.lastResult is SummaryResult.ChangeTrackPref -> {
                 val track = (state.lastResult as? SummaryResult.ChangeTrackPref)?.track
                 adapter.updateTrack(track, false)
             }
-            state.lastResult is SummaryResult.CreatePlaylistWithTracks -> {
-                // todo actually implement this
-                renderButton(state, action_create_playlist, R.string.general_success, R.string.action_error)
+            state.lastResult is SummaryResult.PlaylistCreated -> {
+                renderButton(state,
+                        action_create_playlist, R.string.create_success_cta, R.string.action_error,
+                        OnClickListener {
+                            callingActivity.startActivity(RootActivity.create(callingActivity, RootActivity.Tab.HOME))
+                        }
+                )
             }
             state.status == MviViewState.Status.SUCCESS && state.lastResult is SummaryResult.FetchLikedStats -> {
                 progress_stats.smoothToHide()
@@ -165,6 +178,13 @@ class SummaryLayout @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Trigger the playlist-created result to the view model.
+     */
+    fun notifyPlaylistCreated() {
+        simpleResultsPublisher.accept(SummaryResult.PlaylistCreated())
+    }
+
     override fun onLiked(position: Int) {
         val model = adapter.tracks[position]
         val newModel = model.copy(pref = TrackModel.Pref.LIKED)
@@ -177,7 +197,12 @@ class SummaryLayout @JvmOverloads constructor(
         simpleResultsPublisher.accept(SummaryResult.ChangeTrackPref(newModel))
     }
 
-    private fun renderButton(state: SummaryViewState, button: RoundedCornerButton, @StringRes successResId: Int, @StringRes errorResId: Int) {
+    private fun renderButton(state: SummaryViewState,
+                             button: RoundedCornerButton,
+                             @StringRes successResId: Int,
+                             @StringRes errorResId: Int,
+                             newClickListener: OnClickListener? = null
+    ) {
         when {
             state.status == MviViewState.Status.LOADING -> {
                 button.isEnabled = false
@@ -185,9 +210,10 @@ class SummaryLayout @JvmOverloads constructor(
             }
             state.status == MviViewState.Status.SUCCESS -> {
                 button.alpha = 1f
-                button.isEnabled = false
+                button.isEnabled = true
                 button.text = resources.getString(successResId)
                 button.setColor(R.color.venice_verde)
+                button.setOnClickListener(newClickListener)
             }
             state.status == MviViewState.Status.ERROR -> {
                 button.alpha = 1f

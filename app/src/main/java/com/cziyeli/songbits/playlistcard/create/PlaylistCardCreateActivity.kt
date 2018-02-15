@@ -1,5 +1,6 @@
 package com.cziyeli.songbits.playlistcard.create
 
+import android.app.Activity
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
@@ -23,10 +24,12 @@ import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
 
+
+
 /**
  * Activity holding the [PlaylistCardCreateWidget] for creating a playlist out of tracks.
  */
-class PlaylistCardCreateActivity : AppCompatActivity() {
+class PlaylistCardCreateActivity : AppCompatActivity(), PlaylistCardCreateWidget.PlaylistCreatedListener {
     val TAG = PlaylistCardCreateActivity::class.java.simpleName
 
     companion object {
@@ -95,12 +98,19 @@ class PlaylistCardCreateActivity : AppCompatActivity() {
                 viewModel.pendingTracks,
                 null,
                 onTouchListener,
-                carouselHeaderUrl
+                carouselHeaderUrl,
+                this
         )
         // delegate ui events to the mvi view
         fab.setOnClickListener { _ ->
             create_playlist_card_widget.createPlaylist(App.getCurrentUserId(), viewModel.pendingTracks)
         }
+    }
+
+    override fun onPlaylistCreated() {
+        val resultIntent = Intent()
+        setResult(Activity.RESULT_OK, resultIntent)
+        finish()
     }
 
     private fun createOnTouchListener() : RecyclerTouchListener {
