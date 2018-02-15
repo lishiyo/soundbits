@@ -37,29 +37,30 @@ class UserActionProcessor @Inject constructor(private val repository: Repository
 
     // fetch and save the current user in UserManager
     val fetchUserProcessor : ObservableTransformer<UserAction.FetchUser, UserResult.FetchUser>
-            = ObservableTransformer { action -> action.switchMap {
-        _ -> repository
-            .fetchCurrentUser()
-            .subscribeOn(schedulerProvider.io())
-            .toObservable()
-    }
-            .map { User.create(it) }
-            .doOnNext { user ->
-                userManager.saveUser(user)
-            }
-            .map { user -> UserResult.FetchUser.createSuccess(currentUser = user)}
-            .onErrorReturn { err -> UserResult.FetchUser.createError(err) }
-            .startWith(UserResult.FetchUser.createLoading())
-            .retry()
+            = ObservableTransformer { actions -> actions.switchMap { _ ->
+        repository.fetchCurrentUser()
+                .toObservable()
+                .map { User.create(it) }
+                .doOnNext { user -> userManager.saveUser(user) }
+                .map { user -> UserResult.FetchUser.createSuccess(currentUser = user) }
+                .onErrorReturn { err -> UserResult.FetchUser.createError(err) }
+                .subscribeOn(schedulerProvider.io())
+                .observeOn(schedulerProvider.ui())
+                .startWith(UserResult.FetchUser.createLoading())
+        }
     }
 
     // logout the user
-    val clearUserProcessor : ObservableTransformer<UserAction.ClearUser, UserResult.ClearUser> = ObservableTransformer { action ->
-        action.doOnNext { _ -> userManager.clearUser() }
-                .doOnNext { Utils.mLog(TAG, "clearUserProcessor", "user: ${it} ")}
-                .map { _ -> UserResult.ClearUser.createSuccess() }
-                .onErrorReturn { err -> UserResult.ClearUser.createError(err) }
-                .startWith(UserResult.ClearUser.createLoading())
-                .retry()
+    val clearUserProcessor : ObservableTransformer<UserAction.ClearUser, UserResult.ClearUser> = ObservableTransformer { actions ->
+        actions.switchMap { action ->
+            Observable.just(action)
+                    .doOnNext { _ -> userManager.clearUser() }
+                    .doOnNext { Utils.mLog(TAG, "clearUserProcessor", "user: ${it} ") }
+                    .map { _ -> UserResult.ClearUser.createSuccess() }
+                    .onErrorReturn { err -> UserResult.ClearUser.createError(err) }
+                    .subscribeOn(schedulerProvider.io())
+                    .observeOn(schedulerProvider.ui())
+                    .startWith(UserResult.ClearUser.createLoading())
+        }
     }
 }

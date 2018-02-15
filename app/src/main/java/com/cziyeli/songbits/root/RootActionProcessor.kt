@@ -40,48 +40,40 @@ class RootActionProcessor @Inject constructor(private val repository: Repository
     // ==== individual list of processors (action -> result) ====
 
     private val fetchQuickCountsProcessor : ObservableTransformer<UserAction.FetchQuickCounts, UserResult.FetchQuickCounts> =
-            ObservableTransformer { action ->
-                action.switchMap { act ->
-                    repository.fetchUserQuickStats().subscribeOn(schedulerProvider.io()).toObservable()
-                }.map { (total, liked, disliked) -> QuickCounts(total, liked, disliked) }
-                        .doOnNext { Utils.mLog(TAG, "fetchQuickCountsProcessor","got quickCounts: $it")}
-                        .observeOn(schedulerProvider.ui())
+            ObservableTransformer { actions -> actions.switchMap { act ->
+                repository.fetchUserQuickStats().toObservable()
+                        .map { (total, liked, disliked) -> QuickCounts(total, liked, disliked) }
+                        .doOnNext { Utils.mLog(TAG, "fetchQuickCountsProcessor", "got quickCounts: $it") }
                         .map { quickCounts -> UserResult.FetchQuickCounts.createSuccess(quickCounts) }
                         .onErrorReturn { err -> UserResult.FetchQuickCounts.createError(err) }
+                        .subscribeOn(schedulerProvider.io())
+                        .observeOn(schedulerProvider.ui())
                         .startWith(UserResult.FetchQuickCounts.createLoading())
-                        .retry()
+                }
             }
 
 
     private val likedTracksProcessor : ObservableTransformer<UserAction.LoadLikedTracks, UserResult.LoadLikesCard>
-            = ObservableTransformer { action -> action.switchMap {
-        act -> repository
-            .fetchUserTracks(Repository.Pref.LIKED, act.limit, act.offset)
-            .toObservable()
-            .subscribeOn(schedulerProvider.io())
-            }.map { resp ->
-                resp.map {  TrackModel.createFromLocal(it) }
-            }
-            .observeOn(schedulerProvider.ui())
-            .map { tracks -> UserResult.LoadLikesCard.createSuccess(tracks) }
-            .onErrorReturn { err -> UserResult.LoadLikesCard.createError(err) }
-            .startWith(UserResult.LoadLikesCard.createLoading())
-            .retry()
+            = ObservableTransformer { actions -> actions.switchMap { act ->
+        repository.fetchUserTracks(Repository.Pref.LIKED, act.limit, act.offset).toObservable()
+                .map { resp -> resp.map { TrackModel.createFromLocal(it) } }
+                .map { tracks -> UserResult.LoadLikesCard.createSuccess(tracks) }
+                .onErrorReturn { err -> UserResult.LoadLikesCard.createError(err) }
+                .subscribeOn(schedulerProvider.io())
+                .observeOn(schedulerProvider.ui())
+                .startWith(UserResult.LoadLikesCard.createLoading())
+        }
     }
 
     private val dislikedTracksProcessor : ObservableTransformer<UserAction.LoadDislikedTracks, UserResult.LoadDislikesCard>
-            = ObservableTransformer { action -> action.switchMap {
-        act -> repository
-                .fetchUserTracks(Repository.Pref.DISLIKED, act.limit, act.offset)
-                .toObservable()
+            = ObservableTransformer { actions -> actions.switchMap { act ->
+        repository.fetchUserTracks(Repository.Pref.DISLIKED, act.limit, act.offset).toObservable()
+                .map { resp -> resp.map { TrackModel.createFromLocal(it) } }
+                .map { tracks -> UserResult.LoadDislikesCard.createSuccess(tracks) }
+                .onErrorReturn { err -> UserResult.LoadDislikesCard.createError(err) }
                 .subscribeOn(schedulerProvider.io())
-            }.map { resp ->
-                resp.map {  TrackModel.createFromLocal(it) }
+                .observeOn(schedulerProvider.ui())
+                .startWith(UserResult.LoadDislikesCard.createLoading())
             }
-            .observeOn(schedulerProvider.ui())
-            .map { tracks -> UserResult.LoadDislikesCard.createSuccess(tracks) }
-            .onErrorReturn { err -> UserResult.LoadDislikesCard.createError(err) }
-            .startWith(UserResult.LoadDislikesCard.createLoading())
-            .retry()
-    }
+        }
 }

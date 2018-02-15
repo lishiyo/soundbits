@@ -26,8 +26,8 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
     val combinedProcessor: ObservableTransformer<TrackAction, TrackResult> = ObservableTransformer { acts ->
         acts.publish { shared ->
             Observable.merge<TrackResult>(
-                    shared.ofType<TrackAction.SetTracks>(TrackAction.SetTracks::class.java).compose(mSetTracksProcessor),
-                    shared.ofType<TrackAction.LoadTrackCards>(TrackAction.LoadTrackCards::class.java).compose(mLoadTrackCardsProcessor),
+                    shared.ofType<TrackAction.SetTracks>(TrackAction.SetTracks::class.java).compose(setTracksProcessor),
+                    shared.ofType<TrackAction.LoadTrackCards>(TrackAction.LoadTrackCards::class.java).compose(loadTrackCardsProcessor),
                     shared.ofType<TrackAction.CommandPlayer>(TrackAction.CommandPlayer::class.java).compose(commandPlayerProcessor),
                     shared.ofType<TrackAction.ChangeTrackPref>(TrackAction.ChangeTrackPref::class.java).compose(changePrefProcessor)
             ).doOnNext {
@@ -38,51 +38,53 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
 
     // ==== individual list of processors (action -> result) ====
 
-    private val mSetTracksProcessor:  ObservableTransformer<TrackAction.SetTracks, TrackResult.LoadTrackCards> = ObservableTransformer {
-        action -> action
-            .map { it.tracks }
-            .map { trackCards -> TrackResult.LoadTrackCards.createSuccess(trackCards) }
-            .onErrorReturn { err -> TrackResult.LoadTrackCards.createError(err) }
-            .startWith(TrackResult.LoadTrackCards.createLoading())
-            .retry() // don't unsubscribe
+    private val setTracksProcessor:  ObservableTransformer<TrackAction.SetTracks, TrackResult.LoadTrackCards> = ObservableTransformer {
+        actions -> actions.switchMap { act ->
+            Observable.just(act.tracks)
+                    .map { trackCards -> TrackResult.LoadTrackCards.createSuccess(trackCards) }
+                    .onErrorReturn { err -> TrackResult.LoadTrackCards.createError(err) }
+                    .observeOn(schedulerProvider.ui())
+                    .startWith(TrackResult.LoadTrackCards.createLoading())
+        }
     }
 
     // fetch tracks from REMOTE for a playlist
-    private val mLoadTrackCardsProcessor: ObservableTransformer<TrackAction.LoadTrackCards, TrackResult.LoadTrackCards> = ObservableTransformer {
-        action -> action.switchMap {
-            act -> repository
+    private val loadTrackCardsProcessor: ObservableTransformer<TrackAction.LoadTrackCards, TrackResult.LoadTrackCards> = ObservableTransformer {
+        actions -> actions.switchMap { act ->
+            repository
                 .fetchPlaylistTracks(Repository.Source.REMOTE, act.ownerId, act.playlistId, act.fields, act.limit, act.offset)
-                .subscribeOn(schedulerProvider.io())
                 .map { resp ->
-                    var finalTracks = resp.items
-                    if (resp.items.isNotEmpty() && act.onlyTrackIds.isNotEmpty()) {
-                        finalTracks = resp.items.filter { playlistTrack -> act.onlyTrackIds.contains(playlistTrack.track.id) }
+                    var finalTracks = if (resp.items.isNotEmpty() && act.onlyTrackIds.isNotEmpty()) {
+                        resp.items.filter { playlistTrack -> act.onlyTrackIds.contains(playlistTrack.track.id) }
+                    } else {
+                        resp.items
                     }
                     finalTracks
                 }
-            }
-            .map { items -> items.map { it.track }}
-            .map { tracks -> tracks.map { TrackModel.create(it) } }
-            .observeOn(schedulerProvider.ui())
-            .map { trackCards -> TrackResult.LoadTrackCards.createSuccess(trackCards) }
-            .onErrorReturn { err -> TrackResult.LoadTrackCards.createError(err) }
-            .startWith(TrackResult.LoadTrackCards.createLoading())
-            .retry() // don't unsubscribe
+                .map { items -> items.map { it.track }}
+                .map { tracks -> tracks.map { TrackModel.create(it) } }
+                .map { trackCards -> TrackResult.LoadTrackCards.createSuccess(trackCards) }
+                .onErrorReturn { err -> TrackResult.LoadTrackCards.createError(err) }
+                .subscribeOn(schedulerProvider.io())
+                .observeOn(schedulerProvider.ui())
+                .startWith(TrackResult.LoadTrackCards.createLoading())
+        }
     }
 
     // play, pause, stop the audio player
     private val commandPlayerProcessor : ObservableTransformer<TrackAction.CommandPlayer, TrackResult.CommandPlayerResult> = ObservableTransformer {
-        action -> action.switchMap {
-            act -> player.handlePlayerCommand(act.track, act.command)
+        actions -> actions.switchMap { act ->
+            player.handlePlayerCommand(act.track, act.command)
         }.retry() // don't unsubscribe
     }
 
     // like, dislike, undo track - no saving in db
     private val changePrefProcessor : ObservableTransformer<TrackAction.ChangeTrackPref, TrackResult.ChangePrefResult> = ObservableTransformer {
-        action -> action
-            .map { act -> act.track.copy(pref = act.pref) } // return new for immutability
-            .map { TrackResult.ChangePrefResult.createSuccess(it, it.pref) }
-            .onErrorReturn { err -> TrackResult.ChangePrefResult.createError(err)}
-            .retry()
+        actions -> actions.switchMap { act ->
+            Observable.just(act.track.copy(pref = act.pref))
+                    .map { TrackResult.ChangePrefResult.createSuccess(it, it.pref) }
+                    .onErrorReturn { err -> TrackResult.ChangePrefResult.createError(err) }
+                    .retry()
+            }
     }
 }
