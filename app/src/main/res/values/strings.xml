@@ -59,7 +59,7 @@
 	<string name="new_playlist_description">via songbits</string>
 
 	<!-- summary stuff -->
-	<string name="summary_title">Awesome! You liked %1$d and disliked %1$d tracks!</string>
+	<string name="summary_title">Awesome! You liked %1$d and disliked %2$d tracks!</string>
 	<string name="summary_subtitle">Would you like to…</string>
 	<string name="summary_subtitle_two">Summary Card</string>
 	<string name="summary_create_playlist">Create a new playlist out of your Likes</string>
