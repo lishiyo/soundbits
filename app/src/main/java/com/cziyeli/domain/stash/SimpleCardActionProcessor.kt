@@ -45,16 +45,15 @@ class SimpleCardActionProcessor @Inject constructor(private val repository: Repo
 
     // given list of tracks -> fetch FULL track stats
     private val fetchStatsProcessor: ObservableTransformer<StatsAction.FetchFullStats, StatsResult.FetchFullStats> = ObservableTransformer {
-        action -> action.switchMap {
-        act -> repository
-            .fetchTracksStats(Repository.Source.REMOTE, act.trackModels.map {it.id} )
-            .map { Pair(it, act.trackModels)}
-            .subscribeOn(schedulerProvider.io())
-        }.map { resp -> TrackListStats.create(resp.first, resp.second) }
-            .observeOn(schedulerProvider.ui())
-            .map { trackStats -> StatsResult.FetchFullStats.createSuccess(trackStats) }
-            .onErrorReturn { err -> StatsResult.FetchFullStats.createError(err) }
-            .startWith(StatsResult.FetchFullStats.createLoading())
-            .retry() // don't unsubscribe
+        action -> action.switchMap { act ->
+        repository.fetchTracksStats(Repository.Source.REMOTE, act.trackModels.map {it.id} )
+                .map { Pair(it, act.trackModels)}
+                .map { resp -> TrackListStats.create(resp.first, resp.second) }
+                .map { trackStats -> StatsResult.FetchFullStats.createSuccess(trackStats) }
+                .onErrorReturn { err -> StatsResult.FetchFullStats.createError(err) }
+                .subscribeOn(schedulerProvider.io())
+                .observeOn(schedulerProvider.ui())
+                .startWith(StatsResult.FetchFullStats.createLoading())
+        }
     }
 }

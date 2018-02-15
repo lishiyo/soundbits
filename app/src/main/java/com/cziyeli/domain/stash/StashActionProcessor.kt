@@ -30,15 +30,17 @@ class StashActionProcessor @Inject constructor(private val repository: Repositor
         }
     }
 
+    /**
+     * "Clear" all swiped tracks from database to reset.
+     */
     private val clearTracksProcessor: ObservableTransformer<StashAction.ClearTracks, StashResult.ClearTracks> = ObservableTransformer {
-        action -> action.map { act ->
-            repository.clearStashedTracks(act.pref)
-        act
-            }
-            .map { act -> StashResult.ClearTracks.createSuccess(act.pref) }
-            .onErrorReturn { err -> StashResult.ClearTracks.createError(err) }
-            .startWith(StashResult.ClearTracks.createLoading())
-            .retry()
+        action -> action.switchMap { act ->
+            Observable.just(act)
+                    .doOnNext { repository.clearStashedTracks(act.pref) }
+                    .map { _ -> StashResult.ClearTracks.createSuccess(act.pref) }
+                    .onErrorReturn { err -> StashResult.ClearTracks.createError(err) }
+                    .startWith(StashResult.ClearTracks.createLoading())
+        }
     }
 
 }

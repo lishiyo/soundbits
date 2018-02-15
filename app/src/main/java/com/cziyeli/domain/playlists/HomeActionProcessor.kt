@@ -34,33 +34,33 @@ class HomeActionProcessor @Inject constructor(private val repository: Repository
 
     // ==== individual list of processors (action -> result) ====
 
+    /**
+     * Fetch user's playlists.
+     */
     private val userPlaylistsProcessor : ObservableTransformer<PlaylistsAction.UserPlaylists, PlaylistsResult.UserPlaylists>
-            = ObservableTransformer { action -> action.switchMap {
-                    act -> repository
-                                .fetchUserPlaylists(Repository.Source.REMOTE, act.limit, act.offset)
-                                .subscribeOn(schedulerProvider.io())
-                    }.map { resp ->
-                        resp.items.map { Playlist.create(it) }
-                    }
-                    .observeOn(schedulerProvider.ui())
-                    .map { playlists -> PlaylistsResult.UserPlaylists.createSuccess(playlists) }
-                    .onErrorReturn { err -> PlaylistsResult.UserPlaylists.createError(err) }
-                    .startWith(PlaylistsResult.UserPlaylists.createLoading())
-                    .retry()
-            }
+            = ObservableTransformer { action -> action.switchMap { act ->
+                    repository.fetchUserPlaylists(Repository.Source.REMOTE, act.limit, act.offset)
+                            .map { resp -> resp.items.map { Playlist.create(it) } }
+                            .map { playlists -> PlaylistsResult.UserPlaylists.createSuccess(playlists) }
+                            .onErrorReturn { err -> PlaylistsResult.UserPlaylists.createError(err) }
+                            .subscribeOn(schedulerProvider.io())
+                            .observeOn(schedulerProvider.ui())
+                            .startWith(PlaylistsResult.UserPlaylists.createLoading())
+        }
+    }
 
+    /**
+     * Fetch featured playlists.
+     */
     private val featuredPlaylistsProcessor : ObservableTransformer<PlaylistsAction.FeaturedPlaylists, PlaylistsResult.FeaturedPlaylists>
-            = ObservableTransformer { action -> action.switchMap {
-        act -> repository
-            .fetchFeaturedPlaylists(Repository.Source.REMOTE, act.limit, act.offset)
-            .subscribeOn(schedulerProvider.io())
-            }.map { resp ->
-                resp.items.map { Playlist.create(it) }
-            }
-            .observeOn(schedulerProvider.ui())
-            .map { playlists -> PlaylistsResult.FeaturedPlaylists.createSuccess(playlists) }
-            .onErrorReturn { err -> PlaylistsResult.FeaturedPlaylists.createError(err) }
-            .startWith(PlaylistsResult.FeaturedPlaylists.createLoading())
-            .retry()
+            = ObservableTransformer { action -> action.switchMap { act ->
+        repository.fetchFeaturedPlaylists(Repository.Source.REMOTE, act.limit, act.offset)
+                .map { resp -> resp.items.map { Playlist.create(it) } }
+                .map { playlists -> PlaylistsResult.FeaturedPlaylists.createSuccess(playlists) }
+                .onErrorReturn { err -> PlaylistsResult.FeaturedPlaylists.createError(err) }
+                .subscribeOn(schedulerProvider.io())
+                .observeOn(schedulerProvider.ui())
+                .startWith(PlaylistsResult.FeaturedPlaylists.createLoading())
+        }
     }
 }
