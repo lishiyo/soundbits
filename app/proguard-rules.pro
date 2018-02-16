@@ -24,3 +24,12 @@
 -keepclassmembers class ** {
 	@com.mindorks.placeholderview.annotations.** <methods>;
 }
+-keepclassmembers class kotlin.Metadata {
+    public <methods>;
+}
+
+-keepattributes *Annotation*
+-keep class kotlin.** { *; }
+-keep class org.jetbrains.** { *; }
+-dontwarn kotlin.reflect.jvm.internal.**
+-keep class kotlin.reflect.jvm.internal.** { *; }

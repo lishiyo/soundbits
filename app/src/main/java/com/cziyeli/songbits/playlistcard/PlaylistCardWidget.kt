@@ -19,7 +19,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.disableTouchTheft
 import com.cziyeli.commons.mvibase.MviView
-import com.cziyeli.commons.toast
+import com.cziyeli.domain.playlistcard.CardResult
 import com.cziyeli.domain.playlistcard.PlaylistCardResult
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.StatsResult
@@ -140,6 +140,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
         tracks_recycler_view.disableTouchTheft()
 
         // try to force refresh upon click
+        // TODO this doesn't work
         expansion_header.setOnClickListener {
             Utils.mLog(TAG, "expansionHeader -- onClick! expanded? ${expansion_layout.isExpanded}")
             if (!expansion_layout.isExpanded) { // hidden, going to be opened
@@ -154,48 +155,71 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
     }
 
     override fun render(state: PlaylistCardViewModel.PlaylistCardViewState) {
-        if (state.isError()) {
-            "error rendering: ${state.error}".toast(context)
-        }
+        Utils.mLog(TAG, "RENDER", "status", "${state.status}", "last result", "${state.lastResult}")
 
-        Utils.mLog(TAG, "RENDER", "status", "${state.status}", "lastresult", "${state.lastResult}")
-
-        if (state.lastResult is TrackResult.ChangePrefResult) {
-            when {
-                state.isSuccess() -> {
-                    // refresh a single item
-                    val track = (state.lastResult as? TrackResult.ChangePrefResult)?.currentTrack
-                    adapter.updateTrack(track, false)
+        when {
+            state.isError() -> Utils.mLog(TAG, "ERROR", "$state")
+            state.isSuccess() && state.lastResult is TrackResult.ChangePrefResult -> {
+                // refresh the single track row
+                val track = (state.lastResult as? TrackResult.ChangePrefResult)?.currentTrack
+                adapter.updateTrack(track, false)
+            }
+            state.isSuccess() && state.lastResult is PlaylistCardResult.FetchPlaylistTracks -> {
+                if (state.stashedTracksList.isNotEmpty()) {
+                    // update the title
+                    expansion_header_title.text = resources.getString(R.string.expand_tracks).format(state.stashedTracksList.size)
+                    Utils.setVisible(header_indicator, true)
                 }
+                // TODO this is very ui heavy - figure out better way than delaying until tapped
+                Handler().postDelayed({
+                    // only notify if this isn't expanded
+                    adapter.setTracksAndNotify(state.stashedTracksList, !expansion_layout.isExpanded)
+                }, 1000)
+            }
+            state.isSuccess() && state.lastResult is StatsResult -> {
+                stats_container.loadTrackStats(state.trackStats!!)
+            }
+            state.isSuccess() && state.lastResult is CardResult.CalculateQuickCounts -> {
+                quickstats_likes.text = "${state.likedCount} likes"
+                quickstats_dislikes.text = "${state.dislikedCount} dislikes"
+                quickstats_total.text = "${state.playlist.totalTracksCount} total"
+                fab_text.text = "${state.unswipedCount}"
+
+                checkRefreshFabMenu(state)
             }
         }
 
         // if we just loaded tracks
-        if (state.isSuccess() && state.lastResult is PlaylistCardResult.FetchPlaylistTracks) {
-            if (state.stashedTracksList.isNotEmpty()) {
-                // update the title
-                expansion_header_title.text = resources.getString(R.string.expand_tracks).format(state.stashedTracksList.size)
-                Utils.setVisible(header_indicator, true)
-            }
-            // TODO this is very ui heavy - figure out better way than delaying until tapped
-            Handler().postDelayed({
-                // only notify if this isn't expanded
-                adapter.setTracksAndNotify(state.stashedTracksList, !expansion_layout.isExpanded)
-            }, 1000)
-        }
+//        if (state.isSuccess() && state.lastResult is PlaylistCardResult.FetchPlaylistTracks) {
+//            if (state.stashedTracksList.isNotEmpty()) {
+//                // update the title
+//                expansion_header_title.text = resources.getString(R.string.expand_tracks).format(state.stashedTracksList.size)
+//                Utils.setVisible(header_indicator, true)
+//            }
+//            // TODO this is very ui heavy - figure out better way than delaying until tapped
+//            Handler().postDelayed({
+//                // only notify if this isn't expanded
+//                adapter.setTracksAndNotify(state.stashedTracksList, !expansion_layout.isExpanded)
+//            }, 1000)
+//        }
 
         // render the track stats widget from all tracks
-        if (state.isSuccess() && state.lastResult is StatsResult) {
-            stats_container.loadTrackStats(state.trackStats!!)
-        }
+//        if (state.isSuccess() && state.lastResult is StatsResult) {
+//            stats_container.loadTrackStats(state.trackStats!!)
+//        }
 
         // render the quick counts
-        quickstats_likes.text = "${state.likedCount} likes"
-        quickstats_dislikes.text = "${state.dislikedCount} dislikes"
-        quickstats_total.text = "${state.playlist.totalTracksCount} total"
-        fab_text.text = "${state.unswipedCount}"
+//        quickstats_likes.text = "${state.likedCount} likes"
+//        quickstats_dislikes.text = "${state.dislikedCount} dislikes"
+//        quickstats_total.text = "${state.playlist.totalTracksCount} total"
+//        fab_text.text = "${state.unswipedCount}"
 
         // check if we need to disable/hide any fab menu items
+
+
+    }
+
+    private fun checkRefreshFabMenu(state: PlaylistCardViewModel.PlaylistCardViewState) {
         val swipeFabItem = fab_menu.getItemById(R.id.menu_surf)
         val createFabItem = fab_menu.getItemById(R.id.menu_create_playlist)
         var shouldInvalidate = true
@@ -223,7 +247,6 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
         if (shouldInvalidate) {
             activity.invalidateOptionsMenu()
         }
-
     }
 
     fun onBackPressed() {

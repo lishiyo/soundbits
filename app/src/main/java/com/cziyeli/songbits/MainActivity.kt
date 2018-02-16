@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeIntent, com.cziyeli.songbits.home.HomeViewState> {
-    private val TAG = MainActivity::class.simpleName
+    private val TAG = MainActivity::class.java.simpleName
 
     // check if logged in by shared prefs and in-memory
     @Inject lateinit var api: SpotifyApi

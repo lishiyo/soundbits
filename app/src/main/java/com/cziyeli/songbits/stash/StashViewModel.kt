@@ -24,7 +24,7 @@ class StashViewModel @Inject constructor(
         actionProcessor: StashActionProcessor,
         schedulerProvider: BaseSchedulerProvider
 ) : ViewModel(), LifecycleObserver, MviViewModel<StashIntent, StashViewModel.ViewState> {
-    private val TAG = StashViewModel::class.simpleName
+    private val TAG = StashViewModel::class.java.simpleName
     private val compositeDisposable = CompositeDisposable()
 
     // Listener for home-specific events

@@ -16,7 +16,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class UserManager @Inject constructor(@ForApplication context: Context) {
-    private val TAG = UserManager::class.simpleName
+    private val TAG = UserManager::class.java.simpleName
 
     var CURRENT_USER: User? = null
 

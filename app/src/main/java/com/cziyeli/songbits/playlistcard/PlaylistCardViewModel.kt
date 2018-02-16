@@ -32,8 +32,11 @@ class PlaylistCardViewModel @Inject constructor(
 ) : ViewModel(), LifecycleObserver, MviViewModel<CardIntentMarker, PlaylistCardViewModel.PlaylistCardViewState> {
     private val TAG = PlaylistCardViewModel::class.simpleName
 
-    // Full events stream to send for processing
+    // Events stream from view
     private val intentsSubject : PublishRelay<CardIntentMarker> by lazy { PublishRelay.create<CardIntentMarker>() }
+    // Publish events into the stream from VM, in background
+    // These are NOT coming from UI events, these are programmatic
+    private val programmaticEventsPublisher = PublishRelay.create<CardIntentMarker>()
 
     // Subject to publish ViewStates
     private val viewStates: PublishRelay<PlaylistCardViewState> by lazy { PublishRelay.create<PlaylistCardViewState>() }
@@ -65,10 +68,6 @@ class PlaylistCardViewModel @Inject constructor(
     }
 
     private val compositeDisposable = CompositeDisposable()
-
-    // Publish events into the stream from VM, in background
-    // These are NOT coming from UI events (view-driven), these are programmatic
-    private val programmaticEventsPublisher = PublishRelay.create<CardIntentMarker>()
 
     val playlist: Playlist?
         get() = currentViewState.playlist
