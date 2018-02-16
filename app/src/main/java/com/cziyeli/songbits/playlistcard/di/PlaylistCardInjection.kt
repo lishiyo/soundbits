@@ -1,15 +1,16 @@
 package com.cziyeli.songbits.playlistcard.di
 
-import android.app.Activity
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import com.cziyeli.commons.di.PerActivity
 import com.cziyeli.domain.playlistcard.PlaylistCardActionProcessor
 import com.cziyeli.domain.playlists.Playlist
+import com.cziyeli.songbits.cards.TracksRecyclerViewDelegate
 import com.cziyeli.songbits.playlistcard.PlaylistCardActivity
 import com.cziyeli.songbits.playlistcard.PlaylistCardViewModel
 import dagger.Module
 import dagger.Provides
+import kotlinx.android.synthetic.main.widget_expandable_tracks.*
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Named
 
@@ -22,8 +23,14 @@ import javax.inject.Named
 class PlaylistCardModule {
 
     @Provides
+    @PerActivity
+    fun provideTracksRecyclerViewDelegate(@Named("ActivityContext") activity: PlaylistCardActivity): TracksRecyclerViewDelegate {
+        return TracksRecyclerViewDelegate(activity, activity.tracks_recycler_view, activity)
+    }
+
+    @Provides
     @Named("ActivityContext")
-    fun provideActivityContext(activity: PlaylistCardActivity): Activity {
+    fun provideActivityContext(activity: PlaylistCardActivity): PlaylistCardActivity {
         return activity
     }
 

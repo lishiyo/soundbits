@@ -72,7 +72,8 @@ class PlaylistCardActivity : AppCompatActivity(), TracksRecyclerViewDelegate.Act
     private val eventsPublisher: PublishRelay<CardIntentMarker> by lazy { PublishRelay.create<CardIntentMarker>() }
     private val compositeDisposable = CompositeDisposable()
 
-    private lateinit var tracksRecyclerViewDelegate: TracksRecyclerViewDelegate
+    @Inject
+    lateinit var tracksRecyclerViewDelegate: TracksRecyclerViewDelegate
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,8 +88,6 @@ class PlaylistCardActivity : AppCompatActivity(), TracksRecyclerViewDelegate.Act
 
         // inject AFTER parsing out the model
         AndroidInjection.inject(this)
-
-        tracksRecyclerViewDelegate = TracksRecyclerViewDelegate(this, tracks_recycler_view, this)
 
         // bind the viewmodel, passing through to the subviews
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(PlaylistCardViewModel::class.java)
