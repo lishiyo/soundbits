@@ -151,6 +151,7 @@ dependencies {
     // General/Main activity
     implementation 'com.aurelhubert:ahbottomnavigation:2.1.0'
     implementation 'com.airbnb.android:lottie:2.5.0-beta3'
+    implementation 'com.github.GrenderG:Toasty:1.2.8'
 
     // Home tab
     implementation 'io.github.luizgrp.sectionedrecyclerviewadapter:sectionedrecyclerviewadapter:1.1.3'

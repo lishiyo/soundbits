@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.cziyeli.commons.mvibase.MviAction
 import com.cziyeli.commons.mvibase.MviResult
+import es.dmoral.toasty.Toasty
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -48,7 +49,11 @@ inline fun <reified T> resultFilter(): ObservableTransformer<MviResult, T> = Obs
 // ===== VIEWS ======
 
 fun Any.toast(context: Context, length: Int = Toast.LENGTH_LONG) {
-    Toast.makeText(context, this.toString(), length).show()
+    Toasty.success(context, this.toString(), Toast.LENGTH_LONG, true).show()
+}
+
+fun Any.errorToast(context: Context, length: Int = Toast.LENGTH_LONG) {
+    Toasty.error(context, this.toString(), Toast.LENGTH_LONG, true).show()
 }
 
 fun Context.fetchColor(@ColorRes color: Int): Int {
