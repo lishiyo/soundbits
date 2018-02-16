@@ -25,6 +25,7 @@ import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.StatsResult
 import com.cziyeli.domain.tracks.TrackResult
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.cards.TracksRecyclerViewDelegate
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.jakewharton.rxrelay2.PublishRelay
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
@@ -92,15 +93,14 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
     // init with the model
     fun loadPlaylist(playlist: Playlist,
                      fabSelectedListener: OnFABMenuSelectedListener,
-                     swipeListener: RecyclerTouchListener.OnSwipeListener,
-                     touchListener: RecyclerTouchListener,
+                     tracksRecyclerViewDelegate: TracksRecyclerViewDelegate,
                      activity: Activity
     ) {
         this.activity = activity
         playlistModel = playlist
         onFabSelectedListener = fabSelectedListener
-        onSwipeListener = swipeListener
-        onTouchListener = touchListener
+        onSwipeListener = tracksRecyclerViewDelegate.onSwipeListener
+        onTouchListener = tracksRecyclerViewDelegate.onTouchListener
 
         // Load header
         playlist_title.text = playlistModel.name
@@ -188,35 +188,6 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
                 checkRefreshFabMenu(state)
             }
         }
-
-        // if we just loaded tracks
-//        if (state.isSuccess() && state.lastResult is PlaylistCardResult.FetchPlaylistTracks) {
-//            if (state.stashedTracksList.isNotEmpty()) {
-//                // update the title
-//                expansion_header_title.text = resources.getString(R.string.expand_tracks).format(state.stashedTracksList.size)
-//                Utils.setVisible(header_indicator, true)
-//            }
-//            // TODO this is very ui heavy - figure out better way than delaying until tapped
-//            Handler().postDelayed({
-//                // only notify if this isn't expanded
-//                adapter.setTracksAndNotify(state.stashedTracksList, !expansion_layout.isExpanded)
-//            }, 1000)
-//        }
-
-        // render the track stats widget from all tracks
-//        if (state.isSuccess() && state.lastResult is StatsResult) {
-//            stats_container.loadTrackStats(state.trackStats!!)
-//        }
-
-        // render the quick counts
-//        quickstats_likes.text = "${state.likedCount} likes"
-//        quickstats_dislikes.text = "${state.dislikedCount} dislikes"
-//        quickstats_total.text = "${state.playlist.totalTracksCount} total"
-//        fab_text.text = "${state.unswipedCount}"
-
-        // check if we need to disable/hide any fab menu items
-
-
     }
 
     private fun checkRefreshFabMenu(state: PlaylistCardViewModel.PlaylistCardViewState) {

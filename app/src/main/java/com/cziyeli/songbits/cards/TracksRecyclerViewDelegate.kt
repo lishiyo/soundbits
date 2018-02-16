@@ -18,7 +18,7 @@ class TracksRecyclerViewDelegate(val activity: Activity,
 ) {
     private val TAG = TracksRecyclerViewDelegate::class.java.simpleName
 
-    private val onSwipeListener: RecyclerTouchListener.OnSwipeListener = createOnSwipeListener()
+    internal val onSwipeListener: RecyclerTouchListener.OnSwipeListener = createOnSwipeListener()
     val onTouchListener: RecyclerTouchListener = createOnTouchListener(onSwipeListener)
 
     private fun createOnSwipeListener() : RecyclerTouchListener.OnSwipeListener {

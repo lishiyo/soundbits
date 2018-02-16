@@ -6,21 +6,17 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.View
-import android.view.ViewGroup
-import com.cziyeli.commons.Utils
 import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.cards.CardsActivity
 import com.cziyeli.songbits.cards.CardsIntent
+import com.cziyeli.songbits.cards.TracksRecyclerViewDelegate
 import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateActivity
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.jakewharton.rxrelay2.PublishRelay
-import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import dagger.android.AndroidInjection
-import eu.gsottbauer.equalizerview.EqualizerView
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_playlistcard.*
@@ -30,7 +26,9 @@ import org.jetbrains.anko.intentFor
 import javax.inject.Inject
 import javax.inject.Named
 
-class PlaylistCardActivity : AppCompatActivity() {
+class PlaylistCardActivity : AppCompatActivity(), TracksRecyclerViewDelegate.ActionButtonListener {
+
+
     val TAG = PlaylistCardActivity::class.java.simpleName
     companion object {
         const val EXTRA_PLAYLIST_ITEM = "extra_playlist_item"
@@ -42,9 +40,6 @@ class PlaylistCardActivity : AppCompatActivity() {
 
     // the model backing this card
     lateinit var playlist: Playlist
-    // Listener for the track rows
-    private lateinit var onSwipeListener: RecyclerTouchListener.OnSwipeListener
-    private lateinit var onTouchListener: RecyclerTouchListener
     // Listener for the FAB menu
     private val onFabMenuSelectedListener = OnFABMenuSelectedListener { view, id ->
         when (id) {
@@ -77,6 +72,8 @@ class PlaylistCardActivity : AppCompatActivity() {
     private val eventsPublisher: PublishRelay<CardIntentMarker> by lazy { PublishRelay.create<CardIntentMarker>() }
     private val compositeDisposable = CompositeDisposable()
 
+    private lateinit var tracksRecyclerViewDelegate: TracksRecyclerViewDelegate
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -91,13 +88,13 @@ class PlaylistCardActivity : AppCompatActivity() {
         // inject AFTER parsing out the model
         AndroidInjection.inject(this)
 
-        onSwipeListener = createOnSwipeListener()
-        onTouchListener = createOnTouchListener(onSwipeListener)
+        tracksRecyclerViewDelegate = TracksRecyclerViewDelegate(this, tracks_recycler_view, this)
 
         // bind the viewmodel, passing through to the subviews
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(PlaylistCardViewModel::class.java)
         initViewModel(viewModel)
-        playlist_card_widget.loadPlaylist(playlist, onFabMenuSelectedListener, onSwipeListener, onTouchListener,this)
+        playlist_card_widget.loadPlaylist(playlist, onFabMenuSelectedListener,
+                tracksRecyclerViewDelegate, this)
 
         playlist_card_widget.setOnTouchListener { v, event ->
             if (fab_menu.isShowing) {
@@ -110,7 +107,7 @@ class PlaylistCardActivity : AppCompatActivity() {
     /**
      * Start the tinder UI.
      */
-    fun startSwipingTracks(reswipeAll: Boolean = false) {
+    private fun startSwipingTracks(reswipeAll: Boolean = false) {
         viewModel.playlist?.run {
             if (reswipeAll) {
                 startActivity(CardsActivity.create(this@PlaylistCardActivity, this))
@@ -146,96 +143,22 @@ class PlaylistCardActivity : AppCompatActivity() {
         return Observable.merge(playlist_card_widget.intents(), eventsPublisher)
     }
 
-    private fun createOnSwipeListener() : RecyclerTouchListener.OnSwipeListener {
-        return object : RecyclerTouchListener.OnSwipeListener {
-            override fun onForegroundAnimationStart(isFgOpening: Boolean, duration: Long, foregroundView: View, backgroundView: View?) {
-                // shrink the textview size
-                val scale = if (isFgOpening) 0.7f else 1.0f
-                val parentView = foregroundView as ViewGroup
-                val shrinkingViews = listOf<View>(
-                        parentView.findViewById(R.id.track_left_container),
-                        parentView.findViewById(R.id.track_image)
-                )
-                shrinkingViews.forEach { view ->
-                    view.pivotX = 0f
-                    view.animate()
-                            .scaleX(scale)
-                            .scaleY(scale)
-                            .setDuration(duration)
-                            .start()
-                }
-
-                // animate the wave
-                val toAlpha = if (isFgOpening) 1.0f else 0.0f
-                val animatedView = foregroundView.findViewById<EqualizerView>(R.id.equalizer_animation)
-//                val animatedView = foregroundView.findViewById<LottieAnimationView>(R.id.wave_animation)
-                animatedView.animate().alpha(toAlpha).withEndAction {
-                    if (isFgOpening) {
-                        animatedView.visibility = View.VISIBLE
-                        animatedView.animateBars()
-//                        animatedView.playAnimation()
-                    } else {
-                        animatedView.visibility = View.INVISIBLE
-                        animatedView.stopBars()
-//                        animatedView.pauseAnimation()
-                    }
-                }.setDuration(duration).start()
-            }
-
-            override fun onSwipeOptionsOpened(foregroundView: View, backgroundView: View?) {
-
-            }
-
-            override fun onSwipeOptionsClosed(foregroundView: View, backgroundView: View?) {
-                val animatedView = foregroundView.findViewById<EqualizerView>(R.id.equalizer_animation)
-                animatedView.stopBars()
-            }
+    override fun onLiked(position: Int) {
+        val model = viewModel.currentViewState.stashedTracksList?.get(position)
+        // only update if not already liked +
+        if (!model.liked) {
+            val newModel = model.copy(pref = TrackModel.Pref.LIKED)
+            eventsPublisher.accept(CardsIntent.ChangeTrackPref.like(newModel))
         }
     }
 
-    private fun createOnTouchListener(swipeListener: RecyclerTouchListener.OnSwipeListener) : RecyclerTouchListener {
-        val onTouchListener = RecyclerTouchListener(this, tracks_recycler_view)
-        onTouchListener
-                .setViewsToFade(R.id.track_status)
-                .setClickable(object : RecyclerTouchListener.OnRowClickListener {
-                    override fun onRowClicked(position: Int) {
-                        Utils.mLog(TAG, "row @ ${position} clicked")
-                    }
-
-                    override fun onIndependentViewClicked(independentViewID: Int, position: Int) {
-                        Utils.mLog(TAG,"independent view @ ${position} clicked")
-                    }
-                })
-                .setOnSwipeListener(swipeListener)
-                .setSwipeOptionViews(R.id.like_icon_container, R.id.dislike_icon_container)
-                .setSwipeable(R.id.row_foreground, R.id.row_background) { viewID, position ->
-                    var message = ""
-                    when (viewID) {
-                        R.id.like_icon_container -> {
-                            // send off like command
-                            val model = viewModel.currentViewState.stashedTracksList?.get(position)
-
-                            message += "Liked: ${model?.name}: ${model?.liked}"
-                            // only update if not already liked +
-                            if (!model.liked) {
-                                val newModel = model.copy(pref = TrackModel.Pref.LIKED)
-                                eventsPublisher.accept(CardsIntent.ChangeTrackPref.like(newModel))
-                            }
-                        }
-                        R.id.dislike_icon_container -> {
-                            val model = viewModel.currentViewState.stashedTracksList?.get(position)
-                            message += "Disliked: ${model?.name}: ${model?.disliked}"
-                            // only update if not already disliked
-                            if (model.liked) {
-                                val newModel = model.copy(pref = TrackModel.Pref.DISLIKED)
-                                eventsPublisher.accept(CardsIntent.ChangeTrackPref.dislike(newModel))
-                            }
-                        }
-                    }
-                    Utils.mLog(TAG, message)
-                }
-
-        return onTouchListener
+    override fun onDisliked(position: Int) {
+        val model = viewModel.currentViewState.stashedTracksList?.get(position)
+        // only update if not already disliked
+        if (model.liked) {
+            val newModel = model.copy(pref = TrackModel.Pref.DISLIKED)
+            eventsPublisher.accept(CardsIntent.ChangeTrackPref.dislike(newModel))
+        }
     }
 
     override fun onEnterAnimationComplete() {
@@ -251,12 +174,12 @@ class PlaylistCardActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        tracks_recycler_view.addOnItemTouchListener(onTouchListener)
+        tracks_recycler_view.addOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
     }
 
     override fun onPause() {
         super.onPause()
-        tracks_recycler_view.removeOnItemTouchListener(onTouchListener)
+        tracks_recycler_view.removeOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
     }
 
     override fun onDestroy() {
