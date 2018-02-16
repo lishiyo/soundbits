@@ -17,12 +17,12 @@ import com.cziyeli.songbits.cards.CardsActivity
 import com.cziyeli.songbits.cards.CardsIntent
 import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateActivity
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
+import com.jakewharton.rxrelay2.PublishRelay
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import dagger.android.AndroidInjection
 import eu.gsottbauer.equalizerview.EqualizerView
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_playlistcard.*
 import kotlinx.android.synthetic.main.widget_expandable_tracks.*
 import kotlinx.android.synthetic.main.widget_playlist_card.*
@@ -74,7 +74,7 @@ class PlaylistCardActivity : AppCompatActivity() {
     @Inject
     @field:Named("PlaylistCardViewModel") lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var viewModel: PlaylistCardViewModel
-    private val eventsPublisher: PublishSubject<CardIntentMarker> by lazy { PublishSubject.create<CardIntentMarker>() }
+    private val eventsPublisher: PublishRelay<CardIntentMarker> by lazy { PublishRelay.create<CardIntentMarker>() }
     private val compositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -219,7 +219,7 @@ class PlaylistCardActivity : AppCompatActivity() {
                             // only update if not already liked +
                             if (!model.liked) {
                                 val newModel = model.copy(pref = TrackModel.Pref.LIKED)
-                                eventsPublisher.onNext(CardsIntent.ChangeTrackPref.like(newModel))
+                                eventsPublisher.accept(CardsIntent.ChangeTrackPref.like(newModel))
                             }
                         }
                         R.id.dislike_icon_container -> {
@@ -228,7 +228,7 @@ class PlaylistCardActivity : AppCompatActivity() {
                             // only update if not already disliked
                             if (model.liked) {
                                 val newModel = model.copy(pref = TrackModel.Pref.DISLIKED)
-                                eventsPublisher.onNext(CardsIntent.ChangeTrackPref.dislike(newModel))
+                                eventsPublisher.accept(CardsIntent.ChangeTrackPref.dislike(newModel))
                             }
                         }
                     }

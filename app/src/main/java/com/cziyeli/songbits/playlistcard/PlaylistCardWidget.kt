@@ -26,9 +26,9 @@ import com.cziyeli.domain.summary.StatsResult
 import com.cziyeli.domain.tracks.TrackResult
 import com.cziyeli.songbits.R
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
+import com.jakewharton.rxrelay2.PublishRelay
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.widget_expandable_tracks.view.*
 import kotlinx.android.synthetic.main.widget_playlist_card.view.*
 import kotlinx.android.synthetic.main.widget_quickcounts_row.view.*
@@ -39,7 +39,6 @@ import kotlinx.android.synthetic.main.widget_quickcounts_row.view.*
 class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistCardViewModel.PlaylistCardViewState> {
     companion object {
         val TAG = PlaylistCardWidget::class.simpleName
-        private const val FAB_ASSET_FILE = "emoji_wink.json"
     }
 
     // models and view models
@@ -47,7 +46,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
     private lateinit var activity: Activity
 
     // intents
-    private var eventsPublisher = PublishSubject.create<CardIntentMarker>()
+    private var eventsPublisher = PublishRelay.create<CardIntentMarker>()
 
     // views
     private lateinit var adapter: TrackRowsAdapter
@@ -80,14 +79,14 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
 
         // fetch stashed tracks -> get quick counts
         // since this is the first, we have to notify the adapter
-        eventsPublisher.onNext(PlaylistCardIntent.FetchSwipedTracks(
+        eventsPublisher.accept(PlaylistCardIntent.FetchSwipedTracks(
                 ownerId = playlist.owner.id,
                 playlistId = playlist.id,
                 onlySwiped = true
         ))
 
         // fetch remote tracks and stats
-        eventsPublisher.onNext(StatsIntent.FetchTracksWithStats(playlist))
+        eventsPublisher.accept(StatsIntent.FetchTracksWithStats(playlist))
     }
 
     // init with the model

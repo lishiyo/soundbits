@@ -8,13 +8,13 @@ import com.cziyeli.commons.Utils
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
+import com.jakewharton.rxrelay2.PublishRelay
 import com.mindorks.placeholderview.annotations.Layout
 import com.mindorks.placeholderview.annotations.Resolve
 import com.mindorks.placeholderview.annotations.View
 import com.mindorks.placeholderview.annotations.swipe.*
 import info.abdolahi.CircularMusicProgressBar
 import info.abdolahi.OnCircularSeekBarChangeListener
-import io.reactivex.subjects.PublishSubject
 
 /**
  * Displays a "card" view of a track for swiping.
@@ -68,7 +68,7 @@ class TrackCardView(private val context: Context,
     private val trackImageClickListener = android.view.View.OnClickListener {
         // pause/resume
         listener.getPlayerIntents()
-                .onNext(CardsIntent.CommandPlayer.create(PlayerInterface.Command.PAUSE_OR_RESUME, model))
+                .accept(CardsIntent.CommandPlayer.create(PlayerInterface.Command.PAUSE_OR_RESUME, model))
 
         // switch icon
         val icon = if (isPlaying) R.drawable.basic_pause else R.drawable.basic_play
@@ -97,11 +97,11 @@ class TrackCardView(private val context: Context,
         Utils.log(TAG, "onSwipeHeadCard: ${model.name} -- clearing pref")
 
         // immediately start playing
-        listener.getPlayerIntents().onNext(
+        listener.getPlayerIntents().accept(
                 CardsIntent.CommandPlayer.create(PlayerInterface.Command.PLAY_NEW, model))
 
         // 'undo' clears liked/disliked pref
-        listener.getTrackIntents().onNext(
+        listener.getTrackIntents().accept(
                 CardsIntent.ChangeTrackPref.clear(model)
         )
 
@@ -117,7 +117,7 @@ class TrackCardView(private val context: Context,
         finishTrack()
 
         // add this track to the Pass list
-        listener.getTrackIntents().onNext(
+        listener.getTrackIntents().accept(
                 CardsIntent.ChangeTrackPref.dislike(model)
         )
     }
@@ -134,14 +134,14 @@ class TrackCardView(private val context: Context,
         finishTrack()
 
         // add this track to the Liked list
-        listener.getTrackIntents().onNext(
+        listener.getTrackIntents().accept(
                 CardsIntent.ChangeTrackPref.like(model)
         )
     }
 
     private fun finishTrack() {
         // stop playing this track
-        listener.getPlayerIntents().onNext(
+        listener.getPlayerIntents().accept(
                 CardsIntent.CommandPlayer.create(PlayerInterface.Command.END_TRACK, model))
 
         Utils.setVisible(trackTitleWrapper, false)
@@ -161,9 +161,9 @@ class TrackCardView(private val context: Context,
 
     interface TrackListener {
         // emit events to the audio player
-        fun getPlayerIntents(): PublishSubject<CardsIntent.CommandPlayer>
+        fun getPlayerIntents(): PublishRelay<CardsIntent.CommandPlayer>
 
         // emit like/dislike events
-        fun getTrackIntents(): PublishSubject<CardsIntent.ChangeTrackPref>
+        fun getTrackIntents(): PublishRelay<CardsIntent.ChangeTrackPref>
     }
 }

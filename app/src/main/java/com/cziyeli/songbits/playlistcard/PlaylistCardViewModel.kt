@@ -5,7 +5,6 @@ import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
-import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlistcard.*
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.StatsAction
@@ -22,13 +21,11 @@ import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
-import io.reactivex.subjects.PublishSubject
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
 
 class PlaylistCardViewModel @Inject constructor(
-        private val repository: RepositoryImpl,
         val actionProcessor: PlaylistCardActionProcessor,
         val schedulerProvider: BaseSchedulerProvider,
         val initialState: PlaylistCardViewState
@@ -36,7 +33,7 @@ class PlaylistCardViewModel @Inject constructor(
     private val TAG = PlaylistCardViewModel::class.simpleName
 
     // Full events stream to send for processing
-    private val intentsSubject : PublishSubject<CardIntentMarker> by lazy { PublishSubject.create<CardIntentMarker>() }
+    private val intentsSubject : PublishRelay<CardIntentMarker> by lazy { PublishRelay.create<CardIntentMarker>() }
 
     // Subject to publish ViewStates
     private val viewStates: PublishRelay<PlaylistCardViewState> by lazy { PublishRelay.create<PlaylistCardViewState>() }
@@ -71,7 +68,7 @@ class PlaylistCardViewModel @Inject constructor(
 
     // Publish events into the stream from VM, in background
     // These are NOT coming from UI events (view-driven), these are programmatic
-    private val programmaticEventsPublisher = PublishSubject.create<CardIntentMarker>()
+    private val programmaticEventsPublisher = PublishRelay.create<CardIntentMarker>()
 
     val playlist: Playlist?
         get() = currentViewState.playlist
@@ -122,7 +119,7 @@ class PlaylistCardViewModel @Inject constructor(
 
     override fun processIntents(intents: Observable<out CardIntentMarker>) {
         compositeDisposable.add(
-                intents.subscribe(intentsSubject::onNext)
+                intents.subscribe(intentsSubject::accept)
         )
     }
 
@@ -212,7 +209,7 @@ class PlaylistCardViewModel @Inject constructor(
             PlaylistCardResult.FetchPlaylistTracks.Status.SUCCESS -> {
                 if (result.fromLocal) {
                     // now calculate the counts!
-                    programmaticEventsPublisher.onNext(PlaylistCardIntent.CalculateQuickCounts(result.items.toMutableList()))
+                    programmaticEventsPublisher.accept(PlaylistCardIntent.CalculateQuickCounts(result.items.toMutableList()))
                     previousState.copy(
                             error = null,
                             lastResult = result,

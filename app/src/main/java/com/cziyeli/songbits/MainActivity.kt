@@ -13,6 +13,7 @@ import com.cziyeli.songbits.home.HomeIntent
 import com.cziyeli.songbits.home.HomeViewModel
 import com.cziyeli.songbits.home.oldhome.OldHomeActivity
 import com.cziyeli.songbits.root.RootActivity
+import com.jakewharton.rxrelay2.PublishRelay
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
 import com.spotify.sdk.android.authentication.AuthenticationResponse
@@ -21,7 +22,6 @@ import com.spotify.sdk.android.player.Error
 import dagger.android.AndroidInjection
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.PublishSubject
 import kaaes.spotify.webapi.android.SpotifyApi
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
@@ -39,8 +39,8 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     private lateinit var viewModelOld: HomeViewModel
 
     // intents
-    private val mUserPublisher = PublishSubject.create<HomeIntent.FetchUser>()
-    private val mLogoutPublisher = PublishSubject.create<HomeIntent.LogoutUser>()
+    private val mUserPublisher = PublishRelay.create<HomeIntent.FetchUser>()
+    private val mLogoutPublisher = PublishRelay.create<HomeIntent.LogoutUser>()
     private val compositeDisposable = CompositeDisposable()
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         if (accessTokenValid) { // already logged in
             // fetch current user and save to UserManager
             api.setAccessToken(userManager.accessToken)
-            mUserPublisher.onNext(HomeIntent.FetchUser())
+            mUserPublisher.accept(HomeIntent.FetchUser())
         }
         Utils.setVisible(login_button, !accessTokenValid)
         Utils.setVisible(nav_oldhome_activity, accessTokenValid)
@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         }
 
         logout_button.setOnClickListener { _ ->
-            mLogoutPublisher.onNext(HomeIntent.LogoutUser())
+            mLogoutPublisher.accept(HomeIntent.LogoutUser())
         }
 
         login_button.setOnClickListener { _ ->
@@ -215,7 +215,7 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         api.setAccessToken(authResponse.accessToken)
 
         // fetch current user and save to UserManager
-        mUserPublisher.onNext(HomeIntent.FetchUser())
+        mUserPublisher.accept(HomeIntent.FetchUser())
 
         // rerender! TODO: do via MVI flow
         Utils.setVisible(login_button, false)

@@ -21,13 +21,13 @@ import com.cziyeli.songbits.R
 import com.cziyeli.songbits.cards.summary.SummaryLayout
 import com.cziyeli.songbits.cards.summary.SummaryViewModel
 import com.cziyeli.songbits.cards.summary.SummaryViewState
+import com.jakewharton.rxrelay2.PublishRelay
 import com.mindorks.placeholderview.SwipeDecor
 import com.mindorks.placeholderview.SwipePlaceHolderView
 import com.mindorks.placeholderview.SwipeViewBuilder
 import dagger.android.AndroidInjection
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_cards.*
 import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import org.jetbrains.anko.collections.forEachWithIndex
@@ -61,12 +61,14 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
     private lateinit var viewModel: CardsViewModel
 
     // intents
-    private val mLoadPublisher = PublishSubject.create<CardsIntent>()
-    private val mPlayerPublisher: PublishSubject<CardsIntent.CommandPlayer> by lazy {
-        PublishSubject.create<CardsIntent.CommandPlayer>()
+    private val mLoadPublisher: PublishRelay<CardsIntent> by lazy {
+        PublishRelay.create<CardsIntent>()
     }
-    private val mCardsPrefPublisher: PublishSubject<CardsIntent.ChangeTrackPref> by lazy {
-        PublishSubject.create<CardsIntent.ChangeTrackPref>()
+    private val mPlayerPublisher: PublishRelay<CardsIntent.CommandPlayer> by lazy {
+        PublishRelay.create<CardsIntent.CommandPlayer>()
+    }
+    private val mCardsPrefPublisher: PublishRelay<CardsIntent.ChangeTrackPref> by lazy {
+        PublishRelay.create<CardsIntent.ChangeTrackPref>()
     }
 
     lateinit var playlist: Playlist
@@ -102,11 +104,11 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
         if (tracksToSwipe != null && tracksToSwipe.isNotEmpty()) {
             // tracks were passed - just use these
             Utils.mLog(TAG, "got tracksToSwipe: ${tracksToSwipe.size}")
-            mLoadPublisher.onNext(CardsIntent.ScreenOpenedWithTracks(playlist, tracksToSwipe))
+            mLoadPublisher.accept(CardsIntent.ScreenOpenedWithTracks(playlist, tracksToSwipe))
         } else {
             // no tracks passed - fetch all from remote
             Utils.mLog(TAG, "no tracksToSwipe, fetching from remote")
-            mLoadPublisher.onNext(CardsIntent.ScreenOpenedNoTracks.create(
+            mLoadPublisher.accept(CardsIntent.ScreenOpenedNoTracks.create(
                     ownerId = playlist.owner.id,
                     playlistId = playlist.id)
             )
@@ -170,11 +172,11 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
         )
     }
 
-    override fun getPlayerIntents(): PublishSubject<CardsIntent.CommandPlayer> {
+    override fun getPlayerIntents(): PublishRelay<CardsIntent.CommandPlayer> {
         return mPlayerPublisher
     }
 
-    override fun getTrackIntents(): PublishSubject<CardsIntent.ChangeTrackPref> {
+    override fun getTrackIntents(): PublishRelay<CardsIntent.ChangeTrackPref> {
         return mCardsPrefPublisher
     }
 
