@@ -238,8 +238,7 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
         viewModel.processIntents(intents())
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        // Check which request we're responding to
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_CODE_CREATE && resultCode == Activity.RESULT_OK) {
             summaryLayout.notifyPlaylistCreated()
         }

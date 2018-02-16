@@ -176,6 +176,24 @@ class SummaryLayout @JvmOverloads constructor(
             quickstats_dislikes.text = "${state.currentDislikes.size} dislikes"
             quickstats_total.text = "${state.allTracks.size} swiped"
         }
+
+        toggleButton(state, action_create_playlist as RoundedCornerButton)
+    }
+
+    private fun toggleButton(state: SummaryViewState, button: RoundedCornerButton) {
+        if (state.currentLikes.isEmpty()) {
+            // disable the create button
+            button.isEnabled = false
+            button.setColor(R.color.colorGrey)
+            button.setTextColor(resources.getColor(R.color.colorBlack))
+            button.setText(R.string.create_disabled)
+        } else {
+            // enable it
+            button.isEnabled = true
+            button.setColor(R.color.quartet_blue)
+            button.setText(R.string.summary_create_playlist)
+            button.setTextColor(resources.getColor(R.color.colorWhite))
+        }
     }
 
     /**
