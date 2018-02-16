@@ -185,9 +185,9 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
                 quickstats_total.text = "${state.playlist.totalTracksCount} total"
                 fab_text.text = "${state.unswipedCount}"
 
-                checkRefreshFabMenu(state)
             }
         }
+        checkRefreshFabMenu(state)
     }
 
     private fun checkRefreshFabMenu(state: PlaylistCardViewModel.PlaylistCardViewState) {
