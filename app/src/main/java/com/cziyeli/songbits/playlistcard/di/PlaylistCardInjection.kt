@@ -4,7 +4,6 @@ import android.app.Activity
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import com.cziyeli.commons.di.PerActivity
-import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlistcard.PlaylistCardActionProcessor
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.songbits.playlistcard.PlaylistCardActivity
@@ -43,12 +42,10 @@ class PlaylistCardModule {
     @Provides
     @PerActivity
     @Named("PlaylistCardViewModel")
-    fun providesViewModelFactory(repository: RepositoryImpl,
-                                 actionProcessor: PlaylistCardActionProcessor,
+    fun providesViewModelFactory(actionProcessor: PlaylistCardActionProcessor,
                                  schedulerProvider: BaseSchedulerProvider,
                                  initialViewState: PlaylistCardViewModel.PlaylistCardViewState): ViewModelProvider.Factory {
         return PlaylistCardViewModelFactory(
-                repository,
                 actionProcessor,
                 schedulerProvider,
                 initialViewState
@@ -57,12 +54,11 @@ class PlaylistCardModule {
 }
 
 // See https://github.com/googlesamples/android-architecture-components/issues/207
-class PlaylistCardViewModelFactory(val repository: RepositoryImpl,
-                                   val actionProcessor: PlaylistCardActionProcessor,
+class PlaylistCardViewModelFactory(val actionProcessor: PlaylistCardActionProcessor,
                                    val schedulerProvider: BaseSchedulerProvider,
                                    val initialViewState: PlaylistCardViewModel.PlaylistCardViewState
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return PlaylistCardViewModel(repository, actionProcessor, schedulerProvider, initialViewState) as T
+        return PlaylistCardViewModel(actionProcessor, schedulerProvider, initialViewState) as T
     }
 }

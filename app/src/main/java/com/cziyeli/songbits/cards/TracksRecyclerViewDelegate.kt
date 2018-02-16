@@ -10,7 +10,7 @@ import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import eu.gsottbauer.equalizerview.EqualizerView
 
 /**
- * Wrapper for the tracks view handling.
+ * Wrapper for the tracks view handling for [SimpleCardWidget].
  */
 class TracksRecyclerViewDelegate(val activity: Activity,
                                  private val tracksRecyclerView: RecyclerView,
@@ -84,7 +84,6 @@ class TracksRecyclerViewDelegate(val activity: Activity,
                 .setOnSwipeListener(swipeListener)
                 .setSwipeOptionViews(R.id.like_icon_container, R.id.dislike_icon_container)
                 .setSwipeable(R.id.row_foreground, R.id.row_background) { viewID, position ->
-                    var message = ""
                     when (viewID) {
                         R.id.like_icon_container -> {
                             listener.onLiked(position)
@@ -93,12 +92,14 @@ class TracksRecyclerViewDelegate(val activity: Activity,
                             listener.onDisliked(position)
                         }
                     }
-                    Utils.mLog(TAG, message)
                 }
 
         return onTouchListener
     }
 
+    /**
+     * Listen to the like/dislike actions.
+     */
     interface ActionButtonListener {
         fun onLiked(position: Int = -1)
         fun onDisliked(position: Int = -1)
