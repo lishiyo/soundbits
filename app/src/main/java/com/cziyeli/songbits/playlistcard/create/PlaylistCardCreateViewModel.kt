@@ -111,7 +111,7 @@ class PlaylistCardCreateViewModel @Inject constructor(
                 previousState.copy(
                         error = result.error,
                         lastResult = result,
-                        status = StatsResultStatus.LOADING
+                        status = MviViewState.Status.LOADING
                 )
             }
             StatsResultStatus.SUCCESS -> {
@@ -119,7 +119,7 @@ class PlaylistCardCreateViewModel @Inject constructor(
                 previousState.copy(
                         error = result.error,
                         lastResult = result,
-                        status = StatsResultStatus.SUCCESS,
+                        status = MviViewState.Status.SUCCESS,
                         trackStats = result.trackStats
                 )
             }
@@ -127,13 +127,11 @@ class PlaylistCardCreateViewModel @Inject constructor(
                 previousState.copy(
                         error = result.error,
                         lastResult = result,
-                        status = StatsResultStatus.ERROR,
+                        status = MviViewState.Status.ERROR,
                         trackStats = result.trackStats
                 )
             } else -> return previousState
         }
-
-        return previousState
     }
 
     private fun processSetHeaderUrl(previousState: PlaylistCardCreateViewModel.ViewState,
@@ -148,13 +146,19 @@ class PlaylistCardCreateViewModel @Inject constructor(
         Utils.mLog(TAG, "processCreatePlaylistResult", "status", result.status.toString(),
                 "created with snapshotId: ", "${result.snapshotId?.snapshot_id} for new playlist: ${result.playlistId}")
 
+        val status = when (result.status) {
+            SummaryResult.CreatePlaylistWithTracks.CreateStatus.LOADING -> MviViewState.Status.LOADING
+            SummaryResult.CreatePlaylistWithTracks.CreateStatus.SUCCESS -> MviViewState.Status.SUCCESS
+            SummaryResult.CreatePlaylistWithTracks.CreateStatus.ERROR -> MviViewState.Status.ERROR
+            else -> MviViewState.Status.IDLE
+        }
        return when (result.status) {
             SummaryResult.CreatePlaylistWithTracks.CreateStatus.LOADING,
             SummaryResult.CreatePlaylistWithTracks.CreateStatus.SUCCESS,
             SummaryResult.CreatePlaylistWithTracks.CreateStatus.ERROR -> {
                 return previousState.copy(
                         error = result.error,
-                        status = result.status
+                        status = status
                 )
             } else -> previousState
         }
@@ -180,7 +184,7 @@ class PlaylistCardCreateViewModel @Inject constructor(
 
     // ==== View States ===
 
-    data class ViewState(val status: MviResult.StatusInterface = MviResult.Status.IDLE,
+    data class ViewState(val status: MviViewState.StatusInterface = MviViewState.Status.IDLE,
                          val error: Throwable? = null,
                          val playlistToAdd: Playlist? = null,
                          val pendingTracks: List<TrackModel>,

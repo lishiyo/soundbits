@@ -291,7 +291,7 @@ data class SummaryViewState(val status: MviViewState.Status = MviViewState.Statu
             return SummaryViewState(
                     allTracks = state.allTracks,
                     lastResult = NoResult(),
-                    playlist = state.playlist!! // we require a playlist here
+                    playlist = state.playlist
             )
         }
     }
