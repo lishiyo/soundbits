@@ -20,6 +20,7 @@ import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.summary.SummaryResult
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.cards.TracksRecyclerViewDelegate
 import com.cziyeli.songbits.cards.summary.SummaryIntent
 import com.cziyeli.songbits.di.App
 import com.cziyeli.songbits.playlistcard.CardIntentMarker
@@ -73,13 +74,12 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
     }
 
     fun loadTracks(tracks: List<TrackModel>,
-                   swipeListener: RecyclerTouchListener.OnSwipeListener? = null,
-                   touchListener: RecyclerTouchListener? = null,
+                   tracksRecyclerViewDelegate: TracksRecyclerViewDelegate,
                    carouselHeaderUrl: String?,
                    listener: PlaylistCreatedListener? = null
     ) {
-        onSwipeListener = swipeListener
-        onTouchListener = touchListener
+        onSwipeListener = tracksRecyclerViewDelegate.onSwipeListener
+        onTouchListener = tracksRecyclerViewDelegate.onTouchListener
         playlistCreatedListener = listener
 
         carouselHeaderUrl?.let {

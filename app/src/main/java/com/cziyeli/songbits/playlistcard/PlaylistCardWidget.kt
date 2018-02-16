@@ -99,8 +99,8 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
         this.activity = activity
         playlistModel = playlist
         onFabSelectedListener = fabSelectedListener
-        onSwipeListener = tracksRecyclerViewDelegate.onSwipeListener
-        onTouchListener = tracksRecyclerViewDelegate.onTouchListener
+        onSwipeListener = tracksRecyclerViewDelegate.onSwipeListener!!
+        onTouchListener = tracksRecyclerViewDelegate.onTouchListener!!
 
         // Load header
         playlist_title.text = playlistModel.name

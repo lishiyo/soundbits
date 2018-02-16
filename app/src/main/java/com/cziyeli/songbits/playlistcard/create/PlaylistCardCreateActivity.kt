@@ -10,9 +10,9 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.cards.TracksRecyclerViewDelegate
 import com.cziyeli.songbits.di.App
 import com.cziyeli.songbits.playlistcard.CardIntentMarker
-import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import com.synnapps.carouselview.ViewListener
 import dagger.android.AndroidInjection
 import io.reactivex.Observable
@@ -29,7 +29,10 @@ import javax.inject.Named
 /**
  * Activity holding the [PlaylistCardCreateWidget] for creating a playlist out of tracks.
  */
-class PlaylistCardCreateActivity : AppCompatActivity(), PlaylistCardCreateWidget.PlaylistCreatedListener {
+class PlaylistCardCreateActivity : AppCompatActivity(),
+        PlaylistCardCreateWidget.PlaylistCreatedListener,
+        TracksRecyclerViewDelegate.ActionButtonListener {
+
     val TAG = PlaylistCardCreateActivity::class.java.simpleName
 
     companion object {
@@ -60,9 +63,11 @@ class PlaylistCardCreateActivity : AppCompatActivity(), PlaylistCardCreateWidget
         }
         view
     }
-    private lateinit var onTouchListener: RecyclerTouchListener
     private var carouselHeaderUrl: String? = null
     private val compositeDisposable = CompositeDisposable()
+
+    @Inject
+    lateinit var tracksRecyclerViewDelegate: TracksRecyclerViewDelegate
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,11 +98,9 @@ class PlaylistCardCreateActivity : AppCompatActivity(), PlaylistCardCreateWidget
         }
 
         // set up the widget with the viewmodel's tracks
-        onTouchListener = createOnTouchListener()
         create_playlist_card_widget.loadTracks(
                 viewModel.pendingTracks,
-                null,
-                onTouchListener,
+               tracksRecyclerViewDelegate,
                 carouselHeaderUrl,
                 this
         )
@@ -111,15 +114,6 @@ class PlaylistCardCreateActivity : AppCompatActivity(), PlaylistCardCreateWidget
         val resultIntent = Intent()
         setResult(Activity.RESULT_OK, resultIntent)
         finish()
-    }
-
-    private fun createOnTouchListener() : RecyclerTouchListener {
-        val onTouchListener = RecyclerTouchListener(this, create_tracks_recycler_view)
-        onTouchListener
-                .setViewsToFade(R.id.track_status)
-                .setSwipeable(false) // Create is read-only!
-
-        return onTouchListener
     }
 
     private fun initViewModel(viewModel: PlaylistCardCreateViewModel) {
@@ -152,7 +146,7 @@ class PlaylistCardCreateActivity : AppCompatActivity(), PlaylistCardCreateWidget
 
     override fun onResume() {
         super.onResume()
-        create_tracks_recycler_view.addOnItemTouchListener(onTouchListener)
+        create_tracks_recycler_view.addOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -162,11 +156,19 @@ class PlaylistCardCreateActivity : AppCompatActivity(), PlaylistCardCreateWidget
 
     override fun onPause() {
         super.onPause()
-        create_tracks_recycler_view.removeOnItemTouchListener(onTouchListener)
+        create_tracks_recycler_view.removeOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
     }
 
     override fun onDestroy() {
         compositeDisposable.clear()
         super.onDestroy()
+    }
+
+    override fun onLiked(position: Int) {
+        // no-op
+    }
+
+    override fun onDisliked(position: Int) {
+        // no-op
     }
 }

@@ -14,13 +14,20 @@ import eu.gsottbauer.equalizerview.EqualizerView
  */
 class TracksRecyclerViewDelegate(val activity: Activity,
                                  private val tracksRecyclerView: RecyclerView,
-                                 private val listener: ActionButtonListener
+                                 private val listener: ActionButtonListener,
+                                 var onSwipeListener: RecyclerTouchListener.OnSwipeListener? = null,
+                                 var onTouchListener: RecyclerTouchListener? = null
 ) {
     private val TAG = TracksRecyclerViewDelegate::class.java.simpleName
 
-    internal val onSwipeListener: RecyclerTouchListener.OnSwipeListener = createOnSwipeListener()
-    val onTouchListener: RecyclerTouchListener = createOnTouchListener(onSwipeListener)
-
+    init {
+        if (onSwipeListener == null) {
+            onSwipeListener = createOnSwipeListener()
+        }
+        if (onTouchListener == null) {
+            onTouchListener = createOnTouchListener(onSwipeListener!!)
+        }
+    }
     private fun createOnSwipeListener() : RecyclerTouchListener.OnSwipeListener {
         return object : RecyclerTouchListener.OnSwipeListener {
             override fun onForegroundAnimationStart(isFgOpening: Boolean, duration: Long, foregroundView: View, backgroundView: View?) {

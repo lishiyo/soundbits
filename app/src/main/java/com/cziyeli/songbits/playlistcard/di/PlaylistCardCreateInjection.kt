@@ -1,16 +1,20 @@
 package com.cziyeli.songbits.playlistcard.di
 
-import android.app.Activity
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
+import android.view.View
 import com.cziyeli.commons.di.PerActivity
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlistcard.PlaylistCardCreateActionProcessor
 import com.cziyeli.domain.tracks.TrackModel
+import com.cziyeli.songbits.R
+import com.cziyeli.songbits.cards.TracksRecyclerViewDelegate
 import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateActivity
 import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateViewModel
+import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import dagger.Module
 import dagger.Provides
+import kotlinx.android.synthetic.main.widget_playlist_card_create.*
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Named
 
@@ -21,8 +25,33 @@ import javax.inject.Named
 class PlaylistCardCreateModule {
 
     @Provides
+    @PerActivity
+    fun provideTracksRecyclerViewDelegate(@Named("ActivityContext") activity: PlaylistCardCreateActivity): TracksRecyclerViewDelegate {
+        val onTouchListener = RecyclerTouchListener(activity, activity.create_tracks_recycler_view)
+        onTouchListener
+                .setViewsToFade(R.id.track_status)
+                .setSwipeable(false) // Create is read-only!
+
+        return TracksRecyclerViewDelegate(activity, activity.create_tracks_recycler_view, activity, onSwipeListener = object :
+                RecyclerTouchListener.OnSwipeListener {
+            override fun onSwipeOptionsClosed(foregroundView: View?, backgroundView: View?) {
+                // no-op
+            }
+
+            override fun onSwipeOptionsOpened(foregroundView: View?, backgroundView: View?) {
+                // no-op
+            }
+
+            override fun onForegroundAnimationStart(isFgOpening: Boolean, duration: Long, foregroundView: View?, backgroundView: View?) {
+                // no-op
+            }
+
+        }, onTouchListener = onTouchListener)
+    }
+
+    @Provides
     @Named("ActivityContext")
-    fun provideActivityContext(activity: PlaylistCardCreateActivity): Activity {
+    fun provideActivityContext(activity: PlaylistCardCreateActivity): PlaylistCardCreateActivity {
         return activity
     }
 
