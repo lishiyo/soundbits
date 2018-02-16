@@ -3,16 +3,8 @@ package com.cziyeli.commons
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MediatorLiveData
 import android.arch.lifecycle.Observer
-import android.content.Context
-import android.support.annotation.ColorRes
-import android.support.v4.content.ContextCompat
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
 import com.cziyeli.commons.mvibase.MviAction
 import com.cziyeli.commons.mvibase.MviResult
-import es.dmoral.toasty.Toasty
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -20,10 +12,10 @@ import io.reactivex.schedulers.Schedulers
 
 
 /**
+ * General extensions.
+ *
  * Created by connieli on 1/4/18.
  */
-
-const val DTAG = "connie"
 
 /**
  * Basic observe/subscribe on pair.
@@ -45,53 +37,6 @@ inline fun <reified T> actionFilter(): ObservableTransformer<MviAction, T> = Obs
 inline fun <reified T> resultFilter(): ObservableTransformer<MviResult, T> = ObservableTransformer { results ->
     results.filter { it is T }.map { it as T }
 }
-
-// ===== VIEWS ======
-
-fun Any.toast(context: Context, length: Int = Toast.LENGTH_LONG) {
-    Toasty.success(context, this.toString(), Toast.LENGTH_LONG, true).show()
-}
-
-fun Any.errorToast(context: Context, length: Int = Toast.LENGTH_LONG) {
-    Toasty.error(context, this.toString(), Toast.LENGTH_LONG, true).show()
-}
-
-fun Context.fetchColor(@ColorRes color: Int): Int {
-    return ContextCompat.getColor(this, color)
-}
-
-fun View.disableTouchTheft() {
-    this.setOnTouchListener { view, motionEvent ->
-        view.parent.requestDisallowInterceptTouchEvent(true)
-
-        when (motionEvent.action and MotionEvent.ACTION_MASK) {
-            MotionEvent.ACTION_UP -> view.parent.requestDisallowInterceptTouchEvent(false)
-        }
-        false
-    }
-}
-
-fun Context.colorFromRes(colorResId: Int) : Int {
-    return ContextCompat.getColor(this, colorResId)
-}
-
-fun View.colorFromRes(colorResId: Int) : Int {
-    return ContextCompat.getColor(this.context, colorResId)
-}
-
-fun View.removeFromParent() {
-    val parent = this.parent
-    if (parent is ViewGroup) {
-        parent.removeView(this)
-    }
-}
-fun View.setScaleXY(scale: Float) {
-    scaleX = scale
-    scaleY = scale
-}
-
-
-
 
 // A LiveData that only allows distinct object emissions from a source.
 // https://medium.com/google-developers/7-pro-tips-for-room-fbadea4bfbd1

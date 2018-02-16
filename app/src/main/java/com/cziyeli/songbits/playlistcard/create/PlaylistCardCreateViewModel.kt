@@ -194,18 +194,22 @@ class PlaylistCardCreateViewModel @Inject constructor(
     ) : MviViewState {
 
         fun isFetchStatsSuccess(): Boolean {
-            return status == StatsResultStatus.SUCCESS && trackStats != null
+            return (status == MviViewState.Status.SUCCESS || status == StatsResultStatus.SUCCESS) && trackStats != null
         }
         fun isCreateLoading(): Boolean {
-            return status == SummaryResult.CreatePlaylistWithTracks.CreateStatus.LOADING
+            return lastResult is SummaryResult.CreatePlaylistWithTracks &&
+                    (status == SummaryResult.CreatePlaylistWithTracks.CreateStatus.LOADING || status == MviViewState.Status.LOADING)
         }
         fun isCreateFinished(): Boolean {
-            return status == SummaryResult.CreatePlaylistWithTracks.CreateStatus.ERROR ||
-                    status == SummaryResult.CreatePlaylistWithTracks.CreateStatus.SUCCESS
+            return lastResult is SummaryResult.CreatePlaylistWithTracks &&
+                    (status == SummaryResult.CreatePlaylistWithTracks.CreateStatus.ERROR
+                            || status == SummaryResult.CreatePlaylistWithTracks.CreateStatus.SUCCESS
+                            || status ==  MviViewState.Status.SUCCESS || status ==  MviViewState.Status.ERROR)
         }
         fun isError(): Boolean {
-            return status == MviResult.Status.ERROR || status == StatsResultStatus.ERROR
-            || status == SummaryResult.CreatePlaylistWithTracks.CreateStatus.ERROR
+            return status == MviResult.Status.ERROR
+                    || status == StatsResultStatus.ERROR
+                    || status == SummaryResult.CreatePlaylistWithTracks.CreateStatus.ERROR
         }
     }
 }

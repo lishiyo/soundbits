@@ -68,5 +68,6 @@
 	<string name="action_error">Something went wrong :(</string>
 	<string name="save_success_cta">Success!\nTap to go to your stash</string>
 	<string name="create_success_cta">Success!\nTap to go to your playlists</string>
+	<string name="create_disabled">No liked tracks - like one to create a playlist!</string>
 
 </resources>
