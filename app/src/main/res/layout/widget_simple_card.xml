@@ -18,7 +18,6 @@
 			card_view:cardCornerRadius="@dimen/card_radius"
 			card_view:cardElevation="@dimen/playlist_card_elevation"
 			card_view:cardPreventCornerOverlap="false"
-			android:descendantFocusability="afterDescendants"
 			>
 
 			<RelativeLayout
@@ -41,6 +40,7 @@
 						android:scaleType="centerCrop"
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/simple_card_header_height"
+						android:focusable="false"
 						android:transitionName="@string/playlist_image_transition"
 						/>
 
@@ -51,6 +51,7 @@
 						android:layout_height="@dimen/simple_card_header_height"
 						android:background="#000000"
 						android:alpha="0.4"
+						android:focusable="false"
 						/>
 
 					<!-- overlay card title - bottom left -->
@@ -58,7 +59,8 @@
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"
 						android:layout_gravity="center"
-						android:elevation="12dp"
+						android:focusable="true"
+						android:focusableInTouchMode="true"
 						android:descendantFocusability="afterDescendants"
 						>
 						<!-- input new title -->
@@ -77,6 +79,9 @@
 							android:textAlignment="center"
 							android:textColor="#ffffff"
 							android:textSize="@dimen/default_title_size"
+							android:enabled="true"
+							android:focusable="true"
+							android:focusableInTouchMode="true"
 							/>
 
 						<!-- dotted line -->

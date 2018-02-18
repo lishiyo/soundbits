@@ -10,7 +10,6 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.cziyeli.commons.Utils
-import com.cziyeli.commons.disableTouchTheft
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.commons.toast
@@ -82,7 +81,7 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
                     "no liked tracks yet! swipe first?".toast(context)
                 } else {
                     enableCreateTitle(true)
-                    // switch icon
+                    // switch fab icon
                     Utils.setVisible(card_fab, false)
                     Utils.setVisible(card_fab_create, true)
                 }
@@ -174,7 +173,6 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
         adapter = TrackRowsAdapter(context, tracks.toMutableList())
         tracks_recycler_view.adapter = adapter
         tracks_recycler_view.layoutManager = LinearLayoutManager(context)
-        tracks_recycler_view.disableTouchTheft()
     }
 
     /**
@@ -294,18 +292,14 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
 
     private fun enableCreateTitle(enable: Boolean = true) {
         if (!enable) {
-            Utils.mLog(TAG, "disabling create title")
-            card_title.isFocusable = false
             card_title.isEnabled = false
-            card_title.isClickable = false
             Utils.setVisible(dotted_line, false)
             card_image_dim_overlay.alpha = HEADER_DIM
         } else {
-            Utils.mLog(TAG, "enabling create title")
-            card_title.disableTouchTheft()
             Utils.setVisible(dotted_line, true)
             card_image_dim_overlay.alpha = HEADER_DIM_DARK
             card_title.isFocusable = true
+            card_title.isFocusableInTouchMode = true
             card_title.isEnabled = true
             card_title.isClickable = true
             card_title.setText("")
