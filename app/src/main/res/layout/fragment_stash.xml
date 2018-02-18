@@ -23,6 +23,7 @@
 			android:layout_height="wrap_content"
 			/>
 
+		<!-- STASHED - LIKED -->
 		<com.cziyeli.songbits.stash.SimpleCardWidget
 			android:id="@+id/likes_card"
 			xmlns:android="http://schemas.android.com/apk/res/android"
@@ -32,8 +33,19 @@
 			>
 		</com.cziyeli.songbits.stash.SimpleCardWidget>
 
+		<!-- STASHED - DISLIKED -->
 		<com.cziyeli.songbits.stash.SimpleCardWidget
 			android:id="@+id/dislikes_card"
+			xmlns:android="http://schemas.android.com/apk/res/android"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:focusable="true"
+			>
+		</com.cziyeli.songbits.stash.SimpleCardWidget>
+
+		<!-- TOP TRACKS -->
+		<com.cziyeli.songbits.stash.SimpleCardWidget
+			android:id="@+id/top_tracks_card"
 			xmlns:android="http://schemas.android.com/apk/res/android"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

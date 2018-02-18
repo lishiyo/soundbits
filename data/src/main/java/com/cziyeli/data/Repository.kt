@@ -21,7 +21,7 @@ interface Repository {
 
     fun debug(limit: Int = -1)
 
-    // ============ ROOT, HOME, STASH ============
+    // ============ ROOT, HOME ============
 
     fun fetchCurrentUser() : Single<UserPrivate>
 
@@ -36,9 +36,19 @@ interface Repository {
 
     fun fetchUserQuickStats() : Flowable<Triple<Int, Int, Int>>
 
+    // ========= STASH ==========
+
+    // fetch all liked or disliked tracks from stash
     fun fetchUserTracks(pref: Pref = Pref.ALL, limit: Int = 20, offset: Int = 0) : Flowable<List<TrackEntity>>
 
+    // clear all liked or disliked tracks from stash
     fun clearStashedTracks(pref: Pref = Pref.ALL)
+
+    // get user's top tracks from remote
+    fun fetchUserTopTracks(source: Repository.Source = Source.REMOTE,
+                           time_range: String? = "medium_term",
+                           limit: Int = 20, offset: Int = 0
+    ): Observable<Pager<Track>>
 
     // ============ SINGLE PLAYLIST ACTIONS ============
 

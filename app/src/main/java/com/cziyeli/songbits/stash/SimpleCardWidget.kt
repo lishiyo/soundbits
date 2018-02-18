@@ -6,8 +6,9 @@ import android.support.v4.widget.NestedScrollView
 import android.support.v7.widget.LinearLayoutManager
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import com.bumptech.glide.Glide
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.disableTouchTheft
@@ -17,6 +18,7 @@ import com.cziyeli.commons.toast
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlistcard.CardResult
 import com.cziyeli.domain.playlistcard.CardResultMarker
+import com.cziyeli.domain.stash.SimpleCardResult
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.tracks.TrackResult
 import com.cziyeli.songbits.R
@@ -57,7 +59,6 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
         const val HEADER_DIM_DARK: Float = 0.7f
     }
 
-
     // backing viewmodel for this card
     lateinit var viewModel: SimpleCardViewModel
 
@@ -71,30 +72,10 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
     private lateinit var activity: Activity
     private var carouselHeaderUrl: String? = null
 
-    private lateinit var onClearedListener: StashFragment.OnCleared
     // Listener for the FAB menu
-    private val onFabSelectedListener = OnFABMenuSelectedListener { view, id ->
-        when (id) {
-            R.id.menu_clear -> {
-                onClearedListener.onCleared()
-            }
-            R.id.menu_create_playlist -> {
-                if (viewModel.pendingTracks.isEmpty()) {
-                    "no liked tracks yet! swipe first?".toast(context)
-                } else {
-                    enableCreateTitle(true)
-                    // switch fab icon
-                    Utils.setVisible(card_fab, false)
-                    Utils.setVisible(card_fab_create, true)
-                }
-            }
-        }
-    }
+    private var onFabSelectedListener: OnFABMenuSelectedListener? = null
     private lateinit var adapter: TrackRowsAdapter
     private lateinit var tracksRecyclerViewDelegate: TracksRecyclerViewDelegate
-
-    // Flag for whether we've created the new playlist or not
-    private var isFinished: Boolean = false
 
     @JvmOverloads
     constructor(
@@ -129,10 +110,10 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
                  tracks: List<TrackModel>,
                  activity: Activity,
                  initialViewModel: SimpleCardViewModel,
-                 onClearedListener: StashFragment.OnCleared
+                 fabMenuSelectedListener: OnFABMenuSelectedListener? = null
     ) {
         this.activity = activity
-        this.onClearedListener = onClearedListener
+        this.onFabSelectedListener = fabMenuSelectedListener
 
         // Bind the view model
         viewModel = initialViewModel
@@ -150,18 +131,23 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
                 })
         )
 
-        tracksRecyclerViewDelegate = TracksRecyclerViewDelegate(activity, tracks_recycler_view, this)
-
         // set header
         card_title.setText(title)
 
-        // bind the fab menu
-        if (card_fab_menu != null && card_fab_button != null) {
-            card_fab_menu!!.bindAnchorView(card_fab_button!!)
-            card_fab_menu!!.setOnFABMenuSelectedListener(onFabSelectedListener)
+        // set up the fab
+        if (fabMenuSelectedListener == null) {
+            // no fab menu, just go straight to create
+            card_fab_button.setOnClickListener {
+                initCreateMode()
+            }
+        } else {
+            // bind the fab menu
+            if (card_fab_menu != null && card_fab_button != null) {
+                card_fab_menu!!.bindAnchorView(card_fab_button!!)
+                card_fab_menu!!.setOnFABMenuSelectedListener(onFabSelectedListener)
+            }
         }
 
-        // set up the loading fab
         card_fab_create.addAnimation(FAB_CREATE_COLOR_0, R.drawable.basic_plus_fab,
                 LoadingView.FROM_LEFT)
         card_fab_create.addAnimation(FAB_CREATE_COLOR_1, R.drawable.basic_play_fab,
@@ -171,7 +157,8 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
         card_fab_create.addAnimation(FAB_CREATE_COLOR_3, R.drawable.basic_stop_1_fab,
                 LoadingView.FROM_RIGHT)
 
-        // set up tracks list (don't need to re-render)
+        // set up tracks rows (don't need to re-render)
+        tracksRecyclerViewDelegate = TracksRecyclerViewDelegate(activity, tracks_recycler_view, this)
         adapter = TrackRowsAdapter(context, tracks.toMutableList())
         tracks_recycler_view.adapter = adapter
         tracks_recycler_view.layoutManager = LinearLayoutManager(context)
@@ -179,7 +166,7 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
     }
 
     /**
-     * Container fragment passes on tracks from [RootActivity]
+     * Container fragment passes on tracks from [RootActivity].
      */
     fun loadTracks(tracks: List<TrackModel>) {
         Utils.mLog(TAG, "loadTracks: ${tracks.size}")
@@ -220,6 +207,12 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
 
     override fun render(state: SimpleCardViewModel.ViewState) {
         when {
+            state.lastResult is SimpleCardResult.SetCreateMode -> {
+                enableCreateTitle(state.inCreateMode)
+                // switch fab icon
+                Utils.setVisible(card_fab, !state.inCreateMode)
+                Utils.setVisible(card_fab_create, state.inCreateMode)
+            }
             state.lastResult is CardResult.HeaderSet -> {
                 setCarousel(state)
             }
@@ -248,6 +241,10 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
         }
     }
 
+    fun initCreateMode() {
+        simpleResultsPublisher.accept(SimpleCardResult.SetCreateMode(inCreateMode = true))
+    }
+
     override fun onLiked(position: Int) {
         val model = adapter.tracks[position]
         val newModel = model.copy(pref = TrackModel.Pref.LIKED)
@@ -274,7 +271,7 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
 
     // Actually create the playlist now
     private fun createPlaylist(ownerId: String, tracks: List<TrackModel>) {
-        if (isFinished) {
+        if (!viewModel.inCreateMode) {
             return
         }
 
@@ -294,13 +291,15 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
     }
 
     private fun onPlaylistCreated(newTitle: String, state: SimpleCardViewModel.ViewState) {
-        isFinished = true
+        simpleResultsPublisher.accept(SimpleCardResult.SetCreateMode(inCreateMode = false))
+
         sc_card_view.cardElevation = resources.getDimension(R.dimen.playlist_card_finished_elevation)
         Utils.hideKeyboard(context, card_title)
 
         // disable title editing
         enableCreateTitle(false)
 
+        // disable the full card
         isEnabled = false
         descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
 
@@ -308,19 +307,22 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
     }
 
     private fun enableCreateTitle(enable: Boolean = true) {
+        val dimView: View =  findViewById<View>(R.id.card_image_dim_overlay)
+        val inputView: EditText = findViewById(R.id.card_title)
+
         if (!enable) {
-            card_title.isEnabled = false
+            inputView.isEnabled = false
+            dimView.alpha = HEADER_DIM
             Utils.setVisible(dotted_line, false)
-            card_image_dim_overlay.alpha = HEADER_DIM
         } else {
             Utils.setVisible(dotted_line, true)
-            card_image_dim_overlay.alpha = HEADER_DIM_DARK
-            card_title.isFocusable = true
-            card_title.isFocusableInTouchMode = true
-            card_title.isEnabled = true
-            card_title.isClickable = true
-            card_title.setText("")
-            card_title.requestFocus()
+            dimView.alpha = HEADER_DIM_DARK
+            inputView.isFocusable = true
+            inputView.isFocusableInTouchMode = true
+            inputView.isEnabled = true
+            inputView.isClickable = true
+            inputView.setText("")
+            inputView.requestFocus()
         }
     }
 
@@ -337,11 +339,8 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
             Glide.with(this)
                     .load(state.carouselHeaderUrl)
                     .into(card_image_background)
+            Utils.setVisible(card_image_dim_overlay, true)
         }
-    }
-
-    override fun onTouchEvent(me: MotionEvent): Boolean {
-        return isFinished
     }
 
     fun onResume() {

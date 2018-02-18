@@ -133,5 +133,28 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
         })
     }
 
+
+    // https://developer.spotify.com/web-api/get-users-top-artists-and-tracks/
+    fun fetchUserTopTracks(time_range: String? = "medium_term",
+                           limit: Int = 100,
+                           offset: Int = 0): Observable<Pager<Track>> {
+        val params = mutableMapOf<String, Any>("limit" to limit, "offset" to offset)
+        time_range?.let {
+            params.put("time_range", time_range)
+        }
+
+        return Observable.create<Pager<Track>>( { emitter ->
+            api.service.getTopTracks(params, object : Callback<Pager<Track>> {
+                override fun success(t: Pager<Track>, response: Response?) {
+                    emitter.onNext(t)
+                }
+
+                override fun failure(error: RetrofitError?) {
+                    Utils.log(TAG, "api ++ fetchUserTopTracks error: ${error?.localizedMessage}")
+                    emitter.onError(Throwable(error?.localizedMessage))
+                }
+            })
+        })
+    }
 }
 
