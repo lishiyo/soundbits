@@ -37,7 +37,7 @@ class PlaylistCardCreateActivity : AppCompatActivity(),
     val TAG = PlaylistCardCreateActivity::class.java.simpleName
 
     companion object {
-        const val NUMBER_OF_PAGES = 2
+        const val NUMBER_OF_PAGES = 1
         const val EXTRA_PENDING_TRACKS = "extra_pending_tracks"
         const val EXTRA_HEADER_URL = "extra_header_url"
 
@@ -55,11 +55,10 @@ class PlaylistCardCreateActivity : AppCompatActivity(),
 
     // viewpager
     private val viewListener: ViewListener = ViewListener {
-        val view: View
-        if (it == 0) {
-            view = layoutInflater.inflate(R.layout.playlist_header_create_new, create_header_carousel, false)
+        val view: View = if (it == 0) {
+            layoutInflater.inflate(R.layout.playlist_header_create_new, create_header_carousel, false)
         } else {
-            view = layoutInflater.inflate(R.layout.playlist_header_add_existing, create_header_carousel, false)
+            layoutInflater.inflate(R.layout.playlist_header_add_existing, create_header_carousel, false)
 
         }
         view

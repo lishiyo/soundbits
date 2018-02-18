@@ -54,8 +54,8 @@
 	<string name="expand_tracks">expand swiped (%1$d tracks)</string>
 	<string name="expand_tracks_default">no tracks swiped yet</string>
 	<string name="create_expand_tracks">playlist tracks</string>
-	<string name="create_card_label">Nice! Create a new playlist or</string>
-	<string name="create_card_label_2">add to an existing one with\nthese %1$d tracks!</string>
+	<string name="create_card_label">Nice! Create a new playlist</string>
+	<string name="create_card_label_2">with these %1$d tracks!</string>
 	<string name="new_playlist_description">via songbits</string>
 
 	<!-- summary stuff -->

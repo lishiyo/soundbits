@@ -48,13 +48,13 @@
 						android:layout_height="@dimen/playlist_card_image_height"
 						app:autoPlay="false"
 						app:disableAutoPlayOnUserInteraction="true"
-						app:fillColor="@color/colorWhite"
-						app:pageColor="#00000000"
+						app:fillColor="@android:color/transparent"
+						app:pageColor="@android:color/transparent"
 						app:radius="3dp"
 						app:slideInterval="3000"
-						app:strokeColor="#FF777777"
+						app:strokeColor="@android:color/transparent"
 						app:indicatorMarginVertical="15dp"
-						app:strokeWidth="1dp"
+						app:strokeWidth="0dp"
 						/>
 
 				</FrameLayout>
