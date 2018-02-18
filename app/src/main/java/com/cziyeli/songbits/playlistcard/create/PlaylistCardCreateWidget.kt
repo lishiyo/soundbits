@@ -73,6 +73,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
 
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_playlist_card_create, this, true)
+        descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
     }
 
     fun loadTracks(tracks: List<TrackModel>,
@@ -107,6 +108,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
         tracks_recycler_view.adapter = adapter
         tracks_recycler_view.layoutManager = LinearLayoutManager(context)
         tracks_recycler_view.disableTouchTheft()
+
         expansion_header_title.text = resources.getString(R.string.expand_tracks).format(tracks.size)
     }
 

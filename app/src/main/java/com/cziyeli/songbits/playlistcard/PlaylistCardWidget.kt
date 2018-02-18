@@ -140,7 +140,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
         tracks_recycler_view.disableTouchTheft()
 
         // try to force refresh upon click
-        // TODO this doesn't work
+        // TODO this doesn't actually work
         expansion_header.setOnClickListener {
             Utils.mLog(TAG, "expansionHeader -- onClick! expanded? ${expansion_layout.isExpanded}")
             if (!expansion_layout.isExpanded) { // hidden, going to be opened

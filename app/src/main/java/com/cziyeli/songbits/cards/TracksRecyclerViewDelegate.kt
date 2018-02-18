@@ -52,7 +52,6 @@ class TracksRecyclerViewDelegate(val activity: Activity,
                 // animate the wave
                 val toAlpha = if (isFgOpening) 1.0f else 0.0f
                 val animatedView = foregroundView.findViewById<EqualizerView>(R.id.equalizer_animation)
-//                val animatedView = foregroundView.findViewById<LottieAnimationView>(R.id.wave_animation)
                 animatedView.animate().alpha(toAlpha).withEndAction {
                     if (isFgOpening) {
                         animatedView.visibility = View.VISIBLE
@@ -87,16 +86,8 @@ class TracksRecyclerViewDelegate(val activity: Activity,
         val onTouchListener = RecyclerTouchListener(activity, tracksRecyclerView)
         onTouchListener
                 .setViewsToFade(R.id.track_status)
-                .setClickable(object : RecyclerTouchListener.OnRowClickListener {
-                    override fun onRowClicked(position: Int) {
-                        Utils.mLog(TAG, "row @ $position clicked")
-                    }
-
-                    override fun onIndependentViewClicked(independentViewID: Int, position: Int) {
-                        Utils.mLog(TAG,"independent view @ ${position} clicked")
-                    }
-                })
                 .setOnSwipeListener(swipeListener)
+                .setClickable(false)
                 .setSwipeOptionViews(R.id.like_icon_container, R.id.dislike_icon_container)
                 .setSwipeable(R.id.row_foreground, R.id.row_background) { viewID, position ->
                     when (viewID) {
