@@ -16,6 +16,7 @@ import com.cziyeli.domain.user.UserResult
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.root.RootActivity
 import com.cziyeli.songbits.root.RootIntent
+import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.jakewharton.rxrelay2.PublishRelay
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
@@ -30,7 +31,6 @@ import javax.inject.Inject
  * Passes events to RootVM
  */
 class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState> {
-
     private val TAG = StashFragment::class.simpleName
 
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -43,18 +43,25 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
     private val eventsPublisher: PublishRelay<StashIntent> by lazy { PublishRelay.create<StashIntent>() }
     private val compositeDisposable = CompositeDisposable()
 
-    // Listener for the FAB menu 'clear' tap
-    interface OnCleared {
-        fun onCleared()
-    }
-    private val onClearedLikes = object : OnCleared {
-        override fun onCleared() {
-            eventsPublisher.accept(StashIntent.ClearTracks(Repository.Pref.LIKED))
+    // Likes/dislikes FAB menu
+    private val likesFabMenuSelectedListener: OnFABMenuSelectedListener = OnFABMenuSelectedListener { view, id ->
+        when (id) {
+            R.id.menu_clear -> {
+                eventsPublisher.accept(StashIntent.ClearTracks(Repository.Pref.LIKED))
+            }
+            R.id.menu_create_playlist -> {
+                likes_card.initCreateMode()
+            }
         }
     }
-    private val onClearedDislikes = object : OnCleared {
-        override fun onCleared() {
-            eventsPublisher.accept(StashIntent.ClearTracks(Repository.Pref.DISLIKED))
+    private val disLikesFabMenuSelectedListener: OnFABMenuSelectedListener = OnFABMenuSelectedListener { view, id ->
+        when (id) {
+            R.id.menu_clear -> {
+                eventsPublisher.accept(StashIntent.ClearTracks(Repository.Pref.DISLIKED))
+            }
+            R.id.menu_create_playlist -> {
+                dislikes_card.initCreateMode()
+            }
         }
     }
 
@@ -80,7 +87,6 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
     }
 
     override fun render(state: StashViewModel.ViewState) {
-        // pass to simple cards
         when {
             state.status == MviViewState.Status.SUCCESS && state.lastResult is UserResult.LoadLikesCard -> {
                 likes_card.loadTracks(state.likedTracks)
@@ -95,30 +101,27 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
         val activity = activity as RootActivity
 
         // likes
-        likes_card.initWith("likes", mutableListOf(),
-                activity,
+        likes_card.initWith(resources.getString(R.string.likes_card_title), mutableListOf(), activity,
                 SimpleCardViewModel(
                         simpleCardActionProcessor,
                         schedulerProvider,
                         SimpleCardViewModel.ViewState()
                 ),
-                onClearedLikes
+                likesFabMenuSelectedListener
         )
 
         // dislikes
-        dislikes_card.initWith("dislikes", mutableListOf(),
-                activity,
+        dislikes_card.initWith(resources.getString(R.string.dislikes_card_title), mutableListOf(), activity,
                 SimpleCardViewModel(
                         simpleCardActionProcessor,
                         schedulerProvider,
                         SimpleCardViewModel.ViewState()
                 ),
-                onClearedDislikes
+                disLikesFabMenuSelectedListener
         )
 
-        // recommended
-
         // top tracks
+
     }
 
     private fun initViewModel() {
@@ -151,6 +154,7 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
     override fun onResume() {
         super.onResume()
 
+        // fetch the tracks
         (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
         (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadDislikedTracks())
 

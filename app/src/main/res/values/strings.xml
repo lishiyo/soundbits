@@ -46,17 +46,24 @@
 	<string name="fab_create">create\nplaylist</string>
 	<string name="fab_clear">clear</string>
 
+	<!-- home stuff -->
 	<string name="home_see_more">See more</string>
 	<string name="playlist_section_recent">Recent</string>
 	<string name="playlist_section_recommended">Recommended</string>
 	<string name="playlist_section_featured">Featured</string>
 
+	<!-- card stuff -->
 	<string name="expand_tracks">expand swiped (%1$d tracks)</string>
 	<string name="expand_tracks_default">no tracks swiped yet</string>
 	<string name="create_expand_tracks">playlist tracks</string>
 	<string name="create_card_label">Nice! Create a new playlist</string>
 	<string name="create_card_label_2">with these %1$d tracks!</string>
 	<string name="new_playlist_description">via songbits</string>
+
+	<!-- simple card stuff -->
+	<string name="likes_card_title">Likes</string>
+	<string name="dislikes_card_title">Dislikes</string>
+	<string name="top_tracks_card_title">Top tracks</string>
 
 	<!-- summary stuff -->
 	<string name="summary_title">Awesome! You liked %1$d and disliked %2$d tracks!</string>

@@ -10,6 +10,7 @@ import com.cziyeli.domain.playlistcard.CardActionMarker
 import com.cziyeli.domain.playlistcard.CardResult
 import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.stash.SimpleCardActionProcessor
+import com.cziyeli.domain.stash.SimpleCardResult
 import com.cziyeli.domain.summary.*
 import com.cziyeli.domain.tracks.TrackAction
 import com.cziyeli.domain.tracks.TrackModel
@@ -55,6 +56,7 @@ class SimpleCardViewModel constructor(
         when (result) {
             is CardResult.HeaderSet -> return@BiFunction processSetHeaderUrl(previousState, result)
             is CardResult.TracksSet -> return@BiFunction processSetTracks(previousState, result)
+            is SimpleCardResult.SetCreateMode -> return@BiFunction processSetCreateMode(previousState, result)
             is StatsResult.FetchFullStats -> return@BiFunction processFetchFullStats(previousState, result)
             is TrackResult.ChangePrefResult -> return@BiFunction processTrackChangePref(previousState, result)
             is SummaryResult.CreatePlaylistWithTracks -> return@BiFunction processCreatePlaylistResult(previousState, result)
@@ -134,6 +136,16 @@ class SimpleCardViewModel constructor(
         return previousState.copy(
                 status = MviViewState.Status.SUCCESS,
                 tracks = result.tracks.toMutableList(),
+                lastResult = result
+        )
+    }
+
+    private fun processSetCreateMode(previousState: ViewState,
+                                     result: SimpleCardResult.SetCreateMode
+    ) : ViewState {
+        return previousState.copy(
+                status = MviViewState.Status.SUCCESS,
+                inCreateMode = result.inCreateMode,
                 lastResult = result
         )
     }
@@ -239,7 +251,7 @@ class SimpleCardViewModel constructor(
                          val carouselHeaderUrl: String? = null,
                          val tracks: MutableList<TrackModel> = mutableListOf(),
                          val trackStats: TrackListStats? = null, // stats for ALL tracks
-                         val inCreateMode: Boolean = false,
+                         val inCreateMode: Boolean = false, // whether in 'create' state
                          val currentTrack: TrackModel? = null, // current track playing, if any
                          val currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID
     ) : MviViewState {

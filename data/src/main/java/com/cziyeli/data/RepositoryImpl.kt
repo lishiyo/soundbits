@@ -57,6 +57,10 @@ class RepositoryImpl @Inject constructor(
                 }
     }
 
+    override fun fetchUserTopTracks(source: Repository.Source, time_range: String?, limit: Int, offset: Int) : Observable<Pager<Track>> {
+        return remoteDataSource.fetchUserTopTracks(time_range, limit, offset)
+    }
+
     ///////////////////////
     // ====== LOCAL ======
     ///////////////////////
