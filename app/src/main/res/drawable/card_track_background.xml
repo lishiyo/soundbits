@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+	<item>
+		<shape android:shape="rectangle">
+			<!--gradient_reds-->
+			<gradient
+				android:type="linear"
+				android:startColor="@color/colorPrimary"
+				android:endColor="@color/colorPrimaryDark"
+				android:angle="45"/>
+
+			<stroke android:color="@color/colorPrimaryShade" android:width="1dp" />
+
+			<corners android:radius="@dimen/card_radius"/>
+		</shape>
+	</item>
+</selector>

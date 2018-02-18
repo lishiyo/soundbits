@@ -1,83 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="300dp"
+	android:layout_height="433dp"
 	android:orientation="vertical"
-	android:paddingTop="30dp"
-	android:paddingLeft="30dp"
-	android:paddingRight="30dp"
+	android:padding="@dimen/card_padding"
 	android:gravity="center"
-	android:layout_gravity="center_horizontal"
+	android:layout_gravity="center"
+	android:background="@drawable/card_track_background"
 	>
 
-		<FrameLayout
-			android:id="@+id/track_image_container"
+	<FrameLayout
+		android:id="@+id/track_image_container"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_horizontal"
+		android:layout_centerHorizontal="true"
+		android:layout_alignParentTop="true"
+		>
+
+		<ImageView
+			android:id="@+id/track_image"
+			android:layout_width="@dimen/track_image_size"
+			android:layout_height="@dimen/track_image_size"
+			android:layout_gravity="center_horizontal"
+			tools:src="@drawable/gradient_blues"
+			/>
+
+		<ImageView
+			android:id="@+id/track_play_pause"
+			android:src="@drawable/basic_play"
+			style="@style/trackCardButton.Player"
+			/>
+	</FrameLayout>
+
+	<LinearLayout
+		android:id="@+id/track_title_wrapper"
+		android:layout_below="@id/track_image_container"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:layout_gravity="center"
+		android:gravity="center"
+		android:padding="20dp"
+		>
+
+		<TextView
+			android:id="@+id/track_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center_horizontal"
-			android:layout_centerHorizontal="true"
-			android:alpha="0.75"
-			>
+			android:textColor="@color/colorPurple"
+			android:textSize="@dimen/name_size"
+			android:textStyle="bold"
+			android:fontFamily="@font/amatic_sc"
+			android:maxLines="1"
+			tools:text="Pray for Me"
+			/>
 
-			<info.abdolahi.CircularMusicProgressBar
-				android:id="@+id/track_image"
-				android:layout_width="260dp"
-				android:layout_height="260dp"
-				android:layout_marginTop="10dp"
-				android:layout_marginBottom="10dp"
-				android:layout_gravity="center_horizontal"
-				android:layout_centerHorizontal="true"
-				app:border_color="@color/colorPurple"
-				app:progress_color="@color/colorYellow"
-				app:border_width="6dp"
-				app:centercircle_diammterer="1"
-				app:progress_startAngle="0"
-				app:draw_anticlockwise="false"
-				/>
-
-			<ImageView
-				android:id="@+id/track_play_pause"
-				android:src="@drawable/basic_play"
-				style="@style/trackCardButton.Player"
-				/>
-		</FrameLayout>
-
-
-		<LinearLayout
-			android:id="@+id/track_title_wrapper"
-			android:layout_below="@id/track_image_container"
-			android:layout_alignParentBottom="true"
-			android:layout_width="match_parent"
+		<TextView
+			android:id="@+id/artist_name"
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:orientation="vertical"
-			android:layout_gravity="center"
-			android:gravity="center"
-			android:padding="20dp"
-			android:visibility="invisible"
-			>
+			android:textColor="@color/colorPurple"
+			android:textSize="@dimen/artist_size"
+			android:textStyle="normal"
+			android:fontFamily="@font/amatic_sc"
+			android:maxLines="1"
+			tools:text="kendrick lamar"
+			/>
 
-			<TextView
-				android:id="@+id/track_name"
-				android:layout_width="wrap_content"
-				android:textColor="@color/colorPurple"
-				android:textSize="26dp"
-				android:textStyle="bold"
-				android:layout_height="wrap_content"
-				android:fontFamily="@font/amatic_sc"
-				/>
+	</LinearLayout>
 
-			<TextView
-				android:id="@+id/artist_name"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:textColor="@color/colorPurple"
-				android:textSize="22dp"
-				android:textStyle="normal"
-				android:fontFamily="@font/amatic_sc"
-				/>
+	<LinearLayout
+		android:id="@+id/buttons_row"
+		android:layout_below="@id/track_title_wrapper"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom"
+		android:gravity="center"
+		android:orientation="horizontal"
+		>
 
-		</LinearLayout>
+		<ImageButton
+			android:id="@+id/btn_discard"
+			android:layout_marginTop="14dp"
+			style="@style/trackCardButton"
+			android:background="@drawable/dislike_smiley" />
+
+		<ImageButton
+			android:id="@+id/btn_like"
+			style="@style/trackCardButton"
+			android:background="@drawable/like_line_dazzle_filled"/>
+
+		<ImageButton
+			android:id="@+id/btn_undo"
+			android:drawableTint="@color/colorAccent"
+			style="@style/trackCardButton"
+			android:layout_height="45dp"
+			android:layout_marginTop="8dp"
+			android:background="@drawable/basic_undo" />
+	</LinearLayout>
 
 </RelativeLayout>

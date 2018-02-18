@@ -174,7 +174,7 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
                 Handler().postDelayed({
                     // only notify if this isn't expanded
                     adapter.setTracksAndNotify(state.stashedTracksList, !expansion_layout.isExpanded)
-                }, 1000)
+                }, 700)
             }
             state.isSuccess() && state.lastResult is StatsResult -> {
                 stats_container.loadTrackStats(state.trackStats!!)

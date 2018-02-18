@@ -62,4 +62,12 @@
 
 	<!-- Stash multiselect -->
 	<dimen name="decoration_size">1.5dp</dimen>
+
+	<!-- Swipe ui -->
+	<dimen name="track_image_size">200dp</dimen>
+	<dimen name="card_margins">30dp</dimen>
+	<dimen name="card_padding">20dp</dimen>
+	<dimen name="card_elevation">6dp</dimen>
+	<dimen name="name_size">26sp</dimen>
+	<dimen name="artist_size">22sp</dimen>
 </resources>

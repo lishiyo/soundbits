@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.Gravity
 import android.view.ViewGroup
 import android.view.ViewStub
 import android.view.WindowManager
@@ -129,19 +128,19 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
     }
 
     private fun initSwipeView() {
-        val bottomMargin = Utils.dpToPx(160)
-        val windowSize = Utils.getDisplaySize(windowManager)
-        val builder: SwipeViewBuilder<SwipePlaceHolderView> = swipeView.getBuilder()
+        val builder: SwipeViewBuilder<SwipePlaceHolderView> = swipe_view.getBuilder()
         builder.setDisplayViewCount(3)
                 .setIsUndoEnabled(true)
                 .setHeightSwipeDistFactor(20f)
                 .setWidthSwipeDistFactor(15f)
                 .setSwipeDecor(SwipeDecor()
-                        .setViewWidth(windowSize.x)
-                        .setViewHeight(windowSize.y - bottomMargin)
-                        .setViewGravity(Gravity.TOP)
+//                        .setViewWidth(windowSize.x)
+//                        .setViewHeight(windowSize.y - bottomMargin)
+//                        .setMarginTop(30)
+//                        .setMarginLeft(30)
+//                        .setViewGravity(Gravity.TOP)
 //                        .setPaddingLeft(20)
-//                        .setPaddingTop(10)
+                        .setPaddingTop(10)
                         .setSwipeRotationAngle(10)
                         .setRelativeScale(0.01f)
                         .setSwipeMaxChangeAngle(1f)
@@ -151,17 +150,6 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
                         .setSwipeAnimTime(200)
                 )
 
-        discardBtn.setOnClickListener({
-            swipeView.doSwipe(false)
-        })
-
-        likeBtn.setOnClickListener({
-            swipeView.doSwipe(true)
-        })
-
-        undoBtn.setOnClickListener({
-            swipeView.undoLastSwipe()
-        })
     }
 
     override fun intents(): Observable<out CardsIntent> {
@@ -176,23 +164,42 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
         return mPlayerPublisher
     }
 
-    override fun getTrackIntents(): PublishRelay<CardsIntent.ChangeTrackPref> {
-        return mCardsPrefPublisher
+    override fun onChangePref(model: TrackModel, pref: TrackModel.Pref) {
+        when (pref) {
+            TrackModel.Pref.LIKED -> {
+                mCardsPrefPublisher.accept(CardsIntent.ChangeTrackPref.like(model))
+            }
+            TrackModel.Pref.DISLIKED -> {
+                mCardsPrefPublisher.accept(CardsIntent.ChangeTrackPref.dislike(model))
+            }
+            TrackModel.Pref.UNSEEN -> {
+                mCardsPrefPublisher.accept(CardsIntent.ChangeTrackPref.clear(model))
+            }
+        }
+    }
+
+    override fun doSwipe(pref: TrackModel.Pref) {
+        when (pref) {
+            TrackModel.Pref.LIKED -> {
+                swipe_view.doSwipe(true)
+            }
+            TrackModel.Pref.DISLIKED -> {
+                swipe_view.doSwipe(false)
+            }
+            TrackModel.Pref.UNSEEN -> {
+                swipe_view.undoLastSwipe()
+            }
+        }
     }
 
     override fun render(state: TrackViewState) {
-        val show = state.isSuccess() && state.allTracks.isNotEmpty()
-        Utils.setVisible(discardBtn, show)
-        Utils.setVisible(likeBtn, show)
-        Utils.setVisible(undoBtn, show)
-        Utils.setVisible(swipeView, show)
 
         Utils.mLog(TAG, "render!", "state", state.toString())
 
         // populate deck if first time
-        if (state.status == TrackViewState.TracksLoadedStatus.SUCCESS && swipeView.childCount == 0) {
+        if (state.status == TrackViewState.TracksLoadedStatus.SUCCESS && swipe_view.childCount == 0) {
             state.allTracks.forEachWithIndex { position, model ->
-                swipeView.addView(TrackCardView(this, model, this))
+                swipe_view.addView(TrackCardView(this, model, this))
             }
         }
 
@@ -208,9 +215,8 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
         summaryShown = true
 
         // if we're at the end, hide cards and show summary
-        swipeView.removeAllViews()
-        (swipeView.parent as ViewGroup).removeView(swipeView)
-        (buttons_row.parent as ViewGroup).removeView(buttons_row)
+        swipe_view.removeAllViews()
+        (swipe_view.parent as ViewGroup).removeView(swipe_view)
         Utils.setVisible(summaryLayout, true)
 
         // create the layout with the initial view state

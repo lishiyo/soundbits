@@ -13,6 +13,7 @@ import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.disableTouchTheft
+import com.cziyeli.commons.errorToast
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlistcard.CardResult
@@ -106,6 +107,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
         tracks_recycler_view.adapter = adapter
         tracks_recycler_view.layoutManager = LinearLayoutManager(context)
         tracks_recycler_view.disableTouchTheft()
+        expansion_header_title.text = resources.getString(R.string.expand_tracks).format(tracks.size)
     }
 
     override fun render(state: PlaylistCardCreateViewModel.ViewState) {
@@ -140,7 +142,7 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
         }
 
         if (create_playlist_new_title.text.isBlank()) {
-            "you have to give your playlist a name!".toast(context)
+            "you have to give your playlist a name!".errorToast(context)
             return
         }
 

@@ -119,8 +119,8 @@
 	</style>
 
 	<style name="trackCardButton">
-		<item name="android:layout_width">60dp</item>
-		<item name="android:layout_height">60dp</item>
+		<item name="android:layout_width">50dp</item>
+		<item name="android:layout_height">50dp</item>
 		<item name="android:layout_margin">20dp</item>
 		<item name="android:layout_gravity">center_vertical</item>
 		<item name="android:elevation">10dp</item>
