@@ -28,4 +28,5 @@ sealed class PlaylistCardAction(val playlistId: String? = "") : CardActionMarker
                               val limit: Int = 100,
                               val offset: Int = 0
     ) : PlaylistCardAction(playlistId)
+
 }

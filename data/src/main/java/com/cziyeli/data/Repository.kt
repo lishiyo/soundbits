@@ -46,7 +46,7 @@ interface Repository {
     fun fetchPlaylistTracks(source: Repository.Source = Source.REMOTE,
                             ownerId: String,
                             playlistId: String,
-                            fields: String?,
+                            fields: String? = null,
                             limit: Int = 40,
                             offset: Int = 0
     ): Observable<Pager<PlaylistTrack>>
@@ -57,6 +57,13 @@ interface Repository {
                                    fields: String? = null,
                                    limit: Int = 40,
                                    offset: Int = 0
+    ): Flowable<List<TrackEntity>>
+
+    fun fetchStashedTracksByIds(source: Repository.Source = Source.LOCAL,
+                                trackIds: List<String>,
+                                fields: String? = null,
+                                limit: Int = 40,
+                                offset: Int = 0
     ): Flowable<List<TrackEntity>>
 
     // ============ TRACKS ============

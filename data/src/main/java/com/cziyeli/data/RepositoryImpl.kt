@@ -65,6 +65,11 @@ class RepositoryImpl @Inject constructor(
         return tracksDatabase.tracksDao().getVisibleTracksByPlaylistId(playlistId, limit, offset).distinctUntilChanged()
     }
 
+    override fun fetchStashedTracksByIds(source: Repository.Source, trackIds: List<String>, fields: String?, limit: Int, offset: Int):
+            Flowable<List<TrackEntity>> {
+        return tracksDatabase.tracksDao().getTracksForTrackIds(trackIds, limit, offset).distinctUntilChanged()
+    }
+
     override fun saveTracksLocal(tracks: List<TrackEntity>) {
         Observable.just(tracks)
                 .subscribeOn(SchedulerProvider.io())
