@@ -49,9 +49,7 @@ class RepositoryImpl @Inject constructor(
     }
 
     override fun updateTrackPref(track: TrackEntity): Int {
-        val trackId = track.trackId
-        val liked = track.liked
-        return tracksDatabase.tracksDao().updateTrackPref(trackId, liked)
+        return tracksDatabase.tracksDao().updateTrackPref(track.trackId, track.liked)
     }
 
     override fun fetchUserTopTracks(source: Repository.Source, time_range: String?, limit: Int, offset: Int) : Observable<Pager<Track>> {
