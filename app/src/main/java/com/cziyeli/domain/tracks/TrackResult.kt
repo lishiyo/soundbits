@@ -36,7 +36,7 @@ sealed class TrackResult(var status: MviResult.StatusInterface = MviResult.Statu
                               error: Throwable?,
                               val currentTrack: TrackModel?,
                               val currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED
-    ) : TrackResult(status, error) {
+    ) : TrackResult(status, error), CardResultMarker {
         companion object {
             fun createSuccess(currentTrack: TrackModel,
                               currentPlayerState: PlayerInterface.State = PlayerInterface.State.NOT_PREPARED) :

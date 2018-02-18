@@ -5,6 +5,8 @@ import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
+import com.cziyeli.commons.resultFilter
+import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlistcard.*
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.StatsAction
@@ -51,6 +53,7 @@ class PlaylistCardViewModel @Inject constructor(
                 is StatsResult.FetchStats -> return@BiFunction processFetchStats(previousState, result)
                 is StatsResult.FetchAllTracksWithStats -> return@BiFunction processFetchAllTracksWithStats(previousState, result)
                 is TrackResult.ChangePrefResult -> return@BiFunction processTrackChangePref(previousState, result)
+                is TrackResult.CommandPlayerResult -> return@BiFunction processPlayerCommand(previousState, result)
                 else -> return@BiFunction previousState
             }
     }
@@ -89,6 +92,7 @@ class PlaylistCardViewModel @Inject constructor(
                 .compose(actionFilter<CardActionMarker>())
                 .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
                 .compose(actionProcessor.combinedProcessor)
+                .compose(resultFilter<CardResultMarker>())
                 .observeOn(schedulerProvider.ui())
                 .scan(currentViewState, reducer) // final reduction
 
@@ -110,6 +114,9 @@ class PlaylistCardViewModel @Inject constructor(
             is StatsIntent.FetchTracksWithStats -> StatsAction.FetchAllTracksWithStats(intent.playlist.owner.id, intent.playlist.id)
             is StatsIntent.FetchStats -> StatsAction.FetchStats(intent.trackIds)
             is CardsIntent.ChangeTrackPref -> TrackAction.ChangeTrackPref(intent.track, intent.pref)
+            is CardsIntent.CommandPlayer -> TrackAction.CommandPlayer.create(
+                    intent.command, intent.track
+            )
             else -> None
         }
     }
@@ -268,6 +275,26 @@ class PlaylistCardViewModel @Inject constructor(
         }
     }
 
+    private fun processPlayerCommand(previousState: PlaylistCardViewState, result: TrackResult.CommandPlayerResult) : PlaylistCardViewState {
+        return when (result.status) {
+            MviResult.Status.LOADING, MviResult.Status.SUCCESS, MviResult.Status.ERROR -> {
+                val status = when (result.status) {
+                    MviResult.Status.LOADING -> MviViewState.Status.LOADING
+                    MviResult.Status.SUCCESS -> MviViewState.Status.SUCCESS
+                    MviResult.Status.ERROR -> MviViewState.Status.ERROR
+                    else -> MviViewState.Status.IDLE
+                }
+                previousState.copy(
+                        error = result.error,
+                        currentTrack = result.currentTrack,
+                        currentPlayerState = result.currentPlayerState,
+                        status = status
+                )
+            }
+            else -> previousState
+        }
+    }
+
     private fun processTrackChangePref(previousState: PlaylistCardViewState, result: TrackResult.ChangePrefResult) : PlaylistCardViewState {
         return when (result.status) {
             TrackResult.ChangePrefResult.Status.LOADING, TrackResult.ChangePrefResult.Status.ERROR -> {
@@ -301,7 +328,9 @@ class PlaylistCardViewModel @Inject constructor(
                                      val stashedTracksList: MutableList<TrackModel> = mutableListOf(), // swiped tracks in db
                                      val allTracksList: List<TrackModel> = listOf(), // all tracks (from remote)
                                      val trackStats: TrackListStats? = null, // stats for ALL tracks
-                                     val lastResult: CardResultMarker? = null // track the triggering 'props'
+                                     val lastResult: CardResultMarker? = null, // track the triggering 'props'
+                                     val currentTrack: TrackModel? = null,
+                                     val currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID
     ) : MviViewState {
         // Creating playlist will
         val tracksToCreate: List<TrackModel>

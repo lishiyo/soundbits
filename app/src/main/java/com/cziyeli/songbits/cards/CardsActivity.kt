@@ -102,11 +102,9 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
         // fetch track cards
         if (tracksToSwipe != null && tracksToSwipe.isNotEmpty()) {
             // tracks were passed - just use these
-            Utils.mLog(TAG, "got tracksToSwipe: ${tracksToSwipe.size}")
             mLoadPublisher.accept(CardsIntent.ScreenOpenedWithTracks(playlist, tracksToSwipe))
         } else {
             // no tracks passed - fetch all from remote
-            Utils.mLog(TAG, "no tracksToSwipe, fetching from remote")
             mLoadPublisher.accept(CardsIntent.ScreenOpenedNoTracks.create(
                     ownerId = playlist.owner.id,
                     playlistId = playlist.id)
@@ -203,7 +201,6 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
             }
         }
 
-        // todo: render play button based on mediaplayer state
         if (!summaryShown && state.reachedEnd) {
             mPlayer.run { onDestroy() } // release the player!
             showSummary(state)

@@ -165,11 +165,4 @@ class PlaylistCardCreateActivity : AppCompatActivity(),
         super.onDestroy()
     }
 
-    override fun onLiked(position: Int) {
-        // no-op
-    }
-
-    override fun onDisliked(position: Int) {
-        // no-op
-    }
 }

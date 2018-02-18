@@ -4,7 +4,9 @@ import android.app.Activity
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import com.cziyeli.commons.TAG
 import com.cziyeli.commons.Utils
+import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import eu.gsottbauer.equalizerview.EqualizerView
@@ -55,22 +57,28 @@ class TracksRecyclerViewDelegate(val activity: Activity,
                     if (isFgOpening) {
                         animatedView.visibility = View.VISIBLE
                         animatedView.animateBars()
-//                        animatedView.playAnimation()
                     } else {
                         animatedView.visibility = View.INVISIBLE
                         animatedView.stopBars()
-//                        animatedView.pauseAnimation()
                     }
                 }.setDuration(duration).start()
             }
 
             override fun onSwipeOptionsOpened(foregroundView: View, backgroundView: View?) {
-
+                // try to get the tag
+                val model = foregroundView.tag
+                if (model is TrackModel) {
+                    listener.onSwipeOpen(model)
+                }
             }
 
             override fun onSwipeOptionsClosed(foregroundView: View, backgroundView: View?) {
                 val animatedView = foregroundView.findViewById<EqualizerView>(R.id.equalizer_animation)
                 animatedView.stopBars()
+                val model = foregroundView.tag
+                if (model is TrackModel) {
+                    listener.onSwipeClosed(model)
+                }
             }
         }
     }
@@ -81,7 +89,7 @@ class TracksRecyclerViewDelegate(val activity: Activity,
                 .setViewsToFade(R.id.track_status)
                 .setClickable(object : RecyclerTouchListener.OnRowClickListener {
                     override fun onRowClicked(position: Int) {
-                        Utils.mLog(TAG, "row @ ${position} clicked")
+                        Utils.mLog(TAG, "row @ $position clicked")
                     }
 
                     override fun onIndependentViewClicked(independentViewID: Int, position: Int) {
@@ -108,8 +116,10 @@ class TracksRecyclerViewDelegate(val activity: Activity,
      * Listen to the like/dislike actions.
      */
     interface ActionButtonListener {
-        fun onLiked(position: Int = -1)
-        fun onDisliked(position: Int = -1)
+        fun onLiked(position: Int = -1) { Utils.mLog(TAG, "onLiked")}
+        fun onDisliked(position: Int = -1) { Utils.mLog(TAG, "onDisliked")}
+        fun onSwipeOpen(model: TrackModel) { Utils.mLog(TAG, "onSwipeOpen $model")}
+        fun onSwipeClosed(model: TrackModel) { Utils.mLog(TAG, "onSwipeClosed $model")}
     }
 
 }

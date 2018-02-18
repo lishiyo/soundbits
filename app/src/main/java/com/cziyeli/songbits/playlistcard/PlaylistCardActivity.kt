@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.cziyeli.commons.toast
+import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
@@ -69,11 +70,14 @@ class PlaylistCardActivity : AppCompatActivity(), TracksRecyclerViewDelegate.Act
     @Inject
     @field:Named("PlaylistCardViewModel") lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var viewModel: PlaylistCardViewModel
+
     private val eventsPublisher: PublishRelay<CardIntentMarker> by lazy { PublishRelay.create<CardIntentMarker>() }
     private val compositeDisposable = CompositeDisposable()
 
     @Inject
     lateinit var tracksRecyclerViewDelegate: TracksRecyclerViewDelegate
+
+    @Inject @field:Named("Native") lateinit var mPlayer: PlayerInterface
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -160,6 +164,18 @@ class PlaylistCardActivity : AppCompatActivity(), TracksRecyclerViewDelegate.Act
         }
     }
 
+    override fun onSwipeClosed(model: TrackModel) {
+        super.onSwipeClosed(model)
+        eventsPublisher.accept(
+                CardsIntent.CommandPlayer.create(PlayerInterface.Command.END_TRACK, model))
+    }
+
+    override fun onSwipeOpen(model: TrackModel) {
+        super.onSwipeOpen(model)
+        eventsPublisher.accept(
+                CardsIntent.CommandPlayer.create(PlayerInterface.Command.PLAY_NEW, model))
+    }
+
     override fun onEnterAnimationComplete() {
         super.onEnterAnimationComplete()
 
@@ -174,14 +190,17 @@ class PlaylistCardActivity : AppCompatActivity(), TracksRecyclerViewDelegate.Act
     override fun onResume() {
         super.onResume()
         tracks_recycler_view.addOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
+        mPlayer.apply { onResume() }
     }
 
     override fun onPause() {
         super.onPause()
         tracks_recycler_view.removeOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
+        mPlayer.apply { onPause() }
     }
 
     override fun onDestroy() {
+        mPlayer.apply { onDestroy() }
         compositeDisposable.clear()
         super.onDestroy()
     }

@@ -288,6 +288,8 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
 
         isEnabled = false
         descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
+
+        "success!".toast(context)
     }
 
     private fun enableCreateTitle(enable: Boolean = true) {
