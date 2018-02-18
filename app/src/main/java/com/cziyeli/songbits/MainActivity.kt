@@ -4,14 +4,12 @@ import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
 import com.cziyeli.commons.*
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.domain.user.UserManager
 import com.cziyeli.songbits.home.HomeIntent
 import com.cziyeli.songbits.home.HomeViewModel
-import com.cziyeli.songbits.home.oldhome.OldHomeActivity
 import com.cziyeli.songbits.root.RootActivity
 import com.jakewharton.rxrelay2.PublishRelay
 import com.spotify.sdk.android.authentication.AuthenticationClient
@@ -43,24 +41,6 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
     private val mLogoutPublisher = PublishRelay.create<HomeIntent.LogoutUser>()
     private val compositeDisposable = CompositeDisposable()
 
-    private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
-        when (item.itemId) {
-            R.id.navigation_home -> {
-                nav_oldhome_activity.setText(R.string.title_oldhome)
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_dashboard -> {
-                nav_oldhome_activity.setText(R.string.title_dashboard)
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_notifications -> {
-                nav_oldhome_activity.setText(R.string.title_notifications)
-                return@OnNavigationItemSelectedListener true
-            }
-        }
-        false
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
 
@@ -77,18 +57,11 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
             mUserPublisher.accept(HomeIntent.FetchUser())
         }
         Utils.setVisible(login_button, !accessTokenValid)
-        Utils.setVisible(nav_oldhome_activity, accessTokenValid)
         Utils.setVisible(nav_root_activity, accessTokenValid)
-
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
         nav_demo_activity.setOnClickListener{ _ ->
             val intent = Intent(this, DemoActivity::class.java)
             startActivity(intent)
-        }
-
-        nav_oldhome_activity.setOnClickListener{ _ ->
-            startActivity(Intent(this, OldHomeActivity::class.java))
         }
 
         nav_root_activity.setOnClickListener { _ ->
@@ -140,7 +113,6 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
     override fun render(state: com.cziyeli.songbits.home.HomeViewState) {
         Utils.setVisible(login_button, !isAccessTokenValid())
-        Utils.setVisible(nav_oldhome_activity, isAccessTokenValid())
         Utils.setVisible(nav_root_activity, isAccessTokenValid())
     }
 
@@ -219,7 +191,6 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
         // rerender! TODO: do via MVI flow
         Utils.setVisible(login_button, false)
-        Utils.setVisible(nav_oldhome_activity, true)
         Utils.setVisible(nav_root_activity, true)
 
         Utils.log(TAG, "Got authentication token!")

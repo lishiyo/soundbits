@@ -20,26 +20,7 @@
 		app:layout_constraintBottom_toTopOf="@+id/navigation"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintLeft_toLeftOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/nav_oldhome_activity"
 		app:layout_constraintVertical_bias="0.744" />
-
-	<TextView
-		android:id="@+id/nav_oldhome_activity"
-		android:layout_width="175dp"
-		android:layout_height="53dp"
-		android:layout_marginBottom="8dp"
-		android:layout_marginEnd="16dp"
-		android:layout_marginLeft="128dp"
-		android:layout_marginTop="336dp"
-		android:background="@color/cardview_dark_background"
-		android:text="@string/title_oldhome"
-		android:visibility="gone"
-		app:layout_constraintBottom_toTopOf="@+id/navigation"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintLeft_toLeftOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintVertical_bias="0.421"
-		tools:visibility="visible" />
 
 	<TextView
 		android:id="@+id/nav_root_activity"
