@@ -18,6 +18,7 @@ import dagger.android.AndroidInjection
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_playlistcard_create.*
+import kotlinx.android.synthetic.main.widget_expandable_tracks.*
 import kotlinx.android.synthetic.main.widget_playlist_card_create.*
 import org.jetbrains.anko.intentFor
 import java.util.*
@@ -146,7 +147,7 @@ class PlaylistCardCreateActivity : AppCompatActivity(),
 
     override fun onResume() {
         super.onResume()
-        create_tracks_recycler_view.addOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
+        tracks_recycler_view.addOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -156,7 +157,7 @@ class PlaylistCardCreateActivity : AppCompatActivity(),
 
     override fun onPause() {
         super.onPause()
-        create_tracks_recycler_view.removeOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
+        tracks_recycler_view.removeOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
     }
 
     override fun onDestroy() {

@@ -32,6 +32,7 @@ import io.reactivex.Observable
 import io.saeid.fabloading.LoadingView
 import kotlinx.android.synthetic.main.playlist_header_add_existing.view.*
 import kotlinx.android.synthetic.main.playlist_header_create_new.view.*
+import kotlinx.android.synthetic.main.widget_expandable_tracks.view.*
 import kotlinx.android.synthetic.main.widget_playlist_card_create.view.*
 
 /**
@@ -102,9 +103,9 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
 
         // set up tracks list (don't need to re-render)
         adapter = TrackRowsAdapter(context, tracks.toMutableList())
-        create_tracks_recycler_view.adapter = adapter
-        create_tracks_recycler_view.layoutManager = LinearLayoutManager(context)
-        create_tracks_recycler_view.disableTouchTheft()
+        tracks_recycler_view.adapter = adapter
+        tracks_recycler_view.layoutManager = LinearLayoutManager(context)
+        tracks_recycler_view.disableTouchTheft()
     }
 
     override fun render(state: PlaylistCardCreateViewModel.ViewState) {

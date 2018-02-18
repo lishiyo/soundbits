@@ -178,62 +178,6 @@
 
 					<include layout="@layout/widget_expandable_tracks" />
 
-					<!-- BODY: Expansion Header -->
-					<!--<com.github.florent37.expansionpanel.ExpansionHeader-->
-						<!--android:id="@+id/expansion_header"-->
-						<!--android:layout_width="match_parent"-->
-						<!--android:layout_height="wrap_content"-->
-						<!--app:expansion_headerIndicator="@id/header_indicator"-->
-						<!--app:expansion_layout="@id/expansion_layout"-->
-						<!--app:expansion_toggleOnClick="true"-->
-						<!--&gt;-->
-
-						<!--<RelativeLayout-->
-							<!--android:background="@color/colorPrimary"-->
-							<!--android:layout_height="48dp"-->
-							<!--android:layout_width="match_parent"-->
-							<!--android:paddingLeft="16dp"-->
-							<!--android:paddingRight="16dp">-->
-
-							<!--<TextView-->
-								<!--android:id="@+id/expansion_header_title"-->
-								<!--android:layout_centerVertical="true"-->
-								<!--android:layout_height="wrap_content"-->
-								<!--android:layout_width="wrap_content"-->
-								<!--android:text="@string/expand_tracks_default"-->
-								<!--android:textColor="@color/colorWhite" />-->
-
-							<!--<android.support.v7.widget.AppCompatImageView-->
-								<!--android:id="@+id/header_indicator"-->
-								<!--android:adjustViewBounds="true"-->
-								<!--android:layout_alignParentRight="true"-->
-								<!--android:layout_centerVertical="true"-->
-								<!--android:layout_height="wrap_content"-->
-								<!--android:layout_marginLeft="16dp"-->
-								<!--android:layout_width="wrap_content"-->
-								<!--app:srcCompat="@drawable/icon_expand_header"-->
-								<!--android:visibility="invisible"-->
-								<!--/>-->
-						<!--</RelativeLayout>-->
-
-					<!--</com.github.florent37.expansionpanel.ExpansionHeader>-->
-
-					<!--&lt;!&ndash; BODY CONTENT: LIST of TRACKS (COLLAPSED) &ndash;&gt;-->
-					<!--<com.github.florent37.expansionpanel.ExpansionLayout-->
-						<!--android:id="@+id/expansion_layout"-->
-						<!--android:textSize="@dimen/small_text_size"-->
-						<!--app:expansion_expanded="false"-->
-						<!--android:layout_width="match_parent"-->
-						<!--android:layout_height="wrap_content"-->
-						<!--android:descendantFocusability="afterDescendants"-->
-						<!--&gt;-->
-						<!--<android.support.v7.widget.RecyclerView-->
-							<!--android:id="@+id/tracks_recycler_view"-->
-							<!--android:layout_width="match_parent"-->
-							<!--android:layout_height="wrap_content"-->
-							<!--/>-->
-					<!--</com.github.florent37.expansionpanel.ExpansionLayout>-->
-
 				</LinearLayout> <!-- BODY END -->
 
 			</RelativeLayout> <!-- CARD END -->
