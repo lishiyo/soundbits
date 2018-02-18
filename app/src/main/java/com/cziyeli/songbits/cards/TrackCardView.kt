@@ -4,17 +4,24 @@ import android.content.Context
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.cziyeli.commons.Utils
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
 import com.jakewharton.rxrelay2.PublishRelay
+import com.mindorks.placeholderview.annotations.Click
 import com.mindorks.placeholderview.annotations.Layout
 import com.mindorks.placeholderview.annotations.Resolve
 import com.mindorks.placeholderview.annotations.View
-import com.mindorks.placeholderview.annotations.swipe.*
-import info.abdolahi.CircularMusicProgressBar
-import info.abdolahi.OnCircularSeekBarChangeListener
+import com.mindorks.placeholderview.annotations.swipe.SwipeCancelState
+import com.mindorks.placeholderview.annotations.swipe.SwipeHead
+import com.mindorks.placeholderview.annotations.swipe.SwipeIn
+import com.mindorks.placeholderview.annotations.swipe.SwipeOut
+
+
 
 /**
  * Displays a "card" view of a track for swiping.
@@ -32,7 +39,7 @@ class TrackCardView(private val context: Context,
     private lateinit var trackImageContainer: android.view.View
 
     @View(R.id.track_image)
-    private lateinit var trackImage: CircularMusicProgressBar
+    private lateinit var trackImage: ImageView
 
     @View(R.id.track_play_pause)
     private lateinit var trackPlayPause: ImageView
@@ -46,24 +53,8 @@ class TrackCardView(private val context: Context,
     @View(R.id.track_title_wrapper)
     private lateinit var trackTitleWrapper: android.view.View
 
-
     // Flag to flip the icon
     private var isPlaying: Boolean = true
-
-    private val seekBarChangeListener = object : OnCircularSeekBarChangeListener {
-        override fun onProgressChanged(circularBar: CircularMusicProgressBar?, progress: Int, fromUser: Boolean) {
-            Utils.mLog(TAG, "onProgressChanged", "progress: $progress -- fromUser: $fromUser")
-        }
-
-        override fun onClick(circularBar: CircularMusicProgressBar?) {
-            circularBar?.performClick()
-        }
-
-        override fun onLongPress(circularBar: CircularMusicProgressBar?) {
-            // no-op
-            Utils.mLog(TAG, "onLongPress")
-        }
-    }
 
     private val trackImageClickListener = android.view.View.OnClickListener {
         // pause/resume
@@ -76,18 +67,19 @@ class TrackCardView(private val context: Context,
         isPlaying = !isPlaying
     }
 
+    private val transform = RequestOptions().transforms(CenterCrop(), RoundedCorners(12))
+
     @Resolve
     private fun onResolved() {
         Utils.log(TAG, "onResolved: ${model.name}") // on average will load 3
 
         trackName.text = model.name
         artistName.text = model.artistName
-
-        trackImage.setOnCircularBarChangeListener(seekBarChangeListener)
         trackImage.setOnClickListener(trackImageClickListener)
 
         Glide.with(context)
                 .load(model.imageUrl)
+                .apply(transform)
                 .into(trackImage)
     }
 
@@ -101,9 +93,7 @@ class TrackCardView(private val context: Context,
                 CardsIntent.CommandPlayer.create(PlayerInterface.Command.PLAY_NEW, model))
 
         // 'undo' clears liked/disliked pref
-        listener.getTrackIntents().accept(
-                CardsIntent.ChangeTrackPref.clear(model)
-        )
+        listener.onChangePref(model, TrackModel.Pref.UNSEEN)
 
         trackImageContainer.alpha = 1f
         Utils.setVisible(trackTitleWrapper, true)
@@ -115,16 +105,7 @@ class TrackCardView(private val context: Context,
         Utils.log(TAG, "onSwipedOut (rejected): ${model.name}")
 
         finishTrack()
-
-        // add this track to the Pass list
-        listener.getTrackIntents().accept(
-                CardsIntent.ChangeTrackPref.dislike(model)
-        )
-    }
-
-    @SwipeCancelState
-    private fun onSwipeCancelState() {
-        Utils.log(TAG, "onSwipeCancelState")
+        listener.onChangePref(model, TrackModel.Pref.DISLIKED)
     }
 
     @SwipeIn
@@ -132,11 +113,31 @@ class TrackCardView(private val context: Context,
         Utils.log(TAG, "onSwipeIn (accepted): ${model.name}")
 
         finishTrack()
+        listener.onChangePref(model, TrackModel.Pref.LIKED)
+    }
 
-        // add this track to the Liked list
-        listener.getTrackIntents().accept(
-                CardsIntent.ChangeTrackPref.like(model)
-        )
+    @SwipeCancelState
+    private fun onSwipeCancelState() {
+        Utils.log(TAG, "onSwipeCancelState")
+    }
+
+    @Click(R.id.btn_discard)
+    private fun onDisliked() {
+        Utils.log(TAG, "onDislikeClicked: ${model.name}")
+
+        listener.doSwipe(TrackModel.Pref.DISLIKED)
+    }
+
+    @Click(R.id.btn_like)
+    private fun onLiked() {
+        Utils.log(TAG, "onLikeClicked: ${model.name}")
+        listener.doSwipe(TrackModel.Pref.LIKED)
+    }
+
+    @Click(R.id.btn_undo)
+    private fun onUndoClicked() {
+        Utils.log(TAG, "onUndoClicked: ${model.name}")
+        listener.doSwipe(TrackModel.Pref.UNSEEN)
     }
 
     private fun finishTrack() {
@@ -145,25 +146,17 @@ class TrackCardView(private val context: Context,
                 CardsIntent.CommandPlayer.create(PlayerInterface.Command.END_TRACK, model))
 
         Utils.setVisible(trackTitleWrapper, false)
-        trackImage.setOnCircularBarChangeListener(null)
         trackImage.setOnClickListener(null)
-    }
-
-    @SwipeInState
-    private fun onSwipeInState() {
-//        Utils.log(TAG, "onSwipeInState")
-    }
-
-    @SwipeOutState
-    private fun onSwipeOutState() {
-//        Utils.log(TAG, "onSwipeOutState")
     }
 
     interface TrackListener {
         // emit events to the audio player
         fun getPlayerIntents(): PublishRelay<CardsIntent.CommandPlayer>
 
-        // emit like/dislike events
-        fun getTrackIntents(): PublishRelay<CardsIntent.ChangeTrackPref>
+        // clicked like or dislike
+        fun onChangePref(model: TrackModel, pref: TrackModel.Pref)
+
+        // perform a swipe in/out/undo
+        fun doSwipe(pref: TrackModel.Pref)
     }
 }
