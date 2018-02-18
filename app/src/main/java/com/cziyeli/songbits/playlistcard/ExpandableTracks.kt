@@ -85,6 +85,9 @@ class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackModel>)
 
     override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
         holder.bindData(trackRows[position])
+
+        // set it as a tag on the foreground view
+        holder.itemView.findViewById<View>(R.id.row_foreground).tag = trackRows[position]
     }
 
     override fun onBindViewHolder(holder: MainViewHolder, position: Int, payloads: MutableList<Any>?) {

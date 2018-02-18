@@ -61,8 +61,7 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
                     }
                     finalTracks
                 }
-                .map { items -> items.map { it.track }}
-                .map { tracks -> tracks.map { TrackModel.create(it) } }
+                .map { tracks -> tracks.map { TrackModel.create(it.track) } }
                 .map { trackCards -> TrackResult.LoadTrackCards.createSuccess(trackCards) }
                 .onErrorReturn { err -> TrackResult.LoadTrackCards.createError(err) }
                 .subscribeOn(schedulerProvider.io())
@@ -72,7 +71,8 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
     }
 
     // play, pause, stop the audio player
-    private val commandPlayerProcessor : ObservableTransformer<TrackAction.CommandPlayer, TrackResult.CommandPlayerResult> = ObservableTransformer {
+    val commandPlayerProcessor : ObservableTransformer<TrackAction.CommandPlayer, TrackResult.CommandPlayerResult> =
+            ObservableTransformer {
         actions -> actions.switchMap { act ->
             player.handlePlayerCommand(act.track, act.command)
         }.retry() // don't unsubscribe

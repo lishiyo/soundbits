@@ -9,7 +9,7 @@ import com.cziyeli.songbits.playlistcard.CardIntentMarker
 /**
  * Created by connieli on 1/1/18.
  */
-sealed class CardsIntent : MviIntent {
+sealed class CardsIntent : MviIntent, CardIntentMarker {
 
     // opened CardsActivity *with* tracks to swipe
     class ScreenOpenedWithTracks(val playlist: Playlist,

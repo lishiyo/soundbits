@@ -131,57 +131,63 @@ class CardsViewModel @Inject constructor(
     }
 
     private fun processPlayerCommand(previousState: TrackViewState, result: TrackResult.CommandPlayerResult) : TrackViewState {
-        val newState = previousState.copy(error = null, currentTrack = result.currentTrack, currentPlayerState = result.currentPlayerState)
-
-        when (result.status) {
-            MviResult.Status.LOADING -> {
-                newState.status = MviViewState.Status.LOADING
+        return when (result.status) {
+            MviResult.Status.LOADING, MviResult.Status.SUCCESS, MviResult.Status.ERROR -> {
+                val status = when (result.status) {
+                    MviResult.Status.LOADING -> MviViewState.Status.LOADING
+                    MviResult.Status.SUCCESS -> MviViewState.Status.SUCCESS
+                    MviResult.Status.ERROR -> MviViewState.Status.ERROR
+                    else -> MviViewState.Status.IDLE
+                }
+                previousState.copy(
+                        error = result.error,
+                        currentTrack = result.currentTrack,
+                        currentPlayerState = result.currentPlayerState,
+                        status = status
+                )
             }
-            MviResult.Status.SUCCESS -> {
-                newState.status = MviViewState.Status.SUCCESS
-            }
-            MviResult.Status.ERROR -> {
-                newState.status = MviViewState.Status.ERROR
-                newState.error = result.error
-            }
+            else -> previousState
         }
-
-        return newState
     }
 
     private fun processTrackChangePref(previousState: TrackViewState, result: TrackResult.ChangePrefResult) : TrackViewState {
-        val newState = previousState.copy(error = null)
-
-        when (result.status) {
+        return when (result.status) {
             TrackResult.ChangePrefResult.Status.SUCCESS -> {
-                newState.status = MviViewState.Status.SUCCESS
-                newState.currentTrack = result.currentTrack
-
-                val track = newState.allTracks.find { el -> el.id == newState.currentTrack?.id }
+                val newTracks = previousState.allTracks.toMutableList()
+                val track = newTracks.find { el -> el.id == previousState.currentTrack?.id }
                 track!!.pref = result.pref!!
-                Utils.mLog(TAG, "processTrackChange ${track.name}",
-                        "pref: ", track.pref.toString(),
-                        "currentLikes: ", newState.currentLikes.size.toString(),
-                        "currentDislikes: ", newState.currentDislikes.size.toString(),
-                        "unseen: ", newState.unseen.size.toString())
-            }
-            TrackResult.ChangePrefResult.Status.ERROR -> {
-                newState.status = MviViewState.Status.ERROR
-                newState.error = result.error
-            }
-        }
 
-        return newState
+                previousState.copy(
+                        error = result.error,
+                        currentTrack = result.currentTrack,
+                        status = MviViewState.Status.SUCCESS,
+                        allTracks = newTracks
+                )
+            }
+            TrackResult.ChangePrefResult.Status.LOADING, TrackResult.ChangePrefResult.Status.ERROR -> {
+                val status = if (result.status == TrackResult.ChangePrefResult.Status.LOADING) {
+                    MviViewState.Status.LOADING
+                } else {
+                    MviViewState.Status.ERROR
+                }
+                previousState.copy(
+                        error = result.error,
+                        currentTrack = result.currentTrack,
+                        status = status
+                )
+            }
+            else -> previousState
+        }
     }
 
 }
 
-data class TrackViewState(var status: MviViewState.StatusInterface = MviViewState.Status.IDLE,
-                          var error: Throwable? = null,
+data class TrackViewState(val status: MviViewState.StatusInterface = MviViewState.Status.IDLE,
+                          val error: Throwable? = null,
                           val allTracks: MutableList<TrackModel> = mutableListOf(),
-                          var playlist: Playlist,
-                          var currentTrack: TrackModel? = null,
-                          var currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID
+                          val playlist: Playlist,
+                          val currentTrack: TrackModel? = null,
+                          val currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID
 ) : MviViewState {
     enum class TracksLoadedStatus : MviViewState.StatusInterface {
         LOADING, SUCCESS, ERROR

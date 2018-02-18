@@ -7,6 +7,7 @@ import com.cziyeli.domain.summary.StatsAction
 import com.cziyeli.domain.summary.StatsResult
 import com.cziyeli.domain.summary.TrackListStats
 import com.cziyeli.domain.tracks.TrackAction
+import com.cziyeli.domain.tracks.TrackActionProcessor
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.tracks.TrackResult
 import io.reactivex.Observable
@@ -17,7 +18,8 @@ import javax.inject.Singleton
 
 @Singleton
 class PlaylistCardActionProcessor @Inject constructor(private val repository: Repository,
-                                                      private val schedulerProvider: BaseSchedulerProvider) {
+                                                      private val schedulerProvider: BaseSchedulerProvider,
+                                                      private val trackActionProcessor: TrackActionProcessor) {
     private val TAG = PlaylistCardActionProcessor::class.simpleName
 
     val combinedProcessor: ObservableTransformer<CardActionMarker, CardResultMarker> = ObservableTransformer { acts
@@ -53,7 +55,11 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                     // update a track's pref in the db
                     shared.ofType<TrackAction.ChangeTrackPref>(TrackAction.ChangeTrackPref::class.java)
                             .compose(changePrefAndSaveProcessor)
-
+            ).mergeWith(
+                    // ==== USER INTERACTIONS ====
+                    // command the player
+                    shared.ofType<TrackAction.CommandPlayer>(TrackAction.CommandPlayer::class.java)
+                            .compose(trackActionProcessor.commandPlayerProcessor)
             ).doOnNext {
                 Utils.log(TAG, "PlaylistCardActionProcessor: --- ${it::class.simpleName}")
             }.retry() // don't ever unsubscribe

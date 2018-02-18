@@ -33,7 +33,7 @@ sealed class TrackAction : MviAction {
 
     // command the player to do something with a track
     class CommandPlayer(val command: PlayerInterface.Command,
-                        val track: TrackModel) : TrackAction() {
+                        val track: TrackModel) : TrackAction(), CardActionMarker {
         companion object {
             fun create(command: PlayerInterface.Command, track: TrackModel) : CommandPlayer {
                 return CommandPlayer(command, track)
