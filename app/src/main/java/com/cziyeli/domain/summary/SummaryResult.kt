@@ -23,7 +23,7 @@ sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Sta
     class SetTracks : SummaryResult(MviResult.Status.SUCCESS)
 
     /**
-     * Set a new track.
+     * Change liked/disliked status for a pending track.
      */
     class ChangeTrackPref(val track: TrackModel) : SummaryResult(MviResult.Status.SUCCESS, null)
 

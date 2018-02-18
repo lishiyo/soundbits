@@ -218,8 +218,8 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
             }
             state.status == MviViewState.Status.SUCCESS && state.lastResult is TrackResult.ChangePrefResult -> {
                 val track = (state.lastResult as? TrackResult.ChangePrefResult)?.currentTrack
-                // remove the track completely upon change or else the indices get out of date
                 if (state.shouldRemoveTrack(state, track)) {
+                    // remove the track completely upon change or else the indices get out of date
                     adapter.removeTrack(track)
                 } else {
                     adapter.updateTrack(track, false)

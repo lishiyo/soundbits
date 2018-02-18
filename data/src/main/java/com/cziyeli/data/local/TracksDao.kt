@@ -57,7 +57,7 @@ abstract class TracksDao {
     abstract fun updateTrack(track: TrackEntity)
 
     @Query("UPDATE Tracks SET liked = :liked WHERE track_id = :trackId")
-    abstract fun updateTrackPref(trackId: String, liked: Boolean)
+    abstract fun updateTrackPref(trackId: String, liked: Boolean): Int
 
     @Delete
     abstract fun deleteTrack(track: TrackEntity)

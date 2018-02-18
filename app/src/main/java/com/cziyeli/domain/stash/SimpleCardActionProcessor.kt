@@ -60,4 +60,5 @@ class SimpleCardActionProcessor @Inject constructor(private val repository: Repo
                 .startWith(StatsResult.FetchFullStats.createLoading())
         }
     }
+
 }
