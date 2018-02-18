@@ -55,10 +55,6 @@ class PlaylistCardActivity : AppCompatActivity(), TracksRecyclerViewDelegate.Act
                     "no liked tracks yet! swipe first?".toast(this@PlaylistCardActivity)
                 } else {
                     // go to create with liked tracks
-//                    val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
-//                            fab_button,
-//                            ViewCompat.getTransitionName(fab_button)
-//                    ).toBundle()
                     startActivity(PlaylistCardCreateActivity.create(
                             this@PlaylistCardActivity, viewModel.tracksToCreate)
                     )

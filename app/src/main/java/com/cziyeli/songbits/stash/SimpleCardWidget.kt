@@ -10,9 +10,11 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.cziyeli.commons.Utils
+import com.cziyeli.commons.disableTouchTheft
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.commons.toast
+import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlistcard.CardResult
 import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.tracks.TrackModel
@@ -173,6 +175,7 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
         adapter = TrackRowsAdapter(context, tracks.toMutableList())
         tracks_recycler_view.adapter = adapter
         tracks_recycler_view.layoutManager = LinearLayoutManager(context)
+        tracks_recycler_view.disableTouchTheft()
     }
 
     /**
@@ -255,6 +258,18 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
         val model = adapter.tracks[position]
         val newModel = model.copy(pref = TrackModel.Pref.DISLIKED)
         eventsPublisher.accept(CardsIntent.ChangeTrackPref.dislike(newModel))
+    }
+
+    override fun onSwipeClosed(model: TrackModel) {
+        super.onSwipeClosed(model)
+        eventsPublisher.accept(
+                CardsIntent.CommandPlayer.create(PlayerInterface.Command.END_TRACK, model))
+    }
+
+    override fun onSwipeOpen(model: TrackModel) {
+        super.onSwipeOpen(model)
+        eventsPublisher.accept(
+                CardsIntent.CommandPlayer.create(PlayerInterface.Command.PLAY_NEW, model))
     }
 
     // Actually create the playlist now

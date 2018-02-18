@@ -127,7 +127,7 @@
 			<TextView
 				android:id="@+id/track_title"
 				android:fontFamily="@font/amatic_sc"
-				android:layout_width="wrap_content"
+				android:layout_width="320dp"
 				android:layout_height="22dp"
 				android:textColor="@color/colorWhite"
 				android:layout_gravity="center_vertical"

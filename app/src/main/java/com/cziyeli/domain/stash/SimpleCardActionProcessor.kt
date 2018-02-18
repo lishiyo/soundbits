@@ -10,6 +10,7 @@ import com.cziyeli.domain.summary.StatsResult
 import com.cziyeli.domain.summary.SummaryAction
 import com.cziyeli.domain.summary.TrackListStats
 import com.cziyeli.domain.tracks.TrackAction
+import com.cziyeli.domain.tracks.TrackActionProcessor
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -27,7 +28,8 @@ import javax.inject.Singleton
 class SimpleCardActionProcessor @Inject constructor(private val repository: Repository,
                                                     private val schedulerProvider: BaseSchedulerProvider,
                                                     private val playlistCardActionProcessor: PlaylistCardActionProcessor,
-                                                    private val playlistCardCreateActionProcessor: PlaylistCardCreateActionProcessor
+                                                    private val playlistCardCreateActionProcessor: PlaylistCardCreateActionProcessor,
+                                                    private val trackActionProcessor: TrackActionProcessor
 ) {
     private val TAG = SimpleCardActionProcessor::class.java.simpleName
 
@@ -38,7 +40,9 @@ class SimpleCardActionProcessor @Inject constructor(private val repository: Repo
                     shared.ofType<SummaryAction.CreatePlaylistWithTracks>(SummaryAction.CreatePlaylistWithTracks::class.java)
                             .compose(playlistCardCreateActionProcessor.createPlaylistProcessor),
                     shared.ofType<TrackAction.ChangeTrackPref>(TrackAction.ChangeTrackPref::class.java)
-                            .compose(playlistCardActionProcessor.changePrefAndSaveProcessor)
+                            .compose(playlistCardActionProcessor.changePrefAndSaveProcessor),
+                    shared.ofType<TrackAction.CommandPlayer>(TrackAction.CommandPlayer::class.java)
+                            .compose(trackActionProcessor.commandPlayerProcessor)
             ).retry() // don't unsubscribe ever
         }
     }
