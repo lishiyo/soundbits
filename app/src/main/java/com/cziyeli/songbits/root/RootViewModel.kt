@@ -108,7 +108,6 @@ class RootViewModel @Inject constructor(
             previousState: RootViewState,
             result: UserResult.LoadLikesCard
     ) : RootViewState {
-        Utils.mLog(TAG, "processLikedTracks", "status", "${result.status}", "tracks", "${result.items}")
         return when (result.status) {
             UserResult.Status.LOADING, MviResult.Status.LOADING -> {
                 previousState.copy(
@@ -141,7 +140,6 @@ class RootViewModel @Inject constructor(
             previousState: RootViewState,
             result: UserResult.LoadDislikesCard
     ) : RootViewState {
-        Utils.mLog(TAG, "processDislikedTracks!", "${result.status} -- ${result.items.size}")
         return when (result.status) {
             UserResult.Status.LOADING, MviResult.Status.LOADING -> {
                 previousState.copy(
@@ -157,7 +155,6 @@ class RootViewModel @Inject constructor(
                         status = MviViewState.Status.SUCCESS,
                         dislikedTracks = result.items.toMutableList()
                 )
-
             }
             UserResult.Status.ERROR, MviResult.Status.ERROR -> {
                 previousState.copy(

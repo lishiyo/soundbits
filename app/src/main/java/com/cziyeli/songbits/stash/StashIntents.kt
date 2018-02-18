@@ -18,9 +18,9 @@ sealed class StashIntent : MviIntent, CardIntentMarker {
     class ClearTracks(val pref: Repository.Pref) : StashIntent()
 
     // load /top tracks
-    class FetchTopTracks(val limit: Int = 20,
-                         val offset: Int = 0,
-                         val fields: String? = null
+    class FetchUserTopTracks(val limit: Int = 50,
+                             val offset: Int = 0,
+                             val time_range: String? = "medium_term"
     ) : StashIntent()
 
     // load recommended tracks based on seeds

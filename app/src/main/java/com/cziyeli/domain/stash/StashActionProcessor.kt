@@ -1,6 +1,7 @@
 package com.cziyeli.domain.stash
 
 import com.cziyeli.data.Repository
+import com.cziyeli.domain.tracks.TrackModel
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -17,7 +18,7 @@ class StashActionProcessor @Inject constructor(private val repository: Repositor
             Observable.merge<StashResultMarker>(
                     shared.ofType<StashAction.InitialLoad>(StashAction.InitialLoad::class.java).compose(initialLoadProcessor),
                     shared.ofType<StashAction.ClearTracks>(StashAction.ClearTracks::class.java).compose(clearTracksProcessor),
-                    Observable.empty()
+                    shared.ofType<StashAction.FetchUserTopTracks>(StashAction.FetchUserTopTracks::class.java).compose(fetchUserTopTracks)
             ).retry() // don't unsubscribe ever
         }
     }
@@ -43,4 +44,16 @@ class StashActionProcessor @Inject constructor(private val repository: Repositor
         }
     }
 
+    private val fetchUserTopTracks: ObservableTransformer<StashAction.FetchUserTopTracks, StashResult.FetchUserTopTracks> = ObservableTransformer {
+        action -> action.switchMap { act ->
+            repository.fetchUserTopTracks(time_range = act.time_range, limit = act.limit, offset = act.offset)
+                    .subscribeOn(schedulerProvider.io())
+                    .map { resp -> resp.items }
+                    .map { tracks -> tracks.map { TrackModel.create(it) } }
+                    .map { tracks -> StashResult.FetchUserTopTracks.createSuccess(tracks) }
+                    .onErrorReturn { err -> StashResult.FetchUserTopTracks.createError(err) }
+                    .observeOn(schedulerProvider.ui())
+                    .startWith(StashResult.FetchUserTopTracks.createLoading())
+        }
+    }
 }

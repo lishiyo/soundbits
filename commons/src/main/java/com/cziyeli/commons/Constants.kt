@@ -18,7 +18,8 @@ val SCOPES = arrayOf(
         "streaming",
         "playlist-modify-public",
         "playlist-modify-private",
-        "user-read-email"
+        "user-read-email",
+        "user-top-read"
 )
 
 // Shared Prefs
