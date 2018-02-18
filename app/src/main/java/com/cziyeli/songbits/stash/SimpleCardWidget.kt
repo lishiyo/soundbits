@@ -36,6 +36,7 @@ import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.saeid.fabloading.LoadingView
+import kotlinx.android.synthetic.main.widget_expandable_tracks.view.*
 import kotlinx.android.synthetic.main.widget_simple_card.view.*
 import java.util.*
 
@@ -148,7 +149,7 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
                 })
         )
 
-        tracksRecyclerViewDelegate = TracksRecyclerViewDelegate(activity, card_tracks_recycler_view, this)
+        tracksRecyclerViewDelegate = TracksRecyclerViewDelegate(activity, tracks_recycler_view, this)
 
         // set header
         card_title.setText(title)
@@ -171,9 +172,9 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
 
         // set up tracks list (don't need to re-render)
         adapter = TrackRowsAdapter(context, tracks.toMutableList())
-        card_tracks_recycler_view.adapter = adapter
-        card_tracks_recycler_view.layoutManager = LinearLayoutManager(context)
-        card_tracks_recycler_view.disableTouchTheft()
+        tracks_recycler_view.adapter = adapter
+        tracks_recycler_view.layoutManager = LinearLayoutManager(context)
+        tracks_recycler_view.disableTouchTheft()
     }
 
     /**
@@ -182,19 +183,19 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
     fun loadTracks(tracks: List<TrackModel>) {
         Utils.mLog(TAG, "loadTracks: ${tracks.size}")
         simpleResultsPublisher.accept(CardResult.TracksSet(tracks))
-        adapter.setTracksAndNotify(tracks, !card_expansion_layout.isExpanded || (tracks.isEmpty()))
+        adapter.setTracksAndNotify(tracks, !expansion_layout.isExpanded || (tracks.isEmpty()))
 
         if (tracks.isNotEmpty()) {
             // update the title
-            card_expansion_header_title.text = resources.getString(R.string.expand_tracks).format(tracks.size)
-            Utils.setVisible(card_header_indicator, true)
+            expansion_header_title.text = resources.getString(R.string.expand_tracks).format(tracks.size)
+            Utils.setVisible(header_indicator, true)
 
             // fetch the track stats of these tracks
             eventsPublisher.accept(StatsIntent.FetchFullStats(tracks))
         } else {
             // cleared tracks, reset the title and header image
-            card_expansion_header_title.text = resources.getString(R.string.expand_tracks_default)
-            Utils.setVisible(card_header_indicator, false)
+            expansion_header_title.text = resources.getString(R.string.expand_tracks_default)
+            Utils.setVisible(header_indicator, false)
         }
 
         // set the carousel header
@@ -333,11 +334,11 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
     }
 
     fun onResume() {
-        card_tracks_recycler_view.addOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
+        tracks_recycler_view.addOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
     }
 
     fun onPause() {
-        card_tracks_recycler_view.removeOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
+        tracks_recycler_view.removeOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
     }
 
 }

@@ -14,7 +14,7 @@ import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateViewModel
 import com.nikhilpanju.recyclerviewenhanced.RecyclerTouchListener
 import dagger.Module
 import dagger.Provides
-import kotlinx.android.synthetic.main.widget_playlist_card_create.*
+import kotlinx.android.synthetic.main.widget_expandable_tracks.*
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Named
 
@@ -27,12 +27,12 @@ class PlaylistCardCreateModule {
     @Provides
     @PerActivity
     fun provideTracksRecyclerViewDelegate(@Named("ActivityContext") activity: PlaylistCardCreateActivity): TracksRecyclerViewDelegate {
-        val onTouchListener = RecyclerTouchListener(activity, activity.create_tracks_recycler_view)
+        val onTouchListener = RecyclerTouchListener(activity, activity.tracks_recycler_view)
         onTouchListener
                 .setViewsToFade(R.id.track_status)
                 .setSwipeable(false) // Create is read-only!
 
-        return TracksRecyclerViewDelegate(activity, activity.create_tracks_recycler_view, activity, onSwipeListener = object :
+        return TracksRecyclerViewDelegate(activity, activity.tracks_recycler_view, activity, onSwipeListener = object :
                 RecyclerTouchListener.OnSwipeListener {
             override fun onSwipeOptionsClosed(foregroundView: View?, backgroundView: View?) {
                 // no-op

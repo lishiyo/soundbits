@@ -218,62 +218,7 @@
 						</com.cziyeli.songbits.playlistcard.TrackStatsView>
 					</LinearLayout>
 
-					<!-- BODY: Expansion Header -->
-					<com.github.florent37.expansionpanel.ExpansionHeader
-						android:id="@+id/card_expansion_header"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						app:expansion_headerIndicator="@id/card_header_indicator"
-						app:expansion_layout="@id/card_expansion_layout"
-						app:expansion_toggleOnClick="true"
-						>
-
-						<RelativeLayout
-							android:id="@+id/card_expansion_header_view"
-							android:background="@color/colorPrimary"
-							android:layout_height="48dp"
-							android:layout_width="match_parent"
-							android:paddingLeft="16dp"
-							android:paddingRight="16dp">
-
-							<TextView
-								android:id="@+id/card_expansion_header_title"
-								android:layout_centerVertical="true"
-								android:layout_height="wrap_content"
-								android:layout_width="wrap_content"
-								android:text="@string/expand_tracks_default"
-								android:textColor="@color/colorWhite" />
-
-							<android.support.v7.widget.AppCompatImageView
-								android:id="@+id/card_header_indicator"
-								android:adjustViewBounds="true"
-								android:layout_alignParentRight="true"
-								android:layout_centerVertical="true"
-								android:layout_height="wrap_content"
-								android:layout_marginLeft="16dp"
-								android:layout_width="wrap_content"
-								app:srcCompat="@drawable/icon_expand_header"
-								android:visibility="invisible"
-								/>
-						</RelativeLayout>
-
-					</com.github.florent37.expansionpanel.ExpansionHeader>
-
-					<!-- BODY CONTENT: LIST of TRACKS (COLLAPSED) -->
-					<com.github.florent37.expansionpanel.ExpansionLayout
-						android:id="@+id/card_expansion_layout"
-						android:textSize="@dimen/small_text_size"
-						app:expansion_expanded="false"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:descendantFocusability="afterDescendants"
-						>
-						<android.support.v7.widget.RecyclerView
-							android:id="@+id/card_tracks_recycler_view"
-							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							/>
-					</com.github.florent37.expansionpanel.ExpansionLayout>
+					<include layout="@layout/widget_expandable_tracks" />
 
 				</LinearLayout> <!-- BODY END -->
 

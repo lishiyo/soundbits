@@ -63,7 +63,7 @@
 	<string name="summary_subtitle">Would you like to…</string>
 	<string name="summary_subtitle_two">Summary Card</string>
 	<string name="summary_create_playlist">Create a new playlist out of your Likes</string>
-	<string name="summary_stash_swipes">Stash your swipes for now (they’ll be saved in your Tracks tab)</string>
+	<string name="summary_stash_swipes">Stash your swipes (they’ll be saved in your Tracks tab)</string>
 	<string name="summary_review_swipes">Edit your swipes</string>
 	<string name="action_error">Something went wrong :(</string>
 	<string name="save_success_cta">Success!\nTap to go to your stash</string>
