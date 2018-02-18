@@ -110,7 +110,7 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
                 SimpleCardViewModel(
                         simpleCardActionProcessor,
                         schedulerProvider,
-                        SimpleCardViewModel.ViewState()
+                        SimpleCardViewModel.ViewState(shouldRemoveTrack = { state, track -> !state.tracks.contains(track) })
                 ),
                 likesFabMenuSelectedListener
         )
@@ -120,7 +120,7 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
                 SimpleCardViewModel(
                         simpleCardActionProcessor,
                         schedulerProvider,
-                        SimpleCardViewModel.ViewState()
+                        SimpleCardViewModel.ViewState(shouldRemoveTrack = { state, track -> !state.tracks.contains(track) })
                 ),
                 disLikesFabMenuSelectedListener
         )
@@ -130,7 +130,7 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
                 SimpleCardViewModel(
                         simpleCardActionProcessor,
                         schedulerProvider,
-                        SimpleCardViewModel.ViewState()
+                        SimpleCardViewModel.ViewState(shouldRemoveTrack = { _, _ -> false })
                 ),
                 null)
     }

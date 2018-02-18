@@ -43,7 +43,7 @@ class SimpleCardViewModel constructor(
     // Publisher for own view states
     private val viewStates: PublishRelay<SimpleCardViewModel.ViewState> by lazy {
         PublishRelay.create<SimpleCardViewModel.ViewState>() }
-    var currentViewState: SimpleCardViewModel.ViewState = ViewState()
+    lateinit var currentViewState: SimpleCardViewModel.ViewState
 
     var pendingTracks: List<TrackModel> = listOf()
         get() = currentViewState.tracks
@@ -81,7 +81,7 @@ class SimpleCardViewModel constructor(
                 .compose(resultFilter<CardResultMarker>())
                 .observeOn(schedulerProvider.ui())
                 .doOnNext { result -> Utils.log(TAG, "intentsSubject scanning result: ${result.javaClass.simpleName}") }
-                .scan(ViewState(), reducer)
+                .scan(currentViewState, reducer)
 
         compositeDisposable.add(
                 observable.distinctUntilChanged().subscribe({ viewState ->
@@ -253,7 +253,8 @@ class SimpleCardViewModel constructor(
                          val trackStats: TrackListStats? = null, // stats for ALL tracks
                          val inCreateMode: Boolean = false, // whether in 'create' state
                          val currentTrack: TrackModel? = null, // current track playing, if any
-                         val currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID
+                         val currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID,
+                         val shouldRemoveTrack: (state: ViewState, track: TrackModel?) -> Boolean
     ) : MviViewState {
         fun isFetchStatsSuccess(): Boolean {
             return lastResult is StatsResult.FetchFullStats && trackStats != null

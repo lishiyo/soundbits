@@ -128,7 +128,7 @@ class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackModel>)
             artistText.text = rowModel.artistName
 
             likeButton.setActive(rowModel.liked)
-            dislikeButton.setActive(!rowModel.liked)
+            dislikeButton.setActive(rowModel.disliked)
         }
     }
 }
