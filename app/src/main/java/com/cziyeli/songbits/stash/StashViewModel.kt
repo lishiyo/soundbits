@@ -38,7 +38,8 @@ class StashViewModel @Inject constructor(
         intents.publish { shared -> shared
             Observable.merge<StashIntent>(
                     shared.ofType(StashIntent.InitialLoad::class.java).take(1), // only take initial one time
-                    shared.filter({ intent -> intent !is StashIntent.InitialLoad })
+                    shared.ofType(StashIntent.FetchUserTopTracks::class.java).take(1), // only load one time
+                    shared.filter({ intent -> intent !is StashIntent.InitialLoad && intent !is StashIntent.FetchUserTopTracks })
             )
         }
     }
@@ -63,6 +64,7 @@ class StashViewModel @Inject constructor(
             is UserResult.LoadLikesCard -> return@BiFunction processLikedTracks(previousState, result)
             is UserResult.LoadDislikesCard -> return@BiFunction processDislikedTracks(previousState, result)
             is StashResult.ClearTracks -> return@BiFunction processClearedTracks(previousState, result)
+            is StashResult.FetchUserTopTracks -> return@BiFunction processTopTracks(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -97,6 +99,7 @@ class StashViewModel @Inject constructor(
         return when (intent) {
             is StashIntent.InitialLoad -> StashAction.InitialLoad()
             is StashIntent.ClearTracks -> StashAction.ClearTracks(intent.pref)
+            is StashIntent.FetchUserTopTracks -> StashAction.FetchUserTopTracks(intent.time_range, intent.limit, intent.offset)
             else -> None // no-op all other events
         }
     }
@@ -200,10 +203,43 @@ class StashViewModel @Inject constructor(
         return previousState.copy(status = status, lastResult = result, error = result.error)
     }
 
+    private fun processTopTracks(
+            previousState: ViewState,
+            result: StashResult.FetchUserTopTracks
+    ) : ViewState {
+        return when (result.status) {
+            UserResult.Status.LOADING, MviResult.Status.LOADING -> {
+                previousState.copy(
+                        error = null,
+                        lastResult = result,
+                        status = MviViewState.Status.LOADING
+                )
+            }
+            UserResult.Status.SUCCESS, MviResult.Status.SUCCESS -> {
+                previousState.copy(
+                        error = null,
+                        lastResult = result,
+                        status = MviViewState.Status.SUCCESS,
+                        topTracks = result.tracks.toMutableList()
+                )
+
+            }
+            UserResult.Status.ERROR, MviResult.Status.ERROR -> {
+                previousState.copy(
+                        error = result.error,
+                        lastResult = result,
+                        status = MviViewState.Status.ERROR
+                )
+            }
+            else -> previousState
+        }
+    }
+
     data class ViewState(val status: MviViewState.Status = MviViewState.Status.IDLE,
                          val error: Throwable? = null,
                          val lastResult: StashResultMarker? = null,
                          val likedTracks: MutableList<TrackModel> = mutableListOf(),
-                         val dislikedTracks: MutableList<TrackModel> = mutableListOf()
+                         val dislikedTracks: MutableList<TrackModel> = mutableListOf(),
+                         val topTracks: MutableList<TrackModel> = mutableListOf()
     ) : MviViewState
 }

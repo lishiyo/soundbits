@@ -170,7 +170,7 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
      */
     fun loadTracks(tracks: List<TrackModel>) {
         Utils.mLog(TAG, "loadTracks: ${tracks.size}")
-        simpleResultsPublisher.accept(CardResult.TracksSet(tracks))
+        simpleResultsPublisher.accept(CardResult.TracksSet(tracks)) // set into viewmodel
         adapter.setTracksAndNotify(tracks, !expansion_layout.isExpanded || (tracks.isEmpty()))
 
         if (tracks.isNotEmpty()) {

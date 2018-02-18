@@ -3,6 +3,7 @@ package com.cziyeli.domain.stash
 import com.cziyeli.commons.mvibase.MviAction
 import com.cziyeli.commons.mvibase.MviResult
 import com.cziyeli.data.Repository
+import com.cziyeli.domain.tracks.TrackModel
 
 /**
  * Actions for Stash tab.
@@ -14,6 +15,10 @@ sealed class StashAction  : StashActionMarker {
     class InitialLoad : StashAction()
 
     class ClearTracks(val pref: Repository.Pref) : StashAction()
+
+    class FetchUserTopTracks(val time_range: String? = "medium_term",
+                             val limit: Int = 50,
+                             val offset: Int = 0) : StashAction()
 }
 
 /**
@@ -45,5 +50,21 @@ sealed class StashResult(var status: MviResult.Status = MviResult.Status.IDLE,
             }
         }
     }
+
+    class FetchUserTopTracks(status: MviResult.Status, error: Throwable? = null,
+                             val tracks: List<TrackModel> = mutableListOf()) : StashResult(status, error) {
+        companion object {
+            fun createSuccess(tracks: List<TrackModel>) : FetchUserTopTracks {
+                return FetchUserTopTracks(MviResult.Status.SUCCESS, null, tracks)
+            }
+            fun createError(error: Throwable?) : FetchUserTopTracks {
+                return FetchUserTopTracks(MviResult.Status.ERROR, error)
+            }
+            fun createLoading() : FetchUserTopTracks {
+                return FetchUserTopTracks(MviResult.Status.LOADING)
+            }
+        }
+    }
+
 
 }

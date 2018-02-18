@@ -8,10 +8,12 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.data.Repository
 import com.cziyeli.domain.stash.SimpleCardActionProcessor
+import com.cziyeli.domain.stash.StashResult
 import com.cziyeli.domain.user.UserResult
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.root.RootActivity
@@ -94,6 +96,9 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
             state.status == MviViewState.Status.SUCCESS && state.lastResult is UserResult.LoadDislikesCard -> {
                 dislikes_card.loadTracks(state.dislikedTracks)
             }
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is StashResult.FetchUserTopTracks -> {
+                top_tracks_card.loadTracks(state.topTracks)
+            }
         }
     }
 
@@ -121,7 +126,13 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
         )
 
         // top tracks
-
+        top_tracks_card.initWith(resources.getString(R.string.top_tracks_card_title), mutableListOf(), activity,
+                SimpleCardViewModel(
+                        simpleCardActionProcessor,
+                        schedulerProvider,
+                        SimpleCardViewModel.ViewState()
+                ),
+                null)
     }
 
     private fun initViewModel() {
@@ -153,13 +164,22 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
 
     override fun onResume() {
         super.onResume()
+        Utils.mLog(TAG, "onResume! visible: $userVisibleHint ")
+    }
 
-        // fetch the tracks
-        (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
-        (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadDislikedTracks())
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+        Utils.mLog(TAG, "setUserVisibleHint -- visible: $isVisibleToUser")
+        if (isVisibleToUser) {
+            // fetch the tracks
+            (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
+            (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadDislikedTracks())
+            eventsPublisher.accept(StashIntent.FetchUserTopTracks())
 
-        likes_card.onResume()
-        dislikes_card.onResume()
+            likes_card.onResume()
+            dislikes_card.onResume()
+            top_tracks_card.onResume()
+        }
     }
 
     override fun onPause() {
@@ -167,6 +187,7 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
 
         likes_card.onPause()
         dislikes_card.onPause()
+        top_tracks_card.onPause()
     }
 
     override fun onDestroy() {

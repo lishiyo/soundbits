@@ -136,7 +136,7 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
 
     // https://developer.spotify.com/web-api/get-users-top-artists-and-tracks/
     fun fetchUserTopTracks(time_range: String? = "medium_term",
-                           limit: Int = 100,
+                           limit: Int = 50,
                            offset: Int = 0): Observable<Pager<Track>> {
         val params = mutableMapOf<String, Any>("limit" to limit, "offset" to offset)
         time_range?.let {
