@@ -48,13 +48,10 @@ class RepositoryImpl @Inject constructor(
         return fetchTracksDataRemote(trackIds).distinctUntilChanged()
     }
 
-    override fun updateTrackPref(trackId: String, liked: Boolean) {
-        Observable.just(trackId)
-                .subscribeOn(SchedulerProvider.io())
-                .doOnNext{ Utils.mLog(TAG, "updateTrackPref", "track: $trackId: $liked") }
-                .subscribe {
-                    tracksDatabase.tracksDao().updateTrackPref(trackId, liked)
-                }
+    override fun updateTrackPref(track: TrackEntity): Int {
+        val trackId = track.trackId
+        val liked = track.liked
+        return tracksDatabase.tracksDao().updateTrackPref(trackId, liked)
     }
 
     override fun fetchUserTopTracks(source: Repository.Source, time_range: String?, limit: Int, offset: Int) : Observable<Pager<Track>> {
@@ -78,6 +75,12 @@ class RepositoryImpl @Inject constructor(
         Observable.just(tracks)
                 .subscribeOn(SchedulerProvider.io())
                 .subscribe { tracksDatabase.tracksDao().saveTracks(it) }
+    }
+
+    override fun saveTrackLocal(track: TrackEntity) {
+        Observable.just(track)
+                .subscribeOn(SchedulerProvider.io())
+                .subscribe { tracksDatabase.tracksDao().saveTrack(it) }
     }
 
     override fun fetchUserQuickStats() : Flowable<Triple<Int, Int, Int>> {

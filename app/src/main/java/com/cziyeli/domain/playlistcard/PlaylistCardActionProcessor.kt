@@ -135,9 +135,19 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                 actions.switchMap { action ->
                     Observable.just(action)
                             .map { act -> act.track.copy(pref = act.pref) }
-                            .doOnNext { track -> repository.updateTrackPref(track.id, track.liked) }
+                            .observeOn(schedulerProvider.io())
+                            .doOnNext { track ->
+                                // upsert - attempt update first, if that fails then insert
+                                val dbModel = mapTrack(track)
+                                val foundId = repository.updateTrackPref(dbModel)
+                                Utils.mLog(TAG, "updated trackPref! ${dbModel.name} -- $foundId")
+                                if (foundId <= 0) {
+                                    repository.saveTrackLocal(dbModel)
+                                }
+                            }
                             .map { TrackResult.ChangePrefResult.createSuccess(it, it.pref) }
                             .onErrorReturn { err -> TrackResult.ChangePrefResult.createError(err) }
+                            .subscribeOn(schedulerProvider.io())
                             .startWith(TrackResult.ChangePrefResult.createLoading(action.track))
                 }
             }
@@ -184,4 +194,19 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                                 .startWith(CardResult.CalculateQuickCounts.createLoading())
                 }
             }
+
+
+    private fun mapTrack(it: TrackModel) : TrackEntity {
+        return TrackEntity(
+                    trackId = it.id,
+                    name = it.name,
+                    uri = it.uri,
+                    previewUrl = it.preview_url,
+                    liked = it.pref == TrackModel.Pref.LIKED,
+                    cleared = false,
+                    artistName = it.artistName,
+                    popularity = it.popularity,
+                    coverImageUrl = it.imageUrl
+            )
+    }
 }

@@ -78,8 +78,8 @@ interface Repository {
 
     // ============ TRACKS ============
 
-    // update a track's liked/disliked status in db
-    fun updateTrackPref(trackId: String, liked: Boolean)
+    // update a track's liked/disliked status in db - returns number of rows affected
+    fun updateTrackPref(track: TrackEntity) : Int
 
     // ============ STATS ============
 
@@ -101,4 +101,7 @@ interface Repository {
 
     // Save all swiped tracks to database (local only)
     fun saveTracksLocal(tracks: List<TrackEntity>)
+
+    // Save single trakc
+    fun saveTrackLocal(track: TrackEntity)
 }
