@@ -40,6 +40,7 @@
 	<dimen name="scrollview_padding_top">30dp</dimen>
 	<dimen name="playlist_card_elevation">6dp</dimen>
 	<dimen name="playlist_card_finished_elevation">24dp</dimen>
+	<dimen name="foreground_track_width">245dp</dimen>
 
 	<!-- QuickCounts and Stats -->
 	<dimen name="stats_padding_vertical">15dp</dimen>
