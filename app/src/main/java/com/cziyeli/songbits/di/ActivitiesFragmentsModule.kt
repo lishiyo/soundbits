@@ -1,6 +1,5 @@
 package com.cziyeli.songbits.di
 
-import android.app.Activity
 import com.cziyeli.commons.di.PerActivity
 import com.cziyeli.commons.di.PerFragment
 import com.cziyeli.songbits.MainActivity
@@ -10,8 +9,6 @@ import com.cziyeli.songbits.di.viewModels.ViewModelsModule
 import com.cziyeli.songbits.home.HomeFragment
 import com.cziyeli.songbits.home.HomeModule
 import com.cziyeli.songbits.home.HomeSubcomponent
-import com.cziyeli.songbits.home.oldhome.OldHomeActivity
-import com.cziyeli.songbits.home.oldhome.di.OldHomeActivitySubComponent
 import com.cziyeli.songbits.playlistcard.PlaylistCardActivity
 import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateActivity
 import com.cziyeli.songbits.playlistcard.di.PlaylistCardCreateModule
@@ -21,12 +18,8 @@ import com.cziyeli.songbits.root.RootModule
 import com.cziyeli.songbits.stash.StashFragment
 import com.cziyeli.songbits.stash.StashModule
 import com.cziyeli.songbits.stash.StashSubcomponent
-import dagger.Binds
 import dagger.Module
-import dagger.android.ActivityKey
-import dagger.android.AndroidInjector
 import dagger.android.ContributesAndroidInjector
-import dagger.multibindings.IntoMap
 
 /**
  * Binds all activities and fragments to their corresponding modules.
@@ -34,7 +27,7 @@ import dagger.multibindings.IntoMap
  * Created by connieli on 1/2/18.
  */
 @Module(subcomponents = [
-        OldHomeActivitySubComponent::class
+//        OldHomeActivitySubComponent::class
 ])
 abstract class ActivitiesModule {
 
@@ -45,10 +38,10 @@ abstract class ActivitiesModule {
     abstract fun provideMainActivity(): MainActivity
 
     // Approach #1
-    @Binds
-    @IntoMap
-    @ActivityKey(OldHomeActivity::class)
-    internal abstract fun provideHomeActivity(builder: OldHomeActivitySubComponent.Builder): AndroidInjector.Factory<out Activity>
+//    @Binds
+//    @IntoMap
+//    @ActivityKey(OldHomeActivity::class)
+//    internal abstract fun provideHomeActivity(builder: OldHomeActivitySubComponent.Builder): AndroidInjector.Factory<out Activity>
 
     // Approach #2
     @PerActivity
