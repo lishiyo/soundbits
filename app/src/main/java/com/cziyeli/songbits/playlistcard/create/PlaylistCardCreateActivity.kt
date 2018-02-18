@@ -125,7 +125,7 @@ class PlaylistCardCreateActivity : AppCompatActivity(),
         compositeDisposable.add(
                 viewModel.states().subscribe({ state ->
                     state?.let {
-                        this.render(state)
+                        create_playlist_card_widget.render(state)
                     }
                 })
         )
@@ -135,10 +135,6 @@ class PlaylistCardCreateActivity : AppCompatActivity(),
 
         // Bind ViewModel to simple results stream
         viewModel.processSimpleResults(create_playlist_card_widget.simpleResultsPublisher)
-    }
-
-    private fun render(state: PlaylistCardCreateViewModel.ViewState) {
-        create_playlist_card_widget.render(state)
     }
 
     private fun intents(): Observable<out CardIntentMarker> {

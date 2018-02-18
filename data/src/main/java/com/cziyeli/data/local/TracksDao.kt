@@ -21,10 +21,6 @@ abstract class TracksDao {
     @Query("SELECT * FROM Tracks WHERE track_id IN(:trackIds) AND cleared = 0 AND track_id > :offset LIMIT :limit")
     abstract fun getTracksForTrackIds(trackIds: List<String>, limit: Int, offset: Int): Flowable<List<TrackEntity>>
 
-    // get *all* tracks for a playlist including cleared ones
-    @Query("SELECT * FROM Tracks WHERE playlist_id = :playlistId AND track_id > :offset LIMIT :limit")
-    abstract fun getTracksByPlaylistId(playlistId: String, limit: Int, offset: Int): Flowable<List<TrackEntity>>
-
     // get non-cleared tracks for single playlist
     @Query("SELECT * FROM Tracks WHERE playlist_id = :playlistId AND cleared = 0 AND track_id > :offset LIMIT :limit")
     abstract fun getVisibleTracksByPlaylistId(playlistId: String, limit: Int, offset: Int): Flowable<List<TrackEntity>>

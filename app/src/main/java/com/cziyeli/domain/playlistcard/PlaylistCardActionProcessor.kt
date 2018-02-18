@@ -10,6 +10,7 @@ import com.cziyeli.domain.tracks.TrackAction
 import com.cziyeli.domain.tracks.TrackActionProcessor
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.tracks.TrackResult
+import com.cziyeli.domain.user.UserManager
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -18,8 +19,10 @@ import javax.inject.Singleton
 
 @Singleton
 class PlaylistCardActionProcessor @Inject constructor(private val repository: Repository,
+                                                      private val userManager: UserManager,
                                                       private val schedulerProvider: BaseSchedulerProvider,
-                                                      private val trackActionProcessor: TrackActionProcessor) {
+                                                      private val trackActionProcessor: TrackActionProcessor
+) {
     private val TAG = PlaylistCardActionProcessor::class.simpleName
 
     val combinedProcessor: ObservableTransformer<CardActionMarker, CardResultMarker> = ObservableTransformer { acts
@@ -141,12 +144,15 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
 
     // ============= Intermediate processors ===========
 
-    // given playlist id => return list of its track entities in db
+    // given playlist id => grab all its track ids from remote => return list of its track entities in db
     private val fetchStashedTracksIntermediary: ObservableTransformer<PlaylistCardAction, Pair<PlaylistCardAction, List<TrackEntity>>> =
             ObservableTransformer {
                 actions -> actions.switchMap { act ->
-                    repository.fetchPlaylistStashedTracks(playlistId = act.playlistId!!)
-                            .toObservable()
+                    repository.fetchPlaylistTracks(ownerId = userManager.userId, playlistId = act.playlistId!!)
+                            .map { resp -> resp.items.map { it.track } }
+                            .switchMap { list ->
+                                repository.fetchStashedTracksByIds(trackIds = list.map { it.id }).toObservable()
+                            }
                             .subscribeOn(schedulerProvider.io())
                             .map { Pair(act, it) }
                             .doOnNext { Utils.mLog(TAG, "fetchStashedTracksForPlaylist! count: ${it.second.size} ")}
