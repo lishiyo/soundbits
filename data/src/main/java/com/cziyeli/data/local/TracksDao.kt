@@ -65,6 +65,7 @@ abstract class TracksDao {
     // "wipe" out by changing visibility
     @Query("UPDATE Tracks SET cleared = 1 WHERE liked = :liked")
     abstract fun clearTracks(liked: Boolean)
+
     @Query("UPDATE Tracks SET cleared = 1")
     abstract fun clearAllTracks()
 
