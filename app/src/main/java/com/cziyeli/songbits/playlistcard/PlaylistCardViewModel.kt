@@ -329,7 +329,7 @@ class PlaylistCardViewModel @Inject constructor(
                                      val allTracksList: List<TrackModel> = listOf(), // all tracks (from remote)
                                      val trackStats: TrackListStats? = null, // stats for ALL tracks
                                      val lastResult: CardResultMarker? = null, // track the triggering 'props'
-                                     val currentTrack: TrackModel? = null,
+                                     val currentTrack: TrackModel? = null, // current track playing, if any
                                      val currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID
     ) : MviViewState {
         // Creating playlist will

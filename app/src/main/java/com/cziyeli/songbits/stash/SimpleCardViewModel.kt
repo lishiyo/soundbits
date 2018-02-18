@@ -5,6 +5,7 @@ import com.cziyeli.commons.Utils
 import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
 import com.cziyeli.commons.resultFilter
+import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlistcard.CardActionMarker
 import com.cziyeli.domain.playlistcard.CardResult
 import com.cziyeli.domain.playlistcard.CardResultMarker
@@ -57,6 +58,7 @@ class SimpleCardViewModel constructor(
             is StatsResult.FetchFullStats -> return@BiFunction processFetchFullStats(previousState, result)
             is TrackResult.ChangePrefResult -> return@BiFunction processTrackChangePref(previousState, result)
             is SummaryResult.CreatePlaylistWithTracks -> return@BiFunction processCreatePlaylistResult(previousState, result)
+            is TrackResult.CommandPlayerResult -> return@BiFunction processPlayerCommand(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -95,6 +97,9 @@ class SimpleCardViewModel constructor(
             is CardsIntent.ChangeTrackPref -> TrackAction.ChangeTrackPref(intent.track, intent.pref)
             is SummaryIntent.CreatePlaylistWithTracks -> SummaryAction.CreatePlaylistWithTracks(intent.ownerId, intent.name,
                     intent.description, intent.public, intent.tracks)
+            is CardsIntent.CommandPlayer -> TrackAction.CommandPlayer.create(
+                    intent.command, intent.track
+            )
             else -> None // no-op all other events
         }
     }
@@ -159,6 +164,26 @@ class SimpleCardViewModel constructor(
         }
     }
 
+    private fun processPlayerCommand(previousState: ViewState, result: TrackResult.CommandPlayerResult) : ViewState {
+        return when (result.status) {
+            MviResult.Status.LOADING, MviResult.Status.SUCCESS, MviResult.Status.ERROR -> {
+                val status = when (result.status) {
+                    MviResult.Status.LOADING -> MviViewState.Status.LOADING
+                    MviResult.Status.SUCCESS -> MviViewState.Status.SUCCESS
+                    MviResult.Status.ERROR -> MviViewState.Status.ERROR
+                    else -> MviViewState.Status.IDLE
+                }
+                previousState.copy(
+                        error = result.error,
+                        currentTrack = result.currentTrack,
+                        currentPlayerState = result.currentPlayerState,
+                        status = status
+                )
+            }
+            else -> previousState
+        }
+    }
+
     private fun processTrackChangePref(previousState: ViewState,
                                        result: TrackResult.ChangePrefResult) : ViewState {
         return when (result.status) {
@@ -214,7 +239,9 @@ class SimpleCardViewModel constructor(
                          val carouselHeaderUrl: String? = null,
                          val tracks: MutableList<TrackModel> = mutableListOf(),
                          val trackStats: TrackListStats? = null, // stats for ALL tracks
-                         val inCreateMode: Boolean = false
+                         val inCreateMode: Boolean = false,
+                         val currentTrack: TrackModel? = null, // current track playing, if any
+                         val currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID
     ) : MviViewState {
         fun isFetchStatsSuccess(): Boolean {
             return lastResult is StatsResult.FetchFullStats && trackStats != null
