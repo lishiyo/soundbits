@@ -58,11 +58,7 @@ class StashActionProcessor @Inject constructor(private val repository: Repositor
                                 .blockingFirst()
 
                         tracks.toMutableList().map { track ->
-                            val foundTrack = stashedList.findLast { it.id == track.id }
-                            if (foundTrack != null) {
-                                track.pref = foundTrack.pref
-                            }
-                            track
+                            stashedList.findLast { it.id == track.id } ?: track
                         }
                     }
                     .map { tracks -> StashResult.FetchUserTopTracks.createSuccess(tracks) }
