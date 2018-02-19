@@ -52,7 +52,7 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
                 eventsPublisher.accept(StashIntent.ClearTracks(Repository.Pref.LIKED))
             }
             R.id.menu_create_playlist -> {
-                likes_card.initCreateMode()
+                likes_card.changeCreateMode()
             }
         }
     }
@@ -62,7 +62,7 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
                 eventsPublisher.accept(StashIntent.ClearTracks(Repository.Pref.DISLIKED))
             }
             R.id.menu_create_playlist -> {
-                dislikes_card.initCreateMode()
+                dislikes_card.changeCreateMode()
             }
         }
     }

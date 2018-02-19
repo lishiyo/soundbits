@@ -2,6 +2,7 @@ package com.cziyeli.songbits.stash
 
 import android.app.Activity
 import android.content.Context
+import android.support.annotation.IdRes
 import android.support.v4.widget.NestedScrollView
 import android.support.v7.widget.LinearLayoutManager
 import android.util.AttributeSet
@@ -45,14 +46,20 @@ import java.util.*
 
 
 
+
+
 /**
  * Very similar to [PlaylistCardWidget], but doesn't need to be instantiated with a playlist
  * - just any list of tracks.
  */
-class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
+class SimpleCardWidget @JvmOverloads constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyle: Int = 0,
+        defStyleRes: Int = 0
+): NestedScrollView(context, attrs, defStyle), MviView<CardIntentMarker,
         SimpleCardViewModel.ViewState>,
-        TracksRecyclerViewDelegate.ActionButtonListener
-{
+        TracksRecyclerViewDelegate.ActionButtonListener {
     val TAG = SimpleCardWidget::class.simpleName
     companion object {
         const val HEADER_DIM: Float = 0.4f
@@ -76,17 +83,21 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
     private var onFabSelectedListener: OnFABMenuSelectedListener? = null
     private lateinit var adapter: TrackRowsAdapter
     private lateinit var tracksRecyclerViewDelegate: TracksRecyclerViewDelegate
-
-    @JvmOverloads
-    constructor(
-            context: Context,
-            attrs: AttributeSet? = null,
-            defStyleAttr: Int = 0)
-            : super(context, attrs, defStyleAttr)
+    @IdRes
+    private var menuResId: Int? = null
+    // title of this card
+    private var cardTitle = ""
 
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_simple_card, this, true)
         descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
+
+        attrs?.let {
+            val typedArray = context.obtainStyledAttributes(it,
+                    R.styleable.SimpleCard, 0, 0)
+            menuResId = typedArray.getResourceId(R.styleable.SimpleCard_menu_res, R.menu.menu_simple_card)
+            typedArray.recycle()
+        }
 
         setOnTouchListener { v, event ->
             if (card_fab_menu.isShowing) {
@@ -100,7 +111,12 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
             createPlaylist(App.getCurrentUserId(), viewModel.pendingTracks)
         }
 
-        enableCreateTitle(false)
+        card_title.setOnFocusChangeListener { v, hasFocus ->
+            if (viewModel.inCreateMode) {
+                // close create if input loses focus
+                changeCreateMode(false)
+            }
+        }
     }
 
     /**
@@ -133,18 +149,20 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
 
         // set header
         card_title.setText(title)
+        cardTitle = title
 
         // set up the fab
         if (fabMenuSelectedListener == null) {
             // no fab menu, just go straight to create
             card_fab_button.setOnClickListener {
-                initCreateMode()
+                changeCreateMode()
             }
         } else {
             // bind the fab menu
-            if (card_fab_menu != null && card_fab_button != null) {
+            if (menuResId != null && card_fab_menu != null && card_fab_button != null) {
                 card_fab_menu!!.bindAnchorView(card_fab_button!!)
                 card_fab_menu!!.setOnFABMenuSelectedListener(onFabSelectedListener)
+                card_fab_menu!!.setMenu(menuResId!!)
             }
         }
 
@@ -241,8 +259,8 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
         }
     }
 
-    fun initCreateMode() {
-        simpleResultsPublisher.accept(SimpleCardResult.SetCreateMode(inCreateMode = true))
+    fun changeCreateMode(setCreateMode: Boolean = true) {
+        simpleResultsPublisher.accept(SimpleCardResult.SetCreateMode(inCreateMode = setCreateMode))
     }
 
     override fun onLiked(position: Int) {
@@ -291,7 +309,7 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
     }
 
     private fun onPlaylistCreated(newTitle: String, state: SimpleCardViewModel.ViewState) {
-        simpleResultsPublisher.accept(SimpleCardResult.SetCreateMode(inCreateMode = false))
+        changeCreateMode(false)
 
         sc_card_view.cardElevation = resources.getDimension(R.dimen.playlist_card_finished_elevation)
         Utils.hideKeyboard(context, card_title)
@@ -314,6 +332,7 @@ class SimpleCardWidget : NestedScrollView, MviView<CardIntentMarker,
             inputView.isEnabled = false
             dimView.alpha = HEADER_DIM
             Utils.setVisible(dotted_line, false)
+            card_title.setText(cardTitle)
         } else {
             Utils.setVisible(dotted_line, true)
             dimView.alpha = HEADER_DIM_DARK

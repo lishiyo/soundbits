@@ -90,6 +90,7 @@ class RootViewModel @Inject constructor(
                 previousState.copy(
                         error = null,
                         status = MviViewState.Status.SUCCESS,
+                        lastResult = result,
                         quickCounts = result.quickCounts
                 )
             }
@@ -97,6 +98,7 @@ class RootViewModel @Inject constructor(
                 previousState.copy(
                         error = result.error,
                         status = MviViewState.Status.ERROR,
+                        lastResult = result,
                         quickCounts = result.quickCounts
                 )
             }
