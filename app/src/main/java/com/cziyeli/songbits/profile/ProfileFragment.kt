@@ -10,14 +10,16 @@ import android.view.View
 import android.view.ViewGroup
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviView
-import com.cziyeli.domain.user.ProfileActionProcessor
+import com.cziyeli.domain.stash.SimpleCardActionProcessor
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.root.RootActivity
+import com.cziyeli.songbits.stash.SimpleCardViewModel
 import com.cziyeli.songbits.stash.StashFragment
 import com.jakewharton.rxrelay2.PublishRelay
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.android.synthetic.main.fragment_profile.*
 import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import javax.inject.Inject
 
@@ -26,8 +28,7 @@ class ProfileFragment : Fragment(), MviView<ProfileIntent, ProfileViewModel.View
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-    @Inject
-    lateinit var actionProcessor: ProfileActionProcessor
+    @Inject lateinit var simpleCardActionProcessor: SimpleCardActionProcessor
 
     val schedulerProvider = SchedulerProvider
     private lateinit var viewModel: ProfileViewModel
@@ -48,12 +49,18 @@ class ProfileFragment : Fragment(), MviView<ProfileIntent, ProfileViewModel.View
         initViewModel()
 
         // load all the cards (empty for now)
-//        initCards()
-
-        // fire fetch events
-//        eventsPublisher.accept(StashIntent.InitialLoad())
+        initCards()
     }
 
+    private fun initCards() {
+        recommended_tracks_card.initWith(resources.getString(R.string.recommended_tracks_card_title), mutableListOf(), activity!!,
+                SimpleCardViewModel(
+                        simpleCardActionProcessor,
+                        schedulerProvider,
+                        SimpleCardViewModel.ViewState(shouldRemoveTrack = { _, _ -> false })
+                ),
+                null)
+    }
 
     override fun render(state: ProfileViewModel.ViewState) {
         Utils.mLog(TAG, "RENDER", "$state")
@@ -61,6 +68,24 @@ class ProfileFragment : Fragment(), MviView<ProfileIntent, ProfileViewModel.View
 
     override fun intents(): Observable<out ProfileIntent> {
         return eventsPublisher
+    }
+
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+        if (isVisibleToUser) {
+            // fetch the tracks
+//            (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
+//            (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadDislikedTracks())
+//            eventsPublisher.accept(StashIntent.FetchUserTopTracks())
+
+            recommended_tracks_card?.onResume()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        recommended_tracks_card?.onPause()
     }
 
     private fun initViewModel() {

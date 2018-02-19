@@ -186,7 +186,7 @@ class SimpleCardWidget @JvmOverloads constructor(
     }
 
     /**
-     * Container fragment passes on tracks from [RootActivity].
+     * Tracks in this card.
      */
     fun loadTracks(tracks: List<TrackModel>) {
         Utils.mLog(TAG, "loadTracks: ${tracks.size}")

@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.data.Repository
@@ -104,10 +103,10 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
 
     override fun render(state: StashViewModel.ViewState) {
         when {
-            state.status == MviViewState.Status.SUCCESS && state.lastResult is UserResult.LoadLikesCard -> {
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is UserResult.LoadLikedTracks -> {
                 likes_card.loadTracks(state.likedTracks)
             }
-            state.status == MviViewState.Status.SUCCESS && state.lastResult is UserResult.LoadDislikesCard -> {
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is UserResult.LoadDislikedTracks -> {
                 dislikes_card.loadTracks(state.dislikedTracks)
             }
             state.status == MviViewState.Status.SUCCESS && state.lastResult is StashResult.FetchUserTopTracks -> {
@@ -176,14 +175,8 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
         super.onAttach(context)
     }
 
-    override fun onResume() {
-        super.onResume()
-        Utils.mLog(TAG, "onResume! visible: $userVisibleHint ")
-    }
-
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
-        Utils.mLog(TAG, "setUserVisibleHint -- visible: $isVisibleToUser")
         if (isVisibleToUser) {
             // fetch the tracks
             (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())

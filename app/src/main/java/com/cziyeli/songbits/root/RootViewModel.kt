@@ -41,8 +41,8 @@ class RootViewModel @Inject constructor(
     private val reducer: BiFunction<RootViewState, MviResult, RootViewState> = BiFunction { previousState, result ->
         when (result) {
             is UserResult.FetchQuickCounts -> return@BiFunction processUserQuickCounts(previousState, result)
-            is UserResult.LoadLikesCard -> return@BiFunction processLikedTracks(previousState, result)
-            is UserResult.LoadDislikesCard -> return@BiFunction processDislikedTracks(previousState, result)
+            is UserResult.LoadLikedTracks -> return@BiFunction processLikedTracks(previousState, result)
+            is UserResult.LoadDislikedTracks -> return@BiFunction processDislikedTracks(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -108,7 +108,7 @@ class RootViewModel @Inject constructor(
 
     private fun processLikedTracks(
             previousState: RootViewState,
-            result: UserResult.LoadLikesCard
+            result: UserResult.LoadLikedTracks
     ) : RootViewState {
         return when (result.status) {
             UserResult.Status.LOADING, MviResult.Status.LOADING -> {
@@ -140,7 +140,7 @@ class RootViewModel @Inject constructor(
 
     private fun processDislikedTracks(
             previousState: RootViewState,
-            result: UserResult.LoadDislikesCard
+            result: UserResult.LoadDislikedTracks
     ) : RootViewState {
         return when (result.status) {
             UserResult.Status.LOADING, MviResult.Status.LOADING -> {

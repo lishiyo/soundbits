@@ -53,27 +53,27 @@ class RootActionProcessor @Inject constructor(private val repository: Repository
             }
 
 
-    private val likedTracksProcessor : ObservableTransformer<UserAction.LoadLikedTracks, UserResult.LoadLikesCard>
+    private val likedTracksProcessor : ObservableTransformer<UserAction.LoadLikedTracks, UserResult.LoadLikedTracks>
             = ObservableTransformer { actions -> actions.switchMap { act ->
         repository.fetchUserTracks(Repository.Pref.LIKED, act.limit, act.offset).toObservable()
                 .map { resp -> resp.map { TrackModel.createFromLocal(it) } }
-                .map { tracks -> UserResult.LoadLikesCard.createSuccess(tracks) }
-                .onErrorReturn { err -> UserResult.LoadLikesCard.createError(err) }
+                .map { tracks -> UserResult.LoadLikedTracks.createSuccess(tracks) }
+                .onErrorReturn { err -> UserResult.LoadLikedTracks.createError(err) }
                 .subscribeOn(schedulerProvider.io())
                 .observeOn(schedulerProvider.ui())
-                .startWith(UserResult.LoadLikesCard.createLoading())
+                .startWith(UserResult.LoadLikedTracks.createLoading())
         }
     }
 
-    private val dislikedTracksProcessor : ObservableTransformer<UserAction.LoadDislikedTracks, UserResult.LoadDislikesCard>
+    private val dislikedTracksProcessor : ObservableTransformer<UserAction.LoadDislikedTracks, UserResult.LoadDislikedTracks>
             = ObservableTransformer { actions -> actions.switchMap { act ->
         repository.fetchUserTracks(Repository.Pref.DISLIKED, act.limit, act.offset).toObservable()
                 .map { resp -> resp.map { TrackModel.createFromLocal(it) } }
-                .map { tracks -> UserResult.LoadDislikesCard.createSuccess(tracks) }
-                .onErrorReturn { err -> UserResult.LoadDislikesCard.createError(err) }
+                .map { tracks -> UserResult.LoadDislikedTracks.createSuccess(tracks) }
+                .onErrorReturn { err -> UserResult.LoadDislikedTracks.createError(err) }
                 .subscribeOn(schedulerProvider.io())
                 .observeOn(schedulerProvider.ui())
-                .startWith(UserResult.LoadDislikesCard.createLoading())
+                .startWith(UserResult.LoadDislikedTracks.createLoading())
             }
         }
 }

@@ -48,11 +48,11 @@ class StashViewModel @Inject constructor(
     private val rootResultProcessor: ObservableTransformer<RootViewState, MviResult> = ObservableTransformer { acts ->
         acts.map { rootState ->
             when {
-                rootState.status == MviViewState.Status.SUCCESS && rootState.lastResult is UserResult.LoadLikesCard -> {
-                    UserResult.LoadLikesCard.createSuccess(rootState.likedTracks)
+                rootState.status == MviViewState.Status.SUCCESS && rootState.lastResult is UserResult.LoadLikedTracks -> {
+                    UserResult.LoadLikedTracks.createSuccess(rootState.likedTracks)
                 }
-                rootState.status == MviViewState.Status.SUCCESS && rootState.lastResult is UserResult.LoadDislikesCard -> {
-                    UserResult.LoadDislikesCard.createSuccess(rootState.dislikedTracks)
+                rootState.status == MviViewState.Status.SUCCESS && rootState.lastResult is UserResult.LoadDislikedTracks -> {
+                    UserResult.LoadDislikedTracks.createSuccess(rootState.dislikedTracks)
                 } else -> NoResult()
             }
         }
@@ -61,8 +61,8 @@ class StashViewModel @Inject constructor(
     // Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<ViewState, StashResultMarker, ViewState> = BiFunction { previousState, result ->
         when (result) {
-            is UserResult.LoadLikesCard -> return@BiFunction processLikedTracks(previousState, result)
-            is UserResult.LoadDislikesCard -> return@BiFunction processDislikedTracks(previousState, result)
+            is UserResult.LoadLikedTracks -> return@BiFunction processLikedTracks(previousState, result)
+            is UserResult.LoadDislikedTracks -> return@BiFunction processDislikedTracks(previousState, result)
             is StashResult.ClearTracks -> return@BiFunction processClearedTracks(previousState, result)
             is StashResult.FetchUserTopTracks -> return@BiFunction processTopTracks(previousState, result)
             else -> return@BiFunction previousState
@@ -127,7 +127,7 @@ class StashViewModel @Inject constructor(
 
     private fun processLikedTracks(
             previousState: ViewState,
-            result: UserResult.LoadLikesCard
+            result: UserResult.LoadLikedTracks
     ) : ViewState {
         return when (result.status) {
             UserResult.Status.LOADING, MviResult.Status.LOADING -> {
@@ -159,7 +159,7 @@ class StashViewModel @Inject constructor(
 
     private fun processDislikedTracks(
             previousState: ViewState,
-            result: UserResult.LoadDislikesCard
+            result: UserResult.LoadDislikedTracks
     ) : ViewState {
         return when (result.status) {
             UserResult.Status.LOADING, MviResult.Status.LOADING -> {
