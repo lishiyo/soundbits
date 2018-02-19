@@ -113,12 +113,6 @@ class SimpleCardWidget @JvmOverloads constructor(
         }
 
         enableCreateTitle(false)
-        card_title.setOnFocusChangeListener { v, hasFocus ->
-            if (viewModel.inCreateMode && !hasFocus) {
-                // close create if input loses focus
-                changeCreateMode(false)
-            }
-        }
     }
 
     /**
@@ -165,6 +159,12 @@ class SimpleCardWidget @JvmOverloads constructor(
                 card_fab_menu!!.bindAnchorView(card_fab_button!!)
                 card_fab_menu!!.setOnFABMenuSelectedListener(onFabSelectedListener)
                 card_fab_menu!!.setMenu(menuResId!!)
+            }
+        }
+        card_title.setOnFocusChangeListener { v, hasFocus ->
+            // close create if input loses focus
+            if (viewModel.inCreateMode && !hasFocus) {
+                changeCreateMode(false)
             }
         }
 

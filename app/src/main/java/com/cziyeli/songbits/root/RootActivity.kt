@@ -14,7 +14,7 @@ import com.cziyeli.commons.fetchColor
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.home.HomeFragment
-import com.cziyeli.songbits.profile.UserFragment
+import com.cziyeli.songbits.profile.ProfileFragment
 import com.cziyeli.songbits.stash.StashFragment
 import com.jakewharton.rxrelay2.PublishRelay
 import dagger.android.AndroidInjection
@@ -130,7 +130,7 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<Ro
         // add the tabs
         val tabOne = HomeFragment.create()
         val tabTwo = StashFragment.create()
-        val tabThree = UserFragment.create()
+        val tabThree = ProfileFragment.create()
         pagerAdapter.addFragments(tabOne)
         pagerAdapter.addFragments(tabTwo)
         pagerAdapter.addFragments(tabThree)

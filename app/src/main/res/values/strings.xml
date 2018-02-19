@@ -45,6 +45,7 @@
 	<string name="fab_swipe_all">reswipe\nall</string>
 	<string name="fab_create">create\nplaylist</string>
 	<string name="fab_clear">clear</string>
+	<string name="fab_fetch_recommendations">get recs</string>
 
 	<!-- home stuff -->
 	<string name="home_see_more">See more</string>

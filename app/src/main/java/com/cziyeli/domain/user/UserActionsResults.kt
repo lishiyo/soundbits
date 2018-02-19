@@ -11,7 +11,7 @@ import com.cziyeli.domain.tracks.TrackModel
 import java.util.*
 
 /**
- * User actions.
+ * User actions. See also [ProfileAction] for personalization actions.
  */
 sealed class UserAction : HomeActionMarker, StashActionMarker, CardActionMarker {
 
@@ -20,6 +20,8 @@ sealed class UserAction : HomeActionMarker, StashActionMarker, CardActionMarker 
     class ClearUser : UserAction()
 
     class FetchQuickCounts : UserAction()
+
+    // ========= STASHED ========
 
     open class LoadStashedTracks(val areLiked: Boolean = false,
                                  val limit: Int = 20,
@@ -46,7 +48,7 @@ interface UserStatusResult : MviResult.StatusInterface
 /**
  * User results.
  */
-sealed class UserResult(var status: UserStatusResult = Status.IDLE, var error: Throwable? = null)  : HomeResult {
+sealed class UserResult(var status: UserStatusResult = Status.IDLE, var error: Throwable? = null) : HomeResult {
     // personal status
     enum class Status : UserStatusResult {
         LOADING, SUCCESS, ERROR, IDLE

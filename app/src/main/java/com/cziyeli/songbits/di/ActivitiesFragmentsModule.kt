@@ -13,6 +13,8 @@ import com.cziyeli.songbits.playlistcard.PlaylistCardActivity
 import com.cziyeli.songbits.playlistcard.create.PlaylistCardCreateActivity
 import com.cziyeli.songbits.playlistcard.di.PlaylistCardCreateModule
 import com.cziyeli.songbits.playlistcard.di.PlaylistCardModule
+import com.cziyeli.songbits.profile.ProfileFragment
+import com.cziyeli.songbits.profile.ProfileModule
 import com.cziyeli.songbits.root.RootActivity
 import com.cziyeli.songbits.root.RootModule
 import com.cziyeli.songbits.stash.StashFragment
@@ -86,4 +88,10 @@ abstract class FragmentsModule {
             modules = [(StashModule::class)]
     )
     internal abstract fun stashFragmentInjector(): StashFragment
+
+    @PerFragment
+    @ContributesAndroidInjector(
+            modules = [(ProfileModule::class)]
+    )
+    internal abstract fun profileFragmentInjector(): ProfileFragment
 }
