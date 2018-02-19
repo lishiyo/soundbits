@@ -2,21 +2,21 @@ package com.cziyeli.songbits.profile
 
 import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.ViewModel
-import com.cziyeli.commons.mvibase.MviResult
-import com.cziyeli.commons.mvibase.MviViewModel
-import com.cziyeli.commons.mvibase.MviViewState
-import com.cziyeli.commons.mvibase.NoResult
+import com.cziyeli.commons.Utils
+import com.cziyeli.commons.actionFilter
+import com.cziyeli.commons.mvibase.*
+import com.cziyeli.commons.resultFilter
 import com.cziyeli.data.RepositoryImpl
+import com.cziyeli.domain.summary.StatsAction
 import com.cziyeli.domain.summary.StatsResult
 import com.cziyeli.domain.summary.StatsResultStatus
 import com.cziyeli.domain.summary.TrackListStats
 import com.cziyeli.domain.tracks.TrackModel
+import com.cziyeli.domain.user.ProfileActionMarker
 import com.cziyeli.domain.user.ProfileActionProcessor
 import com.cziyeli.domain.user.ProfileResultMarker
 import com.cziyeli.domain.user.UserResult
-import com.cziyeli.songbits.playlistcard.StatsIntent
 import com.cziyeli.songbits.root.RootViewState
-import com.cziyeli.songbits.stash.StashViewModel
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
@@ -28,13 +28,12 @@ import javax.inject.Inject
 /**
  * Created by connieli on 2/18/18.
  */
-
 class ProfileViewModel @Inject constructor(
         val repository: RepositoryImpl,
         actionProcessor: ProfileActionProcessor,
         schedulerProvider: BaseSchedulerProvider
 ) : ViewModel(), LifecycleObserver, MviViewModel<ProfileIntent, ProfileViewModel.ViewState> {
-    private val TAG = StashViewModel::class.java.simpleName
+    private val TAG = ProfileViewModel::class.java.simpleName
     private val compositeDisposable = CompositeDisposable()
 
     // Listener for home-specific events
@@ -48,6 +47,14 @@ class ProfileViewModel @Inject constructor(
     // Publisher for own view states
     private val viewStates: PublishRelay<ProfileViewModel.ViewState> by lazy { PublishRelay.create<ProfileViewModel.ViewState>() }
 
+    private val intentFilter: ObservableTransformer<ProfileIntentMarker, ProfileIntentMarker> = ObservableTransformer { intents ->
+        intents.publish { shared -> shared
+            Observable.merge<ProfileIntentMarker>(
+                    shared.ofType(ProfileIntent.LoadOriginalStats::class.java).take(1), // only take initial one time
+                    shared.filter({ intent -> intent !is ProfileIntent.LoadOriginalStats })
+            )
+        }
+    }
     // Root ViewState => result
     private val rootResultProcessor: ObservableTransformer<RootViewState, MviResult> = ObservableTransformer { acts ->
         acts.map { rootState ->
@@ -62,13 +69,42 @@ class ProfileViewModel @Inject constructor(
 
     private val reducer: BiFunction<ProfileViewModel.ViewState, ProfileResultMarker, ProfileViewModel.ViewState> = BiFunction {
         previousState, result -> when (result) {
+            is UserResult.LoadLikedTracks -> return@BiFunction processLikedTracks(previousState, result)
             is StatsResult.FetchFullStats -> return@BiFunction processFetchOriginalStats(previousState, result)
             else -> return@BiFunction previousState
         }
     }
 
     init {
+        // create observable to push into states live data
+        val observable = intentsSubject
+                .mergeWith(programmaticEventsPublisher) // programmatic events for ViewModel to call events
+                .subscribeOn(schedulerProvider.io())
+                .compose(intentFilter)
+                .map{ it -> actionFromIntent(it)}
+                .compose(actionFilter<ProfileActionMarker>())
+                .compose(actionProcessor.combinedProcessor) // own action -> own result
+                .mergeWith( // root viewstate -> own result
+                        rootStatesSubject.compose(rootResultProcessor).compose(resultFilter<ProfileResultMarker>())
+                )
+                .observeOn(schedulerProvider.ui())
+                .doOnNext { result -> Utils.log(TAG, "intentsSubject scanning result: ${result.javaClass.simpleName}") }
+                .scan(ProfileViewModel.ViewState(), reducer)
 
+        compositeDisposable.add(
+                observable.distinctUntilChanged().subscribe({ viewState ->
+                    viewStates.accept(viewState)
+                }, { err ->
+                    Utils.log(TAG, err.localizedMessage)
+                })
+        )
+    }
+
+    private fun actionFromIntent(intent: ProfileIntentMarker) : MviAction {
+        return when (intent) {
+            is ProfileIntent.LoadOriginalStats -> StatsAction.FetchFullStats(intent.trackModels, intent.pref)
+            else -> None // no-op all other events
+        }
     }
 
     override fun processIntents(intents: Observable<out ProfileIntent>) {
@@ -106,14 +142,13 @@ class ProfileViewModel @Inject constructor(
             }
             UserResult.Status.SUCCESS, MviResult.Status.SUCCESS -> {
                 // fetch the liked tracks stats and set as original
-                programmaticEventsPublisher.accept(StatsIntent.FetchFullStats(result.items))
+                programmaticEventsPublisher.accept(ProfileIntent.LoadOriginalStats(result.items))
 
                 previousState.copy(
                         error = null,
                         lastResult = result,
                         status = MviViewState.Status.SUCCESS
                 )
-
             }
             UserResult.Status.ERROR, MviResult.Status.ERROR -> {
                 previousState.copy(
@@ -130,6 +165,8 @@ class ProfileViewModel @Inject constructor(
             previousState: ProfileViewModel.ViewState,
             result: StatsResult.FetchFullStats
     ) : ProfileViewModel.ViewState {
+        Utils.mLog(TAG, "processFetchOriginalStats! ${result.status}", "${result.trackStats}")
+
         return when (result.status) {
             StatsResultStatus.LOADING, StatsResultStatus.ERROR -> {
                 val status = if (result.status == StatsResultStatus.LOADING)
@@ -157,5 +194,14 @@ class ProfileViewModel @Inject constructor(
                          val lastResult: ProfileResultMarker? = null,
                          val originalStats: TrackListStats? = null, // initial recommendations
                          val currentStats: TrackListStats? = null, // stats to seed recommendations
-                         val recommendedTracks: MutableList<TrackModel> = mutableListOf()) : MviViewState
+                         val recommendedTracks: MutableList<TrackModel> = mutableListOf()) : MviViewState {
+
+        fun isFetchStatsSuccess(): Boolean {
+            return status == MviViewState.Status.SUCCESS && lastResult is StatsResult.FetchFullStats && originalStats != null
+        }
+
+        override fun toString(): String {
+            return "status: $status -- lastResult: $lastResult -- recs: ${recommendedTracks.size} -- originalStats: $originalStats"
+        }
+    }
 }

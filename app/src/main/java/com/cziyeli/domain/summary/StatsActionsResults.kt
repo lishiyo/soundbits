@@ -6,6 +6,7 @@ import com.cziyeli.data.Repository
 import com.cziyeli.domain.playlistcard.CardActionMarker
 import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.tracks.TrackModel
+import com.cziyeli.domain.user.ProfileActionMarker
 import com.cziyeli.domain.user.ProfileResultMarker
 
 
@@ -31,7 +32,8 @@ sealed class StatsAction : StatsActionMarker, SummaryActionMarker, CardActionMar
     class FetchStats(val trackIds: List<String>, val pref: Repository.Pref = Repository.Pref.ALL) : StatsAction()
 
     // fetch full stats for a given list of tracks
-    class FetchFullStats(val trackModels: List<TrackModel>, val pref: Repository.Pref = Repository.Pref.ALL) : StatsAction()
+    class FetchFullStats(val trackModels: List<TrackModel>, val pref: Repository.Pref = Repository.Pref.ALL
+    ) : StatsAction(), ProfileActionMarker
 }
 
 /**

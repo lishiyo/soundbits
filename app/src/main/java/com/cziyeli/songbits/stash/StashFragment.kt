@@ -177,7 +177,7 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
-        if (isVisibleToUser) {
+        if (isVisibleToUser && isAdded) {
             // fetch the tracks
             (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
             (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadDislikedTracks())
