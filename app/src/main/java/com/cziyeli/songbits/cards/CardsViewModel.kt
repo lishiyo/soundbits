@@ -154,7 +154,8 @@ class CardsViewModel @Inject constructor(
         return when (result.status) {
             TrackResult.ChangePrefResult.Status.SUCCESS -> {
                 val newTracks = previousState.allTracks.toMutableList()
-                val track = newTracks.find { el -> el.id == previousState.currentTrack?.id }
+                val track = newTracks.find { el -> el.id == result.currentTrack?.id } // find the track in the list that matches the
+                // changed track
                 track!!.pref = result.pref!!
 
                 previousState.copy(
