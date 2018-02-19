@@ -112,8 +112,9 @@ class SimpleCardWidget @JvmOverloads constructor(
             createPlaylist(App.getCurrentUserId(), viewModel.allTracks)
         }
 
+        enableCreateTitle(false)
         card_title.setOnFocusChangeListener { v, hasFocus ->
-            if (viewModel.inCreateMode) {
+            if (viewModel.inCreateMode && !hasFocus) {
                 // close create if input loses focus
                 changeCreateMode(false)
             }
