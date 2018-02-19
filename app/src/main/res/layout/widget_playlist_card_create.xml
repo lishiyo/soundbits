@@ -55,6 +55,7 @@
 						app:strokeColor="@android:color/transparent"
 						app:indicatorMarginVertical="15dp"
 						app:strokeWidth="0dp"
+						app:indicatorVisibility="gone"
 						/>
 
 				</FrameLayout>
