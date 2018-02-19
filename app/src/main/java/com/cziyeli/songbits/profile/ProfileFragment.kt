@@ -13,8 +13,8 @@ import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.domain.stash.SimpleCardActionProcessor
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.root.RootActivity
+import com.cziyeli.songbits.root.RootIntent
 import com.cziyeli.songbits.stash.SimpleCardViewModel
-import com.cziyeli.songbits.stash.StashFragment
 import com.jakewharton.rxrelay2.PublishRelay
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
@@ -24,7 +24,7 @@ import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import javax.inject.Inject
 
 class ProfileFragment : Fragment(), MviView<ProfileIntent, ProfileViewModel.ViewState> {
-    private val TAG = StashFragment::class.simpleName
+    private val TAG = ProfileFragment::class.simpleName
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -36,7 +36,6 @@ class ProfileFragment : Fragment(), MviView<ProfileIntent, ProfileViewModel.View
     // intents
     private val eventsPublisher: PublishRelay<ProfileIntent> by lazy { PublishRelay.create<ProfileIntent>() }
     private val compositeDisposable = CompositeDisposable()
-
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
@@ -50,6 +49,9 @@ class ProfileFragment : Fragment(), MviView<ProfileIntent, ProfileViewModel.View
 
         // load all the cards (empty for now)
         initCards()
+
+        // attempt to fetch initial stats
+        (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
     }
 
     private fun initCards() {
@@ -64,22 +66,23 @@ class ProfileFragment : Fragment(), MviView<ProfileIntent, ProfileViewModel.View
 
     override fun render(state: ProfileViewModel.ViewState) {
         Utils.mLog(TAG, "RENDER", "$state")
+
+        when {
+            state.isFetchStatsSuccess() -> {
+                stats_container_left.loadTrackStats(state.originalStats!!)
+                stats_container_right.loadTrackStats(state.originalStats)
+            }
+        }
     }
 
     override fun intents(): Observable<out ProfileIntent> {
         return eventsPublisher
     }
 
-    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
-        super.setUserVisibleHint(isVisibleToUser)
-        if (isVisibleToUser) {
-            // fetch the tracks
-//            (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
-//            (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadDislikedTracks())
-//            eventsPublisher.accept(StashIntent.FetchUserTopTracks())
+    override fun onResume() {
+        super.onResume()
 
-            recommended_tracks_card?.onResume()
-        }
+        recommended_tracks_card?.onResume()
     }
 
     override fun onPause() {

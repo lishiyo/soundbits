@@ -48,7 +48,7 @@ class SimpleCardActionProcessor @Inject constructor(private val repository: Repo
     }
 
     // given list of tracks -> fetch FULL track stats
-    private val fetchStatsProcessor: ObservableTransformer<StatsAction.FetchFullStats, StatsResult.FetchFullStats> = ObservableTransformer {
+    val fetchStatsProcessor: ObservableTransformer<StatsAction.FetchFullStats, StatsResult.FetchFullStats> = ObservableTransformer {
         action -> action.switchMap { act ->
         repository.fetchTracksStats(Repository.Source.REMOTE, act.trackModels.map {it.id} )
                 .map { Pair(it, act.trackModels)}

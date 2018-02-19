@@ -13,7 +13,7 @@ import com.cziyeli.songbits.R
 import kotlinx.android.synthetic.main.widget_card_stats.view.*
 import kotlin.math.roundToInt
 
-class TrackStatsView@JvmOverloads constructor(
+open class TrackStatsView@JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
@@ -24,7 +24,7 @@ class TrackStatsView@JvmOverloads constructor(
         // range is 0 - 8
         private const val TRACK_STATS_BEGINNING = 0
         private const val TRACK_STATS_END = 9
-        private const val TRACK_RANGE = TRACK_STATS_END - TRACK_STATS_BEGINNING
+        internal const val TRACK_RANGE = TRACK_STATS_END - TRACK_STATS_BEGINNING
         private const val QUARTILE: Double = TRACK_RANGE / 4.0
 
         // height of title in two-column view
@@ -124,15 +124,15 @@ class TrackStatsView@JvmOverloads constructor(
         return value * TRACK_RANGE
     }
 
-    private fun getStatTitleNum(originalVal: Double, totalVal: Double) : String {
+     fun getStatTitleNum(originalVal: Double, totalVal: Double) : String {
         return "${"%.2f".format(originalVal)} / ${"%.1f".format(totalVal)}"
     }
 
-    private fun getStatTitle(stat: String, normalizedValue: Double, originalVal: Double) : String {
+    fun getStatTitle(stat: String, normalizedValue: Double, originalVal: Double? = null) : String {
         // not at all (0-2), less (2-4), more (4-6), very (6-8)
         return when {
             normalizedValue < QUARTILE -> "not at all $stat"
-             normalizedValue < QUARTILE * 2 -> "less $stat"
+            normalizedValue < QUARTILE * 2 -> "less $stat"
             normalizedValue < QUARTILE * 3 -> "more $stat"
             else -> "super $stat"
         }
