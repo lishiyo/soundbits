@@ -50,6 +50,21 @@ class StashActionProcessor @Inject constructor(private val repository: Repositor
                     .subscribeOn(schedulerProvider.io())
                     .map { resp -> resp.items }
                     .map { tracks -> tracks.map { TrackModel.create(it) } }
+                    .map { tracks ->
+                        // combine with list of track entities
+                        val stashedList = repository.fetchStashedTracksByIds(trackIds = tracks.map { it.id })
+                                .observeOn(schedulerProvider.io())
+                                .map { list -> list.map { TrackModel.createFromLocal(it) } }
+                                .blockingFirst()
+
+                        tracks.toMutableList().map { track ->
+                            val foundTrack = stashedList.findLast { it.id == track.id }
+                            if (foundTrack != null) {
+                                track.pref = foundTrack.pref
+                            }
+                            track
+                        }
+                    }
                     .map { tracks -> StashResult.FetchUserTopTracks.createSuccess(tracks) }
                     .onErrorReturn { err -> StashResult.FetchUserTopTracks.createError(err) }
                     .observeOn(schedulerProvider.ui())

@@ -68,7 +68,10 @@
 	<dimen name="track_image_size">200dp</dimen>
 	<dimen name="card_margins">30dp</dimen>
 	<dimen name="card_padding">20dp</dimen>
+	<dimen name="card_padding_top">40dp</dimen>
 	<dimen name="card_elevation">6dp</dimen>
 	<dimen name="name_size">26sp</dimen>
 	<dimen name="artist_size">22sp</dimen>
+	<dimen name="card_full_height">470dp</dimen>
+	<dimen name="card_full_width">300dp</dimen>
 </resources>
