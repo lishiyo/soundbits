@@ -1,19 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
+
+<android.support.v4.widget.NestedScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@color/bg_item_normal_state"
-	tools:context=".root.RootActivity">
+	android:background="@drawable/gradient_blues"
+	>
 
-	<!--By default, height of Toolbar and Bottom Navigation are equal-->
-	<android.support.v7.widget.RecyclerView
-		android:id="@+id/list"
+	<LinearLayout
+		android:orientation="vertical"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:clipToPadding="false"
-		android:paddingBottom="@dimen/bottom_navigation_height"
-		android:paddingTop="@dimen/activity_horizontal_margin"/>
+		android:layout_height="wrap_content"
+		android:layout_marginTop="@dimen/scrollview_padding_top"
+		android:paddingBottom="80dp"
+		>
 
-</FrameLayout>
+		<TextView
+			android:text="@string/title_profile_frag"
+			style="@style/FragmentTitle"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			/>
+
+		<!-- Recommendations based on stats -->
+		<com.cziyeli.songbits.stash.SimpleCardWidget
+			android:id="@+id/top_tracks_card"
+			xmlns:android="http://schemas.android.com/apk/res/android"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:focusable="true"
+			app:menu_res="@menu/menu_recommended"
+			>
+		</com.cziyeli.songbits.stash.SimpleCardWidget>
+
+	</LinearLayout>
+
+</android.support.v4.widget.NestedScrollView>
+
+

@@ -3,6 +3,7 @@ package com.cziyeli.songbits.di.viewModels
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import com.cziyeli.songbits.home.HomeViewModel
+import com.cziyeli.songbits.profile.ProfileViewModel
 import com.cziyeli.songbits.root.RootViewModel
 import com.cziyeli.songbits.stash.StashViewModel
 import dagger.Binds
@@ -30,6 +31,12 @@ abstract class ViewModelsModule {
     @IntoMap
     @ViewModelKey(StashViewModel::class)
     abstract fun bindStashViewModel(viewModel: StashViewModel) : ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ProfileViewModel::class)
+    abstract fun bindProfileViewModel(viewModel: ProfileViewModel) : ViewModel
+
 
     @Binds
     abstract fun bindViewModelFactory(factory: ViewModelFactory) : ViewModelProvider.Factory
