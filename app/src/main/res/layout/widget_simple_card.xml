@@ -1,6 +1,8 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:card_view="http://schemas.android.com/apk/res-auto"
-	xmlns:app="http://schemas.android.com/apk/res-auto">
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+
+	>
 
 	<!-- extraneous but necessary for scrolling -->
 	<FrameLayout
@@ -162,7 +164,6 @@
 						app:animateItems="true"
 						app:menuBackgroundColor="@color/colorFab"
 						app:menuDirection="left"
-						app:menuRes="@menu/menu_simple_card"
 						app:menuTitleTextColor="@color/colorBlack"
 						app:menuTitleDisabledTextColor="@color/colorDisabled"
 						app:showOverlay="false"

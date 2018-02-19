@@ -8,10 +8,15 @@
 
 	<declare-styleable name="TrackStatsView">
 		<attr name="two_column" format="boolean" />
-		<!--<attr name="second_set" format="boolean" />-->
 		<attr name="set" format="enum">
 			<enum name="first" value="0"/>
 			<enum name="second" value="1"/>
 		</attr>
 	</declare-styleable>
+
+	<declare-styleable name="SimpleCard">
+		<attr name="menu_res" format="reference" />
+	</declare-styleable>
+
+
 </resources>
