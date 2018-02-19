@@ -28,7 +28,7 @@ sealed class SummaryAction : SummaryActionMarker {
 
     // Save tracks to local database
     class SaveTracks(val tracks: List<TrackModel>,
-                     val playlistId: String
+                     val playlistId: String?
     ) : SummaryAction()
 
 }

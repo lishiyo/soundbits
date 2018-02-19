@@ -30,7 +30,7 @@ sealed class SummaryIntent : MviIntent, CardIntentMarker {
 
     // save liked and disliked and keep surfing other playlists -> hit db
     class SaveAllTracks(val tracks: List<TrackModel>,
-                        val playlistId: String // coming from playlist
+                        val playlistId: String? // coming from playlist
     ) : SummaryIntent()
 
     // review Disliked pile -> multi-selection view -> edit liked/disliked -> Summary

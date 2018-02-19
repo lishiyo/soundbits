@@ -11,8 +11,8 @@ import com.cziyeli.songbits.playlistcard.CardIntentMarker
  */
 sealed class CardsIntent : MviIntent, CardIntentMarker {
 
-    // opened CardsActivity *with* tracks to swipe
-    class ScreenOpenedWithTracks(val playlist: Playlist,
+    // opened CardsActivity *with* tracks to swipe (not necessarily playlist)
+    class ScreenOpenedWithTracks(val playlist: Playlist? = null,
                                  val tracks: List<TrackModel>) : CardsIntent()
 
     // opened CardsActivity, no tracks given - fetch tracks from remote

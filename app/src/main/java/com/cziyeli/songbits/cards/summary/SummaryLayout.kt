@@ -97,7 +97,7 @@ class SummaryLayout @JvmOverloads constructor(
         action_save_to_database.setOnClickListener {
             eventsPublisher.accept(SummaryIntent.SaveAllTracks(
                     viewModel.currentViewState.allTracks,
-                    viewModel.currentViewState.playlist.id
+                    viewModel.currentViewState.playlist?.id
             ))
         }
 

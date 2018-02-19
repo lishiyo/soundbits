@@ -34,7 +34,7 @@ class CardsModule {
 
     @Provides
     @PerActivity
-    fun providePlaylist(activity: CardsActivity): com.cziyeli.domain.playlists.Playlist {
+    fun providePlaylist(activity: CardsActivity): com.cziyeli.domain.playlists.Playlist? {
         return activity.playlist // call inject after binding this in CardsActivity!
     }
 
@@ -44,7 +44,7 @@ class CardsModule {
     fun providesViewModelFactory(repository: RepositoryImpl,
                                  actionProcessor: TrackActionProcessor,
                                  schedulerProvider: BaseSchedulerProvider,
-                                 playlist: Playlist): ViewModelProvider.Factory {
+                                 playlist: Playlist?): ViewModelProvider.Factory {
         return CardsViewModelFactory(
                 repository,
                 actionProcessor,
@@ -58,7 +58,7 @@ class CardsModule {
 class CardsViewModelFactory(val repository: RepositoryImpl,
                             val actionProcessor: TrackActionProcessor,
                             val schedulerProvider: BaseSchedulerProvider,
-                            val playlist: Playlist) : ViewModelProvider.Factory {
+                            val playlist: Playlist?) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return CardsViewModel(repository, actionProcessor, schedulerProvider, playlist) as T
     }

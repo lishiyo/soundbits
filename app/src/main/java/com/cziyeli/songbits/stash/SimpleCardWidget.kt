@@ -23,6 +23,7 @@ import com.cziyeli.domain.stash.SimpleCardResult
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.tracks.TrackResult
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.cards.CardsActivity
 import com.cziyeli.songbits.cards.CardsIntent
 import com.cziyeli.songbits.cards.TracksRecyclerViewDelegate
 import com.cziyeli.songbits.cards.summary.SummaryIntent
@@ -108,7 +109,7 @@ class SimpleCardWidget @JvmOverloads constructor(
 
         // delegate ui events to the mvi view
         card_fab_create.setOnClickListener { _ ->
-            createPlaylist(App.getCurrentUserId(), viewModel.pendingTracks)
+            createPlaylist(App.getCurrentUserId(), viewModel.allTracks)
         }
 
         card_title.setOnFocusChangeListener { v, hasFocus ->
@@ -261,6 +262,11 @@ class SimpleCardWidget @JvmOverloads constructor(
 
     fun changeCreateMode(setCreateMode: Boolean = true) {
         simpleResultsPublisher.accept(SimpleCardResult.SetCreateMode(inCreateMode = setCreateMode))
+    }
+
+    fun startSwipingTracks(swipeAll: Boolean = false) {
+        val tracksToSwipe = if (swipeAll) viewModel.allTracks else viewModel.unswipedTracks
+        activity.startActivity(CardsActivity.create(context, null, tracksToSwipe))
     }
 
     override fun onLiked(position: Int) {
