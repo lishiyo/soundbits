@@ -9,8 +9,8 @@ import com.cziyeli.domain.playlists.Playlist
  * Created by connieli on 1/1/18.
  */
 sealed class TrackAction : MviAction {
-    // don't fetch from remote
-    class SetTracks(val playlist: Playlist, val tracks: List<TrackModel>): TrackAction()
+    // just set tracks directly
+    class SetTracks(val playlist: Playlist? = null, val tracks: List<TrackModel>): TrackAction()
 
     // https://developer.spotify.com/web-api/console/get-playlist-tracks/
     class LoadTrackCards(val ownerId: String,

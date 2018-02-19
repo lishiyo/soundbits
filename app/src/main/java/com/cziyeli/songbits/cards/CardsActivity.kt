@@ -46,7 +46,7 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
         const val EXTRA_TRACKS_TO_SWIPE = "key_tracks_to_swipe"
         const val TAG: String = "CardsActivity"
 
-        fun create(context: Context, playlist: Playlist, tracksToSwipe: List<TrackModel>? = null) : Intent {
+        fun create(context: Context, playlist: Playlist?, tracksToSwipe: List<TrackModel>? = null) : Intent {
             return context.intentFor<CardsActivity>(EXTRA_PLAYLIST to playlist, EXTRA_TRACKS_TO_SWIPE to tracksToSwipe)
         }
     }
@@ -70,7 +70,7 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
         PublishRelay.create<CardsIntent.ChangeTrackPref>()
     }
 
-    lateinit var playlist: Playlist
+    var playlist: Playlist? = null
 
     private var summaryShown : Boolean = false // TODO move into viewmodel
     private val summaryLayout: SummaryLayout by lazy {
@@ -88,7 +88,7 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
         setContentView(R.layout.activity_cards)
 
         // parse out the intent bundle
-        playlist = intent.extras.get(EXTRA_PLAYLIST) as Playlist
+        playlist = intent.extras.get(EXTRA_PLAYLIST) as Playlist?
         val tracksToSwipe = intent.extras.get(EXTRA_TRACKS_TO_SWIPE) as List<TrackModel>?
 
         AndroidInjection.inject(this)
@@ -97,7 +97,7 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
         initSwipeView()
 
         // bind the view model after all views are done
-        initViewModel(playlist)
+        initViewModel()
 
         // fetch track cards
         if (tracksToSwipe != null && tracksToSwipe.isNotEmpty()) {
@@ -106,8 +106,8 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
         } else {
             // no tracks passed - fetch all from remote
             mLoadPublisher.accept(CardsIntent.ScreenOpenedNoTracks.create(
-                    ownerId = playlist.owner.id,
-                    playlistId = playlist.id)
+                    ownerId = playlist!!.owner.id,
+                    playlistId = playlist!!.id)
             )
         }
     }
@@ -222,7 +222,7 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
         summaryLayout.initWith(this, summaryViewModel)
     }
 
-    private fun initViewModel(playlist: Playlist) {
+    private fun initViewModel() {
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(CardsViewModel::class.java)
 
         // add viewmodel as an observer of this fragment lifecycle

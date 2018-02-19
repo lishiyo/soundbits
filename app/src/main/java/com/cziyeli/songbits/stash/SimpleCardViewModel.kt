@@ -45,7 +45,11 @@ class SimpleCardViewModel constructor(
         PublishRelay.create<SimpleCardViewModel.ViewState>() }
     lateinit var currentViewState: SimpleCardViewModel.ViewState
 
-    var pendingTracks: List<TrackModel> = listOf()
+    val unswipedTracks: List<TrackModel>
+        get() = allTracks.filter { it.pref == TrackModel.Pref.UNSEEN }
+
+    // All tracks in this card, including swiped
+    val allTracks: List<TrackModel>
         get() = currentViewState.tracks
 
     val inCreateMode: Boolean

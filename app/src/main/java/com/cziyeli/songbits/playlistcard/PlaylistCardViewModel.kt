@@ -30,7 +30,7 @@ import javax.inject.Inject
 class PlaylistCardViewModel @Inject constructor(
         val actionProcessor: PlaylistCardActionProcessor,
         val schedulerProvider: BaseSchedulerProvider,
-        val initialState: PlaylistCardViewState
+        initialState: PlaylistCardViewState
 ) : ViewModel(), LifecycleObserver, MviViewModel<CardIntentMarker, PlaylistCardViewModel.PlaylistCardViewState> {
     private val TAG = PlaylistCardViewModel::class.simpleName
 
@@ -363,7 +363,7 @@ class PlaylistCardViewModel @Inject constructor(
         companion object {
             fun create(state: TrackViewState) : PlaylistCardViewState {
                 return PlaylistCardViewState(
-                        playlist = state.playlist // we require a playlist here
+                        playlist = state.playlist!! // we require a playlist here
                 )
             }
         }

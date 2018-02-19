@@ -66,6 +66,20 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
             }
         }
     }
+    // Listener for the FAB menu
+    private val topTracksFABMenuSelectedListener = OnFABMenuSelectedListener { view, id ->
+        when (id) {
+            R.id.menu_surf -> {
+                top_tracks_card.startSwipingTracks(false)
+            }
+            R.id.menu_resurf -> {
+                top_tracks_card.startSwipingTracks(true)
+            }
+            R.id.menu_create_playlist -> {
+               top_tracks_card.changeCreateMode()
+            }
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
@@ -132,7 +146,7 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
                         schedulerProvider,
                         SimpleCardViewModel.ViewState(shouldRemoveTrack = { _, _ -> false })
                 ),
-                null)
+                topTracksFABMenuSelectedListener)
     }
 
     private fun initViewModel() {

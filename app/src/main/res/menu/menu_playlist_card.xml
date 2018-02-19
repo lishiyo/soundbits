@@ -5,6 +5,7 @@
 	android:layout_height="wrap_content"
 	>
 
+	<!-- swipe only unswiped -->
 	<item
 		android:id="@+id/menu_surf"
 		android:icon="@drawable/note_happy_colored"
@@ -13,6 +14,7 @@
 		android:layout_height="wrap_content"
 		/>
 
+	<!-- swipe all -->
 	<item
 		android:id="@+id/menu_resurf"
 		android:icon="@drawable/notes_hearts_colorful"

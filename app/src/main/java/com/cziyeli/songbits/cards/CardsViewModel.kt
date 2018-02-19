@@ -30,7 +30,7 @@ class CardsViewModel @Inject constructor(
         private val repository: RepositoryImpl,
         val actionProcessor: TrackActionProcessor,
         val schedulerProvider: BaseSchedulerProvider,
-        val playlist: Playlist
+        val playlist: Playlist?
 ): ViewModel(), LifecycleObserver, MviViewModel<CardsIntent, TrackViewState> {
     private val TAG = CardsViewModel::class.simpleName
 
@@ -185,7 +185,7 @@ class CardsViewModel @Inject constructor(
 data class TrackViewState(val status: MviViewState.StatusInterface = MviViewState.Status.IDLE,
                           val error: Throwable? = null,
                           val allTracks: MutableList<TrackModel> = mutableListOf(),
-                          val playlist: Playlist,
+                          val playlist: Playlist? = null, // optional playlist
                           val currentTrack: TrackModel? = null,
                           val currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID
 ) : MviViewState {
@@ -193,13 +193,13 @@ data class TrackViewState(val status: MviViewState.StatusInterface = MviViewStat
         LOADING, SUCCESS, ERROR
     }
 
-    val currentLikes: MutableList<TrackModel>
+    private val currentLikes: MutableList<TrackModel>
         get() = allTracks.filter { it.pref == TrackModel.Pref.LIKED }.toMutableList()
 
-    val currentDislikes: MutableList<TrackModel>
+    private val currentDislikes: MutableList<TrackModel>
         get() = allTracks.filter { it.pref == TrackModel.Pref.DISLIKED }.toMutableList()
 
-    val unseen: MutableList<TrackModel>
+    private val unseen: MutableList<TrackModel>
         get() = (allTracks - (currentLikes + currentDislikes)).toMutableList()
 
     val reachedEnd: Boolean
@@ -218,7 +218,8 @@ data class TrackViewState(val status: MviViewState.StatusInterface = MviViewStat
     }
 
     override fun toString(): String {
-        return "status: $status -- allTracks: ${allTracks.size} -- playlist: ${playlist.id} -- currentTrack: ${currentTrack?.name}"
+        return "status: $status -- allTracks: ${allTracks.size} -- playlist: ${playlist?.id} -- currentTrack: ${currentTrack?.name} -- " +
+                "$reachedEnd"
     }
 }
 

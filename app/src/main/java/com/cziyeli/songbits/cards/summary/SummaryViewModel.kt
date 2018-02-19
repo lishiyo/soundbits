@@ -268,7 +268,7 @@ data class SummaryViewState(val status: MviViewState.Status = MviViewState.Statu
                             val error: Throwable? = null,
                             val lastResult: MviResult,
                             val allTracks: List<TrackModel> = listOf(),
-                            val playlist: Playlist, // relevant playlist if coming from one
+                            val playlist: Playlist? = null, // relevant playlist if coming from one
                             val likedStats: TrackListStats? = null,
                             val dislikedStats: TrackListStats? = null
 ) : MviViewState {
