@@ -6,6 +6,7 @@ import com.cziyeli.data.Repository
 import com.cziyeli.domain.playlistcard.CardActionMarker
 import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.tracks.TrackModel
+import com.cziyeli.domain.user.ProfileResultMarker
 
 
 /**
@@ -44,7 +45,7 @@ enum class StatsResultStatus : MviResult.StatusInterface {
  * Results for the track stats widget
  */
 sealed class StatsResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE,
-                         var error: Throwable? = null) : StatsResultMarker, CardResultMarker {
+                         var error: Throwable? = null) : StatsResultMarker, CardResultMarker, ProfileResultMarker {
 
     class FetchAllTracksWithStats(status: StatsResultStatus,
                                   error: Throwable?,

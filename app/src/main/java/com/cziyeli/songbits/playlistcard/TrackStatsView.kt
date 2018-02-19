@@ -32,8 +32,9 @@ class TrackStatsView@JvmOverloads constructor(
     }
 
     // Whether this is the two-column "full" stats view
-    var twoColumnView: Boolean = false
+    private var twoColumnView: Boolean = false
     var set: Int = 0
+    private var isMovable: Boolean = false
 
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_card_stats, this, true)
@@ -44,6 +45,7 @@ class TrackStatsView@JvmOverloads constructor(
                     R.styleable.TrackStatsView, 0, 0)
             twoColumnView = typedArray.getBoolean(R.styleable.TrackStatsView_two_column, false)
             set = typedArray.getInt(R.styleable.TrackStatsView_set, 0)
+            isMovable = typedArray.getBoolean(R.styleable.TrackStatsView_movable, false)
             typedArray.recycle()
         }
 
@@ -63,7 +65,7 @@ class TrackStatsView@JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
-        return true // don't allow the range sliders to move
+        return !isMovable // intercept if it's not movable
     }
 
     fun loadTrackStats(trackStats: TrackListStats) {

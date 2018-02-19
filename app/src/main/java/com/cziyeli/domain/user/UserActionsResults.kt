@@ -104,37 +104,37 @@ sealed class UserResult(var status: UserStatusResult = Status.IDLE, var error: T
     }
 
     // fetching swiped likes
-    class LoadLikesCard(status: UserStatusResult,
-                        error: Throwable?,
-                        val items: List<TrackModel> = Collections.emptyList()
-    ) : UserResult(status, error), StashResultMarker {
+    class LoadLikedTracks(status: UserStatusResult,
+                          error: Throwable?,
+                          val items: List<TrackModel> = Collections.emptyList()
+    ) : UserResult(status, error), StashResultMarker, ProfileResultMarker {
         companion object {
-            fun createSuccess(tracks: List<TrackModel>) : LoadLikesCard {
-                return LoadLikesCard(Status.SUCCESS, null, tracks)
+            fun createSuccess(tracks: List<TrackModel>) : LoadLikedTracks {
+                return LoadLikedTracks(Status.SUCCESS, null, tracks)
             }
-            fun createError(throwable: Throwable) : LoadLikesCard {
-                return LoadLikesCard(Status.ERROR, throwable)
+            fun createError(throwable: Throwable) : LoadLikedTracks {
+                return LoadLikedTracks(Status.ERROR, throwable)
             }
-            fun createLoading(): LoadLikesCard {
-                return LoadLikesCard(Status.LOADING, null)
+            fun createLoading(): LoadLikedTracks {
+                return LoadLikedTracks(Status.LOADING, null)
             }
         }
     }
 
     // fetching swiped dislikes
-    class LoadDislikesCard(status: UserStatusResult,
-                           error: Throwable?,
-                           val items: List<TrackModel> = Collections.emptyList()
+    class LoadDislikedTracks(status: UserStatusResult,
+                             error: Throwable?,
+                             val items: List<TrackModel> = Collections.emptyList()
     ) : UserResult(status, error), StashResultMarker {
         companion object {
-            fun createSuccess(tracks: List<TrackModel>) : LoadDislikesCard {
-                return LoadDislikesCard(Status.SUCCESS, null, tracks)
+            fun createSuccess(tracks: List<TrackModel>) : LoadDislikedTracks {
+                return LoadDislikedTracks(Status.SUCCESS, null, tracks)
             }
-            fun createError(throwable: Throwable) : LoadDislikesCard {
-                return LoadDislikesCard(Status.ERROR, throwable)
+            fun createError(throwable: Throwable) : LoadDislikedTracks {
+                return LoadDislikedTracks(Status.ERROR, throwable)
             }
-            fun createLoading(): LoadDislikesCard {
-                return LoadDislikesCard(Status.LOADING, null)
+            fun createLoading(): LoadDislikedTracks {
+                return LoadDislikedTracks(Status.LOADING, null)
             }
         }
     }

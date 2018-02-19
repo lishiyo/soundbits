@@ -3,6 +3,7 @@ package com.cziyeli.songbits.playlistcard
 import com.cziyeli.commons.mvibase.MviIntent
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.tracks.TrackModel
+import com.cziyeli.songbits.profile.ProfileIntentMarker
 
 /**
  * Marker for any action that takes place on a card.
@@ -33,11 +34,12 @@ sealed class PlaylistCardIntent : CardIntentMarker {
  */
 sealed class StatsIntent : CardIntentMarker {
 
-    // fetch tracks and tats for a playlist
+    // fetch tracks and stats for a playlist
     class FetchTracksWithStats(val playlist: Playlist) : StatsIntent()
 
     // fetch stats for given list of track ids
     class FetchStats(val trackIds: List<String>) : StatsIntent()
 
-    class FetchFullStats(val trackModels: List<TrackModel>) : StatsIntent()
+    // fetch full stats for given list of tracks
+    class FetchFullStats(val trackModels: List<TrackModel>) : StatsIntent(), ProfileIntentMarker
 }

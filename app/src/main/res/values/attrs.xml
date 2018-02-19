@@ -7,6 +7,7 @@
 	</declare-styleable>
 
 	<declare-styleable name="TrackStatsView">
+		<attr name="movable" format="boolean" />
 		<attr name="two_column" format="boolean" />
 		<attr name="set" format="enum">
 			<enum name="first" value="0"/>
