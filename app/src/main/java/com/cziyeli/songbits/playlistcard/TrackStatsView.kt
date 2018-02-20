@@ -28,21 +28,14 @@ open class TrackStatsView@JvmOverloads constructor(
         private const val QUARTILE: Double = TRACK_RANGE / 4.0
         // height of title in two-column view
         private val FULL_HEIGHT_PX = Utils.dpToPx(42)
-
-        // title description to total range val
-        val TRACK_STATS_MAP = listOf(
-                "danceable" to 1.0,
-                "energetic" to 1.0,
-                "positive" to 1.0,
-                "popular" to 100.0,
-                "acoustic" to 1.0,
-                "high-tempo" to 200.0
-        )
     }
 
     // Whether this is the two-column "full" stats view
-    private var twoColumnView: Boolean = false
-    var set: Int = 0
+    var twoColumnView: Boolean = false
+    var set: Int = 0 // 0 for first set
+    val isFirstSet: Boolean
+        get() = set == 0
+
     private var isMovable: Boolean = false
 
     private val statsLeast = resources.getString(R.string.stats_least)
@@ -97,16 +90,16 @@ open class TrackStatsView@JvmOverloads constructor(
 
         loadAudioFeatures(
                 StatLabel(
-                        getStatTitle("danceable", normalizedDanceability, trackStats.avgDanceability),
+                        getStatTitle("danceable", normalizedDanceability),
                         getStatTitleNum(trackStats.avgDanceability, 1.0),
                         Pair(0, normalizedDanceability.roundToInt())
                 ),
                 StatLabel(
-                        getStatTitle("energetic", normalizedEnergy, trackStats.avgEnergy),
+                        getStatTitle("energetic", normalizedEnergy),
                         getStatTitleNum(trackStats.avgEnergy, 1.0),
                         Pair(0, normalizedEnergy.roundToInt())),
                 StatLabel(
-                        getStatTitle("positive", normalizedValence, trackStats.avgValence),
+                        getStatTitle("positive", normalizedValence),
                         getStatTitleNum(trackStats.avgValence, 1.0),
                         Pair(0, normalizedValence.roundToInt())
                 ))
@@ -119,16 +112,16 @@ open class TrackStatsView@JvmOverloads constructor(
 
         loadAudioFeatures(
                 StatLabel(
-                        getStatTitle("popular", normalizedPopularity, trackStats.avgPopularity!!),
+                        getStatTitle("popular", normalizedPopularity),
                         getStatTitleNum(trackStats.avgPopularity!!, 100.0),
                         Pair(0, normalizedPopularity.roundToInt())
                 ),
                 StatLabel(
-                        getStatTitle("acoustic", normalizedAcousticness, trackStats.avgAcousticness),
+                        getStatTitle("acoustic", normalizedAcousticness),
                         getStatTitleNum(trackStats.avgAcousticness, 1.0),
                         Pair(0, normalizedAcousticness.roundToInt())),
                 StatLabel(
-                        getStatTitle("high-tempo", normalizedTempo, trackStats.avgTempo),
+                        getStatTitle("high-tempo", normalizedTempo),
                         getStatTitleNum(trackStats.avgTempo, 200.0),
                         Pair(0, normalizedTempo.roundToInt())
                 ))
@@ -142,7 +135,7 @@ open class TrackStatsView@JvmOverloads constructor(
         return "${"%.2f".format(originalVal)} / ${"%.1f".format(totalVal)}"
     }
 
-    fun getStatTitle(stat: String, normalizedValue: Double, originalVal: Double? = null) : String {
+    fun getStatTitle(stat: String, normalizedValue: Double) : String {
         // not at all (0-2), less (2-4), more (4-6), very (6-8)
         return when {
             normalizedValue < QUARTILE -> statsLeast.format(stat)

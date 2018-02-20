@@ -192,8 +192,8 @@ class ProfileViewModel @Inject constructor(
     data class ViewState(val status: MviViewState.Status = MviViewState.Status.IDLE,
                          val error: Throwable? = null,
                          val lastResult: ProfileResultMarker? = null,
-                         val originalStats: TrackListStats? = null, // initial recommendations
-                         val currentStats: TrackListStats? = null, // stats to seed recommendations
+                         val originalStats: TrackListStats? = null, // initial stats
+                         val currentStatsMap: Map<String, Double>? = null, // stats to seed recommendations
                          val recommendedTracks: MutableList<TrackModel> = mutableListOf()) : MviViewState {
 
         fun isFetchStatsSuccess(): Boolean {

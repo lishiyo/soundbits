@@ -6,7 +6,7 @@
 	android:layout_height="match_parent"
 	xmlns:tools="http://schemas.android.com/tools"
 	xmlns:button="http://schemas.android.com/apk/res-auto"
-	android:background="@drawable/gradient_blues">
+	android:background="@color/brachium">
 
 	<LinearLayout
 		android:orientation="vertical"
@@ -75,8 +75,8 @@
 			>
 
 			<com.cziyeli.songbits.base.RoundedCornerButton
-				android:id="@+id/action_fetch_recommendations"
-				android:text="@string/action_fetch_recommended"
+				android:id="@+id/action_get_recommended"
+				android:text="@string/action_get_recommended"
 				android:layout_width="0dp"
 				android:layout_weight="2"
 				android:layout_height="44dp"

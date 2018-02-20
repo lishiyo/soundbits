@@ -116,6 +116,7 @@
 		<item name="activeThumbRadius">@dimen/stats_radius_thumb</item>
 		<item name="showTicks">true</item>
 		<item name="showActiveTicks">true</item>
+		<item name="minDistance">0</item>
 	</style>
 
 	<style name="trackCardButton">
