@@ -3,9 +3,11 @@ package com.cziyeli.songbits.profile
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
+import android.widget.TextView
 import com.cziyeli.songbits.playlistcard.TrackStatsView
 import kotlinx.android.synthetic.main.widget_card_stats.view.*
 import me.bendik.simplerangeview.SimpleRangeView
+import org.jetbrains.anko.collections.forEachWithIndex
 import org.jetbrains.annotations.NotNull
 
 
@@ -21,12 +23,20 @@ class EditTrackStatsView@JvmOverloads constructor(
 ) : TrackStatsView(context, attrs, defStyleAttr) {
 
     init {
-        range_one.onChangeRangeListener = object : SimpleRangeView.OnChangeRangeListener {
-            override fun onRangeChanged(@NotNull rangeView: SimpleRangeView, start: Int, end: Int) {
-                // figure out range
-                val diff = ((end - start) / TRACK_RANGE.toDouble())
-                title_row_one.text = getStatTitle("danceable", diff * TRACK_RANGE)
-                title_row_one_number.text = getStatTitleNum(diff, 1.0)
+        val ranges: List<SimpleRangeView> = listOf(range_one, range_two, range_three)
+        val titleViews: List<TextView> = listOf(title_row_one, title_row_two, title_row_three)
+        val titleNumViews: List<TextView> = listOf(title_row_one_number, title_row_two_number, title_row_three_number)
+        ranges.forEachWithIndex { index, range ->
+            val (title, totalView) = TRACK_STATS_MAP[index]
+            val titleView = titleViews[index]
+            val titleNumView = titleNumViews[index]
+            range.onChangeRangeListener = object : SimpleRangeView.OnChangeRangeListener {
+                override fun onRangeChanged(@NotNull rangeView: SimpleRangeView, start: Int, end: Int) {
+                    val absoluteDiff = (end - start).toDouble()
+                    val diff = absoluteDiff / TRACK_RANGE
+                    titleView.text = getStatTitle(title, absoluteDiff)
+                    titleNumView.text = getStatTitleNum(diff, totalView)
+                }
             }
         }
     }
