@@ -2,16 +2,14 @@ package com.cziyeli.domain.user
 
 import com.cziyeli.commons.mvibase.MviResult
 import com.cziyeli.domain.playlistcard.CardResultMarker
+import com.cziyeli.domain.summary.TrackStatsData
 import com.cziyeli.domain.tracks.TrackModel
 
 interface ProfileResultMarker : CardResultMarker
 
 sealed class ProfileResult(var status: MviResult.Status = MviResult.Status.IDLE, var error: Throwable? = null) : ProfileResultMarker {
 
-    class StatChanged(status: MviResult.Status, error: Throwable?, val stat: Map<String, Double>
-    ) : ProfileResult(status, error) {
-
-    }
+    class StatChanged(val statsMap: TrackStatsData) : ProfileResult(MviResult.Status.SUCCESS, null)
 
     class FetchRecommendedTracks(status: MviResult.Status, error: Throwable?, val tracks: List<TrackModel> = listOf()
     ) : ProfileResult(status, error) {

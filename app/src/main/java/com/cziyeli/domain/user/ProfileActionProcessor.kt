@@ -25,14 +25,19 @@ class ProfileActionProcessor @Inject constructor(private val repository: Reposit
             Observable.merge<ProfileResultMarker>(
                     shared.ofType<StatsAction.FetchFullStats>(StatsAction.FetchFullStats::class.java)
                             .compose(simpleCardActionProcessor.fetchStatsProcessor),
-                    Observable.empty()
-//                    shared.ofType<SummaryAction.CreatePlaylistWithTracks>(SummaryAction.CreatePlaylistWithTracks::class.java)
-//                            .compose(playlistCardCreateActionProcessor.createPlaylistProcessor),
-//                    shared.ofType<TrackAction.ChangeTrackPref>(TrackAction.ChangeTrackPref::class.java)
-//                            .compose(playlistCardActionProcessor.changePrefAndSaveProcessor),
-//                    shared.ofType<TrackAction.CommandPlayer>(TrackAction.CommandPlayer::class.java)
-//                            .compose(trackActionProcessor.commandPlayerProcessor)
+                    shared.ofType<ProfileAction.StatChanged>(ProfileAction.StatChanged::class.java)
+                           .compose(fetchStatsProcessor)
             ).retry() // don't unsubscribe ever
+        }
+    }
+
+    val fetchStatsProcessor: ObservableTransformer<ProfileAction.StatChanged, ProfileResult.StatChanged> = ObservableTransformer {
+        action -> action.switchMap { act ->
+            Observable.just(act)
+                    .map { act.currentMap.updateWithStat(act.stat) }
+                    .subscribeOn(schedulerProvider.io())
+                    .observeOn(schedulerProvider.ui())
+                    .map { ProfileResult.StatChanged(statsMap = it)}
         }
     }
 }

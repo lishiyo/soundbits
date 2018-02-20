@@ -1,6 +1,7 @@
 package com.cziyeli.songbits.profile
 
 import com.cziyeli.data.Repository
+import com.cziyeli.domain.summary.TrackStatsData
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.playlistcard.CardIntentMarker
 
@@ -15,7 +16,8 @@ sealed class ProfileIntent : ProfileIntentMarker {
     // fetch initial liked stats
     class LoadOriginalStats(val trackModels: List<TrackModel>,  val pref: Repository.Pref = Repository.Pref.LIKED) : ProfileIntent()
 
-    class StatChanged(val stat: Map<String, Double>) : ProfileIntent()
+    // changed a single stat ("tempo" => ("target_tempo", 0.4)
+    class StatChanged(val currentMap: TrackStatsData, val stat: Pair<String, Pair<String, Double>>) : ProfileIntent()
 
     // load recommended tracks based on stats
     // https://beta.developer.spotify.com/documentation/web-api/reference/browse/get-recommendations/
