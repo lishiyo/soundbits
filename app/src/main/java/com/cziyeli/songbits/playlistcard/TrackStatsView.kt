@@ -6,7 +6,9 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.LinearLayout
+import android.widget.TextView
 import com.cziyeli.commons.Utils
 import com.cziyeli.domain.summary.TrackListStats
 import com.cziyeli.songbits.R
@@ -62,12 +64,11 @@ open class TrackStatsView@JvmOverloads constructor(
             title_row_two_number.setTextSize(TypedValue.COMPLEX_UNIT_PX, numberSize)
             title_row_three_number.setTextSize(TypedValue.COMPLEX_UNIT_PX, numberSize)
 
-            title_row_one.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
-            title_row_two.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
-            title_row_two.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
-            title_row_one_number.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
-            title_row_two_number.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
-            title_row_three_number.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+            adjustTwoColumn(
+                    title_row_one, title_row_one_number,
+                    title_row_two, title_row_two_number,
+                    title_row_three, title_row_three_number
+            )
         }
     }
 
@@ -162,4 +163,18 @@ open class TrackStatsView@JvmOverloads constructor(
         range_three.end = three.range.second
     }
 
+    /**
+     * Adjust to two column views.
+     */
+    private fun adjustTwoColumn(vararg textViews: TextView) {
+        val lp = title_row_one.layoutParams // can use any
+        lp.width = MATCH_PARENT
+
+        textViews.forEach { textView ->
+            // adjust the texts to multi-line
+            textView.layoutParams = lp
+            // should all text-align left
+            textView.textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+        }
+    }
 }
