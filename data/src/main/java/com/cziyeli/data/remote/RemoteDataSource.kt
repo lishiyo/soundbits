@@ -11,7 +11,6 @@ import retrofit.Callback
 import retrofit.RetrofitError
 import retrofit.client.Response
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
 /**
  * Created by connieli on 12/31/17.
@@ -159,14 +158,13 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
     }
 
     fun fetchRecommendedTracks(limit: Int = 20,
-                               attributes: Map<String, Double>?, // target_*, min_*, max_*
+                               attributes: Map<String, Number>?, // target_*, min_*, max_*
                                seedGenres: List<String> = getRandomGenreSeeds()
     ) : Observable<Recommendations> {
         val params = mutableMapOf<String, Any>("limit" to limit)
         attributes?.let {
             attributes.entries.forEach { (name, value) ->
-                val finalVal = if (value >= 1) value.roundToInt() else value
-                params[name] = finalVal
+                params[name] = value
             }
         }
         seedGenres?.let { // TODO don't hardcode this

@@ -83,7 +83,7 @@ interface Repository {
 
     fun fetchRecommendedTracks(source: Repository.Source = Source.REMOTE,
                                limit: Int = 20,
-                               attributes: Map<String, Double>? // target_*, min_*, max_*
+                               attributes: Map<String, out Number>? // target_*, min_*, max_*
     ) : Observable<Recommendations>
 
     // ============ STATS ============
