@@ -81,6 +81,11 @@ interface Repository {
     // update a track's liked/disliked status in db - returns number of rows affected
     fun updateTrackPref(track: TrackEntity) : Int
 
+    fun fetchRecommendedTracks(source: Repository.Source = Source.REMOTE,
+                               limit: Int = 20,
+                               attributes: Map<String, Double>? // target_*, min_*, max_*
+    ) : Observable<Recommendations>
+
     // ============ STATS ============
 
     // fetch stats for a list of tracks

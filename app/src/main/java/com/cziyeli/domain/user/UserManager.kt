@@ -11,6 +11,7 @@ import kaaes.spotify.webapi.android.models.UserPrivate
 import javax.inject.Inject
 import javax.inject.Singleton
 
+
 /**
  * Equivalent of UserPublic/UserPrivate
  */

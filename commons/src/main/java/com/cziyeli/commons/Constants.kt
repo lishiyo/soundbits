@@ -27,17 +27,21 @@ const val LOGIN_EXPIRATION = "login_expiration" // in seconds
 const val AUTH_TOKEN = "spotify_auth_token"
 const val CURRENT_USER_ID = "current_user_id"
 
+// TODO fetch instead of hardcoding this
+val GENRE_SEEDS = listOf("acoustic", "afrobeat", "alt-rock", "alternative", "ambient", "anime", "black-metal", "bluegrass", "blues",
+        "bossanova", "brazil", "breakbeat", "british", "cantopop", "chicago-house", "children", "chill", "classical", "club", "comedy",
+        "country", "dance", "dancehall", "death-metal", "deep-house", "detroit-techno", "disco", "disney", "drum-and-bass", "dub",
+        "dubstep", "edm", "electro", "electronic", "emo", "folk", "forro", "french", "funk", "garage", "german", "gospel", "goth",
+        "grindcore", "groove", "grunge", "guitar", "happy", "hard-rock", "hardcore", "hardstyle", "heavy-metal", "hip-hop", "holidays",
+        "honky-tonk", "house", "idm", "indian", "indie", "indie-pop", "industrial", "iranian", "j-dance", "j-idol", "j-pop", "j-rock",
+        "jazz", "k-pop", "kids", "latin", "latino", "malay", "mandopop", "metal", "metal-misc", "metalcore", "minimal-techno", "movies",
+        "mpb", "new-age", "new-release", "opera", "pagode", "party", "philippines-opm", "piano", "pop", "pop-film", "post-dubstep",
+        "power-pop", "progressive-house", "psych-rock", "punk", "punk-rock", "r-n-b", "rainy-day", "reggae", "reggaeton", "road-trip",
+        "rock", "rock-n-roll", "rockabilly", "romance", "sad", "salsa", "samba", "sertanejo", "show-tunes", "singer-songwriter",
+        "ska", "sleep", "songwriter", "soul", "soundtracks", "spanish", "study", "summer", "swedish", "synth-pop", "tango",
+        "techno", "trance", "trip-hop", "turkish", "work-out", "world-music")
 
-// tests
-private val TEST_SONG_URI = "spotify:track:6KywfgRqvgvfJc3JRwaZdZ"
-private val TEST_SONG_MONO_URI = "spotify:track:1FqY3uJypma5wkYw66QOUi"
-private val TEST_SONG_48kHz_URI = "spotify:track:3wxTNS3aqb9RbBLZgJdZgH"
-private val TEST_PLAYLIST_URI = "spotify:user:spotify:playlist:2yLXxKhhziG2xzy7eyD4TD"
-private val TEST_ALBUM_URI = "spotify:album:2lYmxilk8cXJlxxXmns1IU"
-private val TEST_QUEUE_SONG_URI = "spotify:track:5EEOjaJyWvfMglmEwf9bG3"
+fun getRandomGenreSeeds(count: Int = 5) : List<String> {
+    return GENRE_SEEDS.shuffled().take(count)
+}
 
-// test web api
-const val TEST_OWNER_ID = "spotify"
-const val TEST_ALBUM_ID = "7e0ij2fpWaxOEHv5fUYZjd"
-const val TEST_PLAYLIST_ID_00 = "3TsVGhO21QrDDw2gNjGyfd" // Bryce Vine Approved
-const val TEST_PLAYLIST_ID_01 = "37i9dQZF1DWT2jS7NwYPVI" // New Noise

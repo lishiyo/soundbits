@@ -66,6 +66,7 @@ class ProfileViewModel @Inject constructor(
             is UserResult.LoadLikedTracks -> return@BiFunction processLikedTracks(previousState, result)
             is StatsResult.FetchFullStats -> return@BiFunction processFetchOriginalStats(previousState, result)
             is ProfileResult.StatChanged -> return@BiFunction processStatChanged(previousState, result)
+            is ProfileResult.FetchRecommendedTracks -> return@BiFunction processRecommendedTracks(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -105,6 +106,7 @@ class ProfileViewModel @Inject constructor(
         return when (intent) {
             is ProfileIntent.LoadOriginalStats -> StatsAction.FetchFullStats(intent.trackModels, intent.pref)
             is ProfileIntent.StatChanged -> ProfileAction.StatChanged(intent.currentMap, intent.stat)
+            is ProfileIntent.FetchRecommendedTracks -> ProfileAction.FetchRecommendedTracks(intent.limit, intent.attributes)
             else -> None // no-op all other events
         }
     }
@@ -163,11 +165,36 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    private fun processRecommendedTracks(
+            previousState: ProfileViewModel.ViewState,
+            result: ProfileResult.FetchRecommendedTracks
+    ) : ProfileViewModel.ViewState {
+        return when (result.status) {
+            MviResult.Status.LOADING, MviResult.Status.ERROR -> {
+                val status = if (result.status == MviResult.Status.LOADING)
+                    MviViewState.Status.LOADING else MviViewState.Status.ERROR
+                previousState.copy(
+                        error = result.error,
+                        lastResult = result,
+                        status = status
+                )
+            }
+            MviResult.Status.SUCCESS -> {
+                previousState.copy(
+                        error = result.error,
+                        lastResult = result,
+                        status = MviViewState.Status.SUCCESS,
+                        recommendedTracks = result.tracks
+                )
+            }
+            else -> return previousState
+        }
+    }
+
     private fun processStatChanged(
             previousState: ProfileViewModel.ViewState,
             result: ProfileResult.StatChanged
     ) : ProfileViewModel.ViewState {
-        Utils.mLog(TAG, "processStatChanged! newMap: ${result.statsMap}")
         return previousState.copy(
                 error = result.error,
                 lastResult = result,
@@ -191,11 +218,6 @@ class ProfileViewModel @Inject constructor(
                 )
             }
             StatsResultStatus.SUCCESS -> {
-                // convert to the attributes map
-//                Utils.mLog(TAG, "processFetchOriginalStats SUCCESS",
-//                        "previous: ${previousState.currentTargetStats}",
-//                        "new: ${previousState.currentTargetStats.convertFromTrackListStats(result.trackStats!!)}"
-//                )
                 previousState.copy(
                         error = result.error,
                         lastResult = result,
@@ -213,14 +235,14 @@ class ProfileViewModel @Inject constructor(
                          val lastResult: ProfileResultMarker? = null,
                          val originalStats: TrackListStats? = null, // initial stats
                          val currentTargetStats: TrackStatsData = TrackStatsData.createDefault(), // to seed
-                         val recommendedTracks: MutableList<TrackModel> = mutableListOf()) : MviViewState {
+                         val recommendedTracks: List<TrackModel> = listOf()) : MviViewState {
 
         fun isFetchStatsSuccess(): Boolean {
             return status == MviViewState.Status.SUCCESS && lastResult is StatsResult.FetchFullStats && originalStats != null
         }
 
         override fun toString(): String {
-            return "status: $status -- lastResult: $lastResult -- current: $currentTargetStats"
+            return "status: $status -- lastResult: $lastResult -- recced: ${recommendedTracks.size} -- current: $currentTargetStats"
         }
     }
 }

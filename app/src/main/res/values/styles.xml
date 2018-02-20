@@ -152,6 +152,7 @@
 	<style name="SummaryButton">
 		<!--<item name="android:fontFamily">@font/waiting_for_the_sunrise</item>-->
 		<item name="android:layout_height">90dp</item>
+		<item name="android:gravity">center</item>
 		<item name="android:textColor">@color/colorWhite</item>
 		<!--<item name="android:textStyle">bold</item>-->
 		<item name="android:textSize">12sp</item>

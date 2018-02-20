@@ -9,12 +9,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.cziyeli.commons.Utils
+import com.cziyeli.commons.errorToast
 import com.cziyeli.commons.mvibase.MviView
+import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.domain.stash.SimpleCardActionProcessor
+import com.cziyeli.domain.user.ProfileResult
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.root.RootActivity
 import com.cziyeli.songbits.root.RootIntent
 import com.cziyeli.songbits.stash.SimpleCardViewModel
+import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.jakewharton.rxrelay2.PublishRelay
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
@@ -37,6 +41,20 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
     private val eventsPublisher: PublishRelay<ProfileIntent> by lazy { PublishRelay.create<ProfileIntent>() }
     private val compositeDisposable = CompositeDisposable()
 
+    // Listener for the FAB menu
+    private val recommendedFABMenuSelectedListener = OnFABMenuSelectedListener { view, id ->
+        when (id) {
+            R.id.menu_surf -> {
+                recommended_tracks_card.startSwipingTracks(false)
+            }
+            R.id.menu_resurf -> {
+                recommended_tracks_card.startSwipingTracks(true)
+            }
+            R.id.menu_create_playlist -> {
+                recommended_tracks_card.changeCreateMode()
+            }
+        }
+    }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         return inflater.inflate(R.layout.fragment_profile, container, false)
@@ -63,14 +81,11 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
         // attempt to fetch initial stats (of liked)
         (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
 
+        // fetch recommended based on current stats
         action_get_recommended.setOnClickListener {
-            // grab the current attributes
-            Utils.mLog(TAG, "clicked! current: ${viewModel.currentTargetStats}")
+            val attrs = viewModel.currentTargetStats.convertToOutgoing()
+            eventsPublisher.accept(ProfileIntent.FetchRecommendedTracks(attributes = attrs))
         }
-    }
-
-    private fun getCurrentAttributesMap() {
-
     }
 
     private fun initCards() {
@@ -80,16 +95,25 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
                         schedulerProvider,
                         SimpleCardViewModel.ViewState(shouldRemoveTrack = { _, _ -> false })
                 ),
-                null)
+                recommendedFABMenuSelectedListener)
     }
 
     override fun render(state: ProfileViewModel.ViewState) {
         Utils.mLog(TAG, "RENDER", "$state")
 
         when {
+            state.status == MviViewState.Status.ERROR -> {
+                "oh no! something went wrong".errorToast(context!!)
+            }
             state.isFetchStatsSuccess() -> {
                 stats_container_left.loadTrackStats(state.originalStats!!)
                 stats_container_right.loadTrackStats(state.originalStats)
+            }
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is ProfileResult.FetchRecommendedTracks -> {
+                Utils.setVisible(recommended_tracks_card, true)
+                recommended_tracks_card.loadTracks(state.recommendedTracks)
+                // force-refresh for a new image
+                recommended_tracks_card.refreshHeader(state.recommendedTracks)
             }
         }
     }
