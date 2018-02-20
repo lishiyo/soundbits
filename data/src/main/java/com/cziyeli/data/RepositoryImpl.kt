@@ -52,6 +52,13 @@ class RepositoryImpl @Inject constructor(
         return tracksDatabase.tracksDao().updateTrackPref(track.trackId, track.liked)
     }
 
+    override fun fetchRecommendedTracks(source: Repository.Source,
+                                        limit: Int,
+                                        attributes: Map<String, Double>? // target_*, min_*, max_*
+    ): Observable<Recommendations> {
+        return remoteDataSource.fetchRecommendedTracks(limit, attributes)
+    }
+
     override fun fetchUserTopTracks(source: Repository.Source, time_range: String?, limit: Int, offset: Int) : Observable<Pager<Track>> {
         return remoteDataSource.fetchUserTopTracks(time_range, limit, offset)
     }

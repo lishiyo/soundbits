@@ -3,6 +3,7 @@ package com.cziyeli.domain.user
 import com.cziyeli.data.Repository
 import com.cziyeli.domain.stash.SimpleCardActionProcessor
 import com.cziyeli.domain.summary.StatsAction
+import com.cziyeli.domain.tracks.TrackModel
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -26,7 +27,9 @@ class ProfileActionProcessor @Inject constructor(private val repository: Reposit
                     shared.ofType<StatsAction.FetchFullStats>(StatsAction.FetchFullStats::class.java)
                             .compose(simpleCardActionProcessor.fetchStatsProcessor),
                     shared.ofType<ProfileAction.StatChanged>(ProfileAction.StatChanged::class.java)
-                           .compose(fetchStatsProcessor)
+                           .compose(fetchStatsProcessor),
+                    shared.ofType<ProfileAction.FetchRecommendedTracks>(ProfileAction.FetchRecommendedTracks::class.java)
+                            .compose(fetchRecommendedTracksProcessor)
             ).retry() // don't unsubscribe ever
         }
     }
@@ -40,4 +43,19 @@ class ProfileActionProcessor @Inject constructor(private val repository: Reposit
                     .map { ProfileResult.StatChanged(statsMap = it)}
         }
     }
+
+    val fetchRecommendedTracksProcessor: ObservableTransformer<ProfileAction.FetchRecommendedTracks,
+            ProfileResult.FetchRecommendedTracks> = ObservableTransformer { action -> action.switchMap { act ->
+            repository
+                    .fetchRecommendedTracks(limit = act.limit, attributes = act.attributes)
+                    .subscribeOn(schedulerProvider.io())
+                    .map { it.tracks.map { TrackModel.create(it) } }
+                    .map { ProfileResult.FetchRecommendedTracks.createSuccess(it) }
+                    .onErrorReturn { ProfileResult.FetchRecommendedTracks.createError(it) }
+                    .observeOn(schedulerProvider.ui())
+                    .startWith(ProfileResult.FetchRecommendedTracks.createLoading())
+        }
+    }
+
+
 }

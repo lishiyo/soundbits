@@ -1,6 +1,7 @@
 package com.cziyeli.data.remote
 
 import com.cziyeli.commons.Utils
+import com.cziyeli.commons.getRandomGenreSeeds
 import io.reactivex.Observable
 import io.reactivex.Single
 import kaaes.spotify.webapi.android.SpotifyApi
@@ -10,6 +11,7 @@ import retrofit.Callback
 import retrofit.RetrofitError
 import retrofit.client.Response
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 /**
  * Created by connieli on 12/31/17.
@@ -97,7 +99,6 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
             val params = trackIds.joinToString(separator = ",")
             api.service.getTracksAudioFeatures(params, object : Callback<AudioFeaturesTracks> {
                 override fun success(resp: AudioFeaturesTracks, response: Response?) {
-                    Utils.mLog(TAG, "fetchTracksStats", "success!")
                     emitter.onNext(resp)
                 }
 
@@ -153,6 +154,37 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
                     Utils.log(TAG, "api ++ fetchUserTopTracks error: ${error?.localizedMessage}")
                     emitter.onError(Throwable(error?.localizedMessage))
                 }
+            })
+        })
+    }
+
+    fun fetchRecommendedTracks(limit: Int = 20,
+                               attributes: Map<String, Double>?, // target_*, min_*, max_*
+                               seedGenres: List<String> = getRandomGenreSeeds()
+    ) : Observable<Recommendations> {
+        val params = mutableMapOf<String, Any>("limit" to limit)
+        attributes?.let {
+            attributes.entries.forEach { (name, value) ->
+                val finalVal = if (value >= 1) value.roundToInt() else value
+                params[name] = finalVal
+            }
+        }
+        seedGenres?.let { // TODO don't hardcode this
+            Utils.mLog(TAG, "selected: ${seedGenres.joinToString(",")}")
+            params["seed_genres"] = seedGenres.joinToString(",")
+        }
+        return Observable.create<Recommendations>({ emitter ->
+            api.service.getRecommendations(params, object : Callback<Recommendations> {
+                override fun success(t: Recommendations, response: Response?) {
+                    Utils.mLog(TAG, "api ++ fetchRecommendedTracks SUCCESS: ${t.tracks.size}")
+                    emitter.onNext(t)
+                }
+
+                override fun failure(error: RetrofitError?) {
+                    Utils.log(TAG, "api ++ fetchRecommendedTracks error: ${error?.localizedMessage}")
+                    emitter.onError(Throwable(error?.localizedMessage))
+                }
+
             })
         })
     }

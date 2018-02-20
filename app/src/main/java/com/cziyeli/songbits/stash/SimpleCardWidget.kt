@@ -221,6 +221,20 @@ class SimpleCardWidget @JvmOverloads constructor(
         }
     }
 
+    fun refreshHeader(tracks: List<TrackModel>) {
+        carouselHeaderUrl = when {
+            tracks.isEmpty() -> "" // in case we cleared
+            tracks.isNotEmpty() -> {
+                val headerImageIndex = Random().nextInt(tracks.size)
+                tracks[headerImageIndex].imageUrl
+            }
+            else -> null
+        }
+        carouselHeaderUrl?.let {
+            simpleResultsPublisher.accept(CardResult.HeaderSet(it))
+        }
+    }
+
     override fun intents(): Observable<out CardIntentMarker> {
         return eventsPublisher
     }

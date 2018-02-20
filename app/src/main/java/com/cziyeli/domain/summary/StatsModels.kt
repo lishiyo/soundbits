@@ -1,9 +1,11 @@
 package com.cziyeli.domain.summary
 
 import com.cziyeli.commons.Utils
+import com.cziyeli.commons.roundToDecimalPlaces
 import com.cziyeli.domain.tracks.TrackModel
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks
+import kotlin.math.roundToInt
 
 /**
  * Calculate the stats of a single [TrackModel].
@@ -66,17 +68,6 @@ data class TrackStatsData(val map: MutableMap<String, Pair<String, Double?>> = h
         fun createDefault() : TrackStatsData {
             return TrackStatsData()
         }
-
-        fun convertTrackListStatsToMap(tracksStatsData: TrackStatsData, stats: TrackListStats) : MutableMap<String, Double> {
-            val targetsMap = mutableMapOf<String, Double>()
-            targetsMap[tracksStatsData.map[STAT_DANCEABILITY]!!.first] = stats.avgDanceability
-            targetsMap[tracksStatsData.map[STAT_ENERGY]!!.first] = stats.avgEnergy
-            targetsMap[tracksStatsData.map[STAT_VALENCE]!!.first] = stats.avgValence
-            targetsMap[tracksStatsData.map[STAT_POPULARITY]!!.first] = stats.avgPopularity!!
-            targetsMap[tracksStatsData.map[STAT_ACOUSTICNESS]!!.first] = stats.avgAcousticness
-            targetsMap[tracksStatsData.map[STAT_TEMPO]!!.first] = stats.avgDanceability
-            return targetsMap
-        }
     }
 
     fun convertToOutgoing() : MutableMap<String, Double> {
@@ -84,7 +75,8 @@ data class TrackStatsData(val map: MutableMap<String, Pair<String, Double?>> = h
         map.entries.forEach { (stat, pair) ->
             // only add to outgoing if not null
             pair.second?.let {
-                targetsMap.put(pair.first, it)
+                val finalVal = if (it > 1) it.roundToInt().toDouble() else it.roundToDecimalPlaces(2)
+                targetsMap.put(pair.first, finalVal)
             }
         }
         return targetsMap
