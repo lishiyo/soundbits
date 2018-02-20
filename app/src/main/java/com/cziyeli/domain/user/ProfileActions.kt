@@ -1,6 +1,7 @@
 package com.cziyeli.domain.user
 
 import com.cziyeli.domain.playlistcard.CardActionMarker
+import com.cziyeli.domain.summary.TrackStatsData
 
 /**
  * Created by connieli on 2/18/18.
@@ -9,6 +10,9 @@ import com.cziyeli.domain.playlistcard.CardActionMarker
 interface ProfileActionMarker : CardActionMarker
 
 sealed class ProfileAction : ProfileActionMarker {
+
+    // changed a single stat ("tempo" => ("target_tempo", 0.4)
+    class StatChanged(val currentMap: TrackStatsData, val stat: Pair<String, Pair<String, Double>>) : ProfileAction()
 
     // load recommended tracks based on seeds
     // https://beta.developer.spotify.com/documentation/web-api/reference/browse/get-recommendations/

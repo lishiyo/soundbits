@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.TextView
 import com.cziyeli.commons.roundToDecimalPlaces
-import com.cziyeli.domain.summary.TrackStatsData
+import com.cziyeli.domain.summary.*
 import com.cziyeli.songbits.playlistcard.TrackStatsView
 import com.jakewharton.rxrelay2.PublishRelay
 import kotlinx.android.synthetic.main.widget_card_stats.view.*
@@ -28,7 +28,7 @@ class EditTrackStatsView@JvmOverloads constructor(
     data class StatsGroup(val titleView: TextView,
                           val titleNumView: TextView,
                           val displayModel: Pair<String, Double>, // "danceable" -> 1.0
-                          var dataModel: Pair<String, Double?> // "target_danceability" -> 0.44
+                          var dataModel: Pair<String, Pair<String, Double?>> // "danceability" => "target_danceability", 0.44
     )
 
     // rangeView => statsGroup (views, display model, dataModel)
@@ -40,25 +40,27 @@ class EditTrackStatsView@JvmOverloads constructor(
     // map if set one
     private val trackStatsMapOne = TrackStatsMap(map = mapOf(
             range_one to StatsGroup(title_row_one, title_row_one_number,
-                    "danceable" to 1.0, dataModel.danceability!!),
+                    "danceable" to 1.0, STAT_DANCEABILITY to dataModel.map[STAT_DANCEABILITY]!!),
             range_two to StatsGroup(title_row_two, title_row_two_number,
-                    "energetic" to 1.0,  dataModel.energy!!),
+                    "energetic" to 1.0,  STAT_ENERGY to dataModel.map[STAT_ENERGY]!!),
             range_three to StatsGroup(title_row_three, title_row_three_number,
-                    "positive" to 1.0, dataModel.valence!!)
+                    "positive" to 1.0, STAT_VALENCE to dataModel.map[STAT_VALENCE]!!)
     ))
 
     // map if set two
     private val trackStatsMapTwo = TrackStatsMap(map = mapOf(
             range_one to StatsGroup(title_row_one, title_row_one_number,
-                    "popular" to 100.0, dataModel.popularity!!),
+                    "popular" to 100.0, STAT_POPULARITY to dataModel.map[STAT_POPULARITY]!!),
             range_two to StatsGroup(title_row_two, title_row_two_number,
-                    "acoustic" to 1.0, dataModel.acousticness!!),
+                    "acoustic" to 1.0, STAT_ACOUSTICNESS to dataModel.map[STAT_ACOUSTICNESS]!!),
             range_three to StatsGroup(title_row_three, title_row_three_number,
-                    "high-tempo" to 200.0, dataModel.tempo!!)
+                    "high-tempo" to 200.0, STAT_TEMPO to dataModel.map[STAT_TEMPO]!!)
     ))
 
     // public stream that emits whenever the range changes
-    val statsChangePublisher: PublishRelay<Map<String, Double>> by lazy { PublishRelay.create<Map<String, Double>>() }
+    val statsChangePublisher: PublishRelay<Pair<String, Pair<String, Double>>> by lazy {
+        PublishRelay.create<Pair<String, Pair<String, Double>>>()
+    }
 
     init {
         val relevantMap = if (isFirstSet) trackStatsMapOne else trackStatsMapTwo
@@ -74,8 +76,11 @@ class EditTrackStatsView@JvmOverloads constructor(
                         it.titleNumView.text = getStatTitleNum(dataModelVal, totalVal)
 
                         // publish the change and update model
-                        it.dataModel = it.dataModel.copy(second = dataModelVal.roundToDecimalPlaces(2))
-                        statsChangePublisher.accept(mapOf(it.dataModel.first to it.dataModel.second!!))
+                        it.dataModel = it.dataModel.copy(second = it.dataModel.second?.copy(
+                                second = dataModelVal.roundToDecimalPlaces(2)
+                        ))
+
+                        statsChangePublisher.accept(it.dataModel as Pair<String, Pair<String, Double>>)
                     }
                 }
             }

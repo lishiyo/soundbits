@@ -9,10 +9,7 @@ import com.cziyeli.commons.resultFilter
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.summary.*
 import com.cziyeli.domain.tracks.TrackModel
-import com.cziyeli.domain.user.ProfileActionMarker
-import com.cziyeli.domain.user.ProfileActionProcessor
-import com.cziyeli.domain.user.ProfileResultMarker
-import com.cziyeli.domain.user.UserResult
+import com.cziyeli.domain.user.*
 import com.cziyeli.songbits.root.RootViewState
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
@@ -68,9 +65,15 @@ class ProfileViewModel @Inject constructor(
         previousState, result -> when (result) {
             is UserResult.LoadLikedTracks -> return@BiFunction processLikedTracks(previousState, result)
             is StatsResult.FetchFullStats -> return@BiFunction processFetchOriginalStats(previousState, result)
+            is ProfileResult.StatChanged -> return@BiFunction processStatChanged(previousState, result)
             else -> return@BiFunction previousState
         }
     }
+
+    private var currentViewState: ViewState = ProfileViewModel.ViewState()
+
+    val currentTargetStats: TrackStatsData
+        get() = currentViewState.currentTargetStats
 
     init {
         // create observable to push into states live data
@@ -86,10 +89,11 @@ class ProfileViewModel @Inject constructor(
                 )
                 .observeOn(schedulerProvider.ui())
                 .doOnNext { result -> Utils.log(TAG, "intentsSubject scanning result: ${result.javaClass.simpleName}") }
-                .scan(ProfileViewModel.ViewState(), reducer)
+                .scan(currentViewState, reducer)
 
         compositeDisposable.add(
                 observable.distinctUntilChanged().subscribe({ viewState ->
+                    currentViewState = viewState
                     viewStates.accept(viewState)
                 }, { err ->
                     Utils.log(TAG, err.localizedMessage)
@@ -100,6 +104,7 @@ class ProfileViewModel @Inject constructor(
     private fun actionFromIntent(intent: ProfileIntentMarker) : MviAction {
         return when (intent) {
             is ProfileIntent.LoadOriginalStats -> StatsAction.FetchFullStats(intent.trackModels, intent.pref)
+            is ProfileIntent.StatChanged -> ProfileAction.StatChanged(intent.currentMap, intent.stat)
             else -> None // no-op all other events
         }
     }
@@ -158,6 +163,19 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    private fun processStatChanged(
+            previousState: ProfileViewModel.ViewState,
+            result: ProfileResult.StatChanged
+    ) : ProfileViewModel.ViewState {
+        Utils.mLog(TAG, "processStatChanged! newMap: ${result.statsMap}")
+        return previousState.copy(
+                error = result.error,
+                lastResult = result,
+                status = MviViewState.Status.SUCCESS,
+                currentTargetStats = result.statsMap
+        )
+    }
+
     private fun processFetchOriginalStats(
             previousState: ProfileViewModel.ViewState,
             result: StatsResult.FetchFullStats
@@ -174,10 +192,10 @@ class ProfileViewModel @Inject constructor(
             }
             StatsResultStatus.SUCCESS -> {
                 // convert to the attributes map
-                Utils.mLog(TAG, "processFetchOriginalStats SUCCESS",
-                        "previous: ${previousState.currentTargetStats}",
-                        "new: ${previousState.currentTargetStats.convertFromTrackListStats(result.trackStats!!)}"
-                )
+//                Utils.mLog(TAG, "processFetchOriginalStats SUCCESS",
+//                        "previous: ${previousState.currentTargetStats}",
+//                        "new: ${previousState.currentTargetStats.convertFromTrackListStats(result.trackStats!!)}"
+//                )
                 previousState.copy(
                         error = result.error,
                         lastResult = result,
@@ -202,7 +220,7 @@ class ProfileViewModel @Inject constructor(
         }
 
         override fun toString(): String {
-            return "status: $status -- lastResult: $lastResult -- recs: ${recommendedTracks.size} -- originalStats: $originalStats"
+            return "status: $status -- lastResult: $lastResult -- current: $currentTargetStats"
         }
     }
 }

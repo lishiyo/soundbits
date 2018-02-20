@@ -53,11 +53,11 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
         // bind to track changes
         stats_container_left.statsChangePublisher.subscribe {
             // "target_danceability" => 0.55
-            Utils.mLog(TAG, "onStatsChanged! left: $it")
+            eventsPublisher.accept(ProfileIntent.StatChanged(viewModel.currentTargetStats, it))
         }
         stats_container_right.statsChangePublisher.subscribe {
             // "target_danceability" => 0.55
-            Utils.mLog(TAG, "onStatsChanged! right: $it")
+            eventsPublisher.accept(ProfileIntent.StatChanged(viewModel.currentTargetStats, it))
         }
 
         // attempt to fetch initial stats (of liked)
@@ -65,7 +65,7 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
 
         action_get_recommended.setOnClickListener {
             // grab the current attributes
-
+            Utils.mLog(TAG, "clicked! current: ${viewModel.currentTargetStats}")
         }
     }
 

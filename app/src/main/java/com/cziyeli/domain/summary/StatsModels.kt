@@ -53,7 +53,7 @@ const val STAT_POPULARITY = "popularity"
 const val STAT_ACOUSTICNESS = "acousticness"
 const val STAT_TEMPO = "tempo"
 
-data class TrackStatsData(val map: HashMap<String, Pair<String, Double?>> = hashMapOf(
+data class TrackStatsData(val map: MutableMap<String, Pair<String, Double?>> = hashMapOf(
         STAT_DANCEABILITY to Pair("target_danceability", null),
         STAT_ENERGY to Pair("target_energy", null),
         STAT_VALENCE to Pair("target_valence", null),
@@ -101,41 +101,48 @@ data class TrackStatsData(val map: HashMap<String, Pair<String, Double?>> = hash
         ))
     }
 
+    // take single row in map and update it
+    fun updateWithStat(stat: Pair<String, Pair<String, Double>>) : TrackStatsData {
+        val newMap = map.toMutableMap()
+        newMap[stat.first] = stat.second
+        return this.copy(map = newMap)
+    }
+
     override fun toString(): String {
         return "TrackStatsData -- size: ${map.size} -- danceability: $danceability"
     }
 
-    var danceability: Pair<String, Double?>?
+    var danceability: Pair<String, Double?>
         get() = map[STAT_DANCEABILITY]!!
         set(value) {
-            value?.let { map[STAT_DANCEABILITY] = it }
+            value.let { map[STAT_DANCEABILITY] = it }
         }
 
-    var energy: Pair<String, Double?>?
+    var energy: Pair<String, Double?>
         get() = map[STAT_ENERGY]!!
         set(value) {
             value?.let { map[STAT_ENERGY] = it }
         }
 
-    var valence: Pair<String, Double?>?
+    var valence: Pair<String, Double?>
         get() = map[STAT_VALENCE]!!
         set(value) {
             value?.let { map[STAT_VALENCE] = it }
         }
 
-    var popularity: Pair<String, Double?>?
+    var popularity: Pair<String, Double?>
         get() = map[STAT_POPULARITY]!!
         set(value) {
             value?.let { map[STAT_POPULARITY] = it }
         }
 
-    var acousticness: Pair<String, Double?>?
+    var acousticness: Pair<String, Double?>
         get() = map[STAT_ACOUSTICNESS]!!
         set(value) {
             value?.let { map[STAT_ACOUSTICNESS] = it }
         }
 
-    var tempo: Pair<String, Double?>?
+    var tempo: Pair<String, Double?>
         get() = map[STAT_TEMPO]!!
         set(value) {
             value?.let { map[STAT_TEMPO] = it }
