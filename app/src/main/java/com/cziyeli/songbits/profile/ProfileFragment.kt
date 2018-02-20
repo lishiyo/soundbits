@@ -50,8 +50,17 @@ class ProfileFragment : Fragment(), MviView<ProfileIntent, ProfileViewModel.View
         // load all the cards (empty for now)
         initCards()
 
-        // attempt to fetch initial stats
+        // attempt to fetch initial stats (of liked)
         (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
+
+        action_get_recommended.setOnClickListener {
+            // grab the current attributes
+
+        }
+    }
+
+    private fun getCurrentAttributesMap() {
+
     }
 
     private fun initCards() {
@@ -75,22 +84,6 @@ class ProfileFragment : Fragment(), MviView<ProfileIntent, ProfileViewModel.View
         }
     }
 
-    override fun intents(): Observable<out ProfileIntent> {
-        return eventsPublisher
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        recommended_tracks_card?.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        recommended_tracks_card?.onPause()
-    }
-
     private fun initViewModel() {
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(ProfileViewModel::class.java)
 
@@ -111,6 +104,23 @@ class ProfileFragment : Fragment(), MviView<ProfileIntent, ProfileViewModel.View
 
         // Bind ViewModel to root states stream to listen to global state changes
         viewModel.processRootViewStates((activity as RootActivity).getStates())
+    }
+
+
+    override fun intents(): Observable<out ProfileIntent> {
+        return eventsPublisher
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        recommended_tracks_card?.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        recommended_tracks_card?.onPause()
     }
 
     override fun onAttach(context: Context?) {

@@ -15,7 +15,7 @@ sealed class ProfileIntent : ProfileIntentMarker {
     // fetch initial liked stats
     class LoadOriginalStats(val trackModels: List<TrackModel>,  val pref: Repository.Pref = Repository.Pref.LIKED) : ProfileIntent()
 
-    // load recommended tracks based on seeds
+    // load recommended tracks based on stats
     // https://beta.developer.spotify.com/documentation/web-api/reference/browse/get-recommendations/
     class FetchRecommendedTracks(val limit: Int = 20,
                                  val offset: Int = 0,
