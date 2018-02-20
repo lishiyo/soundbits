@@ -82,4 +82,11 @@
 	<!-- profile stuff -->
 	<string name="action_fetch_recommended">get recommended tracks</string>
 	<string name="action_reset_recommended">reset</string>
+
+	<!-- stats stuff -->
+	<string name="stats_least">not at all %1$s \u0020</string>
+	<string name="stats_less">less %1$s \u0020\u0020\u0020\u0020</string>
+	<string name="stats_med">more %1$s \u0020\u0020\u0020\u0020</string>
+	<string name="stats_highest">super %1$s \u0020\u0020\u0020</string>
+
 </resources>

@@ -26,15 +26,29 @@ open class TrackStatsView@JvmOverloads constructor(
         private const val TRACK_STATS_END = 9
         internal const val TRACK_RANGE = TRACK_STATS_END - TRACK_STATS_BEGINNING
         private const val QUARTILE: Double = TRACK_RANGE / 4.0
-
         // height of title in two-column view
         private val FULL_HEIGHT_PX = Utils.dpToPx(42)
+
+        // title description to total range val
+        val TRACK_STATS_MAP = listOf(
+                "danceable" to 1.0,
+                "energetic" to 1.0,
+                "positive" to 1.0,
+                "popular" to 100.0,
+                "acoustic" to 1.0,
+                "high-tempo" to 200.0
+        )
     }
 
     // Whether this is the two-column "full" stats view
     private var twoColumnView: Boolean = false
     var set: Int = 0
     private var isMovable: Boolean = false
+
+    private val statsLeast = resources.getString(R.string.stats_least)
+    private val statsLess = resources.getString(R.string.stats_less)
+    private val statsMore = resources.getString(R.string.stats_med)
+    private val statsHighest = resources.getString(R.string.stats_highest)
 
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_card_stats, this, true)
@@ -131,10 +145,10 @@ open class TrackStatsView@JvmOverloads constructor(
     fun getStatTitle(stat: String, normalizedValue: Double, originalVal: Double? = null) : String {
         // not at all (0-2), less (2-4), more (4-6), very (6-8)
         return when {
-            normalizedValue < QUARTILE -> "not at all $stat"
-            normalizedValue < QUARTILE * 2 -> "less $stat"
-            normalizedValue < QUARTILE * 3 -> "more $stat"
-            else -> "super $stat"
+            normalizedValue < QUARTILE -> statsLeast.format(stat)
+            normalizedValue < QUARTILE * 2 -> statsLess.format(stat)
+            normalizedValue < QUARTILE * 3 -> statsMore.format(stat)
+            else -> statsHighest.format(stat)
         }
     }
 
