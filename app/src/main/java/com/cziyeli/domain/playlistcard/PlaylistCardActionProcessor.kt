@@ -155,10 +155,11 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
     // ============= Intermediate processors ===========
 
     // given playlist id => grab all its track ids from remote => return list of its track entities in db
-    private val fetchStashedTracksIntermediary: ObservableTransformer<PlaylistCardAction, Pair<PlaylistCardAction, List<TrackEntity>>> =
+    private val fetchStashedTracksIntermediary: ObservableTransformer<PlaylistCardAction.FetchPlaylistTracks,
+            Pair<PlaylistCardAction, List<TrackEntity>>> =
             ObservableTransformer {
                 actions -> actions.switchMap { act ->
-                    repository.fetchPlaylistTracks(ownerId = userManager.userId, playlistId = act.playlistId!!)
+                    repository.fetchPlaylistTracks(ownerId = act.ownerId, playlistId = act.playlistId!!)
                             .map { resp -> resp.items.map { it.track } }
                             .switchMap { list ->
                                 repository.fetchStashedTracksByIds(trackIds = list.map { it.id }).toObservable()
