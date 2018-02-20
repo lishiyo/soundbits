@@ -23,7 +23,7 @@ import kotlinx.android.synthetic.main.fragment_profile.*
 import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import javax.inject.Inject
 
-class ProfileFragment : Fragment(), MviView<ProfileIntent, ProfileViewModel.ViewState> {
+class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewModel.ViewState> {
     private val TAG = ProfileFragment::class.simpleName
 
     @Inject
@@ -49,6 +49,16 @@ class ProfileFragment : Fragment(), MviView<ProfileIntent, ProfileViewModel.View
 
         // load all the cards (empty for now)
         initCards()
+
+        // bind to track changes
+        stats_container_left.statsChangePublisher.subscribe {
+            // "target_danceability" => 0.55
+            Utils.mLog(TAG, "onStatsChanged! left: $it")
+        }
+        stats_container_right.statsChangePublisher.subscribe {
+            // "target_danceability" => 0.55
+            Utils.mLog(TAG, "onStatsChanged! right: $it")
+        }
 
         // attempt to fetch initial stats (of liked)
         (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())

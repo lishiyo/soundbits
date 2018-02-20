@@ -7,10 +7,7 @@ import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
 import com.cziyeli.commons.resultFilter
 import com.cziyeli.data.RepositoryImpl
-import com.cziyeli.domain.summary.StatsAction
-import com.cziyeli.domain.summary.StatsResult
-import com.cziyeli.domain.summary.StatsResultStatus
-import com.cziyeli.domain.summary.TrackListStats
+import com.cziyeli.domain.summary.*
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.user.ProfileActionMarker
 import com.cziyeli.domain.user.ProfileActionProcessor
@@ -165,8 +162,6 @@ class ProfileViewModel @Inject constructor(
             previousState: ProfileViewModel.ViewState,
             result: StatsResult.FetchFullStats
     ) : ProfileViewModel.ViewState {
-        Utils.mLog(TAG, "processFetchOriginalStats! ${result.status}", "${result.trackStats}")
-
         return when (result.status) {
             StatsResultStatus.LOADING, StatsResultStatus.ERROR -> {
                 val status = if (result.status == StatsResultStatus.LOADING)
@@ -178,11 +173,17 @@ class ProfileViewModel @Inject constructor(
                 )
             }
             StatsResultStatus.SUCCESS -> {
+                // convert to the attributes map
+                Utils.mLog(TAG, "processFetchOriginalStats SUCCESS",
+                        "previous: ${previousState.currentTargetStats}",
+                        "new: ${previousState.currentTargetStats.convertFromTrackListStats(result.trackStats!!)}"
+                )
                 previousState.copy(
                         error = result.error,
                         lastResult = result,
                         status = MviViewState.Status.SUCCESS,
-                        originalStats = result.trackStats
+                        originalStats = result.trackStats,
+                        currentTargetStats = previousState.currentTargetStats.convertFromTrackListStats(result.trackStats!!)
                 )
             }
             else -> return previousState
@@ -193,7 +194,7 @@ class ProfileViewModel @Inject constructor(
                          val error: Throwable? = null,
                          val lastResult: ProfileResultMarker? = null,
                          val originalStats: TrackListStats? = null, // initial stats
-                         val currentStatsMap: Map<String, Double>? = null, // stats to seed recommendations
+                         val currentTargetStats: TrackStatsData = TrackStatsData.createDefault(), // to seed
                          val recommendedTracks: MutableList<TrackModel> = mutableListOf()) : MviViewState {
 
         fun isFetchStatsSuccess(): Boolean {

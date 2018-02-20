@@ -8,6 +8,11 @@ interface ProfileResultMarker : CardResultMarker
 
 sealed class ProfileResult(var status: MviResult.Status = MviResult.Status.IDLE, var error: Throwable? = null) : ProfileResultMarker {
 
+    class StatChanged(status: MviResult.Status, error: Throwable?, val stat: Map<String, Double>
+    ) : ProfileResult(status, error) {
+
+    }
+
     class FetchRecommendedTracks(status: MviResult.Status, error: Throwable?, val tracks: List<TrackModel> = listOf()
     ) : ProfileResult(status, error) {
         companion object {
