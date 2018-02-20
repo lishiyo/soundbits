@@ -46,6 +46,103 @@ data class TrackStats(val apiModel: AudioFeaturesTrack) {
         get() = apiModel.tempo
 }
 
+const val STAT_DANCEABILITY = "danceability"
+const val STAT_ENERGY = "energy"
+const val STAT_VALENCE = "valence"
+const val STAT_POPULARITY = "popularity"
+const val STAT_ACOUSTICNESS = "acousticness"
+const val STAT_TEMPO = "tempo"
+
+data class TrackStatsData(val map: HashMap<String, Pair<String, Double?>> = hashMapOf(
+        STAT_DANCEABILITY to Pair("target_danceability", null),
+        STAT_ENERGY to Pair("target_energy", null),
+        STAT_VALENCE to Pair("target_valence", null),
+        STAT_POPULARITY to Pair("target_popularity", null),
+        STAT_ACOUSTICNESS to Pair("target_acousticness", null),
+        STAT_TEMPO to Pair("target_tempo", null)
+)) {
+
+    companion object {
+        fun createDefault() : TrackStatsData {
+            return TrackStatsData()
+        }
+
+        fun convertTrackListStatsToMap(tracksStatsData: TrackStatsData, stats: TrackListStats) : MutableMap<String, Double> {
+            val targetsMap = mutableMapOf<String, Double>()
+            targetsMap[tracksStatsData.map[STAT_DANCEABILITY]!!.first] = stats.avgDanceability
+            targetsMap[tracksStatsData.map[STAT_ENERGY]!!.first] = stats.avgEnergy
+            targetsMap[tracksStatsData.map[STAT_VALENCE]!!.first] = stats.avgValence
+            targetsMap[tracksStatsData.map[STAT_POPULARITY]!!.first] = stats.avgPopularity!!
+            targetsMap[tracksStatsData.map[STAT_ACOUSTICNESS]!!.first] = stats.avgAcousticness
+            targetsMap[tracksStatsData.map[STAT_TEMPO]!!.first] = stats.avgDanceability
+            return targetsMap
+        }
+    }
+
+    fun convertToOutgoing() : MutableMap<String, Double> {
+        val targetsMap = mutableMapOf<String, Double>()
+        map.entries.forEach { (stat, pair) ->
+            // only add to outgoing if not null
+            pair.second?.let {
+                targetsMap.put(pair.first, it)
+            }
+        }
+        return targetsMap
+    }
+
+    fun convertFromTrackListStats(stats: TrackListStats) : TrackStatsData {
+        return this.copy(map = hashMapOf(
+                STAT_DANCEABILITY to Pair("target_danceability", stats.avgDanceability),
+                STAT_ENERGY to Pair("target_energy", stats.avgEnergy),
+                STAT_VALENCE to Pair("target_valence", stats.avgValence),
+                STAT_POPULARITY to Pair("target_popularity", stats.avgPopularity!!),
+                STAT_ACOUSTICNESS to Pair("target_acousticness", stats.avgAcousticness),
+                STAT_TEMPO to Pair("target_tempo", stats.avgTempo)
+        ))
+    }
+
+    override fun toString(): String {
+        return "TrackStatsData -- size: ${map.size} -- danceability: $danceability"
+    }
+
+    var danceability: Pair<String, Double?>?
+        get() = map[STAT_DANCEABILITY]!!
+        set(value) {
+            value?.let { map[STAT_DANCEABILITY] = it }
+        }
+
+    var energy: Pair<String, Double?>?
+        get() = map[STAT_ENERGY]!!
+        set(value) {
+            value?.let { map[STAT_ENERGY] = it }
+        }
+
+    var valence: Pair<String, Double?>?
+        get() = map[STAT_VALENCE]!!
+        set(value) {
+            value?.let { map[STAT_VALENCE] = it }
+        }
+
+    var popularity: Pair<String, Double?>?
+        get() = map[STAT_POPULARITY]!!
+        set(value) {
+            value?.let { map[STAT_POPULARITY] = it }
+        }
+
+    var acousticness: Pair<String, Double?>?
+        get() = map[STAT_ACOUSTICNESS]!!
+        set(value) {
+            value?.let { map[STAT_ACOUSTICNESS] = it }
+        }
+
+    var tempo: Pair<String, Double?>?
+        get() = map[STAT_TEMPO]!!
+        set(value) {
+            value?.let { map[STAT_TEMPO] = it }
+        }
+
+}
+
 // Stats of a list of tracks
 // Wraps [AudioFeaturesTracks]
 data class TrackListStats(private val apiModel: AudioFeaturesTracks, var tracks: List<TrackModel>? = null) {
@@ -65,15 +162,13 @@ data class TrackListStats(private val apiModel: AudioFeaturesTracks, var tracks:
     // https://music.stackexchange.com/questions/4525/list-of-average-genre-tempo-bpm-levels
     val avgTempo by lazy { Utils.unlessEmpty(trackStats, 0.toDouble(), { calculateAvgTempo(trackStats) }) }
     // 0-100
-    val avgPopularity by lazy { tracks?.let { calculateAveragePopularity(it) }}
+    val avgPopularity: Double? by lazy { tracks?.let { calculateAveragePopularity(it) }}
 
     override fun toString() : String {
         return "${trackStats.size} tracks avgDanceability: $avgDanceability -- with tracks? ${tracks?.size}"
     }
 
     companion object {
-        val EMPTY = TrackListStats(AudioFeaturesTracks(), null)
-
         fun create(apiModel: AudioFeaturesTracks, tracks: List<TrackModel>? = null) : TrackListStats {
             return TrackListStats(apiModel, tracks)
         }
