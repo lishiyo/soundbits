@@ -70,13 +70,13 @@ data class TrackStatsData(val map: MutableMap<String, Pair<String, Double?>> = h
         }
     }
 
-    fun convertToOutgoing() : MutableMap<String, Double> {
-        val targetsMap = mutableMapOf<String, Double>()
+    fun convertToOutgoing() : MutableMap<String, out Number> {
+        val targetsMap = mutableMapOf<String, Number>()
         map.entries.forEach { (stat, pair) ->
             // only add to outgoing if not null
             pair.second?.let {
-                val finalVal = if (it > 1) it.roundToInt().toDouble() else it.roundToDecimalPlaces(2)
-                targetsMap.put(pair.first, finalVal)
+                val finalVal = if (it > 1) it.roundToInt() else it.roundToDecimalPlaces(2)
+                targetsMap.put(pair.first, finalVal as Number)
             }
         }
         return targetsMap

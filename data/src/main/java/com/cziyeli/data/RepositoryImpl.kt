@@ -54,7 +54,7 @@ class RepositoryImpl @Inject constructor(
 
     override fun fetchRecommendedTracks(source: Repository.Source,
                                         limit: Int,
-                                        attributes: Map<String, Double>? // target_*, min_*, max_*
+                                        attributes: Map<String, Number>? // target_*, min_*, max_*
     ): Observable<Recommendations> {
         return remoteDataSource.fetchRecommendedTracks(limit, attributes)
     }

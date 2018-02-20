@@ -37,7 +37,6 @@ abstract class ViewModelsModule {
     @ViewModelKey(ProfileViewModel::class)
     abstract fun bindProfileViewModel(viewModel: ProfileViewModel) : ViewModel
 
-
     @Binds
     abstract fun bindViewModelFactory(factory: ViewModelFactory) : ViewModelProvider.Factory
 }

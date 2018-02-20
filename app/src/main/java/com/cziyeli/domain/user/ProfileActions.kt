@@ -17,6 +17,6 @@ sealed class ProfileAction : ProfileActionMarker {
     // load recommended tracks based on seeds
     // https://beta.developer.spotify.com/documentation/web-api/reference/browse/get-recommendations/
     class FetchRecommendedTracks(val limit: Int = 20,
-                                 val attributes: Map<String, Double> // target_*, min_*, max_*
+                                 val attributes: Map<String, Number> // target_*, min_*, max_*
     ) : ProfileAction()
 }
