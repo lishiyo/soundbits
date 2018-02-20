@@ -158,7 +158,8 @@ class PlaylistCardCreateViewModel @Inject constructor(
             SummaryResult.CreatePlaylistWithTracks.CreateStatus.ERROR -> {
                 return previousState.copy(
                         error = result.error,
-                        status = status
+                        status = status,
+                        lastResult = result
                 )
             } else -> previousState
         }
@@ -192,9 +193,10 @@ class PlaylistCardCreateViewModel @Inject constructor(
                          val carouselHeaderUrl: String? = null,
                          val lastResult: CardResultMarker? = null
     ) : MviViewState {
-
         fun isFetchStatsSuccess(): Boolean {
-            return (status == MviViewState.Status.SUCCESS || status == StatsResultStatus.SUCCESS) && trackStats != null
+            return (lastResult is StatsResult.FetchStats || lastResult is StatsResult.FetchFullStats)
+                    && (status == MviViewState.Status.SUCCESS || status == StatsResultStatus.SUCCESS)
+                    && trackStats != null
         }
         fun isCreateLoading(): Boolean {
             return lastResult is SummaryResult.CreatePlaylistWithTracks &&

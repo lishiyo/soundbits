@@ -15,6 +15,7 @@ import com.cziyeli.commons.Utils
 import com.cziyeli.commons.disableTouchTheft
 import com.cziyeli.commons.errorToast
 import com.cziyeli.commons.mvibase.MviView
+import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.commons.toast
 import com.cziyeli.domain.playlistcard.CardResult
 import com.cziyeli.domain.playlistcard.CardResultMarker
@@ -118,11 +119,8 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
         }
 
         when {
-            state.isFetchStatsSuccess() -> {
-                // render the track stats widget with pending tracks
-                create_stats_container.loadTrackStats(state.trackStats!!)
-            }
-            state.status == SummaryResult.CreatePlaylistWithTracks.CreateStatus.SUCCESS -> {
+
+            state.lastResult is SummaryResult.CreatePlaylistWithTracks && state.status == MviViewState.Status.SUCCESS -> {
                 "success!".toast(context)
                 onPlaylistCreated(create_playlist_new_title.text.toString(), state)
                 fab.pauseAnimation()
@@ -133,6 +131,10 @@ class PlaylistCardCreateWidget : NestedScrollView, MviView<CardIntentMarker, Pla
             }
             state.isCreateLoading() -> {
                 fab.resumeAnimation()
+            }
+            state.isFetchStatsSuccess() -> {
+                // render the track stats widget with pending tracks
+                create_stats_container.loadTrackStats(state.trackStats!!)
             }
             state.isError() -> "something went wrong".toast(context)
         }
