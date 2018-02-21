@@ -141,6 +141,12 @@ sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
         }
     }
 
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+
+        compositeDisposable.clear()
+    }
+
 }
 
 class ChipsViewModel @Inject constructor(

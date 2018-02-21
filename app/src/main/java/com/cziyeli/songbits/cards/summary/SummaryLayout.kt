@@ -244,6 +244,7 @@ class SummaryLayout @JvmOverloads constructor(
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         summary_tracks_recycler_view.removeOnItemTouchListener(tracksRecyclerViewDelegate.onTouchListener)
+        compositeDisposable.clear()
     }
 
 }
