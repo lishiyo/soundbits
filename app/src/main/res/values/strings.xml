@@ -65,7 +65,7 @@
 	<string name="likes_card_title">likes</string>
 	<string name="dislikes_card_title">dislikes</string>
 	<string name="top_tracks_card_title">top tracks</string>
-	<string name="recommended_tracks_card_title">recommended tracks</string>
+	<string name="recommended_tracks_card_title">recommended</string>
 
 	<!-- summary stuff -->
 	<string name="summary_title">Awesome! You liked %1$d and disliked %2$d tracks!</string>

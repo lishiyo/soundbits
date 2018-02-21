@@ -15,6 +15,7 @@ import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.domain.stash.SimpleCardActionProcessor
 import com.cziyeli.domain.user.ProfileResult
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.base.ChipsIntent
 import com.cziyeli.songbits.root.RootActivity
 import com.cziyeli.songbits.root.RootIntent
 import com.cziyeli.songbits.stash.SimpleCardViewModel
@@ -38,7 +39,7 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
     private lateinit var viewModel: ProfileViewModel
 
     // intents
-    private val eventsPublisher: PublishRelay<ProfileIntent> by lazy { PublishRelay.create<ProfileIntent>() }
+    private val eventsPublisher: PublishRelay<ProfileIntentMarker> by lazy { PublishRelay.create<ProfileIntentMarker>() }
     private val compositeDisposable = CompositeDisposable()
 
     // Listener for the FAB menu
@@ -69,19 +70,21 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
         initCards()
 
         // bind to track changes
-        stats_container_left.statsChangePublisher.subscribe {
-            // "target_danceability" => 0.55
-            eventsPublisher.accept(ProfileIntent.StatChanged(viewModel.currentTargetStats, it))
-        }
-        stats_container_right.statsChangePublisher.subscribe {
-            // "target_danceability" => 0.55
-            eventsPublisher.accept(ProfileIntent.StatChanged(viewModel.currentTargetStats, it))
-        }
+        compositeDisposable.addAll(
+                stats_container_left.statsChangePublisher.subscribe {
+                    // "target_danceability" => 0.55
+                    eventsPublisher.accept(ProfileIntent.StatChanged(viewModel.currentTargetStats, it))
+                },
+                stats_container_right.statsChangePublisher.subscribe {
+                    // "target_danceability" => 0.55
+                    eventsPublisher.accept(ProfileIntent.StatChanged(viewModel.currentTargetStats, it))
+                }
+        )
 
         // attempt to fetch initial stats (of liked)
         (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
 
-        // fetch recommended based on current stats
+        // init click listeners = fetch recommended based on current stats
         action_get_recommended.setOnClickListener {
             val attrs = viewModel.currentTargetStats.convertToOutgoing()
             eventsPublisher.accept(ProfileIntent.FetchRecommendedTracks(attributes = attrs))
@@ -138,10 +141,13 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
 
         // Bind ViewModel to root states stream to listen to global state changes
         viewModel.processRootViewStates((activity as RootActivity).getStates())
+
+        // Bind the subviews
+        chips_widget.processIntents(eventsPublisher.ofType(ChipsIntent::class.java))
+        eventsPublisher.accept(ChipsIntent.FetchSeedGenres())
     }
 
-
-    override fun intents(): Observable<out ProfileIntent> {
+    override fun intents(): Observable<out ProfileIntentMarker> {
         return eventsPublisher
     }
 

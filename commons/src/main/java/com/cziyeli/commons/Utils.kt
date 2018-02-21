@@ -10,6 +10,8 @@ import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import com.cziyeli.commons.mvibase.MviResult
+import com.cziyeli.commons.mvibase.MviViewState
 
 
 /**
@@ -38,6 +40,17 @@ object Utils {
                 override fun createFromParcel(source: Parcel): T? = createFromParcel(source)
                 override fun newArray(size: Int): Array<out T?> = arrayOfNulls(size)
             }
+
+    /**
+     * Convert result status to view state status.
+     */
+    fun statusFromResult(status: MviResult.StatusInterface) : MviViewState.Status {
+        return when (status) {
+            MviResult.Status.LOADING -> MviViewState.Status.LOADING
+            MviResult.Status.SUCCESS -> MviViewState.Status.SUCCESS
+            else -> MviViewState.Status.ERROR
+        }
+    }
 
     // ======= RESOURCE UTILS =======
 

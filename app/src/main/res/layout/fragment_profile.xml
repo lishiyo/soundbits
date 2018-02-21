@@ -6,7 +6,7 @@
 	android:layout_height="match_parent"
 	xmlns:tools="http://schemas.android.com/tools"
 	xmlns:button="http://schemas.android.com/apk/res-auto"
-	android:background="@color/pampas">
+	android:background="@color/colorGrey">
 
 	<LinearLayout
 		android:orientation="vertical"
@@ -68,11 +68,48 @@
 		</LinearLayout>
 
 		<!-- chip cloud: seed genres -->
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="44dp"
+			android:orientation="horizontal"
+			android:paddingLeft="20dp"
+			android:paddingRight="20dp"
+			android:layout_marginTop="10dp"
+			android:layout_marginBottom="10dp"
+			android:gravity="center"
+			>
+
+			<TextView
+				android:id="@+id/seeds_title"
+				android:text="select up to five genres as seeds"
+				android:layout_width="0dp"
+				android:layout_weight="3"
+				android:layout_height="match_parent"
+				android:textAlignment="center"
+				android:layout_gravity="center"
+				/>
+
+			<!-- pick five at random -->
+			<com.cziyeli.songbits.base.RoundedCornerButton
+				android:id="@+id/action_randomize_seeds"
+				android:text="randomize"
+				android:layout_width="0dp"
+				android:layout_weight="1"
+				android:layout_height="match_parent"
+				style="@style/SummaryButton"
+				button:bg_color="@color/colorAccent"
+				button:rounded_border_color="@color/persian_blue"
+				android:layout_marginStart="10dp"
+				/>
+		</LinearLayout>
+
 		<com.cziyeli.songbits.base.ChipsWidget
 			android:id="@+id/chips_widget"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
-
+			android:layout_height="wrap_content"
+			android:paddingStart="20dp"
+			android:paddingEnd="20dp"
+			>
 		</com.cziyeli.songbits.base.ChipsWidget>
 
 		<!-- buttons -->
@@ -112,11 +149,11 @@
 		<!-- Recommendations based on stats -->
 		<com.cziyeli.songbits.stash.SimpleCardWidget
 			android:id="@+id/recommended_tracks_card"
-			android:visibility="gone"
-			tools:visibility="visible"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:focusable="true"
+			android:visibility="invisible"
+			tools:visibility="visible"
 			app:menu_res="@menu/menu_playlist_card"
 			>
 		</com.cziyeli.songbits.stash.SimpleCardWidget>

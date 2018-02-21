@@ -28,7 +28,7 @@ class ProfileViewModel @Inject constructor(
         val repository: RepositoryImpl,
         actionProcessor: ProfileActionProcessor,
         schedulerProvider: BaseSchedulerProvider
-) : ViewModel(), LifecycleObserver, MviViewModel<ProfileIntent, ProfileViewModel.ViewState, ProfileResultMarker> {
+) : ViewModel(), LifecycleObserver, MviViewModel<ProfileIntentMarker, ProfileViewModel.ViewState, ProfileResultMarker> {
     private val TAG = ProfileViewModel::class.java.simpleName
     private val compositeDisposable = CompositeDisposable()
 
@@ -113,7 +113,7 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    override fun processIntents(intents: Observable<out ProfileIntent>) {
+    override fun processIntents(intents: Observable<out ProfileIntentMarker>) {
         compositeDisposable.add(
                 intents.subscribe(intentsSubject::accept)
         )

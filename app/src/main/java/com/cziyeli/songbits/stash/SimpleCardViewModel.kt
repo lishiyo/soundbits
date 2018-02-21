@@ -86,7 +86,6 @@ class SimpleCardViewModel constructor(
                 .mergeWith(resultsSubject) // <--- pipe in direct results
                 .compose(resultFilter<CardResultMarker>())
                 .observeOn(schedulerProvider.ui())
-                .doOnNext { result -> Utils.log(TAG, "intentsSubject scanning result: ${result.javaClass.simpleName}") }
                 .scan(currentViewState, reducer)
 
         compositeDisposable.add(

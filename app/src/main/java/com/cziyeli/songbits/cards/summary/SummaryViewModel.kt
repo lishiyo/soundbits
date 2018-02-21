@@ -35,13 +35,13 @@ class SummaryViewModel constructor(
 ) : LifecycleObserver, MviViewModel<SummaryIntent, SummaryViewState, SummaryResultMarker> {
     private val TAG = SummaryViewModel::class.simpleName
 
-    private val compositeDisposable = CompositeDisposable()
     // intents stream
     private val intentsSubject : PublishRelay<SummaryIntent> by lazy { PublishRelay.create<SummaryIntent>() }
     // Simple already-processed events stream
     private val resultsSubject : PublishRelay<SummaryResultMarker> by lazy { PublishRelay.create<SummaryResultMarker>() }
     private val viewStates: PublishRelay<SummaryViewState> by lazy { PublishRelay.create<SummaryViewState>() }
     internal lateinit var currentViewState: SummaryViewState
+    private val compositeDisposable = CompositeDisposable()
 
     // reducer fn: Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<SummaryViewState, SummaryResultMarker, SummaryViewState> = BiFunction { previousState, result ->
