@@ -46,9 +46,7 @@ class ProfileViewModel @Inject constructor(
         intents.publish { shared -> shared
             Observable.merge<ProfileIntentMarker>(
                     shared.ofType(ProfileIntent.LoadOriginalStats::class.java).take(1), // only take one time
-                    shared.ofType(ProfileIntent.FetchRecommendedTracks::class.java).take(1), // only take one time
-                    shared.filter({ intent -> intent !is ProfileIntent.LoadOriginalStats
-                            && (intent !is ProfileIntent.FetchRecommendedTracks || currentViewState.recommendedTracks.isEmpty()) })
+                    shared.filter({ intent -> intent !is ProfileIntent.LoadOriginalStats})
             )
         }
     }

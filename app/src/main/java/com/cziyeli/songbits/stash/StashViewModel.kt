@@ -33,13 +33,15 @@ class StashViewModel @Inject constructor(
     private val rootStatesSubject: PublishRelay<RootViewState> by lazy { PublishRelay.create<RootViewState>() }
     // Publisher for own view states
     private val viewStates: PublishRelay<ViewState> by lazy { PublishRelay.create<ViewState>() }
+    private lateinit var currentViewState: ViewState
 
     private val intentFilter: ObservableTransformer<StashIntent, StashIntent> = ObservableTransformer { intents ->
         intents.publish { shared -> shared
             Observable.merge<StashIntent>(
                     shared.ofType(StashIntent.InitialLoad::class.java).take(1), // only take initial one time
                     shared.ofType(StashIntent.FetchUserTopTracks::class.java).take(1), // only load one time
-                    shared.filter({ intent -> intent !is StashIntent.InitialLoad && intent !is StashIntent.FetchUserTopTracks })
+                    shared.filter({ intent -> intent !is StashIntent.InitialLoad &&
+                            (intent !is StashIntent.FetchUserTopTracks || currentViewState.topTracks.isEmpty()) })
             )
         }
     }
@@ -88,6 +90,7 @@ class StashViewModel @Inject constructor(
 
         compositeDisposable.add(
                 observable.distinctUntilChanged().subscribe({ viewState ->
+                    currentViewState = viewState
                     viewStates.accept(viewState)
                 }, { err ->
                     Utils.log(TAG, err.localizedMessage)
