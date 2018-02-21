@@ -2,6 +2,7 @@ package com.cziyeli.songbits.stash
 
 import android.app.Activity
 import android.content.Context
+import android.os.Handler
 import android.support.annotation.IdRes
 import android.support.v4.widget.NestedScrollView
 import android.support.v7.widget.LinearLayoutManager
@@ -44,9 +45,6 @@ import io.saeid.fabloading.LoadingView
 import kotlinx.android.synthetic.main.widget_expandable_tracks.view.*
 import kotlinx.android.synthetic.main.widget_simple_card.view.*
 import java.util.*
-
-
-
 
 
 /**
@@ -191,7 +189,11 @@ class SimpleCardWidget @JvmOverloads constructor(
     fun loadTracks(tracks: List<TrackModel>) {
         Utils.mLog(TAG, "loadTracks: ${tracks.size}")
         simpleResultsPublisher.accept(CardResult.TracksSet(tracks)) // set into viewmodel
-        adapter.setTracksAndNotify(tracks, !expansion_layout.isExpanded || (tracks.isEmpty()))
+        // TODO this is very ui heavy - figure out better way than delaying until tapped
+        Handler().postDelayed({
+            // only notify if this isn't expanded
+            adapter.setTracksAndNotify(tracks, !expansion_layout.isExpanded || (tracks.isEmpty()))
+        }, 700)
 
         if (tracks.isNotEmpty()) {
             // update the title

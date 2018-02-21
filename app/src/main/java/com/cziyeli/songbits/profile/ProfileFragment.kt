@@ -92,7 +92,7 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
         super.setUserVisibleHint(isVisibleToUser)
         Utils.mLog(TAG, "visible ++ $isVisibleToUser")
 
-        if (isVisibleToUser) {
+        if (isVisibleToUser && isAdded) {
             (activity as RootActivity)
                     .getRootPublisher()
                     .accept(RootIntent.LoadLikedTracks())

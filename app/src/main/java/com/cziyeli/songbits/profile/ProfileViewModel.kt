@@ -40,12 +40,15 @@ class ProfileViewModel @Inject constructor(
 
     // Publisher for own view states
     private val viewStates: PublishRelay<ProfileViewModel.ViewState> by lazy { PublishRelay.create<ProfileViewModel.ViewState>() }
+    private var currentViewState: ViewState = ProfileViewModel.ViewState()
 
     private val intentFilter: ObservableTransformer<ProfileIntentMarker, ProfileIntentMarker> = ObservableTransformer { intents ->
         intents.publish { shared -> shared
             Observable.merge<ProfileIntentMarker>(
-                    shared.ofType(ProfileIntent.LoadOriginalStats::class.java).take(1), // only take initial one time
-                    shared.filter({ intent -> intent !is ProfileIntent.LoadOriginalStats })
+                    shared.ofType(ProfileIntent.LoadOriginalStats::class.java).take(1), // only take one time
+                    shared.ofType(ProfileIntent.FetchRecommendedTracks::class.java).take(1), // only take one time
+                    shared.filter({ intent -> intent !is ProfileIntent.LoadOriginalStats
+                            && (intent !is ProfileIntent.FetchRecommendedTracks || currentViewState.recommendedTracks.isEmpty()) })
             )
         }
     }
@@ -70,8 +73,6 @@ class ProfileViewModel @Inject constructor(
             else -> return@BiFunction previousState
         }
     }
-
-    private var currentViewState: ViewState = ProfileViewModel.ViewState()
 
     val currentTargetStats: TrackStatsData
         get() = currentViewState.currentTargetStats
