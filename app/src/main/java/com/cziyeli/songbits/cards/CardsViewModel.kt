@@ -9,6 +9,7 @@ import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.player.PlayerInterface
+import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.tracks.TrackAction
 import com.cziyeli.domain.tracks.TrackActionProcessor
@@ -31,7 +32,7 @@ class CardsViewModel @Inject constructor(
         val actionProcessor: TrackActionProcessor,
         val schedulerProvider: BaseSchedulerProvider,
         val playlist: Playlist?
-): ViewModel(), LifecycleObserver, MviViewModel<CardsIntent, TrackViewState> {
+): ViewModel(), LifecycleObserver, MviViewModel<CardsIntent, TrackViewState, CardResultMarker> {
     private val TAG = CardsViewModel::class.simpleName
 
     private val compositeDisposable = CompositeDisposable()

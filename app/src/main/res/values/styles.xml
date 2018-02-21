@@ -150,12 +150,12 @@
 	</style>
 
 	<style name="SummaryButton">
-		<!--<item name="android:fontFamily">@font/waiting_for_the_sunrise</item>-->
+		<item name="android:fontFamily">@font/quicksand</item>
 		<item name="android:layout_height">90dp</item>
 		<item name="android:gravity">center</item>
 		<item name="android:textColor">@color/colorWhite</item>
 		<!--<item name="android:textStyle">bold</item>-->
-		<item name="android:textSize">12sp</item>
+		<item name="android:textSize">@dimen/action_button_text_size</item>
 		<item name="android:textAlignment">center</item>
 		<item name="android:layout_gravity">center</item>
 		<item name="android:layout_centerVertical">true</item>

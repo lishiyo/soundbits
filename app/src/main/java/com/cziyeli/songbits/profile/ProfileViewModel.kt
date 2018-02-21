@@ -20,13 +20,15 @@ import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
 /**
+ * Viewmodel for the [ProfileFragment].
+ *
  * Created by connieli on 2/18/18.
  */
 class ProfileViewModel @Inject constructor(
         val repository: RepositoryImpl,
         actionProcessor: ProfileActionProcessor,
         schedulerProvider: BaseSchedulerProvider
-) : ViewModel(), LifecycleObserver, MviViewModel<ProfileIntent, ProfileViewModel.ViewState> {
+) : ViewModel(), LifecycleObserver, MviViewModel<ProfileIntent, ProfileViewModel.ViewState, ProfileResultMarker> {
     private val TAG = ProfileViewModel::class.java.simpleName
     private val compositeDisposable = CompositeDisposable()
 

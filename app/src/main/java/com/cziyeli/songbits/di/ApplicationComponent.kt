@@ -4,6 +4,7 @@ import android.content.Context
 import com.cziyeli.commons.di.ForApplication
 import com.cziyeli.commons.di.UtilsModule
 import com.cziyeli.data.local.TracksDatabase
+import com.cziyeli.songbits.base.ChipsWidget
 import com.cziyeli.songbits.di.viewModels.ViewModelsModule
 import dagger.Component
 import dagger.android.AndroidInjectionModule
@@ -25,8 +26,13 @@ import javax.inject.Singleton
 @Singleton
 interface ApplicationComponent {
 
-    // injection targets
+    // ====== injection targets ========
+
     fun inject(application: App)
+
+    fun inject(widget: ChipsWidget)
+
+    // ====== GLOBAL ========
 
     // downstream components need these exposed
     // the method name does not matter, only the return type

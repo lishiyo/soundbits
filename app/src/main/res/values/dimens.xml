@@ -13,6 +13,7 @@
 	<dimen name="like_button_big">30dp</dimen>
 	<dimen name="dislike_button_big">28dp</dimen>
 	<dimen name="action_button_radius">18dp</dimen>
+	<dimen name="action_button_text_size">14sp</dimen>
 
 	<!-- TAB: HOME -->
 	<dimen name="home_header_height">160dp</dimen>

@@ -19,13 +19,13 @@ import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
 /**
- * Holds state for [RootActivity] and shared data between its tabs.
+ * Viewmodel for [RootActivity] and shared data between its tabs - a kind of "global state".
  */
 class RootViewModel @Inject constructor(
         val repository: RepositoryImpl,
         actionProcessor: RootActionProcessor,
         schedulerProvider: BaseSchedulerProvider
-) : ViewModel(), LifecycleObserver, MviViewModel<RootIntent, RootViewState> {
+) : ViewModel(), LifecycleObserver, MviViewModel<RootIntent, RootViewState, MviResult> {
     private val TAG = RootViewModel::class.simpleName
 
     private val intentsSubject : PublishRelay<RootIntent> by lazy { PublishRelay.create<RootIntent>() }

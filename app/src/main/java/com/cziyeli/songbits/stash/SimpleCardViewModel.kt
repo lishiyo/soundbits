@@ -26,13 +26,15 @@ import io.reactivex.functions.BiFunction
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 
 /**
- * Not a real arch components view model.
+ * ViewModel for a [SimpleCardWidget].
+ * (Note this is a [MviViewModel], not a real arch components view model).
  *
+ * Simple cards represent groups of tracks not necessarily tied to a playlist, but looks similar to a [PlaylistCard].
  */
 class SimpleCardViewModel constructor(
         val actionProcessor: SimpleCardActionProcessor,
         val schedulerProvider: BaseSchedulerProvider
-) : LifecycleObserver, MviViewModel<CardIntentMarker, SimpleCardViewModel.ViewState> {
+) : LifecycleObserver, MviViewModel<CardIntentMarker, SimpleCardViewModel.ViewState, CardResultMarker> {
     private val TAG = SimpleCardViewModel::class.java.simpleName
     private val compositeDisposable = CompositeDisposable()
 
@@ -110,7 +112,7 @@ class SimpleCardViewModel constructor(
         }
     }
 
-    fun processSimpleResults(results: Observable<out CardResultMarker>) {
+    override fun processSimpleResults(results: Observable<out CardResultMarker>) {
         compositeDisposable.add(
                 results.subscribe(resultsSubject::accept)
         )

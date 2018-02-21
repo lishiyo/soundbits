@@ -8,6 +8,8 @@ import com.cziyeli.domain.tracks.TrackModel
 import kaaes.spotify.webapi.android.models.SnapshotId
 
 /**
+ * Represents results that can handled by the summary screen.
+ *
  * Created by connieli on 1/7/18.
  */
 interface SummaryResultMarker : MviResult
@@ -111,7 +113,7 @@ sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Sta
     ) : SummaryResult(status, error) {
         companion object {
             fun createSuccess(insertedTracks: List<TrackModel>, playlistId: String? = null) : SaveTracks {
-                Utils.log(TAG, "SaveAllTracks --- createSuccess! size: ${insertedTracks.size} for ${playlistId}")
+                Utils.log(TAG, "SaveAllTracks --- createSuccess! size: ${insertedTracks.size} for $playlistId")
                 return SaveTracks(MviResult.Status.SUCCESS, null, insertedTracks, playlistId)
             }
             fun createError(throwable: Throwable) : SaveTracks {

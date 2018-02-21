@@ -31,7 +31,7 @@ class PlaylistCardViewModel @Inject constructor(
         val actionProcessor: PlaylistCardActionProcessor,
         val schedulerProvider: BaseSchedulerProvider,
         initialState: PlaylistCardViewState
-) : ViewModel(), LifecycleObserver, MviViewModel<CardIntentMarker, PlaylistCardViewModel.PlaylistCardViewState> {
+) : ViewModel(), LifecycleObserver, MviViewModel<CardIntentMarker, PlaylistCardViewModel.PlaylistCardViewState, CardResultMarker> {
     private val TAG = PlaylistCardViewModel::class.simpleName
 
     // Events stream from view

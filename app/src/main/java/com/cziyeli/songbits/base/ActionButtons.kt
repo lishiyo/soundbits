@@ -86,12 +86,15 @@ class RoundedCornerButton @JvmOverloads constructor(
 
     init {
         background = BACKGROUND_DRAWABLE
+        var typeface = ResourcesCompat.getFont(context, DEFAULT_FONT)
+
         attrs?.let {
             val typedArray = context.obtainStyledAttributes(it,
                     R.styleable.action_buttons, 0, 0)
             backgroundColorRes = typedArray.getColor(R.styleable.action_buttons_bg_color, resources.getColor(R.color.colorPrimaryShade))
             borderColorRes = typedArray.getColor(R.styleable.action_buttons_rounded_border_color,
                     resources.getColor(R.color.colorPrimaryShade))
+            typeface = ResourcesCompat.getFont(context, typedArray.getResourceId(R.styleable.action_buttons_font, R.font.quicksand))
 
             typedArray.recycle()
         }
@@ -102,8 +105,6 @@ class RoundedCornerButton @JvmOverloads constructor(
             BACKGROUND_DRAWABLE.setStroke(1, this)
         }
 
-        // set default font
-        val typeface = ResourcesCompat.getFont(context, DEFAULT_FONT)
         setTypeface(typeface)
     }
 

@@ -121,7 +121,8 @@
 							android:layout_width="wrap_content"
 							android:text="@string/summary_review_swipes"
 							android:textColor="@color/colorWhite"
-							android:textSize="12sp"
+							android:textSize="@dimen/action_button_text_size"
+							android:fontFamily="@font/quicksand"
 							/>
 
 						<android.support.v7.widget.AppCompatImageView

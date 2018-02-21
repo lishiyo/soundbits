@@ -22,11 +22,14 @@ import io.reactivex.functions.BiFunction
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
+/**
+ * Viewmodel for the [HomeFragment].
+ */
 class HomeViewModel @Inject constructor(
         val repository: RepositoryImpl,
         actionProcessor: HomeActionProcessor,
         schedulerProvider: BaseSchedulerProvider
-) : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, HomeViewState> {
+) : ViewModel(), LifecycleObserver, MviViewModel<HomeIntent, HomeViewState, HomeResult> {
     private val TAG = HomeViewModel::class.simpleName
     private val compositeDisposable = CompositeDisposable()
 

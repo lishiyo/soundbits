@@ -15,15 +15,16 @@ import com.cziyeli.songbits.R
 import kotlinx.android.synthetic.main.widget_card_stats.view.*
 import kotlin.math.roundToInt
 
+/**
+ * Widget for a single column of stats (i.e. audio feature like "danceability").
+ * Consists of three rows displaying label, number, and a range view slider.
+ */
 open class TrackStatsView@JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
-    data class StatLabel(val title: String, val titleNumber: String, val range: Pair<Int, Int>)
-
     companion object {
-        // range is 0 - 8
         private const val TRACK_STATS_BEGINNING = 0
         private const val TRACK_STATS_END = 9
         internal const val TRACK_RANGE = TRACK_STATS_END - TRACK_STATS_BEGINNING
@@ -32,14 +33,19 @@ open class TrackStatsView@JvmOverloads constructor(
         private val FULL_HEIGHT_PX = Utils.dpToPx(42)
     }
 
+    // Data backing a row.
+    data class StatLabel(val title: String, val titleNumber: String, val range: Pair<Int, Int>)
+
     // Whether this is the two-column "full" stats view
     var twoColumnView: Boolean = false
     var set: Int = 0 // 0 for first set
     val isFirstSet: Boolean
         get() = set == 0
 
+    // Whether the ranges are movable.
     private var isMovable: Boolean = false
 
+    // Label titles.
     private val statsLeast = resources.getString(R.string.stats_least)
     private val statsLess = resources.getString(R.string.stats_less)
     private val statsMore = resources.getString(R.string.stats_med)
@@ -132,7 +138,7 @@ open class TrackStatsView@JvmOverloads constructor(
         return value * TRACK_RANGE
     }
 
-     fun getStatTitleNum(originalVal: Double, totalVal: Double) : String {
+    fun getStatTitleNum(originalVal: Double, totalVal: Double) : String {
         return "${"%.2f".format(originalVal)} / ${"%.1f".format(totalVal)}"
     }
 

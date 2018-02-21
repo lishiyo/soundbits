@@ -4,6 +4,7 @@
 		<attr name="active" format="boolean" />
 		<attr name="bg_color" format="color" />
 		<attr name="rounded_border_color" format="color" />
+		<attr name="font" format="reference" />
 	</declare-styleable>
 
 	<declare-styleable name="TrackStatsView">

@@ -22,21 +22,21 @@ import io.reactivex.functions.BiFunction
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 
 /**
- * Not a real arch components view model.
+ * ViewModel for a [SummaryLayout] widget.
+ * (Note this is a [MviViewModel], not a real arch components [ViewModel]).
  *
- * Shown after you finish surfing all the cards.
+ * Shown after you finish swiping all the cards.
  *
  * Created by connieli on 1/6/18.
  */
 class SummaryViewModel constructor(
         val actionProcessor: SummaryActionProcessor,
         val schedulerProvider: BaseSchedulerProvider
-) : LifecycleObserver, MviViewModel<SummaryIntent, SummaryViewState> {
+) : LifecycleObserver, MviViewModel<SummaryIntent, SummaryViewState, SummaryResultMarker> {
     private val TAG = SummaryViewModel::class.simpleName
 
     private val compositeDisposable = CompositeDisposable()
-
-    // intents stream, viewstates stream
+    // intents stream
     private val intentsSubject : PublishRelay<SummaryIntent> by lazy { PublishRelay.create<SummaryIntent>() }
     // Simple already-processed events stream
     private val resultsSubject : PublishRelay<SummaryResultMarker> by lazy { PublishRelay.create<SummaryResultMarker>() }
@@ -246,7 +246,7 @@ class SummaryViewModel constructor(
         )
     }
 
-    fun processSimpleResults(results: Observable<out SummaryResultMarker>) {
+    override fun processSimpleResults(results: Observable<out SummaryResultMarker>) {
         compositeDisposable.add(
                 results.subscribe(resultsSubject::accept)
         )

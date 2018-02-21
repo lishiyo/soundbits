@@ -30,7 +30,7 @@ class PlaylistCardCreateViewModel @Inject constructor(
         val actionProcessor: PlaylistCardCreateActionProcessor,
         val schedulerProvider: BaseSchedulerProvider,
         initialState: PlaylistCardCreateViewModel.ViewState
-) : ViewModel(), LifecycleObserver, MviViewModel<CardIntentMarker, PlaylistCardCreateViewModel.ViewState> {
+) : ViewModel(), LifecycleObserver, MviViewModel<CardIntentMarker, PlaylistCardCreateViewModel.ViewState, CardResultMarker> {
 
     private val TAG = PlaylistCardCreateViewModel::class.simpleName
 
@@ -167,13 +167,13 @@ class PlaylistCardCreateViewModel @Inject constructor(
 
     // ===== MviViewModel =====
 
-     override fun processIntents(intents: Observable<out CardIntentMarker>) {
+    override fun processIntents(intents: Observable<out CardIntentMarker>) {
         compositeDisposable.add(
                 intents.subscribe(intentsSubject::accept)
         )
     }
 
-    fun processSimpleResults(results: Observable<out CardResultMarker>) {
+    override fun processSimpleResults(results: Observable<out CardResultMarker>) {
         compositeDisposable.add(
                 results.subscribe(resultsSubject::accept)
         )

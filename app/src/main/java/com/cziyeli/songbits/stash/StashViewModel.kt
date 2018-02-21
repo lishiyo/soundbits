@@ -19,11 +19,14 @@ import io.reactivex.functions.BiFunction
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
+/**
+ * ViewModel for [StashFragment].
+ */
 class StashViewModel @Inject constructor(
         val repository: RepositoryImpl,
         actionProcessor: StashActionProcessor,
         schedulerProvider: BaseSchedulerProvider
-) : ViewModel(), LifecycleObserver, MviViewModel<StashIntent, StashViewModel.ViewState> {
+) : ViewModel(), LifecycleObserver, MviViewModel<StashIntent, StashViewModel.ViewState, StashResultMarker> {
     private val TAG = StashViewModel::class.java.simpleName
     private val compositeDisposable = CompositeDisposable()
 

@@ -9,7 +9,6 @@ import android.view.ViewGroup
 /**
  * Extension of FragmentStatePagerAdapter which intelligently caches all active fragments
  * and manages the fragment lifecycle.
- *
  */
 abstract class SmartFragmentStatePagerAdapter(fragmentManager: FragmentManager) : FragmentStatePagerAdapter(fragmentManager) {
     // Sparse array to keep track of registered fragments in memory

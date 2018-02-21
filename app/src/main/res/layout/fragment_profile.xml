@@ -68,15 +68,12 @@
 		</LinearLayout>
 
 		<!-- chip cloud: seed genres -->
-		<com.google.android.flexbox.FlexboxLayout
-			android:id="@+id/seed_genres"
+		<com.cziyeli.songbits.base.ChipsWidget
+			android:id="@+id/chips_widget"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			app:alignContent="space_around"
-			app:alignItems="flex_start"
-			app:dividerDrawable="@drawable/chip_div"
-			app:flexWrap="wrap"
-			app:showDivider="middle"/>
+			android:layout_height="wrap_content">
+
+		</com.cziyeli.songbits.base.ChipsWidget>
 
 		<!-- buttons -->
 		<LinearLayout

@@ -10,7 +10,8 @@ import io.reactivex.Observable
  * to.
  * @param <S> Top class of the [MviViewState] the [MviViewModel] will be emitting.
 </S></I> */
-interface MviViewModel<in I : MviIntent, S : MviViewState> {
+interface MviViewModel<in I : MviIntent, S : MviViewState, in R: MviResult> {
+
     /**
      * Bind view model to any intents (ex. from multiple views).
      */
@@ -20,4 +21,9 @@ interface MviViewModel<in I : MviIntent, S : MviViewState> {
      * Stream of view states for views to subscribe to.
      */
     fun states(): Observable<S>
+
+    /**
+     * Optional - bind view model to a stream of [MviResult]s, shortcircuiting [MviIntent] and [MviAction] processing.
+     */
+    fun processSimpleResults(results: Observable<out R>) { /* no-op */ }
 }
