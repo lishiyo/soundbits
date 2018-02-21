@@ -73,11 +73,6 @@ class TrackRowsAdapter(context: Context, var trackRows: MutableList<TrackModel>)
         }
     }
 
-    fun addTracksAndNotify(tracks: List<TrackModel>) {
-        trackRows.addAll(tracks)
-        notifyItemRangeInserted(trackRows.size - tracks.size, tracks.size)
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
         val view = inflater.inflate(R.layout.playlistcard_list_item_track, parent, false)
         return MainViewHolder(view)

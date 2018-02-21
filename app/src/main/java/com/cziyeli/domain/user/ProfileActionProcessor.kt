@@ -49,7 +49,7 @@ class ProfileActionProcessor @Inject constructor(private val repository: Reposit
             repository
                     .fetchRecommendedTracks(limit = act.limit, attributes = act.attributes)
                     .subscribeOn(schedulerProvider.io())
-                    .map { it.tracks.map { TrackModel.create(it) } }
+                    .map { it.tracks.map { TrackModel.create(it) }.filter { it.isSwipeable } }
                     .map { ProfileResult.FetchRecommendedTracks.createSuccess(it) }
                     .onErrorReturn { ProfileResult.FetchRecommendedTracks.createError(it) }
                     .observeOn(schedulerProvider.ui())
