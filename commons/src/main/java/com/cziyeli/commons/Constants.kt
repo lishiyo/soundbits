@@ -40,8 +40,3 @@ val GENRE_SEEDS = listOf("acoustic", "afrobeat", "alt-rock", "alternative", "amb
         "rock", "rock-n-roll", "rockabilly", "romance", "sad", "salsa", "samba", "sertanejo", "show-tunes", "singer-songwriter",
         "ska", "sleep", "songwriter", "soul", "soundtracks", "spanish", "study", "summer", "swedish", "synth-pop", "tango",
         "techno", "trance", "trip-hop", "turkish", "work-out", "world-music")
-
-fun getRandomGenreSeeds(count: Int = 5) : List<String> {
-    return GENRE_SEEDS.shuffled().take(count)
-}
-

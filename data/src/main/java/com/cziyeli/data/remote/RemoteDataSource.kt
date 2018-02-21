@@ -1,7 +1,6 @@
 package com.cziyeli.data.remote
 
 import com.cziyeli.commons.Utils
-import com.cziyeli.commons.getRandomGenreSeeds
 import io.reactivex.Observable
 import io.reactivex.Single
 import kaaes.spotify.webapi.android.SpotifyApi
@@ -159,7 +158,7 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
 
     fun fetchRecommendedTracks(limit: Int = 20,
                                attributes: Map<String, Number>?, // target_*, min_*, max_*
-                               seedGenres: List<String> = getRandomGenreSeeds()
+                               seedGenres: List<String> = Utils.getRandomGenreSeeds()
     ) : Observable<Recommendations> {
         val params = mutableMapOf<String, Any>("limit" to limit)
         attributes?.let {
