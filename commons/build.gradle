@@ -2,6 +2,9 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
+Properties props = new Properties()
+props.load(new FileInputStream(new File('secrets.properties')))
+
 android {
     compileSdkVersion 27
     defaultPublishConfig "debug"
@@ -20,9 +23,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
     }
+
+    buildTypes.each { variant ->
+        variant.buildConfigField 'String', 'SPOTIFY_CLIENT_ID', "\"${props.getProperty("SPOTIFY_CLIENT_ID")}\""
+        variant.buildConfigField 'String', 'SPOTIFY_REDIRECT_URI', "\"${props.getProperty("SPOTIFY_REDIRECT_URI")}\""
+    }
+
 }
 
 dependencies {
