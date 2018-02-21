@@ -88,6 +88,17 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
         }
     }
 
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+        Utils.mLog(TAG, "visible ++ $isVisibleToUser")
+
+        if (isVisibleToUser) {
+            (activity as RootActivity)
+                    .getRootPublisher()
+                    .accept(RootIntent.LoadLikedTracks())
+        }
+    }
+
     private fun initCards() {
         recommended_tracks_card.initWith(resources.getString(R.string.recommended_tracks_card_title), mutableListOf(), activity!!,
                 SimpleCardViewModel(
