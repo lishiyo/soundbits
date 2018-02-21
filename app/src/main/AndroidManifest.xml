@@ -28,7 +28,6 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name="com.cziyeli.songbits.home.oldhome.OldHomeActivity" />
 		<activity android:name=".cards.CardsActivity"
 			android:screenOrientation="portrait" />
 
@@ -61,10 +60,6 @@
 			android:screenOrientation="portrait"
 			android:windowSoftInputMode="adjustPan"
 			android:label="@string/app_name" >
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
 		</activity>
 
 		<activity
