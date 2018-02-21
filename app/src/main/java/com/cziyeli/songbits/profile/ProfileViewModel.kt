@@ -146,7 +146,9 @@ class ProfileViewModel @Inject constructor(
             }
             UserResult.Status.SUCCESS, MviResult.Status.SUCCESS -> {
                 // fetch the liked tracks stats and set as original
-                programmaticEventsPublisher.accept(ProfileIntent.LoadOriginalStats(result.items))
+                if (result.items.isNotEmpty()) {
+                    programmaticEventsPublisher.accept(ProfileIntent.LoadOriginalStats(result.items))
+                }
 
                 previousState.copy(
                         error = null,
