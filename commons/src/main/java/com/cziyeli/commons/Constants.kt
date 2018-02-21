@@ -5,11 +5,8 @@ package com.cziyeli.commons
  */
 const val TAG = "connie"
 
-// from songbits app
-const val SPOTIFY_API_BASE = "https://api.spotify.com/"
-const val SPOTIFY_CLIENT_ID = "7943ec6271944a349bea91696be9b8ec"
-const val SPOTIFY_CLIENT_SECRET = "ec5a09e5d0ad46bc8bd21d7a4e7bdb3d"
-const val SPOTIFY_REDIRECT_URI = "songbits://callback"
+const val SPOTIFY_CLIENT_ID = BuildConfig.SPOTIFY_CLIENT_ID
+const val SPOTIFY_REDIRECT_URI = BuildConfig.SPOTIFY_REDIRECT_URI
 const val SPOTIFY_REQUEST_CODE = 1337
 val SCOPES = arrayOf(
         "user-read-private",
@@ -40,8 +37,3 @@ val GENRE_SEEDS = listOf("acoustic", "afrobeat", "alt-rock", "alternative", "amb
         "rock", "rock-n-roll", "rockabilly", "romance", "sad", "salsa", "samba", "sertanejo", "show-tunes", "singer-songwriter",
         "ska", "sleep", "songwriter", "soul", "soundtracks", "spanish", "study", "summer", "swedish", "synth-pop", "tango",
         "techno", "trance", "trip-hop", "turkish", "work-out", "world-music")
-
-fun getRandomGenreSeeds(count: Int = 5) : List<String> {
-    return GENRE_SEEDS.shuffled().take(count)
-}
-

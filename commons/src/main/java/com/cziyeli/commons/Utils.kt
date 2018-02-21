@@ -88,10 +88,15 @@ object Utils {
     }
 
     fun <T> unlessEmpty(list: List<*>, defaultVal: T, fn: (List<*>) -> T): T {
-        if (list.isEmpty()) {
-            return defaultVal
+        return if (list.isEmpty()) {
+            defaultVal
         } else {
-            return fn(list)
+            fn(list)
         }
     }
+
+    fun getRandomGenreSeeds(count: Int = 5) : List<String> {
+        return GENRE_SEEDS.shuffled().take(count)
+    }
+
 }
