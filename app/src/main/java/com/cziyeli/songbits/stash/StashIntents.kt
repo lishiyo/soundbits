@@ -1,6 +1,7 @@
 package com.cziyeli.songbits.stash
 
 import com.cziyeli.commons.mvibase.MviIntent
+import com.cziyeli.commons.mvibase.SingleEventIntent
 import com.cziyeli.data.Repository
 import com.cziyeli.songbits.playlistcard.CardIntentMarker
 
@@ -13,7 +14,11 @@ import com.cziyeli.songbits.playlistcard.CardIntentMarker
 sealed class StashIntent : MviIntent, CardIntentMarker {
 
     // Swiped to first time
-    class InitialLoad : StashIntent()
+    class InitialLoad : StashIntent(), SingleEventIntent
+
+    class LoadLikedTracks : StashIntent(), SingleEventIntent
+
+    class LoadDislikedTracks : StashIntent(), SingleEventIntent
 
     // Clear all likes/dislikes from database
     class ClearTracks(val pref: Repository.Pref) : StashIntent()
@@ -22,5 +27,5 @@ sealed class StashIntent : MviIntent, CardIntentMarker {
     class FetchUserTopTracks(val limit: Int = 50,
                              val offset: Int = 0,
                              val time_range: String? = "medium_term"
-    ) : StashIntent()
+    ) : StashIntent(), SingleEventIntent
 }

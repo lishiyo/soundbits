@@ -11,11 +11,6 @@ import com.cziyeli.songbits.profile.ProfileIntentMarker
 interface CardIntentMarker : MviIntent
 
 /**
- * Events shared by [SimpleCardWidget] and [PlaylistCardWidget].
- */
-sealed class CardIntent : CardIntentMarker
-
-/**
  * Events for [PlaylistCardWidget].
  **/
 sealed class PlaylistCardIntent : CardIntentMarker {

@@ -16,7 +16,6 @@ import com.cziyeli.domain.stash.StashResult
 import com.cziyeli.domain.user.UserResult
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.root.RootActivity
-import com.cziyeli.songbits.root.RootIntent
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.jakewharton.rxrelay2.PublishRelay
 import dagger.android.support.AndroidSupportInjection
@@ -95,6 +94,9 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
 
         // fire fetch events
         eventsPublisher.accept(StashIntent.InitialLoad())
+        eventsPublisher.accept(StashIntent.LoadLikedTracks())
+        eventsPublisher.accept(StashIntent.LoadDislikedTracks())
+        eventsPublisher.accept(StashIntent.FetchUserTopTracks())
     }
 
     override fun intents(): Observable<out StashIntent> {
@@ -165,9 +167,6 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
 
         // Bind ViewModel to merged intents stream
         viewModel.processIntents(intents())
-
-        // Bind ViewModel to root states stream to listen to global state changes
-        viewModel.processRootViewStates((activity as RootActivity).getStates())
     }
 
     override fun onAttach(context: Context?) {
@@ -175,18 +174,12 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
         super.onAttach(context)
     }
 
-    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
-        super.setUserVisibleHint(isVisibleToUser)
-        if (isVisibleToUser && isAdded) {
-            // fetch the tracks
-            (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
-            (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadDislikedTracks())
-            eventsPublisher.accept(StashIntent.FetchUserTopTracks())
+    override fun onResume() {
+        super.onResume()
 
-            likes_card.onResume()
-            dislikes_card.onResume()
-            top_tracks_card.onResume()
-        }
+        likes_card.onResume()
+        dislikes_card.onResume()
+        top_tracks_card.onResume()
     }
 
     override fun onPause() {

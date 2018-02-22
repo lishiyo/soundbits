@@ -32,7 +32,7 @@ sealed class UserAction : HomeActionMarker, StashActionMarker, CardActionMarker 
     class LoadLikedTracks(limit: Int = 20,
                           offset: Int = 0,
                           fields: String? = null
-    ) : LoadStashedTracks(true, limit, offset, fields)
+    ) : LoadStashedTracks(true, limit, offset, fields), ProfileActionMarker
 
     class LoadDislikedTracks(limit: Int = 20,
                              offset: Int = 0,

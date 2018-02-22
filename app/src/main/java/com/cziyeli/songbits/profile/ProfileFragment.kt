@@ -16,8 +16,6 @@ import com.cziyeli.domain.stash.SimpleCardActionProcessor
 import com.cziyeli.domain.user.ProfileResult
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.base.ChipsIntent
-import com.cziyeli.songbits.root.RootActivity
-import com.cziyeli.songbits.root.RootIntent
 import com.cziyeli.songbits.stash.SimpleCardViewModel
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.jakewharton.rxrelay2.PublishRelay
@@ -82,7 +80,7 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
         )
 
         // attempt to fetch initial stats (of liked)
-        (activity as RootActivity).getRootPublisher().accept(RootIntent.LoadLikedTracks())
+        eventsPublisher.accept(ProfileIntent.LoadTracksForOriginalStats())
 
         // init click listeners = fetch recommended based on current stats
         action_get_recommended.setOnClickListener {
@@ -138,9 +136,6 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
 
         // Bind ViewModel to merged intents stream
         viewModel.processIntents(intents())
-
-        // Bind ViewModel to root states stream to listen to global state changes
-        viewModel.processRootViewStates((activity as RootActivity).getStates())
 
         // Bind the subviews
         chips_widget.processIntents(eventsPublisher.ofType(ChipsIntent::class.java))

@@ -7,7 +7,6 @@ import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
-import com.cziyeli.commons.resultFilter
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlists.*
 import com.cziyeli.domain.user.QuickCounts
@@ -47,8 +46,14 @@ class HomeViewModel @Inject constructor(
     private val intentFilter: ObservableTransformer<HomeIntent, HomeIntent> = ObservableTransformer { intents ->
         intents.publish { shared -> shared
             Observable.merge<HomeIntent>(
-                    shared.ofType(HomeIntent.Initial::class.java).take(1), // only take initial one time
-                    shared.filter({ intent -> intent !is HomeIntent.Initial })
+                    shared.ofType(HomeIntent.Initial::class.java).take(1),
+                    shared.ofType(HomeIntent.FetchUser::class.java).take(1), // only take initial one time
+                    shared.ofType(HomeIntent.LoadUserPlaylists::class.java).take(1),
+                    shared.ofType(HomeIntent.LoadFeaturedPlaylists::class.java).take(1)
+            ).mergeWith(
+                    shared.ofType(HomeIntent.FetchQuickCounts::class.java).take(1)
+            ).mergeWith(
+                    shared.filter({ intent -> intent !is SingleEventIntent || (intent.shouldRefresh())})
             )
         }
     }
@@ -65,17 +70,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    // Root ViewState => result
-    private val rootResultProcessor: ObservableTransformer<RootViewState, MviResult> = ObservableTransformer { acts ->
-        acts.map { rootState ->
-            when {
-                (rootState.status == MviViewState.Status.SUCCESS && rootState.quickCounts != null) -> {
-                    UserResult.FetchQuickCounts.createSuccess(rootState.quickCounts!!)
-                } else -> NoResult()
-            }
-        }
-    }
-
     init {
         // create observable to push into states live data
         val observable = intentsSubject
@@ -87,9 +81,6 @@ class HomeViewModel @Inject constructor(
                 .map{ it -> actionFromIntent(it)}
                 .compose(actionFilter<HomeActionMarker>())
                 .compose(actionProcessor.combinedProcessor) // action -> result
-                .mergeWith( // root viewstate -> home result
-                        rootStatesSubject.compose(rootResultProcessor).compose(resultFilter<HomeResult>())
-                )
                 .observeOn(schedulerProvider.ui())
                 .doOnNext { result -> Utils.log(TAG, "intentsSubject scanning result: ${result.javaClass.simpleName}") }
                 .scan(HomeViewState(), reducer)
@@ -115,6 +106,7 @@ class HomeViewModel @Inject constructor(
             is HomeIntent.LoadUserPlaylists -> PlaylistsAction.UserPlaylists(intent.limit, intent.offset)
             is HomeIntent.LoadFeaturedPlaylists -> PlaylistsAction.FeaturedPlaylists(intent.limit, intent.offset)
             is HomeIntent.FetchUser -> UserAction.FetchUser()
+            is HomeIntent.FetchQuickCounts -> UserAction.FetchQuickCounts()
             is HomeIntent.LogoutUser -> UserAction.ClearUser()
             else -> None // no-op all other events
         }

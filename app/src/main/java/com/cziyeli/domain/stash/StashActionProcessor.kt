@@ -2,6 +2,8 @@ package com.cziyeli.domain.stash
 
 import com.cziyeli.data.Repository
 import com.cziyeli.domain.tracks.TrackModel
+import com.cziyeli.domain.user.UserAction
+import com.cziyeli.songbits.root.RootActionProcessor
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -10,7 +12,9 @@ import javax.inject.Singleton
 
 @Singleton
 class StashActionProcessor @Inject constructor(private val repository: Repository,
-                                               private val schedulerProvider: BaseSchedulerProvider) {
+                                               private val schedulerProvider: BaseSchedulerProvider,
+                                               private val rootActionProcessor: RootActionProcessor
+) {
     private val TAG = StashActionProcessor::class.java.simpleName
 
     val combinedProcessor: ObservableTransformer<StashActionMarker, StashResultMarker> = ObservableTransformer { acts ->
@@ -18,7 +22,12 @@ class StashActionProcessor @Inject constructor(private val repository: Repositor
             Observable.merge<StashResultMarker>(
                     shared.ofType<StashAction.InitialLoad>(StashAction.InitialLoad::class.java).compose(initialLoadProcessor),
                     shared.ofType<StashAction.ClearTracks>(StashAction.ClearTracks::class.java).compose(clearTracksProcessor),
-                    shared.ofType<StashAction.FetchUserTopTracks>(StashAction.FetchUserTopTracks::class.java).compose(fetchUserTopTracks)
+                    shared.ofType<StashAction.FetchUserTopTracks>(StashAction.FetchUserTopTracks::class.java).compose(fetchUserTopTracks),
+                    shared.ofType<UserAction.LoadLikedTracks>(UserAction.LoadLikedTracks::class.java)
+                            .compose(rootActionProcessor.likedTracksProcessor)
+            ).mergeWith(
+                    shared.ofType<UserAction.LoadDislikedTracks>(UserAction.LoadDislikedTracks::class.java)
+                            .compose(rootActionProcessor.dislikedTracksProcessor)
             ).retry() // don't unsubscribe ever
         }
     }

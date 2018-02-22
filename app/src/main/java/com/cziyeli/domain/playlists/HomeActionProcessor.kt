@@ -27,6 +27,9 @@ class HomeActionProcessor @Inject constructor(private val repository: Repository
                     shared.ofType<PlaylistsAction.UserPlaylists>(PlaylistsAction.UserPlaylists::class.java).compose(userPlaylistsProcessor),
                     shared.ofType<PlaylistsAction.FeaturedPlaylists>(PlaylistsAction.FeaturedPlaylists::class.java).compose(featuredPlaylistsProcessor),
                     shared.ofType<UserAction.FetchUser>(UserAction.FetchUser::class.java).compose(userActionProcessor.fetchUserProcessor),
+                    shared.ofType<UserAction.FetchQuickCounts>(UserAction.FetchQuickCounts::class.java)
+                            .compose(userActionProcessor.fetchQuickCountsProcessor)
+            ).mergeWith(
                     shared.ofType<UserAction.ClearUser>(UserAction.ClearUser::class.java).compose(userActionProcessor.clearUserProcessor)
             ).retry() // don't unsubscribe ever
         }

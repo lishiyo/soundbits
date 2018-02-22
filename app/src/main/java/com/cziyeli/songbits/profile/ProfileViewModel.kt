@@ -5,7 +5,6 @@ import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
-import com.cziyeli.commons.resultFilter
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.summary.*
 import com.cziyeli.domain.tracks.TrackModel
@@ -48,19 +47,9 @@ class ProfileViewModel @Inject constructor(
         intents.publish { shared -> shared
             Observable.merge<ProfileIntentMarker>(
                     shared.ofType(ProfileIntent.LoadOriginalStats::class.java).take(1), // only take one time
-                    shared.filter({ intent -> intent !is ProfileIntent.LoadOriginalStats})
+                    shared.ofType(ProfileIntent.LoadTracksForOriginalStats::class.java).take(1), // only take one time
+                    shared.filter({ intent -> intent !is SingleEventIntent || intent.shouldRefresh() })
             )
-        }
-    }
-    // Root ViewState => result
-    private val rootResultProcessor: ObservableTransformer<RootViewState, MviResult> = ObservableTransformer { acts ->
-        acts.map { rootState ->
-            when {
-                rootState.status == MviViewState.Status.SUCCESS && rootState.lastResult is UserResult.LoadLikedTracks -> {
-                    UserResult.LoadLikedTracks.createSuccess(rootState.likedTracks)
-                }
-                else -> NoResult()
-            }
         }
     }
 
@@ -86,9 +75,6 @@ class ProfileViewModel @Inject constructor(
                 .map{ it -> actionFromIntent(it)}
                 .compose(actionFilter<ProfileActionMarker>())
                 .compose(actionProcessor.combinedProcessor) // own action -> own result
-                .mergeWith( // root viewstate -> own result
-                        rootStatesSubject.compose(rootResultProcessor).compose(resultFilter<ProfileResultMarker>())
-                )
                 .observeOn(schedulerProvider.ui())
                 .doOnNext { result -> Utils.log(TAG, "intentsSubject scanning result: ${result.javaClass.simpleName}") }
                 .scan(currentViewState, reducer)
@@ -105,6 +91,7 @@ class ProfileViewModel @Inject constructor(
 
     private fun actionFromIntent(intent: ProfileIntentMarker) : MviAction {
         return when (intent) {
+            is ProfileIntent.LoadTracksForOriginalStats -> UserAction.LoadLikedTracks() // one time
             is ProfileIntent.LoadOriginalStats -> StatsAction.FetchFullStats(intent.trackModels, intent.pref)
             is ProfileIntent.StatChanged -> ProfileAction.StatChanged(intent.currentMap, intent.stat)
             is ProfileIntent.FetchRecommendedTracks -> ProfileAction.FetchRecommendedTracks(intent.limit, intent.attributes)

@@ -40,10 +40,11 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<Ro
     companion object {
         private const val EXTRA_OPENING_TAB = "extra_open_to_tab"
 
-        fun create(context: Context, tab: Tab? = Tab.HOME) : Intent {
+        fun create(context: Context, tab: Tab? = Tab.HOME): Intent {
             return context.intentFor<RootActivity>(EXTRA_OPENING_TAB to tab?.tabPosition)
         }
     }
+
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     // view models
@@ -95,20 +96,6 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<Ro
         viewModel.processIntents(intents())
     }
 
-    /**
-     * Exposed such that others can dispatch to the global stream.
-     */
-    fun getRootPublisher(): PublishRelay<RootIntent> {
-        return eventsPublisher
-    }
-
-    /**
-     * Exposed such that others can subscribe to the 'global' view state.
-     */
-    fun getStates() : Observable<RootViewState> {
-        return viewModel.states()
-    }
-
     override fun intents(): Observable<out RootIntent> {
         return eventsPublisher
     }
@@ -116,7 +103,6 @@ class RootActivity : AppCompatActivity(), HasSupportFragmentInjector, MviView<Ro
     override fun render(state: RootViewState) {
         Utils.mLog(TAG, "RENDER", "$state")
         // render subviews?
-
     }
 
     override fun supportFragmentInjector(): AndroidInjector<Fragment> {

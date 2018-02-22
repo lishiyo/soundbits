@@ -5,10 +5,10 @@ import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
-import com.cziyeli.commons.resultFilter
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.stash.*
 import com.cziyeli.domain.tracks.TrackModel
+import com.cziyeli.domain.user.UserAction
 import com.cziyeli.domain.user.UserResult
 import com.cziyeli.songbits.root.RootViewState
 import com.jakewharton.rxrelay2.PublishRelay
@@ -43,23 +43,11 @@ class StashViewModel @Inject constructor(
             Observable.merge<StashIntent>(
                     shared.ofType(StashIntent.InitialLoad::class.java).take(1), // only take initial one time
                     shared.ofType(StashIntent.FetchUserTopTracks::class.java).take(1), // only load one time
-                    shared.filter({ intent -> intent !is StashIntent.InitialLoad &&
-                            (intent !is StashIntent.FetchUserTopTracks || currentViewState.topTracks.isEmpty()) })
+                    shared.ofType(StashIntent.LoadLikedTracks::class.java).take(1), // only load one time
+                    shared.ofType(StashIntent.LoadDislikedTracks::class.java).take(1) // only load one time
+            ).mergeWith(shared.filter({ intent -> intent !is SingleEventIntent
+                            || (intent is StashIntent.FetchUserTopTracks && currentViewState.topTracks.isEmpty()) })
             )
-        }
-    }
-
-    // Root ViewState => result
-    private val rootResultProcessor: ObservableTransformer<RootViewState, MviResult> = ObservableTransformer { acts ->
-        acts.map { rootState ->
-            when {
-                rootState.status == MviViewState.Status.SUCCESS && rootState.lastResult is UserResult.LoadLikedTracks -> {
-                    UserResult.LoadLikedTracks.createSuccess(rootState.likedTracks)
-                }
-                rootState.status == MviViewState.Status.SUCCESS && rootState.lastResult is UserResult.LoadDislikedTracks -> {
-                    UserResult.LoadDislikedTracks.createSuccess(rootState.dislikedTracks)
-                } else -> NoResult()
-            }
         }
     }
 
@@ -82,9 +70,6 @@ class StashViewModel @Inject constructor(
                 .map{ it -> actionFromIntent(it)}
                 .compose(actionFilter<StashActionMarker>())
                 .compose(actionProcessor.combinedProcessor) // own action -> own result
-                .mergeWith( // root viewstate -> own result
-                        rootStatesSubject.compose(rootResultProcessor).compose(resultFilter<StashResultMarker>())
-                )
                 .observeOn(schedulerProvider.ui())
                 .doOnNext { result -> Utils.log(TAG, "intentsSubject scanning result: ${result.javaClass.simpleName}") }
                 .scan(ViewState(), reducer)
@@ -104,6 +89,8 @@ class StashViewModel @Inject constructor(
     private fun actionFromIntent(intent: StashIntent) : MviAction {
         return when (intent) {
             is StashIntent.InitialLoad -> StashAction.InitialLoad()
+            is StashIntent.LoadLikedTracks -> UserAction.LoadLikedTracks() // load all
+            is StashIntent.LoadDislikedTracks -> UserAction.LoadDislikedTracks() // load all
             is StashIntent.ClearTracks -> StashAction.ClearTracks(intent.pref)
             is StashIntent.FetchUserTopTracks -> StashAction.FetchUserTopTracks(intent.time_range, intent.limit, intent.offset)
             else -> None // no-op all other events

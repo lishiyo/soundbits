@@ -28,12 +28,25 @@ class UserActionProcessor @Inject constructor(private val repository: Repository
         acts.publish { shared ->
             Observable.merge<HomeResult>(
                     shared.ofType<UserAction.FetchUser>(UserAction.FetchUser::class.java).compose(fetchUserProcessor),
-                    shared.ofType<UserAction.ClearUser>(UserAction.ClearUser::class.java).compose(clearUserProcessor)
+                    shared.ofType<UserAction.ClearUser>(UserAction.ClearUser::class.java).compose(clearUserProcessor),
+                    shared.ofType<UserAction.FetchQuickCounts>(UserAction.FetchQuickCounts::class.java).compose(fetchQuickCountsProcessor)
             ).retry() // don't unsubscribe ever
         }
     }
 
     // ==== individual list of processors (action -> result) ====
+
+    val fetchQuickCountsProcessor : ObservableTransformer<UserAction.FetchQuickCounts, UserResult.FetchQuickCounts> =
+            ObservableTransformer { actions -> actions.switchMap { act ->
+                repository.fetchUserQuickStats().toObservable()
+                        .map { (total, liked, disliked) -> QuickCounts(total, liked, disliked) }
+                        .map { quickCounts -> UserResult.FetchQuickCounts.createSuccess(quickCounts) }
+                        .onErrorReturn { err -> UserResult.FetchQuickCounts.createError(err) }
+                        .subscribeOn(schedulerProvider.io())
+                        .observeOn(schedulerProvider.ui())
+                        .startWith(UserResult.FetchQuickCounts.createLoading())
+            }
+            }
 
     // fetch and save the current user in UserManager
     val fetchUserProcessor : ObservableTransformer<UserAction.FetchUser, UserResult.FetchUser>

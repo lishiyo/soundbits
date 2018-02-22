@@ -1,5 +1,6 @@
 package com.cziyeli.songbits.profile
 
+import com.cziyeli.commons.mvibase.SingleEventIntent
 import com.cziyeli.data.Repository
 import com.cziyeli.domain.summary.TrackStatsData
 import com.cziyeli.domain.tracks.TrackModel
@@ -13,8 +14,12 @@ interface ProfileIntentMarker : CardIntentMarker
 
 sealed class ProfileIntent : ProfileIntentMarker {
 
+    // grab likes from root
+    class LoadTracksForOriginalStats: ProfileIntent(), SingleEventIntent
+
     // fetch initial liked stats
-    class LoadOriginalStats(val trackModels: List<TrackModel>,  val pref: Repository.Pref = Repository.Pref.LIKED) : ProfileIntent()
+    class LoadOriginalStats(val trackModels: List<TrackModel>,  val pref: Repository.Pref = Repository.Pref.LIKED)
+        : ProfileIntent(), SingleEventIntent
 
     // changed a single stat ("tempo" => ("target_tempo", 0.4)
     class StatChanged(val currentMap: TrackStatsData, val stat: Pair<String, Pair<String, Double>>) : ProfileIntent()

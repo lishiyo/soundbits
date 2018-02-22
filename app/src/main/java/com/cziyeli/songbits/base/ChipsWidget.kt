@@ -21,6 +21,7 @@ import com.jakewharton.rxrelay2.PublishRelay
 import fisk.chipcloud.ChipCloud
 import fisk.chipcloud.ChipCloudConfig
 import io.reactivex.Observable
+import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -43,7 +44,7 @@ data class Seed(val label: String) : Chip {
 sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
 
     // GET https://api.spotify.com/v1/recommendations/available-genre-seeds
-    class FetchSeedGenres(val limit: Int = 200) : ChipsIntent()
+    class FetchSeedGenres(val limit: Int = 200) : ChipsIntent(), SingleEventIntent
 
     // User checked or unchecked a chip
     class SelectionChange(val index: Int, val selected: Boolean) : ChipsIntent()
@@ -159,6 +160,14 @@ class ChipsViewModel @Inject constructor(
     private val intentsSubject : PublishRelay<ChipsIntent> by lazy { PublishRelay.create<ChipsIntent>() }
     private val compositeDisposable = CompositeDisposable()
 
+    private val intentFilter: ObservableTransformer<ChipsIntent, ChipsIntent> = ObservableTransformer { intents ->
+        intents.publish { shared -> shared
+            Observable.merge<ChipsIntent>(
+                    shared.ofType(ChipsIntent.FetchSeedGenres::class.java).take(1), // only take one time
+                    shared.filter({ intent -> intent !is SingleEventIntent })
+            )
+        }
+    }
     private val reducer: BiFunction<ViewState, ChipsResultMarker, ViewState> = BiFunction { previousState, result ->
         when (result) {
             is ChipsResult.FetchSeedGenres -> return@BiFunction processFetchSeedGenres(previousState, result)
@@ -169,6 +178,7 @@ class ChipsViewModel @Inject constructor(
     init {
         val observable: Observable<ViewState> = intentsSubject
                 .subscribeOn(schedulerProvider.io())
+                .compose(intentFilter)
                 .map{ it -> actionFromIntent(it)}
                 .compose(actionFilter<ChipsActionMarker>())
                 .compose(actionProcessor.combinedProcessor)

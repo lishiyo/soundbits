@@ -32,8 +32,16 @@ class RootViewModel @Inject constructor(
     private val viewStates: PublishRelay<RootViewState> by lazy { PublishRelay.create<RootViewState>() }
     private val compositeDisposable = CompositeDisposable()
     private val intentFilter: ObservableTransformer<RootIntent, RootIntent> = ObservableTransformer { intents ->
-        intents.publish { shared ->
-                    shared.ofType(RootIntent::class.java)
+        intents.publish { _ ->
+            intents.publish { shared -> shared
+                Observable.merge<RootIntent>(
+                        shared.ofType(RootIntent.FetchQuickCounts::class.java).take(1),
+                        shared.ofType(RootIntent.LoadLikedTracks::class.java).take(1),
+                        shared.ofType(RootIntent.LoadDislikedTracks::class.java).take(1)
+                ).mergeWith(
+                        shared.filter({ intent -> intent !is SingleEventIntent || (intent.shouldRefresh())})
+                )
+            }
         }
     }
 
@@ -75,9 +83,9 @@ class RootViewModel @Inject constructor(
 
     private fun actionFromIntent(intent: MviIntent) : MviAction {
         return when(intent) {
-            is RootIntent.FetchUserQuickCounts -> UserAction.FetchQuickCounts()
-            is RootIntent.LoadLikedTracks -> UserAction.LoadLikedTracks()
-            is RootIntent.LoadDislikedTracks -> UserAction.LoadDislikedTracks()
+            is RootIntent.FetchQuickCounts -> UserAction.FetchQuickCounts()
+            is RootIntent.LoadLikedTracks -> UserAction.LoadLikedTracks(intent.limit, intent.offset)
+            is RootIntent.LoadDislikedTracks -> UserAction.LoadDislikedTracks(intent.limit, intent.offset)
             else -> None // no-op all other events
         }
     }

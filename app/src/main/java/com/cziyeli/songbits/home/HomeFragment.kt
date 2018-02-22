@@ -20,8 +20,6 @@ import com.cziyeli.domain.playlists.PlaylistsResult
 import com.cziyeli.domain.user.UserResult
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.playlistcard.PlaylistCardActivity
-import com.cziyeli.songbits.root.RootActivity
-import com.cziyeli.songbits.root.RootIntent
 import com.jakewharton.rxrelay2.PublishRelay
 import dagger.android.support.AndroidSupportInjection
 import io.github.luizgrp.sectionedrecyclerviewadapter.Section
@@ -88,7 +86,6 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
         }
     }
 
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         return inflater.inflate(R.layout.fragment_home, container, false)
@@ -113,8 +110,7 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
 
     // the little mini card with the stats
     private fun loadUserCard() {
-        // use root's publisher to process at the root level
-        (activity as RootActivity).getRootPublisher().accept(RootIntent.FetchUserQuickCounts())
+        eventsPublisher.accept(HomeIntent.FetchQuickCounts())
 
         val userName = userManager.getCurrentUser().display_name
         val userImage = userManager.getCurrentUser().cover_image
@@ -169,9 +165,6 @@ class HomeFragment : Fragment(), MviView<HomeIntent, HomeViewState> {
 
         // Bind ViewModel to merged intents stream
         viewModel.processIntents(intents())
-
-        // Bind ViewModel to root states stream to listen to global state changes
-        viewModel.processRootViewStates((activity as RootActivity).getStates())
     }
 
     override fun intents(): Observable<out HomeIntent> {
