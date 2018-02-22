@@ -112,7 +112,7 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
                 dislikes_card.loadTracks(state.dislikedTracks)
             }
             state.status == MviViewState.Status.SUCCESS && state.lastResult is StashResult.FetchUserTopTracks -> {
-                top_tracks_card.loadTracks(state.topTracks)
+                top_tracks_card.loadTracks(state.topTracks, 2000)
             }
         }
     }

@@ -79,13 +79,18 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
                 }
         )
 
-        // attempt to fetch initial stats (of liked)
-        eventsPublisher.accept(ProfileIntent.LoadTracksForOriginalStats())
-
         // init click listeners = fetch recommended based on current stats
         action_get_recommended.setOnClickListener {
             val attrs = viewModel.currentTargetStats.convertToOutgoing()
             eventsPublisher.accept(ProfileIntent.FetchRecommendedTracks(attributes = attrs))
+        }
+    }
+
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+
+        if (isVisibleToUser && isAdded) {
+            fetchData()
         }
     }
 
@@ -139,7 +144,6 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
 
         // Bind the subviews
         chips_widget.processIntents(eventsPublisher.ofType(ChipsIntent::class.java))
-        eventsPublisher.accept(ChipsIntent.FetchSeedGenres())
     }
 
     override fun intents(): Observable<out ProfileIntentMarker> {
@@ -150,6 +154,19 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
         super.onResume()
 
         recommended_tracks_card?.onResume()
+        if (userVisibleHint && isAdded) {
+            fetchData()
+        }
+    }
+
+    /**
+     * Load the data for the screen - should only happen when visible.
+     */
+    private fun fetchData() {
+        // fetch initial stats (of liked)
+        eventsPublisher.accept(ProfileIntent.LoadTracksForOriginalStats())
+        // fetchData subviews
+        eventsPublisher.accept(ChipsIntent.FetchSeedGenres())
     }
 
     override fun onPause() {

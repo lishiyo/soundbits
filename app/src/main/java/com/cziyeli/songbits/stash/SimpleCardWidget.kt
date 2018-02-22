@@ -186,14 +186,14 @@ class SimpleCardWidget @JvmOverloads constructor(
     /**
      * Tracks in this card.
      */
-    fun loadTracks(tracks: List<TrackModel>) {
+    fun loadTracks(tracks: List<TrackModel>, delayInMilliseconds: Long = 700) {
         Utils.mLog(TAG, "loadTracks: ${tracks.size}")
         simpleResultsPublisher.accept(CardResult.TracksSet(tracks)) // set into viewmodel
         // TODO this is very ui heavy - figure out better way than delaying until tapped
         Handler().postDelayed({
             // only notify if this isn't expanded
             adapter.setTracksAndNotify(tracks, !expansion_layout.isExpanded || (tracks.isEmpty()))
-        }, 700)
+        }, delayInMilliseconds)
 
         if (tracks.isNotEmpty()) {
             // update the title
