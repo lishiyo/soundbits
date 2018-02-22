@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:button="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:orientation="vertical"
+	tools:parentTag="android.widget.LinearLayout">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="44dp"
+		android:layout_marginBottom="10dp"
+		android:layout_marginTop="10dp"
+		android:gravity="center"
+		android:orientation="horizontal"
+		android:paddingLeft="20dp"
+		android:paddingRight="20dp"
+		>
+
+		<TextView
+			android:id="@+id/seeds_title"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_gravity="center"
+			android:layout_weight="3"
+			android:text="@string/expand_seed_genres"
+			android:textAlignment="center"
+			/>
+
+		<!-- pick five at random -->
+		<com.cziyeli.songbits.base.RoundedCornerButton
+			android:id="@+id/action_randomize_seeds"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_marginStart="10dp"
+			android:layout_weight="1"
+			android:text="@string/action_random_genres"
+			button:bg_color="@color/colorAccent"
+			button:rounded_border_color="@color/persian_blue"
+			/>
+	</LinearLayout>
+
+	<!-- EXPANSION Header -->
+	<com.github.florent37.expansionpanel.ExpansionHeader
+		android:id="@+id/expansion_header"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:expansion_headerIndicator="@id/header_indicator"
+		app:expansion_layout="@id/chips_expansion_layout"
+		app:expansion_toggleOnClick="true">
+
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="48dp"
+			android:background="@color/colorAccent"
+			android:paddingLeft="16dp"
+			android:paddingRight="16dp">
+
+			<TextView
+				android:id="@+id/expansion_header_title"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_centerVertical="true"
+				android:text="@string/expand_seed_genres"
+				android:fontFamily="@font/quicksand"
+				android:textColor="@color/colorWhite" />
+
+			<android.support.v7.widget.AppCompatImageView
+				android:id="@+id/header_indicator"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:layout_centerVertical="true"
+				android:layout_marginLeft="16dp"
+				android:adjustViewBounds="true"
+				app:srcCompat="@drawable/icon_expand_header"
+				/>
+
+		</RelativeLayout>
+
+	</com.github.florent37.expansionpanel.ExpansionHeader>
+
+	<!-- EXPANSION CONTENT: The chip cloud  -->
+	<com.github.florent37.expansionpanel.ExpansionLayout
+		android:id="@+id/chips_expansion_layout"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:descendantFocusability="afterDescendants"
+		android:textSize="@dimen/small_text_size"
+		android:background="@color/colorAccent"
+		app:expansion_expanded="false"
+		android:paddingLeft="10dp"
+		android:paddingRight="10dp"
+		android:paddingBottom="10dp"
+		>
+
+		<com.google.android.flexbox.FlexboxLayout
+			android:id="@+id/chips_layout"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			app:alignContent="space_around"
+			app:alignItems="flex_start"
+			app:dividerDrawable="@drawable/chip_div"
+			app:flexWrap="wrap"
+			app:showDivider="middle" />
+
+	</com.github.florent37.expansionpanel.ExpansionLayout>
+
+</merge>

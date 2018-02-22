@@ -51,7 +51,9 @@ class ProfileActionProcessor @Inject constructor(private val repository: Reposit
     private val fetchRecommendedTracksProcessor: ObservableTransformer<ProfileAction.FetchRecommendedTracks,
             ProfileResult.FetchRecommendedTracks> = ObservableTransformer { action -> action.switchMap { act ->
             repository
-                    .fetchRecommendedTracks(limit = act.limit, attributes = act.attributes)
+                    .fetchRecommendedTracks(limit = act.limit,
+                            seedGenres = act.seedGenres.joinToString(","),
+                            attributes = act.attributes)
                     .subscribeOn(schedulerProvider.io())
                     .map { it.tracks.map { TrackModel.create(it) }.filter { it.isSwipeable } }
                     .map { ProfileResult.FetchRecommendedTracks.createSuccess(it) }

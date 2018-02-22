@@ -27,6 +27,7 @@ sealed class ProfileIntent : ProfileIntentMarker {
     // load recommended tracks based on stats
     // https://beta.developer.spotify.com/documentation/web-api/reference/browse/get-recommendations/
     class FetchRecommendedTracks(val limit: Int = 20,
+                                 val seedGenres: List<String>,
                                  val attributes: Map<String, Number> // target_*, min_*, max_*
     ) : ProfileIntent()
 }

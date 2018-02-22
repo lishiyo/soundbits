@@ -82,6 +82,9 @@
 	<!-- profile stuff -->
 	<string name="action_get_recommended">get recommended tracks</string>
 	<string name="action_reset_recommended">reset</string>
+	<string name="expand_seed_genres">pick 1-5 genres to seed your recs</string>
+	<string name="show_seed_genres">show genres</string>
+	<string name="action_random_genres">random 5</string>
 
 	<!-- stats stuff -->
 	<string name="stats_least">not at all %1$s</string>

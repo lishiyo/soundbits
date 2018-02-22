@@ -26,7 +26,7 @@ class ChipsActionProcessor @Inject constructor(private val repository: Repositor
                     // given tracks list -> grab stats
                     shared.ofType<ChipsAction.FetchSeedGenres>(ChipsAction.FetchSeedGenres::class.java)
                             .compose(seedGenresProcessor),
-                   Observable.empty()
+                    shared.ofType<ChipsAction.SelectionChange>(ChipsAction.SelectionChange::class.java).compose(selectionChangeProcessor)
             ).doOnNext {
                 Utils.mLog(TAG, "PlaylistCardActionProcessor: --- ${it::class.simpleName}")
             }.retry() // don't ever unsubscribe
@@ -36,13 +36,20 @@ class ChipsActionProcessor @Inject constructor(private val repository: Repositor
     private val seedGenresProcessor:  ObservableTransformer<ChipsAction.FetchSeedGenres, ChipsResult.FetchSeedGenres> = ObservableTransformer {
         actions -> actions.switchMap { act ->
             Observable.just(GENRE_SEEDS)
-                .map { seeds -> ChipsResult.FetchSeedGenres.createSuccess(seeds) }
-                .onErrorReturn { err -> ChipsResult.FetchSeedGenres.createError(err) }
-                .observeOn(schedulerProvider.ui())
-                .startWith(ChipsResult.FetchSeedGenres.createLoading())
+                    .observeOn(schedulerProvider.io())
+                    .map { seeds -> ChipsResult.FetchSeedGenres.createSuccess(seeds) }
+                    .onErrorReturn { err -> ChipsResult.FetchSeedGenres.createError(err) }
+                    .observeOn(schedulerProvider.ui())
+                    .startWith(ChipsResult.FetchSeedGenres.createLoading())
         }
     }
 
+    private val selectionChangeProcessor:  ObservableTransformer<ChipsAction.SelectionChange, ChipsResult.SelectionChange> =
+            ObservableTransformer {
+        actions -> actions.map { act ->
+                ChipsResult.SelectionChange(act.index, act.selected)
+            }.subscribeOn(schedulerProvider.io()).observeOn(schedulerProvider.ui())
+    }
 }
 
 // ========== ACTIONS ========
@@ -51,10 +58,10 @@ interface ChipsActionMarker : MviAction
 
 sealed class ChipsAction : ChipsActionMarker {
     // GET https://api.spotify.com/v1/recommendations/available-genre-seeds
-    class FetchSeedGenres(limit: Int = 200) : ChipsAction()
+    class FetchSeedGenres(val limit: Int = 200) : ChipsAction()
 
     // User checked or unchecked a chip
-    class SelectionChange(index: Int, selected: Boolean) : ChipsAction()
+    class SelectionChange(val index: Int, val selected: Boolean) : ChipsAction()
 }
 
 // ========== RESULTS ========
@@ -82,5 +89,5 @@ sealed class ChipsResult(var status: MviResult.StatusInterface = MviResult.Statu
         }
     }
 
-    class SelectionChange(val index: Int, val checked: Boolean) : ChipsResult(MviResult.Status.SUCCESS)
+    class SelectionChange(val index: Int, val selected: Boolean) : ChipsResult(MviResult.Status.SUCCESS)
 }

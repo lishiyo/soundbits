@@ -43,18 +43,18 @@
 
 	<!-- BODY CONTENT: LIST of TRACKS (COLLAPSED) -->
 	<com.github.florent37.expansionpanel.ExpansionLayout
-			android:id="@+id/expansion_layout"
-			android:textSize="@dimen/small_text_size"
-			app:expansion_expanded="false"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:descendantFocusability="afterDescendants"
-		>
-	<android.support.v7.widget.RecyclerView
-		android:id="@+id/tracks_recycler_view"
+		android:id="@+id/expansion_layout"
+		android:textSize="@dimen/small_text_size"
+		app:expansion_expanded="false"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		/>
+		android:descendantFocusability="afterDescendants"
+		>
+		<android.support.v7.widget.RecyclerView
+			android:id="@+id/tracks_recycler_view"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			/>
 	</com.github.florent37.expansionpanel.ExpansionLayout>
 
 </merge>

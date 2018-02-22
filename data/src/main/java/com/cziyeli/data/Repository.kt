@@ -83,6 +83,7 @@ interface Repository {
 
     fun fetchRecommendedTracks(source: Repository.Source = Source.REMOTE,
                                limit: Int = 20,
+                               seedGenres: String,
                                attributes: Map<String, out Number>? // target_*, min_*, max_*
     ) : Observable<Recommendations>
 

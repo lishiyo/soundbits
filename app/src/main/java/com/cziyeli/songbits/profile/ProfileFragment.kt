@@ -82,7 +82,11 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
         // init click listeners = fetch recommended based on current stats
         action_get_recommended.setOnClickListener {
             val attrs = viewModel.currentTargetStats.convertToOutgoing()
-            eventsPublisher.accept(ProfileIntent.FetchRecommendedTracks(attributes = attrs))
+            eventsPublisher.accept(ProfileIntent.FetchRecommendedTracks(seedGenres = chips_widget.getCurrentSelected(), attributes = attrs))
+        }
+
+        if (userVisibleHint && isAdded) {
+            fetchData()
         }
     }
 

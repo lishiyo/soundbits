@@ -5,6 +5,7 @@ import android.content.Context
 import android.support.v4.content.res.ResourcesCompat
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.widget.LinearLayout
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
@@ -13,9 +14,6 @@ import com.cziyeli.domain.base.*
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.di.App
 import com.cziyeli.songbits.profile.ProfileIntentMarker
-import com.google.android.flexbox.AlignContent.FLEX_START
-import com.google.android.flexbox.AlignContent.SPACE_AROUND
-import com.google.android.flexbox.FlexWrap.WRAP
 import com.google.android.flexbox.FlexboxLayout
 import com.jakewharton.rxrelay2.PublishRelay
 import fisk.chipcloud.ChipCloud
@@ -24,6 +22,7 @@ import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
+import kotlinx.android.synthetic.main.widget_expandable_chips.view.*
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
 import javax.inject.Inject
 
@@ -60,7 +59,7 @@ sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
         context: Context,
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
-) : FlexboxLayout(context, attrs, defStyleAttr), MviSubView<ChipsIntent, ChipsViewModel.ViewState> {
+) : LinearLayout(context, attrs, defStyleAttr), MviSubView<ChipsIntent, ChipsViewModel.ViewState> {
     private val TAG = ChipsWidget::class.java.simpleName
 
     // Container for the chips
@@ -75,35 +74,29 @@ sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
     init {
         App.appComponent.inject(this)
 
-        LayoutInflater.from(context).inflate(R.layout.widget_chips, this, true)
+        LayoutInflater.from(context).inflate(R.layout.widget_expandable_chips, this, true)
+        orientation = VERTICAL
         initViewModel()
-
-        // set flexbox
-        alignContent = SPACE_AROUND
-        alignItems = FLEX_START
-        flexWrap = WRAP
-        setShowDivider(SHOW_DIVIDER_MIDDLE)
-        setDividerDrawable(resources.getDrawable(R.drawable.chip_div))
 
         val config = ChipCloudConfig()
                 .selectMode(ChipCloud.SelectMode.multi)
-                .checkedChipColor(resources.getColor(R.color.colorAccent))
+                .checkedChipColor(resources.getColor(R.color.colorPrimary))
                 .checkedTextColor(resources.getColor(R.color.colorWhite))
                 .uncheckedChipColor(resources.getColor(R.color.colorWhite))
                 .uncheckedTextColor(resources.getColor(R.color.colorAccent))
                 .useInsetPadding(false)
                 .typeface(ResourcesCompat.getFont(context, R.font.quicksand))
 
-        chipCloud = ChipCloud(context, this, config)
-        chipCloud.addChip("HelloWorld!")
-
-        // listeners => view model
+        chipCloud = ChipCloud(context, chips_layout, config)
         chipCloud.setListener { index, checked, userClick ->
             if (userClick) {
-                Utils.mLog(TAG, String.format("chipCheckedChange Label at index: %d checked: %s", index, checked))
                 eventsPublisher.accept(ChipsIntent.SelectionChange(index, checked))
             }
         }
+    }
+
+    fun getCurrentSelected() : List<String> {
+        return viewModel.currentViewState.selectedChips.map { it.toString() }
     }
 
     private fun initViewModel() {
@@ -111,6 +104,7 @@ sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
         compositeDisposable.add(
                 viewModel.states().subscribe({ state ->
                     state?.let {
+
                         this.render(state)
                     }
                 })
@@ -137,14 +131,17 @@ sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
                 chipCloud.addChips(state.chips.map { it.toString() })
             }
             state.status == MviViewState.Status.SUCCESS && state.lastResult is ChipsResult.SelectionChange -> {
-                // re-render just that chip
+                // see if we need to deselect any
+                if (state.deselected.isNotEmpty()) {
+                    state.deselected.forEach { chipCloud.deselectIndex(it) }
+                }
             }
         }
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-
+        Utils.mLog(TAG, "detached!")
         compositeDisposable.clear()
     }
 
@@ -157,6 +154,7 @@ class ChipsViewModel @Inject constructor(
     private val TAG = ChipsViewModel::class.simpleName
 
     private val viewStates: PublishRelay<ViewState> by lazy { PublishRelay.create<ViewState>() }
+    var currentViewState: ChipsViewModel.ViewState
     private val intentsSubject : PublishRelay<ChipsIntent> by lazy { PublishRelay.create<ChipsIntent>() }
     private val compositeDisposable = CompositeDisposable()
 
@@ -171,11 +169,13 @@ class ChipsViewModel @Inject constructor(
     private val reducer: BiFunction<ViewState, ChipsResultMarker, ViewState> = BiFunction { previousState, result ->
         when (result) {
             is ChipsResult.FetchSeedGenres -> return@BiFunction processFetchSeedGenres(previousState, result)
+            is ChipsResult.SelectionChange -> return@BiFunction processSelectionChange(previousState, result)
             else -> return@BiFunction previousState
         }
     }
 
     init {
+        currentViewState = ViewState()
         val observable: Observable<ViewState> = intentsSubject
                 .subscribeOn(schedulerProvider.io())
                 .compose(intentFilter)
@@ -185,10 +185,11 @@ class ChipsViewModel @Inject constructor(
                 .compose(resultFilter<ChipsResultMarker>())
                 .observeOn(schedulerProvider.ui())
                 .doOnNext { intent -> Utils.mLog(TAG, "intentsSubject", "hitActionProcessor", intent.javaClass.name) }
-                .scan(ViewState(), reducer) // final scan
+                .scan(currentViewState, reducer) // final scan
 
         compositeDisposable.add(
                 observable.distinctUntilChanged().subscribe({ viewState ->
+                    currentViewState = viewState
                     viewStates.accept(viewState)
                 }, { err ->
                     Utils.mLog(TAG, "init", "error", err.localizedMessage)
@@ -226,7 +227,8 @@ class ChipsViewModel @Inject constructor(
                 previousState.copy(
                         error = null,
                         lastResult = result,
-                        status = status
+                        status = status,
+                        deselected = listOf()
                 )
             }
             MviResult.Status.SUCCESS -> {
@@ -235,26 +237,62 @@ class ChipsViewModel @Inject constructor(
                         error = null,
                         lastResult = result,
                         status = status,
-                        chips = chips
+                        chips = chips,
+                        deselected = listOf()
                 )
             }
             else -> previousState
         }
     }
 
+    private fun processSelectionChange(
+            previousState: ViewState,
+            result: ChipsResult.SelectionChange
+    ) : ViewState {
+        val status = Utils.statusFromResult(result.status)
+        return when (result.status) {
+            MviResult.Status.LOADING, MviResult.Status.ERROR -> {
+                previousState.copy(
+                        error = null,
+                        lastResult = result,
+                        status = status,
+                        deselected = listOf()
+                )
+            }
+            MviResult.Status.SUCCESS -> {
+                val newSelected = previousState.selected.toMutableList()
+                if (result.selected) {
+                    newSelected.add(result.index)
+                } else {
+                    // remove from the list
+                    newSelected.remove(result.index)
+                }
+                val finalFive = newSelected.takeLast(5)
+                previousState.copy(
+                        error = null,
+                        lastResult = result,
+                        status = status,
+                        selected = finalFive,
+                        deselected = previousState.selected - finalFive
+                )
+            }
+            else -> previousState
+        }
+    }
 
     data class ViewState(
             val status: MviViewState.StatusInterface = MviViewState.Status.IDLE,
             val error: Throwable? = null,
             val lastResult: ChipsResultMarker? = null,
             val chips: List<Chip> = listOf(),
-            val selected: List<Int> = listOf() // currently selected indices
+            val selected: List<Int> = listOf(), // currently selected indices
+            val deselected: List<Int> = listOf() // in case we had to deselect one
     ) : MviViewState {
         val selectedChips: List<Chip>
             get() = selected.map { chips[it] }
 
         override fun toString(): String {
-            return "total: ${chips.size}, selected: ${selectedChips.size}"
+            return "total: ${chips.size}, selected: $selectedChips"
         }
     }
 }

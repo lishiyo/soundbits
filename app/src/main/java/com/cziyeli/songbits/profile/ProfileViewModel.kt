@@ -53,6 +53,7 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+
     private val reducer: BiFunction<ProfileViewModel.ViewState, ProfileResultMarker, ProfileViewModel.ViewState> = BiFunction {
         previousState, result -> when (result) {
             is UserResult.LoadLikedTracks -> return@BiFunction processLikedTracks(previousState, result)
@@ -65,6 +66,7 @@ class ProfileViewModel @Inject constructor(
 
     val currentTargetStats: TrackStatsData
         get() = currentViewState.currentTargetStats
+
 
     init {
         // create observable to push into states live data
@@ -94,7 +96,8 @@ class ProfileViewModel @Inject constructor(
             is ProfileIntent.LoadTracksForOriginalStats -> UserAction.LoadLikedTracks() // one time
             is ProfileIntent.LoadOriginalStats -> StatsAction.FetchFullStats(intent.trackModels, intent.pref)
             is ProfileIntent.StatChanged -> ProfileAction.StatChanged(intent.currentMap, intent.stat)
-            is ProfileIntent.FetchRecommendedTracks -> ProfileAction.FetchRecommendedTracks(intent.limit, intent.attributes)
+            is ProfileIntent.FetchRecommendedTracks -> ProfileAction.FetchRecommendedTracks(intent.limit, intent.seedGenres,
+                    intent.attributes)
             else -> None // no-op all other events
         }
     }

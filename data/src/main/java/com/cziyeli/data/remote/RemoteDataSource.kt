@@ -157,8 +157,8 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
     }
 
     fun fetchRecommendedTracks(limit: Int = 20,
-                               attributes: Map<String, Number>?, // target_*, min_*, max_*
-                               seedGenres: List<String> = Utils.getRandomGenreSeeds()
+                               seedGenres: String,
+                               attributes: Map<String, Number>? // target_*, min_*, max_*
     ) : Observable<Recommendations> {
         val params = mutableMapOf<String, Any>("limit" to limit)
         attributes?.let {
@@ -166,10 +166,8 @@ class RemoteDataSource @Inject constructor(private val api: SpotifyApi,
                 params[name] = value
             }
         }
-        seedGenres?.let { // TODO don't hardcode this
-            Utils.mLog(TAG, "selected: ${seedGenres.joinToString(",")}")
-            params["seed_genres"] = seedGenres.joinToString(",")
-        }
+        params["seed_genres"] = seedGenres
+        
         return Observable.create<Recommendations>({ emitter ->
             api.service.getRecommendations(params, object : Callback<Recommendations> {
                 override fun success(t: Recommendations, response: Response?) {

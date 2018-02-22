@@ -54,9 +54,10 @@ class RepositoryImpl @Inject constructor(
 
     override fun fetchRecommendedTracks(source: Repository.Source,
                                         limit: Int,
+                                        seedGenres: String,
                                         attributes: Map<String, Number>? // target_*, min_*, max_*
     ): Observable<Recommendations> {
-        return remoteDataSource.fetchRecommendedTracks(limit, attributes)
+        return remoteDataSource.fetchRecommendedTracks(limit, seedGenres, attributes)
     }
 
     override fun fetchUserTopTracks(source: Repository.Source, time_range: String?, limit: Int, offset: Int) : Observable<Pager<Track>> {
