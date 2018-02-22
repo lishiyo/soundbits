@@ -91,8 +91,17 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
 
         // load all the cards (empty for now)
         initCards()
+    }
 
-        // fire fetch events
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+
+        if (isVisibleToUser && isAdded) {
+            fetchData()
+        }
+    }
+
+    private fun fetchData() {
         eventsPublisher.accept(StashIntent.InitialLoad())
         eventsPublisher.accept(StashIntent.LoadLikedTracks())
         eventsPublisher.accept(StashIntent.LoadDislikedTracks())
@@ -180,6 +189,9 @@ class StashFragment : Fragment(), MviView<StashIntent, StashViewModel.ViewState>
         likes_card.onResume()
         dislikes_card.onResume()
         top_tracks_card.onResume()
+        if (userVisibleHint && isAdded) {
+            fetchData()
+        }
     }
 
     override fun onPause() {

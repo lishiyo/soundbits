@@ -86,14 +86,6 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
         }
     }
 
-    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
-        super.setUserVisibleHint(isVisibleToUser)
-
-        if (isVisibleToUser && isAdded) {
-            fetchData()
-        }
-    }
-
     private fun initCards() {
         recommended_tracks_card.initWith(resources.getString(R.string.recommended_tracks_card_title), mutableListOf(), activity!!,
                 SimpleCardViewModel(
@@ -148,6 +140,14 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
 
     override fun intents(): Observable<out ProfileIntentMarker> {
         return eventsPublisher
+    }
+
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        super.setUserVisibleHint(isVisibleToUser)
+
+        if (isVisibleToUser && isAdded) {
+            fetchData()
+        }
     }
 
     override fun onResume() {
