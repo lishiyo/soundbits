@@ -47,7 +47,6 @@ class HomeActionProcessor @Inject constructor(private val repository: Repository
                             .map { playlists -> PlaylistsResult.UserPlaylists.createSuccess(playlists) }
                             .onErrorReturn { err -> PlaylistsResult.UserPlaylists.createError(err) }
                             .subscribeOn(schedulerProvider.io())
-                            .observeOn(schedulerProvider.ui())
                             .startWith(PlaylistsResult.UserPlaylists.createLoading())
         }
     }
@@ -62,7 +61,6 @@ class HomeActionProcessor @Inject constructor(private val repository: Repository
                 .map { playlists -> PlaylistsResult.FeaturedPlaylists.createSuccess(playlists) }
                 .onErrorReturn { err -> PlaylistsResult.FeaturedPlaylists.createError(err) }
                 .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
                 .startWith(PlaylistsResult.FeaturedPlaylists.createLoading())
         }
     }

@@ -76,9 +76,9 @@ class ProfileViewModel @Inject constructor(
                 .map{ it -> actionFromIntent(it)}
                 .compose(actionFilter<ProfileActionMarker>())
                 .compose(actionProcessor.combinedProcessor) // own action -> own result
-                .observeOn(schedulerProvider.ui())
                 .doOnNext { result -> Utils.log(TAG, "intentsSubject scanning result: ${result.javaClass.simpleName}") }
                 .scan(currentViewState, reducer)
+                .observeOn(schedulerProvider.ui())
 
         compositeDisposable.add(
                 observable.distinctUntilChanged().subscribe({ viewState ->

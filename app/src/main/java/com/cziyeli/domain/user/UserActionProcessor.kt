@@ -43,9 +43,8 @@ class UserActionProcessor @Inject constructor(private val repository: Repository
                         .map { quickCounts -> UserResult.FetchQuickCounts.createSuccess(quickCounts) }
                         .onErrorReturn { err -> UserResult.FetchQuickCounts.createError(err) }
                         .subscribeOn(schedulerProvider.io())
-                        .observeOn(schedulerProvider.ui())
                         .startWith(UserResult.FetchQuickCounts.createLoading())
-            }
+                }
             }
 
     // fetch and save the current user in UserManager
@@ -58,7 +57,6 @@ class UserActionProcessor @Inject constructor(private val repository: Repository
                 .map { user -> UserResult.FetchUser.createSuccess(currentUser = user) }
                 .onErrorReturn { err -> UserResult.FetchUser.createError(err) }
                 .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
                 .startWith(UserResult.FetchUser.createLoading())
         }
     }
@@ -72,7 +70,6 @@ class UserActionProcessor @Inject constructor(private val repository: Repository
                     .map { _ -> UserResult.ClearUser.createSuccess() }
                     .onErrorReturn { err -> UserResult.ClearUser.createError(err) }
                     .subscribeOn(schedulerProvider.io())
-                    .observeOn(schedulerProvider.ui())
                     .startWith(UserResult.ClearUser.createLoading())
         }
     }

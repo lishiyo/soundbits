@@ -81,9 +81,9 @@ class HomeViewModel @Inject constructor(
                 .map{ it -> actionFromIntent(it)}
                 .compose(actionFilter<HomeActionMarker>())
                 .compose(actionProcessor.combinedProcessor) // action -> result
-                .observeOn(schedulerProvider.ui())
                 .doOnNext { result -> Utils.log(TAG, "intentsSubject scanning result: ${result.javaClass.simpleName}") }
                 .scan(HomeViewState(), reducer)
+                .observeOn(schedulerProvider.ui())
                 // Emit the last one event of the stream on subscription
                 // Useful when a View rebinds to the ViewModel after rotation.
                 .replay(1)

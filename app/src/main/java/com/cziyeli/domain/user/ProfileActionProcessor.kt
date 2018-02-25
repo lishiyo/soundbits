@@ -52,7 +52,6 @@ class ProfileActionProcessor @Inject constructor(private val repository: Reposit
             Observable.just(act)
                     .map { act.currentMap.updateWithStat(act.stat) }
                     .subscribeOn(schedulerProvider.io())
-                    .observeOn(schedulerProvider.ui())
                     .map { ProfileResult.StatChanged(statsMap = it)}
         }
     }
@@ -67,7 +66,6 @@ class ProfileActionProcessor @Inject constructor(private val repository: Reposit
                     .map { it.tracks.map { TrackModel.create(it) }.filter { it.isSwipeable } }
                     .map { ProfileResult.FetchRecommendedTracks.createSuccess(it) }
                     .onErrorReturn { ProfileResult.FetchRecommendedTracks.createError(it) }
-                    .observeOn(schedulerProvider.ui())
                     .startWith(ProfileResult.FetchRecommendedTracks.createLoading())
         }
     }

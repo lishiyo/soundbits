@@ -39,32 +39,29 @@ class ChipsActionProcessor @Inject constructor(private val repository: Repositor
     private val seedGenresProcessor: ObservableTransformer<ChipsAction.FetchSeedGenres, ChipsResult.FetchSeedGenres> = ObservableTransformer {
         actions -> actions.switchMap { act ->
             Observable.just(GENRE_SEEDS)
-                    .observeOn(schedulerProvider.io())
+                    .subscribeOn(schedulerProvider.io())
                     .map { seeds -> ChipsResult.FetchSeedGenres.createSuccess(seeds) }
                     .onErrorReturn { err -> ChipsResult.FetchSeedGenres.createError(err) }
-                    .observeOn(schedulerProvider.ui())
                     .startWith(ChipsResult.FetchSeedGenres.createLoading())
         }
     }
 
     private val changeSelectionProcessor: ObservableTransformer<ChipsAction.SelectionChange, ChipsResult.ChangeSelection> =
             ObservableTransformer {
-        actions -> actions.map { act ->
-                ChipsResult.ChangeSelection(act.index, act.selected)
-            }.subscribeOn(schedulerProvider.io()).observeOn(schedulerProvider.ui())
+        actions -> actions.map { act -> ChipsResult.ChangeSelection(act.index, act.selected) }
+                    .subscribeOn(schedulerProvider.io())
     }
 
     private val clearSelectionsProcessor: ObservableTransformer<ChipsAction.Reset, ChipsResult.ChangeSelections> =
             ObservableTransformer {
                 actions -> actions.map { act -> ChipsResult.ChangeSelections(listOf()) }
-                    .subscribeOn(schedulerProvider.io()).observeOn(schedulerProvider.ui())
+                    .subscribeOn(schedulerProvider.io())
             }
 
     private val pickRandomGenresProcessor: ObservableTransformer<ChipsAction.PickRandomGenres, ChipsResult.ChangeSelections> =
             ObservableTransformer {
-                actions -> actions.map { act ->
-                        ChipsResult.ChangeSelections(Utils.getRandomGenreSeeds(), true)
-                }.subscribeOn(schedulerProvider.io()).observeOn(schedulerProvider.ui())
+                actions -> actions.map { act -> ChipsResult.ChangeSelections(Utils.getRandomGenreSeeds(), true) }
+                    .subscribeOn(schedulerProvider.io())
             }
 }
 

@@ -26,6 +26,7 @@ import com.cziyeli.songbits.stash.SimpleCardViewModel
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.jakewharton.rxrelay2.PublishRelay
 import dagger.android.support.AndroidSupportInjection
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_profile.*
@@ -133,6 +134,7 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
     override fun render(state: ProfileViewModel.ViewState) {
         Utils.mLog(TAG, "RENDER", "$state")
 
+
         when {
             state.status == MviViewState.Status.SUCCESS && state.lastResult is UserResult.ClearUser -> {
                 // kick back out to landing page!
@@ -206,10 +208,14 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
      * Load the data for the screen - should only happen when visible.
      */
     private fun fetchData() {
-        // fetch initial stats (of liked)
-        eventsPublisher.accept(ProfileIntent.LoadTracksForOriginalStats())
-        // fetchData subviews
-        eventsPublisher.accept(ChipsIntent.FetchSeedGenres())
+        compositeDisposable.add(
+                Completable.create({ e ->
+                    // fetch initial stats (of liked)
+                    eventsPublisher.accept(ProfileIntent.LoadTracksForOriginalStats())
+                    // fetchData subviews
+                    eventsPublisher.accept(ChipsIntent.FetchSeedGenres())
+                }).subscribeOn(schedulerProvider.io()).subscribe()
+        )
     }
 
     override fun onPause() {

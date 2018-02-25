@@ -103,7 +103,7 @@
 	<com.github.florent37.expansionpanel.ExpansionLayout
 		android:id="@+id/chips_expansion_layout"
 		android:layout_width="match_parent"
-		android:layout_height="300dp"
+		android:layout_height="wrap_content"
 		android:descendantFocusability="afterDescendants"
 		android:textSize="@dimen/small_text_size"
 		android:background="@drawable/gradient_blues"
@@ -111,21 +111,16 @@
 		android:padding="10dp"
 		>
 
-		<android.support.v4.widget.NestedScrollView
+		<com.google.android.flexbox.FlexboxLayout
+			android:id="@+id/chips_layout"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			>
-			<com.google.android.flexbox.FlexboxLayout
-				android:id="@+id/chips_layout"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				app:alignContent="space_between"
-				app:alignItems="flex_start"
-				app:dividerDrawable="@drawable/chip_div"
-				app:flexWrap="wrap"
-				app:showDivider="middle" >
-			</com.google.android.flexbox.FlexboxLayout>
-		</android.support.v4.widget.NestedScrollView>
+			app:alignContent="space_between"
+			app:alignItems="center"
+			app:dividerDrawable="@drawable/chip_div"
+			app:flexWrap="wrap"
+			app:showDivider="middle" >
+		</com.google.android.flexbox.FlexboxLayout>
 
 	</com.github.florent37.expansionpanel.ExpansionLayout>
 
