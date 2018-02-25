@@ -27,7 +27,9 @@ class ChipsActionProcessor @Inject constructor(private val repository: Repositor
                     shared.ofType<ChipsAction.FetchSeedGenres>(ChipsAction.FetchSeedGenres::class.java)
                             .compose(seedGenresProcessor),
                     shared.ofType<ChipsAction.SelectionChange>(ChipsAction.SelectionChange::class.java).compose(changeSelectionProcessor),
-                    shared.ofType<ChipsAction.PickRandomGenres>(ChipsAction.PickRandomGenres::class.java).compose(pickRandomGenresProcessor)
+                    shared.ofType<ChipsAction.PickRandomGenres>(ChipsAction.PickRandomGenres::class.java)
+                            .compose(pickRandomGenresProcessor),
+                    shared.ofType<ChipsAction.Reset>(ChipsAction.Reset::class.java).compose(clearSelectionsProcessor)
             ).doOnNext {
                 Utils.mLog(TAG, "ChipsActionProcessor: --- ${it::class.simpleName}")
             }.retry() // don't ever unsubscribe
@@ -52,6 +54,12 @@ class ChipsActionProcessor @Inject constructor(private val repository: Repositor
             }.subscribeOn(schedulerProvider.io()).observeOn(schedulerProvider.ui())
     }
 
+    private val clearSelectionsProcessor: ObservableTransformer<ChipsAction.Reset, ChipsResult.ChangeSelections> =
+            ObservableTransformer {
+                actions -> actions.map { act -> ChipsResult.ChangeSelections(listOf()) }
+                    .subscribeOn(schedulerProvider.io()).observeOn(schedulerProvider.ui())
+            }
+
     private val pickRandomGenresProcessor: ObservableTransformer<ChipsAction.PickRandomGenres, ChipsResult.ChangeSelections> =
             ObservableTransformer {
                 actions -> actions.map { act ->
@@ -73,6 +81,9 @@ sealed class ChipsAction : ChipsActionMarker {
 
     // User hit 'pick random' genre seeds
     class PickRandomGenres(val count: Int) : ChipsAction()
+
+    // Clear out chips
+    class Reset : ChipsAction()
 }
 
 // ========== RESULTS ========

@@ -168,9 +168,11 @@
 	</style>
 
 	<style name="TitleIcon">
-		<item name="android:layout_width">32dp</item>
-		<item name="android:layout_height">32dp</item>
-		<item name="android:padding">5dp</item>
+		<item name="android:layout_width">34dp</item>
+		<item name="android:layout_height">34dp</item>
+		<item name="android:paddingStart">5dp</item>
+		<item name="android:paddingEnd">5dp</item>
+		<item name="android:paddingTop">5dp</item>
 		<item name="android:layout_marginEnd">8dp</item>
 	</style>
 </resources>

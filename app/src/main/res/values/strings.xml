@@ -13,7 +13,7 @@
 
 	<string name="title_stash_frag">Curate Tracks</string>
 	<string name="title_profile_frag">Profile</string>
-	<string name="profile_subtitle">Recommendations Potpourri</string>
+	<string name="profile_subtitle">Spotify DJ</string>
 
 	<string name="com_spotify_sdk_redirect_scheme">songbits</string>
 	<string name="com_spotify_sdk_redirect_host">callback</string>

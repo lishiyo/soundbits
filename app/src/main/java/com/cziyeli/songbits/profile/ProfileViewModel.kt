@@ -9,7 +9,6 @@ import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.summary.*
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.user.*
-import com.cziyeli.songbits.root.RootViewState
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
@@ -33,8 +32,7 @@ class ProfileViewModel @Inject constructor(
 
     // Listener for home-specific events
     private val intentsSubject : PublishRelay<ProfileIntentMarker> by lazy { PublishRelay.create<ProfileIntentMarker>() }
-    // Listener for root view states
-    private val rootStatesSubject: PublishRelay<RootViewState> by lazy { PublishRelay.create<RootViewState>() }
+
     // Publish events into the stream from VM, in background
     // These are NOT coming from UI events, these are programmatic
     private val programmaticEventsPublisher = PublishRelay.create<ProfileIntentMarker>()
@@ -60,6 +58,7 @@ class ProfileViewModel @Inject constructor(
             is StatsResult.FetchFullStats -> return@BiFunction processFetchOriginalStats(previousState, result)
             is ProfileResult.StatChanged -> return@BiFunction processStatChanged(previousState, result)
             is ProfileResult.FetchRecommendedTracks -> return@BiFunction processRecommendedTracks(previousState, result)
+            is ProfileResult.Reset -> return@BiFunction processReset(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -97,6 +96,7 @@ class ProfileViewModel @Inject constructor(
             is ProfileIntent.LoadOriginalStats -> StatsAction.FetchFullStats(intent.trackModels, intent.pref)
             is ProfileIntent.StatChanged -> ProfileAction.StatChanged(intent.currentMap, intent.stat)
             is ProfileIntent.LogoutUser -> UserAction.ClearUser()
+            is ProfileIntent.Reset -> ProfileAction.Reset()
             is ProfileIntent.FetchRecommendedTracks -> ProfileAction.FetchRecommendedTracks(intent.limit, intent.seedGenres,
                     intent.attributes)
             else -> None // no-op all other events
@@ -109,20 +109,32 @@ class ProfileViewModel @Inject constructor(
         )
     }
 
-    /**
-     * Bind to the root stream.
-     */
-    fun processRootViewStates(intents: Observable<RootViewState>) {
-        compositeDisposable.add(
-                intents.subscribe(rootStatesSubject::accept)
-        )
-    }
-
     override fun states(): Observable<ViewState> {
         return viewStates
     }
 
     // ===== Individual reducers ======
+
+    private fun processReset(
+            previousState: ProfileViewModel.ViewState,
+            result: ProfileResult.Reset
+    ) : ProfileViewModel.ViewState {
+        return when (result.status) {
+            MviResult.Status.SUCCESS -> {
+                if (previousState.originalStats == null) { // not ready yet, just return previous state
+                    programmaticEventsPublisher.accept(ProfileIntent.LoadTracksForOriginalStats())
+                    return previousState
+                }
+                previousState.copy(
+                        error = null,
+                        status = MviViewState.Status.SUCCESS,
+                        lastResult = result,
+                        currentTargetStats = previousState.currentTargetStats.convertFromTrackListStats(previousState.originalStats)
+                )
+            }
+            else -> previousState
+        }
+    }
 
     private fun processLikedTracks(
             previousState: ProfileViewModel.ViewState,

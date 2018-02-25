@@ -13,6 +13,7 @@ import com.cziyeli.commons.resultFilter
 import com.cziyeli.domain.base.*
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.di.App
+import com.cziyeli.songbits.profile.ProfileIntent
 import com.cziyeli.songbits.profile.ProfileIntentMarker
 import com.google.android.flexbox.FlexboxLayout
 import com.jakewharton.rxrelay2.PublishRelay
@@ -40,7 +41,8 @@ data class Seed(val label: String) : Chip {
 /**
  * Events in a [ChipsWidget].
  */
-sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
+interface ChipsIntentMarker : MviIntent, ProfileIntentMarker
+sealed class ChipsIntent : ChipsIntentMarker {
 
     // GET https://api.spotify.com/v1/recommendations/available-genre-seeds
     class FetchSeedGenres(val limit: Int = 200) : ChipsIntent(), SingleEventIntent
@@ -62,7 +64,7 @@ sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
         context: Context,
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
-) : LinearLayout(context, attrs, defStyleAttr), MviSubView<ChipsIntent, ChipsViewModel.ViewState> {
+) : LinearLayout(context, attrs, defStyleAttr), MviSubView<ChipsIntentMarker, ChipsViewModel.ViewState> {
     private val TAG = ChipsWidget::class.java.simpleName
 
     // Container for the chips
@@ -71,7 +73,7 @@ sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
     @Inject
     lateinit var viewModel: ChipsViewModel
 
-    private val eventsPublisher = PublishRelay.create<ChipsIntent>()
+    private val eventsPublisher = PublishRelay.create<ChipsIntentMarker>()
     private val compositeDisposable = CompositeDisposable()
 
     init {
@@ -102,8 +104,15 @@ sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
         return viewModel.currentViewState.selectedChips.map { it.toString() }
     }
 
-    fun showGenres() {
-        chips_expansion_layout.expand(true)
+    fun showOrHideGenres(show: Boolean = true) {
+        when {
+            show && !chips_expansion_layout.isExpanded -> {
+                chips_expansion_layout.expand(true)
+            }
+            !show && chips_expansion_layout.isExpanded -> {
+                chips_expansion_layout.collapse(true)
+            }
+        }
     }
 
     private fun initViewModel() {
@@ -121,7 +130,7 @@ sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
     }
 
     // push down events from parent activity
-    override fun processIntents(intents: Observable<out ChipsIntent>) {
+    override fun processIntents(intents: Observable<out ChipsIntentMarker>) {
         compositeDisposable.add(
                 intents.subscribe(eventsPublisher::accept)
         )
@@ -160,17 +169,17 @@ sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
 class ChipsViewModel @Inject constructor(
         val actionProcessor: ChipsActionProcessor,
         val schedulerProvider: BaseSchedulerProvider
-) : LifecycleObserver, MviViewModel<ChipsIntent, ChipsViewModel.ViewState, ChipsResultMarker> {
+) : LifecycleObserver, MviViewModel<ChipsIntentMarker, ChipsViewModel.ViewState, ChipsResultMarker> {
     private val TAG = ChipsViewModel::class.simpleName
 
     private val viewStates: PublishRelay<ViewState> by lazy { PublishRelay.create<ViewState>() }
     var currentViewState: ChipsViewModel.ViewState
-    private val intentsSubject : PublishRelay<ChipsIntent> by lazy { PublishRelay.create<ChipsIntent>() }
+    private val intentsSubject : PublishRelay<ChipsIntentMarker> by lazy { PublishRelay.create<ChipsIntentMarker>() }
     private val compositeDisposable = CompositeDisposable()
 
-    private val intentFilter: ObservableTransformer<ChipsIntent, ChipsIntent> = ObservableTransformer { intents ->
+    private val intentFilter: ObservableTransformer<ChipsIntentMarker, ChipsIntentMarker> = ObservableTransformer { intents ->
         intents.publish { shared -> shared
-            Observable.merge<ChipsIntent>(
+            Observable.merge<ChipsIntentMarker>(
                     shared.ofType(ChipsIntent.FetchSeedGenres::class.java).take(1), // only take one time
                     shared.filter({ intent -> intent !is SingleEventIntent })
             )
@@ -208,16 +217,17 @@ class ChipsViewModel @Inject constructor(
         )
     }
 
-    private fun actionFromIntent(intent: ChipsIntent) : MviAction {
+    private fun actionFromIntent(intent: ChipsIntentMarker) : MviAction {
         return when (intent) {
             is ChipsIntent.FetchSeedGenres -> ChipsAction.FetchSeedGenres(intent.limit)
             is ChipsIntent.SelectionChange -> ChipsAction.SelectionChange(intent.index, intent.selected)
             is ChipsIntent.PickRandomGenres -> ChipsAction.PickRandomGenres(intent.count)
+            is ProfileIntent.Reset -> ChipsAction.Reset()
             else -> None
         }
     }
 
-    override fun processIntents(intents: Observable<out ChipsIntent>) {
+    override fun processIntents(intents: Observable<out ChipsIntentMarker>) {
         compositeDisposable.add(
                 intents.subscribe(intentsSubject::accept)
         )

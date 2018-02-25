@@ -1,5 +1,6 @@
 package com.cziyeli.domain.user
 
+import com.cziyeli.domain.base.ChipsActionMarker
 import com.cziyeli.domain.playlistcard.CardActionMarker
 import com.cziyeli.domain.summary.TrackStatsData
 
@@ -10,6 +11,9 @@ import com.cziyeli.domain.summary.TrackStatsData
 interface ProfileActionMarker : CardActionMarker
 
 sealed class ProfileAction : ProfileActionMarker {
+
+    // Reset back to original stats
+    class Reset : ProfileAction(), ChipsActionMarker
 
     // changed a single stat ("tempo" => ("target_tempo", 0.4)
     class StatChanged(val currentMap: TrackStatsData, val stat: Pair<String, Pair<String, Double>>) : ProfileAction()

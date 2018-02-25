@@ -34,11 +34,17 @@ class ProfileActionProcessor @Inject constructor(private val repository: Reposit
                            .compose(fetchStatsProcessor),
                     shared.ofType<ProfileAction.FetchRecommendedTracks>(ProfileAction.FetchRecommendedTracks::class.java)
                             .compose(fetchRecommendedTracksProcessor)
-
+            ).mergeWith(
+                    shared.ofType<ProfileAction.Reset>(ProfileAction.Reset::class.java)
+                            .compose(resetProcessor)
             ).mergeWith(
                     shared.ofType<UserAction.ClearUser>(UserAction.ClearUser::class.java).compose(userActionProcessor.clearUserProcessor)
             ).retry() // don't unsubscribe ever
         }
+    }
+
+    private val resetProcessor: ObservableTransformer<ProfileAction.Reset, ProfileResult.Reset> = ObservableTransformer {
+        action -> action.map { ProfileResult.Reset() }
     }
 
     private val fetchStatsProcessor: ObservableTransformer<ProfileAction.StatChanged, ProfileResult.StatChanged> = ObservableTransformer {

@@ -21,6 +21,7 @@ import com.cziyeli.domain.user.UserResult
 import com.cziyeli.songbits.MainActivity
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.base.ChipsIntent
+import com.cziyeli.songbits.base.ChipsIntentMarker
 import com.cziyeli.songbits.stash.SimpleCardViewModel
 import com.hlab.fabrevealmenu.listeners.OnFABMenuSelectedListener
 import com.jakewharton.rxrelay2.PublishRelay
@@ -100,12 +101,15 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
 
         // init click listeners = fetch recommended based on current stats
         action_randomize_seeds.setOnClickListener {
-            chips_widget.showGenres()
+            chips_widget.showOrHideGenres()
             eventsPublisher.accept(ChipsIntent.PickRandomGenres())
         }
         action_get_recommended.setOnClickListener {
             val attrs = viewModel.currentTargetStats.convertToOutgoing()
             eventsPublisher.accept(ProfileIntent.FetchRecommendedTracks(seedGenres = chips_widget.getCurrentSelected(), attributes = attrs))
+        }
+        action_reset.setOnClickListener {
+            eventsPublisher.accept(ProfileIntent.Reset())
         }
         logout.setOnClickListener { _ ->
             eventsPublisher.accept(ProfileIntent.LogoutUser())
@@ -137,9 +141,13 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
             state.status == MviViewState.Status.ERROR -> {
                 "${state.error}".errorToast(context!!)
             }
-            state.isFetchStatsSuccess() -> {
+            state.isFetchStatsSuccess() || (state.status == MviViewState.Status.SUCCESS && state.lastResult is ProfileResult.Reset) -> {
                 stats_container_left.loadTrackStats(state.originalStats!!)
                 stats_container_right.loadTrackStats(state.originalStats)
+                if (state.lastResult is ProfileResult.Reset) {
+                    chips_widget.showOrHideGenres(false) // collapse it
+                }
+
             }
             state.status == MviViewState.Status.SUCCESS && state.lastResult is ProfileResult.FetchRecommendedTracks -> {
                 Utils.setVisible(recommended_tracks_card, true)
@@ -169,7 +177,7 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
         viewModel.processIntents(intents())
 
         // Bind the subviews
-        chips_widget.processIntents(eventsPublisher.ofType(ChipsIntent::class.java))
+        chips_widget.processIntents(eventsPublisher.ofType(ChipsIntentMarker::class.java))
     }
 
     override fun intents(): Observable<out ProfileIntentMarker> {

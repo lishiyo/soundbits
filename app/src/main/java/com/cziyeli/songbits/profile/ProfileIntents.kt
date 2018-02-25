@@ -4,6 +4,7 @@ import com.cziyeli.commons.mvibase.SingleEventIntent
 import com.cziyeli.data.Repository
 import com.cziyeli.domain.summary.TrackStatsData
 import com.cziyeli.domain.tracks.TrackModel
+import com.cziyeli.songbits.base.ChipsIntentMarker
 import com.cziyeli.songbits.playlistcard.CardIntentMarker
 
 /**
@@ -12,7 +13,7 @@ import com.cziyeli.songbits.playlistcard.CardIntentMarker
 
 interface ProfileIntentMarker : CardIntentMarker
 
-sealed class ProfileIntent : ProfileIntentMarker {
+sealed class ProfileIntent : ProfileIntentMarker, ChipsIntentMarker {
 
     // grab likes from root
     class LoadTracksForOriginalStats: ProfileIntent(), SingleEventIntent
@@ -30,6 +31,9 @@ sealed class ProfileIntent : ProfileIntentMarker {
                                  val seedGenres: List<String>,
                                  val attributes: Map<String, Number> // target_*, min_*, max_*
     ) : ProfileIntent()
+
+    // Reset back to original stats
+    class Reset : ProfileIntent()
 
     // logout
     class LogoutUser : ProfileIntent()

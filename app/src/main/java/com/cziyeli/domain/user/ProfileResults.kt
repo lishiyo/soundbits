@@ -1,6 +1,7 @@
 package com.cziyeli.domain.user
 
 import com.cziyeli.commons.mvibase.MviResult
+import com.cziyeli.domain.base.ChipsResultMarker
 import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.summary.TrackStatsData
 import com.cziyeli.domain.tracks.TrackModel
@@ -11,6 +12,8 @@ sealed class ProfileResult(var status: MviResult.Status = MviResult.Status.IDLE,
 
     class StatChanged(val statsMap: TrackStatsData) : ProfileResult(MviResult.Status.SUCCESS, null)
 
+    class Reset : ProfileResult(MviResult.Status.SUCCESS, null), ChipsResultMarker
+
     class FetchRecommendedTracks(status: MviResult.Status, error: Throwable?, val tracks: List<TrackModel> = listOf()
     ) : ProfileResult(status, error) {
         companion object {
@@ -18,7 +21,8 @@ sealed class ProfileResult(var status: MviResult.Status = MviResult.Status.IDLE,
                 return FetchRecommendedTracks(MviResult.Status.SUCCESS, null, tracks)
             }
             fun createError(throwable: Throwable) : FetchRecommendedTracks {
-                return FetchRecommendedTracks(MviResult.Status.ERROR, throwable)
+                val message = Throwable("you have to pick at least 1 genre")
+                return FetchRecommendedTracks(MviResult.Status.ERROR, message)
             }
             fun createLoading(): FetchRecommendedTracks {
                 return FetchRecommendedTracks(MviResult.Status.LOADING, null)
