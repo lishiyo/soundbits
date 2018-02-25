@@ -12,6 +12,7 @@
 	android:gravity="center"
 	android:layout_gravity="center"
 	android:background="@drawable/card_track_background"
+	android:elevation="2dp"
 	>
 
 	<FrameLayout
@@ -53,7 +54,7 @@
 			android:id="@+id/track_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textColor="@color/colorPurple"
+			android:textColor="@color/colorPrimaryLight"
 			android:textSize="@dimen/name_size"
 			android:textStyle="bold"
 			android:fontFamily="@font/amatic_sc"
@@ -65,7 +66,7 @@
 			android:id="@+id/artist_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textColor="@color/colorPurple"
+			android:textColor="@color/colorPrimaryLight"
 			android:textSize="@dimen/artist_size"
 			android:textStyle="normal"
 			android:fontFamily="@font/amatic_sc"

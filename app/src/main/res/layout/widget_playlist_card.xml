@@ -106,6 +106,7 @@
 							android:layout_width="@dimen/fake_fab_diameter"
 							android:layout_height="@dimen/fake_fab_diameter"
 							android:src="@drawable/note_happy_colored"
+							android:alpha="1"
 							/>
 
 						<TextView

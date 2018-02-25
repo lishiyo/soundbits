@@ -2,6 +2,8 @@
 	<string name="app_name">Songbits</string>
 	<string name="title_oldhome">Old Home</string>
 	<string name="title_demo">Demo Spotify SDK</string>
+	<string name="app_description">a simply fabulous \nplaylists maker</string>
+	<string name="app_about">about</string>
 
 	<string name="title_home">Real Home</string>
 	<string name="title_dashboard">Dashboard</string>

@@ -3,7 +3,7 @@
 	<!-- gradients -->
 	<!--<color name="colorPrimary">#D71565</color>-->
 	<color name="colorPrimary">@color/quartet_red</color>
-	<!--<color name="colorPrimaryShade">#FF1641</color>-->
+	<color name="colorPrimaryLight">@color/watermelon</color>
 	<color name="colorPrimaryShade">@color/brilliant_rose</color>
 	<color name="colorPrimaryDark">@color/space_time</color>
 	<color name="colorPurple">#5A1299</color>
@@ -22,7 +22,7 @@
 	<color name="colorDisabled">#A8000000</color>
 
 	<color name="colorFab">@color/colorPrimary</color>
-	<color name="watermelon">#F97D9D</color>
+	<color name="watermelon">#f9b9d3</color>
 
 	<!-- https://www.uplabs.com/posts/music-portal -->
 	<color name="midnight_blue">#1F1F74</color>
@@ -51,7 +51,7 @@
 	<color name="turquoise">#4FE4C7</color>
 	<!--<color name="turquoise">#92FFFF</color>-->
 	<color name="light_grey">#D7D7D7</color>
-	<color name="chamoise">#EACD98</color>
+	<color name="chamoise">#FFCC00</color>
 
 	<!-- https://www.canva.com/learn/brand-color-palette/ -->
 	<color name="rosa">#f2AD9F</color>

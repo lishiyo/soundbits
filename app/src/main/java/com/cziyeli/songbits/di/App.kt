@@ -5,7 +5,6 @@ import android.app.Application
 import android.support.v4.content.res.ResourcesCompat
 import com.cziyeli.commons.di.UtilsModule
 import com.cziyeli.songbits.R
-import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.stetho.Stetho
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -42,7 +41,6 @@ class App : Application(), HasActivityInjector {
     override fun onCreate() {
         super.onCreate()
         initializeDagger()
-        Fresco.initialize(this)
         Stetho.initializeWithDefaults(this)
         initializeToasty()
     }

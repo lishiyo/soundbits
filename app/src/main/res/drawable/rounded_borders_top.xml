@@ -4,11 +4,11 @@
 	<!-- border color -->
 	<stroke
 		android:width="0.5dp"
-		android:color="@color/colorPrimaryShade" />
+		android:color="@color/colorPrimary" />
 
 	<!-- background color -->
 	<solid
-		android:color="@color/colorPrimary"
+		android:color="@color/colorPrimaryShade"
 		/>
 
 	<corners android:topLeftRadius="@dimen/top_cap_radius"

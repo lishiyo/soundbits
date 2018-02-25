@@ -2,6 +2,7 @@ package com.cziyeli.songbits.base
 
 import android.content.Context
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
 import android.support.annotation.ColorRes
 import android.support.v4.content.res.ResourcesCompat
 import android.util.AttributeSet
@@ -70,6 +71,52 @@ class DisLikeButton @JvmOverloads constructor(
     }
 }
 
+
+/**
+ * Just a button with rounded borders.
+ */
+class WideButton @JvmOverloads constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyle: Int = 0,
+        defStyleRes: Int = 0
+) : Button(context, attrs, defStyle, defStyleRes) {
+    private val DEFAULT_FONT = R.font.indie_flower
+    private val BACKGROUND_DRAWABLE: GradientDrawable = (resources.getDrawable(R.drawable.rounded_borders_button) as RippleDrawable)
+            .getDrawable(0) as GradientDrawable
+    private var borderColorRes: Int? = resources.getColor(R.color.colorDarkerGrey)
+
+    init {
+        background = BACKGROUND_DRAWABLE
+        var typeface = ResourcesCompat.getFont(context, DEFAULT_FONT)
+
+        attrs?.let {
+            val typedArray = context.obtainStyledAttributes(it,
+                    R.styleable.action_buttons, 0, 0)
+            borderColorRes = typedArray.getColor(R.styleable.action_buttons_rounded_border_color,
+                    resources.getColor(R.color.colorDarkerGrey))
+            typeface = ResourcesCompat.getFont(context, typedArray.getResourceId(R.styleable.action_buttons_font, R.font.quicksand))
+
+            typedArray.recycle()
+        }
+        borderColorRes?.run {
+            BACKGROUND_DRAWABLE.setStroke(1, this)
+        }
+
+        setTypeface(typeface)
+    }
+
+    /**
+     * Set the background color, as well as border color (optional).
+     */
+    fun setBorderColor(@ColorRes borderColorRes: Int? = null) {
+        borderColorRes?.run {
+            BACKGROUND_DRAWABLE.setStroke(1, this)
+        }
+        invalidate()
+    }
+}
+
 /**
  * Just a button with rounded borders.
  */
@@ -101,9 +148,9 @@ class RoundedCornerButton @JvmOverloads constructor(
         backgroundColorRes?.run {
             BACKGROUND_DRAWABLE.setColor(this)
         }
-        borderColorRes?.run {
-            BACKGROUND_DRAWABLE.setStroke(1, this)
-        }
+//        borderColorRes?.run {
+//            BACKGROUND_DRAWABLE.setStroke(1, this)
+//        }
 
         setTypeface(typeface)
     }

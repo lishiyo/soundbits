@@ -7,7 +7,7 @@
 	android:orientation="vertical"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@color/colorGrey">
+	android:background="@color/colorWhite">
 
 	<ScrollView
 		xmlns:android="http://schemas.android.com/apk/res/android"
@@ -81,7 +81,6 @@
 						android:layout_weight="1"
 						style="@style/SummaryButton"
 						button:bg_color="@color/colorAccent"
-						button:rounded_border_color="@color/californian_coral"
 						/>
 
 					<com.cziyeli.songbits.base.RoundedCornerButton
@@ -91,7 +90,6 @@
 						android:layout_weight="1"
 						style="@style/SummaryButton"
 						button:bg_color="@color/colorPurple"
-						button:rounded_border_color="@color/persian_blue"
 						android:layout_marginStart="10dp"
 						/>
 

@@ -1,88 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout android:id="@+id/container"
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:context="com.cziyeli.songbits.MainActivity">
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:background="@drawable/gradient_reds"
+	android:gravity="center_horizontal"
+	android:orientation="vertical"
+	>
 
 	<TextView
-		android:id="@+id/nav_demo_activity"
-		android:layout_width="174dp"
-		android:layout_height="40dp"
-		android:layout_marginBottom="8dp"
-		android:layout_marginEnd="24dp"
-		android:layout_marginLeft="128dp"
-		android:layout_marginTop="8dp"
-		android:background="@color/colorAccent"
-		android:text="@string/title_activity_demo"
-		app:layout_constraintBottom_toTopOf="@+id/navigation"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintLeft_toLeftOf="parent"
-		app:layout_constraintVertical_bias="0.744" />
-
-	<TextView
-		android:id="@+id/nav_root_activity"
-		android:layout_width="220dp"
-		android:layout_height="100dp"
-		android:layout_marginBottom="8dp"
-		android:layout_marginEnd="8dp"
-		android:layout_marginStart="8dp"
-		android:layout_marginTop="160dp"
-		android:background="@color/colorPrimary"
-		android:text="@string/title_home"
-		android:visibility="gone"
-		app:layout_constraintBottom_toBottomOf="@+id/navigation"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintVertical_bias="0.186"
-		tools:visibility="visible" />
-
-	<android.support.design.widget.BottomNavigationView
-		android:id="@+id/navigation"
-		android:layout_width="0dp"
+		android:id="@+id/title"
+		android:text="@string/app_name"
+		style="@style/AppTitle"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginEnd="0dp"
-		android:layout_marginStart="0dp"
-		android:background="?android:attr/windowBackground"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintLeft_toLeftOf="parent"
-		app:layout_constraintRight_toRightOf="parent"
-		app:menu="@menu/navigation" />
-
-	<Button
-		android:id="@+id/login_button"
-		android:background="@color/colorPrimary"
-		android:layout_width="290dp"
-		android:layout_height="55dp"
-		android:layout_marginEnd="8dp"
-		android:layout_marginStart="8dp"
-		android:layout_marginTop="24dp"
-		android:focusable="true"
-		android:text="@string/login_button_label"
-		android:visibility="gone"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.504"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		tools:visibility="visible"
+		android:layout_centerHorizontal="true"
+		android:layout_marginTop="30dp"
+		android:textColor="@color/colorPrimaryLight"
 		/>
 
-	<Button
-		android:id="@+id/logout_button"
-		android:layout_width="290dp"
-		android:layout_height="55dp"
-		android:layout_marginBottom="316dp"
-		android:layout_marginEnd="8dp"
-		android:layout_marginStart="8dp"
-		android:layout_marginTop="24dp"
-		android:text="LOGOUT"
-		app:layout_constraintBottom_toTopOf="@+id/navigation"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/login_button"
-		app:layout_constraintVertical_bias="0.0" />
+	<ImageView
+		android:id="@+id/splash_image"
+		android:layout_gravity="center"
+		android:layout_width="match_parent"
+		android:layout_height="140dp"
+		android:layout_marginTop="60dp"
+		android:src="@drawable/note_happy_colored"
+		android:layout_below="@id/title"
+		android:layout_centerInParent="true"
+		android:layout_centerVertical="true"
+		/>
+	<TextView
+		android:id="@+id/app_description"
+		android:layout_below="@id/splash_image"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:textAlignment="center"
+		android:textAllCaps="true"
+		android:textSize="@dimen/default_title_size"
+		android:textColor="@color/colorPrimaryLight"
+		android:layout_marginTop="60dp"
+		android:layout_marginEnd="30dp"
+		android:layout_marginStart="30dp"
+		android:text="@string/app_description"
+		android:layout_alignParentBottom="true"
+		/>
 
-</android.support.constraint.ConstraintLayout>
+	<com.cziyeli.songbits.base.WideButton
+		android:id="@+id/login_button"
+		style="@style/WideButton"
+		android:layout_gravity="center_horizontal|bottom"
+		android:layout_above="@id/about_button"
+		android:layout_marginEnd="30dp"
+		android:layout_marginStart="30dp"
+		android:layout_marginBottom="50dp"
+		android:text="@string/login_button_label"
+		android:visibility="invisible"
+		tools:visibility="visible"
+		android:textColor="@color/colorPrimaryLight"
+		android:textStyle="bold"
+		app:rounded_border_color="@color/colorPrimaryLight"
+	/>
+	<TextView
+		android:id="@+id/about_button"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:textAlignment="center"
+		android:textAllCaps="true"
+		android:textColor="@color/colorPrimaryLight"
+		android:layout_marginEnd="30dp"
+		android:layout_marginStart="30dp"
+		android:layout_marginBottom="30dp"
+		android:text="@string/app_about"
+		android:layout_alignParentBottom="true"
+		/>
+
+</RelativeLayout>

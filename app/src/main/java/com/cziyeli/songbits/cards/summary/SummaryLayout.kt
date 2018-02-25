@@ -129,7 +129,8 @@ class SummaryLayout @JvmOverloads constructor(
             state.lastResult is SummaryResult.SetTracks -> {
                 adapter.setTracksAndNotify(state.allTracks)
             }
-            state.lastResult is SummaryResult.SaveTracks -> { renderButton(state,
+            state.lastResult is SummaryResult.SaveTracks -> {
+                renderButton(state,
                     action_save_to_database, R.string.save_success_cta, R.string.action_error,
                     OnClickListener {
                         callingActivity.startActivity(RootActivity.create(callingActivity, RootActivity.Tab.STASH))
@@ -190,7 +191,7 @@ class SummaryLayout @JvmOverloads constructor(
         } else {
             // enable it
             button.isEnabled = true
-            button.setColor(R.color.quartet_blue)
+            button.setColor(R.color.colorAccent)
             button.setText(R.string.summary_create_playlist)
             button.setTextColor(resources.getColor(R.color.colorWhite))
         }
@@ -230,7 +231,7 @@ class SummaryLayout @JvmOverloads constructor(
                 button.alpha = 1f
                 button.isEnabled = true
                 button.text = resources.getString(successResId)
-                button.setColor(R.color.venice_verde)
+                button.setColor(R.color.californian_coral)
                 button.setOnClickListener(newClickListener)
             }
             state.status == MviViewState.Status.ERROR -> {

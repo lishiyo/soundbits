@@ -3,11 +3,17 @@ package com.cziyeli.songbits
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.WindowManager
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import com.cziyeli.commons.*
 import com.cziyeli.commons.mvibase.MviView
+import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.domain.user.UserManager
+import com.cziyeli.domain.user.UserResult
 import com.cziyeli.songbits.home.HomeIntent
 import com.cziyeli.songbits.home.HomeViewModel
 import com.cziyeli.songbits.root.RootActivity
@@ -45,39 +51,38 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
         AndroidInjection.inject(this)
 
         super.onCreate(savedInstanceState)
+        // set full screen
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_main)
 
         // bind the view model before events
         initViewModel()
 
+        val anim = AnimationUtils.loadAnimation(this, R.anim.bounce)
+        anim.repeatCount = -1
+        anim.repeatMode = Animation.REVERSE
+        splash_image.startAnimation(anim)
+
+        about_button.setOnClickListener {
+            val internetIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/lishiyo/songbits"))
+            internetIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(internetIntent)
+        }
+
+        // check if we're already logged in
         val accessTokenValid = isAccessTokenValid()
         if (accessTokenValid) { // already logged in
             // fetch current user and save to UserManager
             api.setAccessToken(userManager.accessToken)
             mUserPublisher.accept(HomeIntent.FetchUser())
-        }
-        Utils.setVisible(login_button, !accessTokenValid)
-        Utils.setVisible(nav_root_activity, accessTokenValid)
-
-        nav_demo_activity.setOnClickListener{ _ ->
-            val intent = Intent(this, DemoActivity::class.java)
-            startActivity(intent)
-        }
-
-        nav_root_activity.setOnClickListener { _ ->
-            startActivity(Intent(this, RootActivity::class.java))
-        }
-
-        logout_button.setOnClickListener { _ ->
-            mLogoutPublisher.accept(HomeIntent.LogoutUser())
-        }
-
-        login_button.setOnClickListener { _ ->
-            if (!isAccessTokenValid()) {
-                openLoginWindow()
+        } else {
+            Utils.setVisible(login_button, !accessTokenValid)
+            login_button.setOnClickListener { _ ->
+                if (!isAccessTokenValid()) {
+                    openLoginWindow()
+                }
             }
         }
-
     }
 
     override fun intents(): Observable<out HomeIntent> {
@@ -113,7 +118,11 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
     override fun render(state: com.cziyeli.songbits.home.HomeViewState) {
         Utils.setVisible(login_button, !isAccessTokenValid())
-        Utils.setVisible(nav_root_activity, isAccessTokenValid())
+        when {
+            state.lastResult is UserResult.FetchUser && state.status == MviViewState.Status.SUCCESS -> {
+                startActivity(Intent(this, RootActivity::class.java))
+            }
+        }
     }
 
     //   ____      _ _ _                _      __  __      _   _               _
@@ -191,7 +200,6 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
         // rerender! TODO: do via MVI flow
         Utils.setVisible(login_button, false)
-        Utils.setVisible(nav_root_activity, true)
 
         Utils.log(TAG, "Got authentication token!")
     }

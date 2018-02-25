@@ -152,6 +152,7 @@
 							android:layout_width="@dimen/fake_fab_diameter_small"
 							android:layout_height="@dimen/fake_fab_diameter_small"
 							android:src="@drawable/note_happy_colored"
+							android:alpha="1"
 							/>
 
 					</FrameLayout>

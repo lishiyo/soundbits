@@ -138,24 +138,14 @@
 			>
 		</com.cziyeli.songbits.stash.SimpleCardWidget>
 
-		<Button
+		<com.cziyeli.songbits.base.WideButton
 			android:id="@+id/logout"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
+			style="@style/WideButton"
 			android:layout_marginTop="60dp"
 			android:layout_marginBottom="30dp"
 			android:layout_marginStart="15dp"
 			android:layout_marginEnd="15dp"
-			android:padding="10dp"
-			android:gravity="center_vertical|right"
 			android:text="@string/logout_button_label"
-			android:fontFamily="@font/quicksand"
-			android:textStyle="bold"
-			android:background="@drawable/rounded_borders_button"
-			android:textAllCaps="true"
-			android:textAlignment="center"
-			android:clickable="true"
-			android:focusable="true"
 			/>
 
 	</LinearLayout>

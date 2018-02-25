@@ -84,6 +84,8 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // set full screen
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_cards)
 
