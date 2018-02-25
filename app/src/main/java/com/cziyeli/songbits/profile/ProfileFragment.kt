@@ -5,6 +5,8 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.text.SpannableString
+import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +17,8 @@ import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.domain.stash.SimpleCardActionProcessor
 import com.cziyeli.domain.user.ProfileResult
+import com.cziyeli.domain.user.UserResult
+import com.cziyeli.songbits.MainActivity
 import com.cziyeli.songbits.R
 import com.cziyeli.songbits.base.ChipsIntent
 import com.cziyeli.songbits.stash.SimpleCardViewModel
@@ -26,7 +30,10 @@ import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.android.synthetic.main.widget_expandable_chips.*
 import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
+import org.jetbrains.anko.intentFor
 import javax.inject.Inject
+
+
 
 class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewModel.ViewState> {
     private val TAG = ProfileFragment::class.simpleName
@@ -69,9 +76,12 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
 
         initViewModel()
 
-        // load the avatar
+        // basic view setting
         val userImage = userManager.getCurrentUser().cover_image
         Glide.with(context).load(userImage).into(profile_avatar)
+        val randomGenresLabel = SpannableString(resources.getString(R.string.action_random_genres))
+        randomGenresLabel.setSpan(UnderlineSpan(), 0, randomGenresLabel.length, 0)
+        action_randomize_seeds.text = randomGenresLabel
 
         // load all the cards (empty for now)
         initCards()
@@ -90,11 +100,15 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
 
         // init click listeners = fetch recommended based on current stats
         action_randomize_seeds.setOnClickListener {
+            chips_widget.showGenres()
             eventsPublisher.accept(ChipsIntent.PickRandomGenres())
         }
         action_get_recommended.setOnClickListener {
             val attrs = viewModel.currentTargetStats.convertToOutgoing()
             eventsPublisher.accept(ProfileIntent.FetchRecommendedTracks(seedGenres = chips_widget.getCurrentSelected(), attributes = attrs))
+        }
+        logout.setOnClickListener { _ ->
+            eventsPublisher.accept(ProfileIntent.LogoutUser())
         }
 
         if (userVisibleHint && isAdded) {
@@ -116,8 +130,12 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
         Utils.mLog(TAG, "RENDER", "$state")
 
         when {
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is UserResult.ClearUser -> {
+                // kick back out to landing page!
+                startActivity(context?.intentFor<MainActivity>())
+            }
             state.status == MviViewState.Status.ERROR -> {
-                "oh no! something went wrong".errorToast(context!!)
+                "${state.error}".errorToast(context!!)
             }
             state.isFetchStatsSuccess() -> {
                 stats_container_left.loadTrackStats(state.originalStats!!)

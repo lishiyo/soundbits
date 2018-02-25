@@ -53,10 +53,10 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-
     private val reducer: BiFunction<ProfileViewModel.ViewState, ProfileResultMarker, ProfileViewModel.ViewState> = BiFunction {
         previousState, result -> when (result) {
             is UserResult.LoadLikedTracks -> return@BiFunction processLikedTracks(previousState, result)
+            is UserResult.ClearUser -> return@BiFunction processClearedUser(previousState, result)
             is StatsResult.FetchFullStats -> return@BiFunction processFetchOriginalStats(previousState, result)
             is ProfileResult.StatChanged -> return@BiFunction processStatChanged(previousState, result)
             is ProfileResult.FetchRecommendedTracks -> return@BiFunction processRecommendedTracks(previousState, result)
@@ -96,6 +96,7 @@ class ProfileViewModel @Inject constructor(
             is ProfileIntent.LoadTracksForOriginalStats -> UserAction.LoadLikedTracks() // one time
             is ProfileIntent.LoadOriginalStats -> StatsAction.FetchFullStats(intent.trackModels, intent.pref)
             is ProfileIntent.StatChanged -> ProfileAction.StatChanged(intent.currentMap, intent.stat)
+            is ProfileIntent.LogoutUser -> UserAction.ClearUser()
             is ProfileIntent.FetchRecommendedTracks -> ProfileAction.FetchRecommendedTracks(intent.limit, intent.seedGenres,
                     intent.attributes)
             else -> None // no-op all other events
@@ -202,12 +203,10 @@ class ProfileViewModel @Inject constructor(
     ) : ProfileViewModel.ViewState {
         return when (result.status) {
             StatsResultStatus.LOADING, StatsResultStatus.ERROR -> {
-                val status = if (result.status == StatsResultStatus.LOADING)
-                    MviViewState.Status.LOADING else MviViewState.Status.ERROR
                 previousState.copy(
                         error = result.error,
                         lastResult = result,
-                        status = status
+                        status = Utils.statusFromResult(result.status)
                 )
             }
             StatsResultStatus.SUCCESS -> {
@@ -222,6 +221,31 @@ class ProfileViewModel @Inject constructor(
             else -> return previousState
         }
     }
+
+    private fun processClearedUser(
+            previousState: ViewState,
+            result: UserResult.ClearUser
+    ) : ViewState {
+        Utils.mLog(TAG, "processClearedUser", "status", result.status.toString())
+
+        val status = when (result.status) {
+            UserResult.Status.SUCCESS -> MviViewState.Status.SUCCESS
+            UserResult.Status.ERROR -> MviViewState.Status.ERROR
+            else -> MviViewState.Status.IDLE
+        }
+        return when (result.status) {
+            UserResult.Status.SUCCESS, UserResult.Status.LOADING, UserResult.Status.ERROR -> {
+                previousState.copy(
+                        error = result.error,
+                        status = status,
+                        lastResult = result
+                )
+            }
+            else -> previousState
+        }
+    }
+
+    // ======== VIEW STATE ============
 
     data class ViewState(val status: MviViewState.Status = MviViewState.Status.IDLE,
                          val error: Throwable? = null,

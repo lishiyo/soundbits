@@ -106,6 +106,8 @@
 				style="@style/SummaryButton"
 				button:bg_color="@color/colorPrimary"
 				button:rounded_border_color="@color/colorPrimaryShade"
+				android:textAllCaps="true"
+				android:textStyle="bold"
 				/>
 
 			<com.cziyeli.songbits.base.RoundedCornerButton
@@ -118,6 +120,8 @@
 				button:bg_color="@color/colorPurple"
 				button:rounded_border_color="@color/persian_blue"
 				android:layout_marginStart="10dp"
+				android:textAllCaps="true"
+				android:textStyle="bold"
 				/>
 
 		</LinearLayout>
@@ -128,11 +132,31 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:focusable="true"
-			android:visibility="invisible"
+			android:visibility="gone"
 			tools:visibility="visible"
 			app:menu_res="@menu/menu_playlist_card"
 			>
 		</com.cziyeli.songbits.stash.SimpleCardWidget>
+
+		<Button
+			android:id="@+id/logout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="60dp"
+			android:layout_marginBottom="30dp"
+			android:layout_marginStart="15dp"
+			android:layout_marginEnd="15dp"
+			android:padding="10dp"
+			android:gravity="center_vertical|right"
+			android:text="@string/logout_button_label"
+			android:fontFamily="@font/quicksand"
+			android:textStyle="bold"
+			android:background="@drawable/rounded_borders_button"
+			android:textAllCaps="true"
+			android:textAlignment="center"
+			android:clickable="true"
+			android:focusable="true"
+			/>
 
 	</LinearLayout>
 

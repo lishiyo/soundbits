@@ -17,7 +17,7 @@ import javax.inject.Singleton
 @Singleton
 class ProfileActionProcessor @Inject constructor(private val repository: Repository,
                                                  private val schedulerProvider: BaseSchedulerProvider,
-                                                 private val userManager: UserManager,
+                                                 private val userActionProcessor: UserActionProcessor,
                                                  private val simpleCardActionProcessor: SimpleCardActionProcessor,
                                                  private val rootActionProcessor: RootActionProcessor
 ) {
@@ -34,6 +34,9 @@ class ProfileActionProcessor @Inject constructor(private val repository: Reposit
                            .compose(fetchStatsProcessor),
                     shared.ofType<ProfileAction.FetchRecommendedTracks>(ProfileAction.FetchRecommendedTracks::class.java)
                             .compose(fetchRecommendedTracksProcessor)
+
+            ).mergeWith(
+                    shared.ofType<UserAction.ClearUser>(UserAction.ClearUser::class.java).compose(userActionProcessor.clearUserProcessor)
             ).retry() // don't unsubscribe ever
         }
     }

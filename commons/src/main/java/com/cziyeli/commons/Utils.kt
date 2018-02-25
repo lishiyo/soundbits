@@ -48,7 +48,8 @@ object Utils {
         return when (status) {
             MviResult.Status.LOADING -> MviViewState.Status.LOADING
             MviResult.Status.SUCCESS -> MviViewState.Status.SUCCESS
-            else -> MviViewState.Status.ERROR
+            MviResult.Status.ERROR -> MviViewState.Status.ERROR
+            else -> MviViewState.Status.IDLE
         }
     }
 

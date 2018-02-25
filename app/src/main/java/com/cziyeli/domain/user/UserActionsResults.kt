@@ -17,7 +17,7 @@ sealed class UserAction : HomeActionMarker, StashActionMarker, CardActionMarker 
 
     class FetchUser : UserAction()
 
-    class ClearUser : UserAction()
+    class ClearUser : UserAction(), ProfileActionMarker
 
     class FetchQuickCounts : UserAction()
 
@@ -69,7 +69,7 @@ sealed class UserResult(var status: UserStatusResult = Status.IDLE, var error: T
         }
     }
 
-    class ClearUser(status: Status, error: Throwable?) : UserResult(status, error) {
+    class ClearUser(status: Status, error: Throwable?) : UserResult(status, error), ProfileResultMarker {
         companion object {
             fun createSuccess() : ClearUser {
                 return ClearUser(Status.SUCCESS, null)

@@ -102,6 +102,10 @@ sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
         return viewModel.currentViewState.selectedChips.map { it.toString() }
     }
 
+    fun showGenres() {
+        chips_expansion_layout.expand(true)
+    }
+
     private fun initViewModel() {
         // Subscribe to the viewmodel states
         compositeDisposable.add(

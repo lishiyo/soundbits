@@ -30,4 +30,7 @@ sealed class ProfileIntent : ProfileIntentMarker {
                                  val seedGenres: List<String>,
                                  val attributes: Map<String, Number> // target_*, min_*, max_*
     ) : ProfileIntent()
+
+    // logout
+    class LogoutUser : ProfileIntent()
 }

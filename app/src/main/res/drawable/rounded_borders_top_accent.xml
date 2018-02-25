@@ -3,7 +3,7 @@
 	android:shape="rectangle">
 	<!-- border color -->
 	<stroke
-		android:width="0dp"
+		android:width="0.5dp"
 		android:color="@color/californian_coral" />
 
 	<!-- background color -->
@@ -11,8 +11,8 @@
 		android:color="@color/colorAccent"
 		/>
 
-	<corners android:topLeftRadius="@dimen/action_button_radius"
-		android:topRightRadius="@dimen/action_button_radius" />
+	<corners android:topLeftRadius="@dimen/top_cap_radius"
+		android:topRightRadius="@dimen/top_cap_radius" />
 
 	<padding
 		android:left="20dp"

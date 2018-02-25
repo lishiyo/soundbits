@@ -101,17 +101,18 @@
 				<com.github.florent37.expansionpanel.ExpansionHeader
 					android:id="@+id/summary_expansion_header"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
+					android:layout_height="@dimen/expanded_header_height_small"
+					android:background="@drawable/rounded_borders_top"
+					android:paddingLeft="@dimen/expansion_header_padding"
+					android:paddingRight="@dimen/expansion_header_padding"
 					app:expansion_headerIndicator="@id/summary_header_indicator"
 					app:expansion_layout="@id/summary_expansion_layout"
-					app:expansion_toggleOnClick="true">
+					app:expansion_toggleOnClick="true"
+					>
 
 					<RelativeLayout
-						android:layout_height="@dimen/expanded_header_height_small"
+						android:layout_height="match_parent"
 						android:layout_width="match_parent"
-						android:paddingLeft="16dp"
-						android:paddingRight="16dp"
-						android:background="@drawable/rounded_borders_top"
 						>
 
 						<TextView
@@ -131,7 +132,6 @@
 							android:layout_alignParentRight="true"
 							android:layout_centerVertical="true"
 							android:layout_height="wrap_content"
-							android:layout_marginLeft="16dp"
 							android:layout_width="wrap_content"
 							app:srcCompat="@drawable/icon_expand_header"
 							/>
@@ -154,6 +154,13 @@
 						android:layout_height="wrap_content"
 						/>
 				</com.github.florent37.expansionpanel.ExpansionLayout>
+
+				<!-- bottom cap -->
+				<ImageView
+					android:layout_height="@dimen/bottom_cap_height"
+					android:layout_width="match_parent"
+					android:background="@drawable/rounded_borders_bottom"
+					/>
 
 			</LinearLayout>
 

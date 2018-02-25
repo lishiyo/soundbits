@@ -46,6 +46,10 @@
 	<dimen name="list_item_track_height">60dp</dimen>
 	<dimen name="expanded_header_height">48dp</dimen>
 	<dimen name="expanded_header_height_small">40dp</dimen>
+	<dimen name="bottom_cap_height">14dp</dimen>
+	<dimen name="top_cap_radius">18dp</dimen>
+	<dimen name="bottom_cap_radius">150dp</dimen>
+	<dimen name="expansion_header_padding">22dp</dimen>
 
 	<!-- QuickCounts and Stats -->
 	<dimen name="stats_padding_vertical">15dp</dimen>
