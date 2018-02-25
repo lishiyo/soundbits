@@ -12,12 +12,16 @@ import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.playlists.Playlist
+import com.cziyeli.domain.summary.SummaryAction
+import com.cziyeli.domain.summary.SummaryResult
 import com.cziyeli.domain.summary.SwipeActionMarker
 import com.cziyeli.domain.summary.SwipeResultMarker
 import com.cziyeli.domain.tracks.CardsActionProcessor
 import com.cziyeli.domain.tracks.TrackAction
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.tracks.TrackResult
+import com.cziyeli.songbits.cards.summary.SummaryIntent
+import com.cziyeli.songbits.playlistcard.CardIntentMarker
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -35,14 +39,15 @@ class CardsViewModel @Inject constructor(
         val actionProcessor: CardsActionProcessor,
         val schedulerProvider: BaseSchedulerProvider,
         val playlist: Playlist?
-): ViewModel(), LifecycleObserver, MviViewModel<CardsIntent, TrackViewState, CardResultMarker> {
+): ViewModel(), LifecycleObserver, MviViewModel<CardIntentMarker, TrackViewState, CardResultMarker> {
     private val TAG = CardsViewModel::class.simpleName
 
     private val compositeDisposable = CompositeDisposable()
 
     // Intents stream and ViewStates stream
-    private val intentsSubject : PublishRelay<CardsIntent> by lazy { PublishRelay.create<CardsIntent>() }
+    private val intentsSubject : PublishRelay<CardIntentMarker> by lazy { PublishRelay.create<CardIntentMarker>() }
     private val viewStates: PublishRelay<TrackViewState> by lazy { PublishRelay.create<TrackViewState>() }
+    var currentViewState: TrackViewState
 
     // Previous ViewState + Result => New ViewState
     private val reducer: BiFunction<TrackViewState, SwipeResultMarker, TrackViewState> = BiFunction { previousState, result ->
@@ -50,24 +55,27 @@ class CardsViewModel @Inject constructor(
             is TrackResult.LoadTrackCards -> return@BiFunction processTrackCards(previousState, result)
             is TrackResult.CommandPlayerResult -> return@BiFunction processPlayerCommand(previousState, result)
             is TrackResult.ChangePrefResult -> return@BiFunction processTrackChangePref(previousState, result)
+            is SummaryResult.SaveTracks -> return@BiFunction processSaveResult(previousState, result)
             else -> return@BiFunction previousState
         }
     }
 
     init {
+        currentViewState = TrackViewState(playlist = playlist)
+
         // create observable to push into states live data
         val observable: Observable<TrackViewState> = intentsSubject
                 .subscribeOn(schedulerProvider.io())
                 .map{ it -> actionFromIntent(it)}
                 .compose(actionFilter<SwipeActionMarker>())
-                .doOnNext { intent -> Utils.log(TAG, "ViewModel ++ intentsSubject hitActionProcessor: ${intent.javaClass.name}") }
                 .compose(actionProcessor.combinedProcessor)
                 .compose(resultFilter<SwipeResultMarker>())
                 .observeOn(schedulerProvider.ui())
-                .scan(TrackViewState(playlist = playlist), reducer)
+                .scan(currentViewState, reducer)
 
         compositeDisposable.add(
                 observable.subscribe({ viewState ->
+                    currentViewState = viewState
                     viewStates.accept(viewState)
                 }, { err ->
                     Utils.log(TAG, "ViewModel ++ ERROR " + err.localizedMessage)
@@ -80,17 +88,14 @@ class CardsViewModel @Inject constructor(
             is CardsIntent.ScreenOpenedWithTracks -> TrackAction.SetTracks(intent.playlist, intent.tracks)
             is CardsIntent.ScreenOpenedNoTracks -> TrackAction.LoadTrackCards.create(
                     intent.ownerId, intent.playlistId, intent.onlyTrackIds, intent.fields, intent.limit, intent.offset)
-            is CardsIntent.CommandPlayer -> TrackAction.CommandPlayer.create(
-                    intent.command, intent.track
-            )
-            is CardsIntent.ChangeTrackPref -> TrackAction.ChangeTrackPref.create(
-                    intent.track, intent.pref
-            )
+            is CardsIntent.CommandPlayer -> TrackAction.CommandPlayer.create(intent.command, intent.track)
+            is CardsIntent.ChangeTrackPref -> TrackAction.ChangeTrackPref.create(intent.track, intent.pref)
+            is SummaryIntent.SaveAllTracks -> SummaryAction.SaveTracks(intent.tracks, intent.playlistId)
             else -> None // no-op all other events
         }
     }
 
-    override fun processIntents(intents: Observable<out CardsIntent>) {
+    override fun processIntents(intents: Observable<out CardIntentMarker>) {
         compositeDisposable.add(
             intents.subscribe(intentsSubject::accept)
         )
@@ -116,8 +121,7 @@ class CardsViewModel @Inject constructor(
             TrackResult.LoadTrackCards.Status.LOADING,
             TrackResult.LoadTrackCards.Status.ERROR -> {
                 val status = if (result.status == TrackResult.LoadTrackCards.Status.LOADING)
-                    TrackViewState.TracksLoadedStatus.LOADING
-                    else TrackViewState.TracksLoadedStatus.ERROR
+                    TrackViewState.TracksLoadedStatus.LOADING else TrackViewState.TracksLoadedStatus.ERROR
                 previousState.copy(
                         error = result.error,
                         status = status
@@ -138,17 +142,11 @@ class CardsViewModel @Inject constructor(
     private fun processPlayerCommand(previousState: TrackViewState, result: TrackResult.CommandPlayerResult) : TrackViewState {
         return when (result.status) {
             MviResult.Status.LOADING, MviResult.Status.SUCCESS, MviResult.Status.ERROR -> {
-                val status = when (result.status) {
-                    MviResult.Status.LOADING -> MviViewState.Status.LOADING
-                    MviResult.Status.SUCCESS -> MviViewState.Status.SUCCESS
-                    MviResult.Status.ERROR -> MviViewState.Status.ERROR
-                    else -> MviViewState.Status.IDLE
-                }
                 previousState.copy(
                         error = result.error,
                         currentTrack = result.currentTrack,
                         currentPlayerState = result.currentPlayerState,
-                        status = status
+                        status = Utils.statusFromResult(result.status)
                 )
             }
             else -> previousState
@@ -186,6 +184,30 @@ class CardsViewModel @Inject constructor(
         }
     }
 
+    // Save results before leaving
+    private fun processSaveResult(
+            previousState: TrackViewState,
+            result: SummaryResult.SaveTracks
+    ) : TrackViewState {
+        return when (result.status) {
+            MviResult.Status.LOADING, MviResult.Status.ERROR -> {
+                previousState.copy(
+                        error = result.error,
+                        status = Utils.statusFromResult(result.status)
+                )
+            }
+            MviResult.Status.SUCCESS -> {
+                Utils.mLog(TAG, "processSaveResult SUCCESS", "insertedTracks: ",
+                        "${result.insertedTracks!!.size} for playlist: ${result.playlistId}")
+                previousState.copy(
+                        error = result.error,
+                        status =  MviViewState.Status.SUCCESS,
+                        tracksSaved = true
+                )
+            } else -> previousState
+        }
+    }
+
 }
 
 data class TrackViewState(val status: MviViewState.StatusInterface = MviViewState.Status.IDLE,
@@ -193,11 +215,15 @@ data class TrackViewState(val status: MviViewState.StatusInterface = MviViewStat
                           val allTracks: MutableList<TrackModel> = mutableListOf(),
                           val playlist: Playlist? = null, // optional playlist
                           val currentTrack: TrackModel? = null,
-                          val currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID
+                          val currentPlayerState: PlayerInterface.State = PlayerInterface.State.INVALID,
+                          val tracksSaved: Boolean = false
 ) : MviViewState {
     enum class TracksLoadedStatus : MviViewState.StatusInterface {
         LOADING, SUCCESS, ERROR
     }
+
+    val currentSwiped: List<TrackModel>
+        get() = currentLikes + currentDislikes
 
     private val currentLikes: MutableList<TrackModel>
         get() = allTracks.filter { it.pref == TrackModel.Pref.LIKED }.toMutableList()

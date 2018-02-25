@@ -13,14 +13,17 @@ import android.view.WindowManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviView
+import com.cziyeli.commons.mvibase.MviViewState
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.SummaryActionProcessor
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.songbits.R
+import com.cziyeli.songbits.cards.summary.SummaryIntent
 import com.cziyeli.songbits.cards.summary.SummaryLayout
 import com.cziyeli.songbits.cards.summary.SummaryViewModel
 import com.cziyeli.songbits.cards.summary.SummaryViewState
+import com.cziyeli.songbits.playlistcard.CardIntentMarker
 import com.jakewharton.rxrelay2.PublishRelay
 import com.mindorks.placeholderview.SwipeDecor
 import com.mindorks.placeholderview.SwipePlaceHolderView
@@ -30,15 +33,16 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_cards.*
 import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
-import org.jetbrains.anko.collections.forEachWithIndex
 import org.jetbrains.anko.intentFor
 import javax.inject.Inject
 import javax.inject.Named
 
+
+
 /**
- * Created by connieli on 1/1/18.
+ * Swipe UI screen.
  */
-class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>, TrackCardView.TrackListener {
+class CardsActivity : AppCompatActivity(), MviView<CardIntentMarker, TrackViewState>, TrackCardView.TrackListener {
 
     companion object {
         // open Create activity with request code
@@ -61,24 +65,39 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
     private lateinit var viewModel: CardsViewModel
 
     // intents
-    private val mLoadPublisher: PublishRelay<CardsIntent> by lazy {
-        PublishRelay.create<CardsIntent>()
-    }
-    private val mPlayerPublisher: PublishRelay<CardsIntent.CommandPlayer> by lazy {
-        PublishRelay.create<CardsIntent.CommandPlayer>()
-    }
-    private val mCardsPrefPublisher: PublishRelay<CardsIntent.ChangeTrackPref> by lazy {
-        PublishRelay.create<CardsIntent.ChangeTrackPref>()
-    }
+    private val eventsPublisher: PublishRelay<CardIntentMarker> by lazy { PublishRelay.create<CardIntentMarker>() }
+    private val mPlayerPublisher: PublishRelay<CardsIntent.CommandPlayer> by lazy { PublishRelay.create<CardsIntent.CommandPlayer>() }
 
+    // backing model
     var playlist: Playlist? = null
 
+    // views
     private var summaryShown : Boolean = false // TODO move into viewmodel
     private val summaryLayout: SummaryLayout by lazy {
         val stub = findViewById<ViewStub>(R.id.summary_stub)
         val view = stub.inflate() as SummaryLayout
         Utils.setVisible(view, false)
         view
+    }
+    private val dialog: MaterialDialog by lazy {
+        MaterialDialog.Builder(this)
+                .customView(R.layout.dialog_stash_tracks, true)
+                .positiveText(R.string.dialog_stash_confirm)
+                .negativeText(R.string.dialog_stash_reject)
+                .positiveColor(resources.getColor(R.color.colorPrimary))
+                .negativeColor(resources.getColor(R.color.colorDarkerGrey))
+                .onNegative { dialog, _ ->
+                    dialog.dismiss()
+                    finish()
+                }
+                .onPositive { _, _ ->
+                    eventsPublisher.accept(SummaryIntent.SaveAllTracks(
+                            viewModel.currentViewState.currentSwiped,
+                            viewModel.currentViewState.playlist?.id
+                    ))
+                }
+                .autoDismiss(false)
+                .build()
     }
 
     private val compositeDisposable = CompositeDisposable()
@@ -105,10 +124,10 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
         // fetch track cards
         if (tracksToSwipe != null && tracksToSwipe.isNotEmpty()) {
             // tracks were passed - just use these
-            mLoadPublisher.accept(CardsIntent.ScreenOpenedWithTracks(playlist, tracksToSwipe))
+            eventsPublisher.accept(CardsIntent.ScreenOpenedWithTracks(playlist, tracksToSwipe))
         } else {
             // no tracks passed - fetch all from remote
-            mLoadPublisher.accept(CardsIntent.ScreenOpenedNoTracks.create(
+            eventsPublisher.accept(CardsIntent.ScreenOpenedNoTracks.create(
                     ownerId = playlist!!.owner.id,
                     playlistId = playlist!!.id)
             )
@@ -153,12 +172,8 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
 
     }
 
-    override fun intents(): Observable<out CardsIntent> {
-        return Observable.merge(
-                mLoadPublisher,
-                mPlayerPublisher,
-                mCardsPrefPublisher
-        )
+    override fun intents(): Observable<out CardIntentMarker> {
+        return Observable.merge(eventsPublisher, mPlayerPublisher)
     }
 
     override fun getPlayerIntents(): PublishRelay<CardsIntent.CommandPlayer> {
@@ -168,13 +183,13 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
     override fun onChangePref(model: TrackModel, pref: TrackModel.Pref) {
         when (pref) {
             TrackModel.Pref.LIKED -> {
-                mCardsPrefPublisher.accept(CardsIntent.ChangeTrackPref.like(model))
+                eventsPublisher.accept(CardsIntent.ChangeTrackPref.like(model))
             }
             TrackModel.Pref.DISLIKED -> {
-                mCardsPrefPublisher.accept(CardsIntent.ChangeTrackPref.dislike(model))
+                eventsPublisher.accept(CardsIntent.ChangeTrackPref.dislike(model))
             }
             TrackModel.Pref.UNSEEN -> {
-                mCardsPrefPublisher.accept(CardsIntent.ChangeTrackPref.clear(model))
+                eventsPublisher.accept(CardsIntent.ChangeTrackPref.clear(model))
             }
         }
     }
@@ -194,19 +209,23 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
     }
 
     override fun render(state: TrackViewState) {
-
         Utils.mLog(TAG, "render!", "state", state.toString())
 
         // populate deck if first time
-        if (state.status == TrackViewState.TracksLoadedStatus.SUCCESS && swipe_view.childCount == 0) {
-            state.allTracks.forEachWithIndex { position, model ->
-                swipe_view.addView(TrackCardView(this, model, this))
+        when {
+            !summaryShown && state.reachedEnd -> {
+                mPlayer.run { onDestroy() } // release the player!
+                showSummary(state)
             }
-        }
-
-        if (!summaryShown && state.reachedEnd) {
-            mPlayer.run { onDestroy() } // release the player!
-            showSummary(state)
+            state.status == TrackViewState.TracksLoadedStatus.SUCCESS && swipe_view.childCount == 0 -> {
+                state.allTracks.forEach { model ->
+                    swipe_view.addView(TrackCardView(this, model, this))
+                }
+            }
+            state.status == MviViewState.Status.SUCCESS && state.tracksSaved -> {
+                dialog.dismiss()
+                finish()
+            }
         }
     }
 
@@ -242,6 +261,11 @@ class CardsActivity : AppCompatActivity(), MviView<CardsIntent, TrackViewState>,
 
         // Bind ViewModel to merged intents stream - will send off INIT intent to seed the db
         viewModel.processIntents(intents())
+    }
+
+    override fun onBackPressed() {
+//        super.onBackPressed()
+        dialog.show()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -13,6 +13,9 @@
 		<item name="colorAccent">@color/colorAccent</item>
 		<item name="android:textColor">@color/colorDarkerGrey</item>
 		<item name="android:fontFamily">@font/indie_flower</item>
+		<!-- material dialog -->
+		<item name="md_medium_font">@font/indie_flower</item>
+		<item name="md_regular_font">@font/indie_flower</item>
 	</style>
 
 	<style name="AppTheme.TranslucentNavigation" parent="AppTheme">
