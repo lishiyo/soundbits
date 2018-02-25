@@ -80,8 +80,8 @@
 						android:layout_width="0dp"
 						android:layout_weight="1"
 						style="@style/SummaryButton"
-						button:bg_color="@color/quartet_blue"
-						button:rounded_border_color="@color/turquoise_blue"
+						button:bg_color="@color/colorAccent"
+						button:rounded_border_color="@color/californian_coral"
 						/>
 
 					<com.cziyeli.songbits.base.RoundedCornerButton
@@ -107,7 +107,7 @@
 					app:expansion_toggleOnClick="true">
 
 					<RelativeLayout
-						android:layout_height="48dp"
+						android:layout_height="@dimen/expanded_header_height_small"
 						android:layout_width="match_parent"
 						android:paddingLeft="16dp"
 						android:paddingRight="16dp"

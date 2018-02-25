@@ -26,14 +26,15 @@ class ChipsActionProcessor @Inject constructor(private val repository: Repositor
                     // given tracks list -> grab stats
                     shared.ofType<ChipsAction.FetchSeedGenres>(ChipsAction.FetchSeedGenres::class.java)
                             .compose(seedGenresProcessor),
-                    shared.ofType<ChipsAction.SelectionChange>(ChipsAction.SelectionChange::class.java).compose(selectionChangeProcessor)
+                    shared.ofType<ChipsAction.SelectionChange>(ChipsAction.SelectionChange::class.java).compose(changeSelectionProcessor),
+                    shared.ofType<ChipsAction.PickRandomGenres>(ChipsAction.PickRandomGenres::class.java).compose(pickRandomGenresProcessor)
             ).doOnNext {
-                Utils.mLog(TAG, "PlaylistCardActionProcessor: --- ${it::class.simpleName}")
+                Utils.mLog(TAG, "ChipsActionProcessor: --- ${it::class.simpleName}")
             }.retry() // don't ever unsubscribe
         }
     }
 
-    private val seedGenresProcessor:  ObservableTransformer<ChipsAction.FetchSeedGenres, ChipsResult.FetchSeedGenres> = ObservableTransformer {
+    private val seedGenresProcessor: ObservableTransformer<ChipsAction.FetchSeedGenres, ChipsResult.FetchSeedGenres> = ObservableTransformer {
         actions -> actions.switchMap { act ->
             Observable.just(GENRE_SEEDS)
                     .observeOn(schedulerProvider.io())
@@ -44,12 +45,19 @@ class ChipsActionProcessor @Inject constructor(private val repository: Repositor
         }
     }
 
-    private val selectionChangeProcessor:  ObservableTransformer<ChipsAction.SelectionChange, ChipsResult.SelectionChange> =
+    private val changeSelectionProcessor: ObservableTransformer<ChipsAction.SelectionChange, ChipsResult.ChangeSelection> =
             ObservableTransformer {
         actions -> actions.map { act ->
-                ChipsResult.SelectionChange(act.index, act.selected)
+                ChipsResult.ChangeSelection(act.index, act.selected)
             }.subscribeOn(schedulerProvider.io()).observeOn(schedulerProvider.ui())
     }
+
+    private val pickRandomGenresProcessor: ObservableTransformer<ChipsAction.PickRandomGenres, ChipsResult.ChangeSelections> =
+            ObservableTransformer {
+                actions -> actions.map { act ->
+                        ChipsResult.ChangeSelections(Utils.getRandomGenreSeeds(), true)
+                }.subscribeOn(schedulerProvider.io()).observeOn(schedulerProvider.ui())
+            }
 }
 
 // ========== ACTIONS ========
@@ -62,6 +70,9 @@ sealed class ChipsAction : ChipsActionMarker {
 
     // User checked or unchecked a chip
     class SelectionChange(val index: Int, val selected: Boolean) : ChipsAction()
+
+    // User hit 'pick random' genre seeds
+    class PickRandomGenres(val count: Int) : ChipsAction()
 }
 
 // ========== RESULTS ========
@@ -89,5 +100,7 @@ sealed class ChipsResult(var status: MviResult.StatusInterface = MviResult.Statu
         }
     }
 
-    class SelectionChange(val index: Int, val selected: Boolean) : ChipsResult(MviResult.Status.SUCCESS)
+    class ChangeSelection(val index: Int, val selected: Boolean) : ChipsResult(MviResult.Status.SUCCESS)
+
+    class ChangeSelections(val indicies: List<Int>, val selected: Boolean = true) : ChipsResult(MviResult.Status.SUCCESS)
 }

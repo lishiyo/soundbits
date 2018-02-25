@@ -47,6 +47,9 @@ sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
 
     // User checked or unchecked a chip
     class SelectionChange(val index: Int, val selected: Boolean) : ChipsIntent()
+
+    // User hit 'pick random' genre seeds
+    class PickRandomGenres(val count: Int = 5) : ChipsIntent()
 }
 
 /**
@@ -80,7 +83,7 @@ sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
 
         val config = ChipCloudConfig()
                 .selectMode(ChipCloud.SelectMode.multi)
-                .checkedChipColor(resources.getColor(R.color.colorPrimary))
+                .checkedChipColor(resources.getColor(R.color.colorPrimaryShade))
                 .checkedTextColor(resources.getColor(R.color.colorWhite))
                 .uncheckedChipColor(resources.getColor(R.color.colorWhite))
                 .uncheckedTextColor(resources.getColor(R.color.colorAccent))
@@ -120,21 +123,24 @@ sealed class ChipsIntent : MviIntent, ProfileIntentMarker {
         )
     }
 
-    override fun states(): Observable<ChipsViewModel.ViewState> {
-        return viewModel.states()
-    }
-
     override fun render(state: ChipsViewModel.ViewState) {
         Utils.mLog(TAG, "render! $state")
         when {
             state.status == MviViewState.Status.SUCCESS && state.lastResult is ChipsResult.FetchSeedGenres -> {
                 chipCloud.addChips(state.chips.map { it.toString() })
             }
-            state.status == MviViewState.Status.SUCCESS && state.lastResult is ChipsResult.SelectionChange -> {
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is ChipsResult.ChangeSelection -> {
                 // see if we need to deselect any
                 if (state.deselected.isNotEmpty()) {
                     state.deselected.forEach { chipCloud.deselectIndex(it) }
                 }
+            }
+            state.status == MviViewState.Status.SUCCESS && state.lastResult is ChipsResult.ChangeSelections -> {
+                // deselect all of the current
+                if (state.deselected.isNotEmpty()) {
+                    state.deselected.forEach { chipCloud.deselectIndex(it) }
+                }
+                chipCloud.setSelectedIndexes(state.selected.toIntArray())
             }
         }
     }
@@ -169,7 +175,8 @@ class ChipsViewModel @Inject constructor(
     private val reducer: BiFunction<ViewState, ChipsResultMarker, ViewState> = BiFunction { previousState, result ->
         when (result) {
             is ChipsResult.FetchSeedGenres -> return@BiFunction processFetchSeedGenres(previousState, result)
-            is ChipsResult.SelectionChange -> return@BiFunction processSelectionChange(previousState, result)
+            is ChipsResult.ChangeSelection -> return@BiFunction processSelectionChange(previousState, result)
+            is ChipsResult.ChangeSelections -> return@BiFunction processSelectionsChange(previousState, result)
             else -> return@BiFunction previousState
         }
     }
@@ -201,6 +208,7 @@ class ChipsViewModel @Inject constructor(
         return when (intent) {
             is ChipsIntent.FetchSeedGenres -> ChipsAction.FetchSeedGenres(intent.limit)
             is ChipsIntent.SelectionChange -> ChipsAction.SelectionChange(intent.index, intent.selected)
+            is ChipsIntent.PickRandomGenres -> ChipsAction.PickRandomGenres(intent.count)
             else -> None
         }
     }
@@ -247,7 +255,7 @@ class ChipsViewModel @Inject constructor(
 
     private fun processSelectionChange(
             previousState: ViewState,
-            result: ChipsResult.SelectionChange
+            result: ChipsResult.ChangeSelection
     ) : ViewState {
         val status = Utils.statusFromResult(result.status)
         return when (result.status) {
@@ -267,6 +275,35 @@ class ChipsViewModel @Inject constructor(
                     // remove from the list
                     newSelected.remove(result.index)
                 }
+                val finalFive = newSelected.takeLast(5)
+                previousState.copy(
+                        error = null,
+                        lastResult = result,
+                        status = status,
+                        selected = finalFive,
+                        deselected = previousState.selected - finalFive
+                )
+            }
+            else -> previousState
+        }
+    }
+
+    private fun processSelectionsChange(
+            previousState: ViewState,
+            result: ChipsResult.ChangeSelections
+    ) : ViewState {
+        val status = Utils.statusFromResult(result.status)
+        return when (result.status) {
+            MviResult.Status.LOADING, MviResult.Status.ERROR -> {
+                previousState.copy(
+                        error = null,
+                        lastResult = result,
+                        status = status,
+                        deselected = listOf()
+                )
+            }
+            MviResult.Status.SUCCESS -> {
+                val newSelected = result.indicies
                 val finalFive = newSelected.takeLast(5)
                 previousState.copy(
                         error = null,

@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.errorToast
 import com.cziyeli.commons.mvibase.MviView
@@ -23,6 +24,7 @@ import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_profile.*
+import kotlinx.android.synthetic.main.widget_expandable_chips.*
 import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import javax.inject.Inject
 
@@ -32,6 +34,9 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     @Inject lateinit var simpleCardActionProcessor: SimpleCardActionProcessor
+
+    @Inject
+    lateinit var userManager: com.cziyeli.domain.user.UserManager
 
     val schedulerProvider = SchedulerProvider
     private lateinit var viewModel: ProfileViewModel
@@ -64,6 +69,10 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
 
         initViewModel()
 
+        // load the avatar
+        val userImage = userManager.getCurrentUser().cover_image
+        Glide.with(context).load(userImage).into(profile_avatar)
+
         // load all the cards (empty for now)
         initCards()
 
@@ -80,6 +89,9 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
         )
 
         // init click listeners = fetch recommended based on current stats
+        action_randomize_seeds.setOnClickListener {
+            eventsPublisher.accept(ChipsIntent.PickRandomGenres())
+        }
         action_get_recommended.setOnClickListener {
             val attrs = viewModel.currentTargetStats.convertToOutgoing()
             eventsPublisher.accept(ProfileIntent.FetchRecommendedTracks(seedGenres = chips_widget.getCurrentSelected(), attributes = attrs))

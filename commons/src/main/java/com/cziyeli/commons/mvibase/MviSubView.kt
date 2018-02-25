@@ -15,14 +15,9 @@ import io.reactivex.Observable
 interface MviSubView<in I: MviIntent, S: MviViewState> {
 
     /**
-     * Bind subview to intents stream; the subview chooses events to filter.
+     * Bind subview to intents stream - the subview will choose which events it is interested in.
      */
     fun processIntents(intents: Observable<out I>)
-
-    /**
-     * Stream of view states for parent view to subscribe to.
-     */
-    fun states(): Observable<S>
 
     /**
      * Entry point for the [MviSubView] to render itself based on a [MviViewState].

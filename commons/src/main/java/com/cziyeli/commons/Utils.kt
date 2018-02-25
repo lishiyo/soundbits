@@ -95,8 +95,16 @@ object Utils {
         }
     }
 
-    fun getRandomGenreSeeds(count: Int = 5) : List<String> {
-        return GENRE_SEEDS.shuffled().take(count)
+    fun getRandomGenreSeeds(count: Int = 5) : List<Int> {
+        val indices = mutableListOf<Int>()
+        do {
+            val index = (0..GENRE_SEEDS.size).random()
+            if (!indices.contains(index)) {
+                indices.add(index)
+            }
+        } while (indices.size < count) // y is visible here!
+
+        return indices
     }
 
 }

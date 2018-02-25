@@ -12,7 +12,7 @@
 	<dimen name="dotted_line_width">4dp</dimen>
 	<dimen name="like_button_big">30dp</dimen>
 	<dimen name="dislike_button_big">28dp</dimen>
-	<dimen name="action_button_radius">18dp</dimen>
+	<dimen name="action_button_radius">26dp</dimen>
 	<dimen name="action_button_text_size">14sp</dimen>
 
 	<!-- TAB: HOME -->
@@ -28,9 +28,6 @@
 	<dimen name="playlist_card_full_height">500dp</dimen>
 	<dimen name="playlist_card_image_height">200dp</dimen>
 	<dimen name="playlist_card_body_height">300dp</dimen>
-	<dimen name="track_like_width">24dp</dimen>
-	<dimen name="track_dislike_width">21dp</dimen>
-	<dimen name="list_item_track_height">60dp</dimen>
 	<dimen name="fake_fab_diameter">32dp</dimen>
 	<dimen name="fake_fab_diameter_small">34dp</dimen>
 	<dimen name="fake_fab_icon_margin">4dp</dimen>
@@ -41,13 +38,20 @@
 	<dimen name="scrollview_padding_top">30dp</dimen>
 	<dimen name="playlist_card_elevation">6dp</dimen>
 	<dimen name="playlist_card_finished_elevation">24dp</dimen>
+
+	<!-- Expanded tracks -->
 	<dimen name="foreground_track_width">245dp</dimen>
+	<dimen name="track_like_width">24dp</dimen>
+	<dimen name="track_dislike_width">21dp</dimen>
+	<dimen name="list_item_track_height">60dp</dimen>
+	<dimen name="expanded_header_height">48dp</dimen>
+	<dimen name="expanded_header_height_small">40dp</dimen>
 
 	<!-- QuickCounts and Stats -->
 	<dimen name="stats_padding_vertical">15dp</dimen>
 	<dimen name="stats_padding_horizontal">25dp</dimen>
 	<dimen name="stats_range_padding">0dp</dimen>
-	<dimen name="stats_radius_thumb">1dp</dimen>
+	<dimen name="stats_radius_thumb">4dp</dimen>
 	<dimen name="stats_line_width">4dp</dimen>
 	<dimen name="track_stats_padding">20dp</dimen>
 	<dimen name="track_stats_padding_container">4dp</dimen>
@@ -57,7 +61,7 @@
 	<dimen name="title_input_width">150dp</dimen>
 	<dimen name="create_dotted_line_width">2dp</dimen>
 
-	<!-- Stash -->
+	<!-- TAB: Stash -->
 	<dimen name="tab_strip_height">48dp</dimen>
 	<dimen name="simple_card_header_height">180dp</dimen>
 	<dimen name="simple_card_padding">20dp</dimen>
@@ -75,4 +79,7 @@
 	<dimen name="artist_size">22sp</dimen>
 	<dimen name="card_full_height">470dp</dimen>
 	<dimen name="card_full_width">300dp</dimen>
+
+	<!-- TAB: PROFILE -->
+	<dimen name="user_avatar_size">78dp</dimen>
 </resources>

@@ -10,6 +10,7 @@ import io.reactivex.ObservableTransformer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.math.BigDecimal
+import java.util.*
 
 
 /**
@@ -65,3 +66,6 @@ fun <T> LiveData<T>.getDistinct(): LiveData<T> {
 
 fun Double.roundToDecimalPlaces(numPlaces: Int) =
         BigDecimal(this).setScale(numPlaces, BigDecimal.ROUND_HALF_UP).toDouble()
+
+fun ClosedRange<Int>.random() =
+        Random().nextInt(endInclusive - start) +  start

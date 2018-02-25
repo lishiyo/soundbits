@@ -6,53 +6,61 @@
 	tools:orientation="vertical"
 	tools:parentTag="android.widget.LinearLayout">
 
-	<LinearLayout
+	<RelativeLayout
 		android:layout_width="match_parent"
-		android:layout_height="44dp"
+		android:layout_height="@dimen/expanded_header_height_small"
 		android:layout_marginBottom="10dp"
 		android:layout_marginTop="10dp"
-		android:gravity="center"
 		android:orientation="horizontal"
-		android:paddingLeft="20dp"
-		android:paddingRight="20dp"
 		>
 
 		<TextView
 			android:id="@+id/seeds_title"
-			android:layout_width="0dp"
+			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:layout_gravity="center"
-			android:layout_weight="3"
+			android:gravity="center_vertical|left"
 			android:text="@string/expand_seed_genres"
-			android:textAlignment="center"
+			android:layout_alignParentLeft="true"
+			android:layout_centerVertical="true"
+			android:fontFamily="@font/quicksand"
+			android:textStyle="bold"
+			android:textColor="@color/colorDarkerGrey"
+			android:textAllCaps="true"
 			/>
 
 		<!-- pick five at random -->
-		<com.cziyeli.songbits.base.RoundedCornerButton
+		<TextView
 			android:id="@+id/action_randomize_seeds"
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:layout_marginStart="10dp"
-			android:layout_weight="1"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:padding="12dp"
+			android:gravity="center_vertical|right"
+			android:layout_alignParentRight="true"
 			android:text="@string/action_random_genres"
-			button:bg_color="@color/colorAccent"
-			button:rounded_border_color="@color/persian_blue"
+			android:fontFamily="@font/quicksand"
+			android:textStyle="bold"
+			android:textColor="@color/colorAccent"
+			android:background="@drawable/rounded_borders_transparent"
+			android:layout_centerVertical="true"
+			android:textAllCaps="true"
 			/>
-	</LinearLayout>
+	</RelativeLayout>
 
-	<!-- EXPANSION Header -->
+	<!-- EXPANSION Header: Top cap -->
 	<com.github.florent37.expansionpanel.ExpansionHeader
 		android:id="@+id/expansion_header"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
 		app:expansion_headerIndicator="@id/header_indicator"
 		app:expansion_layout="@id/chips_expansion_layout"
-		app:expansion_toggleOnClick="true">
+		app:expansion_toggleOnClick="true"
+		android:background="@drawable/rounded_borders_top_accent"
+		android:layout_height="@dimen/expanded_header_height_small"
+		android:paddingLeft="16dp"
+		>
 
 		<RelativeLayout
 			android:layout_width="match_parent"
-			android:layout_height="48dp"
-			android:background="@color/colorAccent"
+			android:layout_height="match_parent"
 			android:paddingLeft="16dp"
 			android:paddingRight="16dp">
 
@@ -61,7 +69,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_centerVertical="true"
-				android:text="@string/expand_seed_genres"
+				android:text="@string/show_seed_genres"
 				android:fontFamily="@font/quicksand"
 				android:textColor="@color/colorWhite" />
 
@@ -71,7 +79,6 @@
 				android:layout_height="wrap_content"
 				android:layout_alignParentRight="true"
 				android:layout_centerVertical="true"
-				android:layout_marginLeft="16dp"
 				android:adjustViewBounds="true"
 				app:srcCompat="@drawable/icon_expand_header"
 				/>
@@ -84,26 +91,39 @@
 	<com.github.florent37.expansionpanel.ExpansionLayout
 		android:id="@+id/chips_expansion_layout"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="300dp"
 		android:descendantFocusability="afterDescendants"
 		android:textSize="@dimen/small_text_size"
-		android:background="@color/colorAccent"
+		android:background="@drawable/gradient_blues"
 		app:expansion_expanded="false"
 		android:paddingLeft="10dp"
 		android:paddingRight="10dp"
 		android:paddingBottom="10dp"
 		>
 
-		<com.google.android.flexbox.FlexboxLayout
-			android:id="@+id/chips_layout"
+		<android.support.v4.widget.NestedScrollView
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			app:alignContent="space_around"
-			app:alignItems="flex_start"
-			app:dividerDrawable="@drawable/chip_div"
-			app:flexWrap="wrap"
-			app:showDivider="middle" />
+			>
+			<com.google.android.flexbox.FlexboxLayout
+				android:id="@+id/chips_layout"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				app:alignContent="space_around"
+				app:alignItems="flex_start"
+				app:dividerDrawable="@drawable/chip_div"
+				app:flexWrap="wrap"
+				app:showDivider="middle" >
+			</com.google.android.flexbox.FlexboxLayout>
+		</android.support.v4.widget.NestedScrollView>
 
 	</com.github.florent37.expansionpanel.ExpansionLayout>
+
+	<!-- bottom cap -->
+	<ImageView
+		android:layout_height="10dp"
+		android:layout_width="4dp"
+		android:background="@drawable/rounded_borders_bottom_accent"
+		/>
 
 </merge>
