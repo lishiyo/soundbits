@@ -17,7 +17,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class TrackActionProcessor @Inject constructor(private val repository: Repository,
-                                               private val schedulerProvider: BaseSchedulerProvider) {
+                                               private val schedulerProvider: BaseSchedulerProvider
+) {
 
     private val TAG = TrackActionProcessor::class.simpleName
 
@@ -38,7 +39,7 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
 
     // ==== individual list of processors (action -> result) ====
 
-    private val setTracksProcessor:  ObservableTransformer<TrackAction.SetTracks, TrackResult.LoadTrackCards> = ObservableTransformer {
+    val setTracksProcessor:  ObservableTransformer<TrackAction.SetTracks, TrackResult.LoadTrackCards> = ObservableTransformer {
         actions -> actions.switchMap { act ->
             Observable.just(act.tracks)
                     .map { trackCards -> TrackResult.LoadTrackCards.createSuccess(trackCards) }
@@ -49,7 +50,7 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
     }
 
     // fetch tracks from REMOTE for a playlist
-    private val loadTrackCardsProcessor: ObservableTransformer<TrackAction.LoadTrackCards, TrackResult.LoadTrackCards> = ObservableTransformer {
+    val loadTrackCardsProcessor: ObservableTransformer<TrackAction.LoadTrackCards, TrackResult.LoadTrackCards> = ObservableTransformer {
         actions -> actions.switchMap { act ->
             repository
                 .fetchPlaylistTracks(Repository.Source.REMOTE, act.ownerId, act.playlistId, act.fields, act.limit, act.offset)
@@ -78,7 +79,7 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
     }
 
     // like, dislike, undo track - no saving in db
-    private val changePrefProcessor : ObservableTransformer<TrackAction.ChangeTrackPref, TrackResult.ChangePrefResult> = ObservableTransformer {
+    val changePrefProcessor : ObservableTransformer<TrackAction.ChangeTrackPref, TrackResult.ChangePrefResult> = ObservableTransformer {
         actions -> actions.switchMap { act ->
             Observable.just(act.track.copy(pref = act.pref))
                     .map { TrackResult.ChangePrefResult.createSuccess(it, it.pref) }

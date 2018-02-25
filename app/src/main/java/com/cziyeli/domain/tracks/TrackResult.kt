@@ -3,12 +3,14 @@ package com.cziyeli.domain.tracks
 import com.cziyeli.commons.mvibase.MviResult
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlistcard.CardResultMarker
+import com.cziyeli.domain.summary.SwipeResultMarker
 import java.util.*
 
 /**
  * Created by connieli on 1/1/18.
  */
-sealed class TrackResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE, var error: Throwable? = null) : MviResult {
+sealed class TrackResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE, var error: Throwable? = null
+) : SwipeResultMarker {
 
     class LoadTrackCards(status: Status,
                          error: Throwable?,

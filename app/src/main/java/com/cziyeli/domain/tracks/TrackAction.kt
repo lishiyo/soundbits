@@ -1,14 +1,14 @@
 package com.cziyeli.domain.tracks
 
-import com.cziyeli.commons.mvibase.MviAction
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlistcard.CardActionMarker
 import com.cziyeli.domain.playlists.Playlist
+import com.cziyeli.domain.summary.SwipeActionMarker
 
 /**
- * Created by connieli on 1/1/18.
+ * Track-specific actions on the swipe screen.
  */
-sealed class TrackAction : MviAction {
+sealed class TrackAction : SwipeActionMarker {
     // just set tracks directly
     class SetTracks(val playlist: Playlist? = null, val tracks: List<TrackModel>): TrackAction()
 

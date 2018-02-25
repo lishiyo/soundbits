@@ -7,12 +7,15 @@ import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
+import com.cziyeli.commons.resultFilter
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.player.PlayerInterface
 import com.cziyeli.domain.playlistcard.CardResultMarker
 import com.cziyeli.domain.playlists.Playlist
+import com.cziyeli.domain.summary.SwipeActionMarker
+import com.cziyeli.domain.summary.SwipeResultMarker
+import com.cziyeli.domain.tracks.CardsActionProcessor
 import com.cziyeli.domain.tracks.TrackAction
-import com.cziyeli.domain.tracks.TrackActionProcessor
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.tracks.TrackResult
 import com.jakewharton.rxrelay2.PublishRelay
@@ -29,7 +32,7 @@ import javax.inject.Inject
  */
 class CardsViewModel @Inject constructor(
         private val repository: RepositoryImpl,
-        val actionProcessor: TrackActionProcessor,
+        val actionProcessor: CardsActionProcessor,
         val schedulerProvider: BaseSchedulerProvider,
         val playlist: Playlist?
 ): ViewModel(), LifecycleObserver, MviViewModel<CardsIntent, TrackViewState, CardResultMarker> {
@@ -42,7 +45,7 @@ class CardsViewModel @Inject constructor(
     private val viewStates: PublishRelay<TrackViewState> by lazy { PublishRelay.create<TrackViewState>() }
 
     // Previous ViewState + Result => New ViewState
-    private val reducer: BiFunction<TrackViewState, TrackResult, TrackViewState> = BiFunction { previousState, result ->
+    private val reducer: BiFunction<TrackViewState, SwipeResultMarker, TrackViewState> = BiFunction { previousState, result ->
         when (result) {
             is TrackResult.LoadTrackCards -> return@BiFunction processTrackCards(previousState, result)
             is TrackResult.CommandPlayerResult -> return@BiFunction processPlayerCommand(previousState, result)
@@ -56,9 +59,10 @@ class CardsViewModel @Inject constructor(
         val observable: Observable<TrackViewState> = intentsSubject
                 .subscribeOn(schedulerProvider.io())
                 .map{ it -> actionFromIntent(it)}
-                .compose(actionFilter<TrackAction>())
+                .compose(actionFilter<SwipeActionMarker>())
                 .doOnNext { intent -> Utils.log(TAG, "ViewModel ++ intentsSubject hitActionProcessor: ${intent.javaClass.name}") }
                 .compose(actionProcessor.combinedProcessor)
+                .compose(resultFilter<SwipeResultMarker>())
                 .observeOn(schedulerProvider.ui())
                 .scan(TrackViewState(playlist = playlist), reducer)
 

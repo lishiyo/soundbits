@@ -7,8 +7,6 @@ import com.cziyeli.songbits.playlistcard.CardIntentMarker
 
 /**
  * Events in the summary layout after swiping through the cards.
- *
- * Created by connieli on 1/6/18.
  */
 sealed class SummaryIntent : MviIntent, CardIntentMarker {
     // fetch audio features for liked/disliked/all => transform to domain model TrackListStats

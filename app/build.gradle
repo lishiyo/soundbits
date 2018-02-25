@@ -149,6 +149,7 @@ dependencies {
     // Swipe ui
     implementation "com.mindorks:placeholderview:$rootProject.ext.placeholderViewVersion"
     implementation 'com.github.aliab:circular-music-progressbar:v1.3.0'
+    implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
 
     // Home tab
     implementation 'io.github.luizgrp.sectionedrecyclerviewadapter:sectionedrecyclerviewadapter:1.1.3'

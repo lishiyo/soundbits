@@ -8,11 +8,14 @@ import com.cziyeli.domain.tracks.TrackModel
 import kaaes.spotify.webapi.android.models.SnapshotId
 
 /**
- * Represents results that can handled by the summary screen.
- *
- * Created by connieli on 1/7/18.
+ * Swipe UI screen.
  */
-interface SummaryResultMarker : MviResult
+interface SwipeResultMarker : MviResult
+
+/**
+ * Represents results that can handled by the summary screen.
+ */
+interface SummaryResultMarker : SwipeResultMarker
 
 sealed class SummaryResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE, var error: Throwable? = null) : SummaryResultMarker {
     companion object {

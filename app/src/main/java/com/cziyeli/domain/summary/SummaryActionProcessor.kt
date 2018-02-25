@@ -2,8 +2,7 @@ package com.cziyeli.domain.summary
 
 import com.cziyeli.commons.Utils
 import com.cziyeli.data.Repository
-import com.cziyeli.data.local.TrackEntity
-import com.cziyeli.domain.tracks.TrackModel
+import com.cziyeli.songbits.root.RootActionProcessor
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -15,13 +14,16 @@ import javax.inject.Singleton
  */
 @Singleton
 class SummaryActionProcessor @Inject constructor(private val repository: Repository,
-                                                 private val schedulerProvider: BaseSchedulerProvider) {
+                                                 private val schedulerProvider: BaseSchedulerProvider,
+                                                 private val rootActionProcessor: RootActionProcessor
+) {
     private val TAG = SummaryActionProcessor::class.simpleName
 
     val combinedProcessor: ObservableTransformer<SummaryActionMarker, SummaryResultMarker> = ObservableTransformer { acts ->
         acts.publish { shared ->
             Observable.merge<SummaryResultMarker>(
-                    shared.ofType<SummaryAction.SaveTracks>(SummaryAction.SaveTracks::class.java).compose(saveTracksProcessor),
+                    shared.ofType<SummaryAction.SaveTracks>(SummaryAction.SaveTracks::class.java)
+                            .compose(rootActionProcessor.saveTracksProcessor),
                     shared.ofType<SummaryAction.CreatePlaylistWithTracks>(SummaryAction.CreatePlaylistWithTracks::class.java).compose
                     (mCreatePlaylistProcessor),
                     shared.ofType<StatsAction.FetchFullStats>(StatsAction.FetchFullStats::class.java)
@@ -91,20 +93,6 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
             })
     }
 
-    /**
-     * Stash tracks in database.
-     */
-    private val saveTracksProcessor: ObservableTransformer<SummaryAction.SaveTracks, SummaryResult.SaveTracks> = ObservableTransformer {
-        actions -> actions.switchMap({ action ->
-            Observable.just(action)
-                    .doOnNext { repository.saveTracksLocal(mapNewTracks(action)) }
-                    .map { act -> SummaryResult.SaveTracks.createSuccess(act.tracks, act.playlistId) }
-                    .onErrorReturn { err -> SummaryResult.SaveTracks.createError(err) }
-                    .subscribeOn(schedulerProvider.io())
-                    .startWith(SummaryResult.SaveTracks.createLoading())
-        })
-    }
-
     // ==== INTERMEDIARY ====
 
     private val fetchStatsIntermediary: ObservableTransformer<StatsAction.FetchFullStats, TrackListStats> = ObservableTransformer {
@@ -117,20 +105,4 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
         }
     }
 
-    private fun mapNewTracks(act: SummaryAction.SaveTracks) : List<TrackEntity> {
-        return act.tracks.map {
-            TrackEntity(
-                    trackId = it.id,
-                    name = it.name,
-                    uri = it.uri,
-                    previewUrl = it.preview_url,
-                    liked = it.pref == TrackModel.Pref.LIKED,
-                    cleared = false,
-                    playlistId = act.playlistId,
-                    artistName = it.artistName,
-                    popularity = it.popularity,
-                    coverImageUrl = it.imageUrl
-            )
-        }
-    }
 }

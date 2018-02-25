@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.ViewGroup
 import android.view.ViewStub
 import android.view.WindowManager
+import com.afollestad.materialdialogs.MaterialDialog
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.mvibase.MviView
 import com.cziyeli.domain.player.PlayerInterface

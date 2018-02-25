@@ -56,13 +56,18 @@
 	<string name="playlist_section_recommended">Recommended</string>
 	<string name="playlist_section_featured">Featured</string>
 
-	<!-- card stuff -->
+	<!-- playlist card stuff -->
 	<string name="expand_tracks">expand swiped (%1$d tracks)</string>
 	<string name="expand_tracks_default">no tracks swiped yet</string>
 	<string name="create_expand_tracks">playlist tracks</string>
 	<string name="create_card_label">Nice! Create a new playlist</string>
 	<string name="create_card_label_2">with these %1$d tracks!</string>
 	<string name="new_playlist_description">via songbits</string>
+	<string name="dialog_stash_title">Hey!</string>
+	<string name="dialog_stash_preferences">Stash the swipes you\'ve made so far? \nThey\'ll appear in your Likes and Dislikes in your
+		Stash tab</string>
+	<string name="dialog_stash_confirm">Sure!</string>
+	<string name="dialog_stash_reject">Nah</string>
 
 	<!-- simple card stuff -->
 	<string name="likes_card_title">likes</string>

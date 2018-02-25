@@ -5,9 +5,14 @@ import com.cziyeli.domain.playlistcard.CardActionMarker
 import com.cziyeli.domain.tracks.TrackModel
 
 /**
+ * Actions for the swipe UI.
+ */
+interface SwipeActionMarker : MviAction
+
+/**
  * Actions for the summary screen.
  */
-interface SummaryActionMarker : MviAction
+interface SummaryActionMarker : SwipeActionMarker
 
 sealed class SummaryAction : SummaryActionMarker {
     // Create a new playlist

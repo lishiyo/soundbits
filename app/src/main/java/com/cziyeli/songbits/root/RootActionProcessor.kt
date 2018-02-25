@@ -3,6 +3,9 @@ package com.cziyeli.songbits.root
 import com.cziyeli.commons.mvibase.MviAction
 import com.cziyeli.commons.mvibase.MviResult
 import com.cziyeli.data.Repository
+import com.cziyeli.data.local.TrackEntity
+import com.cziyeli.domain.summary.SummaryAction
+import com.cziyeli.domain.summary.SummaryResult
 import com.cziyeli.domain.tracks.TrackModel
 import com.cziyeli.domain.user.UserAction
 import com.cziyeli.domain.user.UserActionProcessor
@@ -60,4 +63,35 @@ class RootActionProcessor @Inject constructor(private val repository: Repository
                 .startWith(UserResult.LoadDislikedTracks.createLoading())
             }
         }
+
+    /**
+     * Stash tracks in database.
+     */
+     val saveTracksProcessor: ObservableTransformer<SummaryAction.SaveTracks, SummaryResult.SaveTracks> = ObservableTransformer {
+        actions -> actions.switchMap({ action ->
+            Observable.just(action)
+                .doOnNext { repository.saveTracksLocal(mapNewTracks(action)) }
+                .map { act -> SummaryResult.SaveTracks.createSuccess(act.tracks, act.playlistId) }
+                .onErrorReturn { err -> SummaryResult.SaveTracks.createError(err) }
+                .subscribeOn(schedulerProvider.io())
+                .startWith(SummaryResult.SaveTracks.createLoading())
+        })
+    }
+
+    private fun mapNewTracks(act: SummaryAction.SaveTracks) : List<TrackEntity> {
+        return act.tracks.map {
+            TrackEntity(
+                    trackId = it.id,
+                    name = it.name,
+                    uri = it.uri,
+                    previewUrl = it.preview_url,
+                    liked = it.pref == TrackModel.Pref.LIKED,
+                    cleared = false,
+                    playlistId = act.playlistId,
+                    artistName = it.artistName,
+                    popularity = it.popularity,
+                    coverImageUrl = it.imageUrl
+            )
+        }
+    }
 }

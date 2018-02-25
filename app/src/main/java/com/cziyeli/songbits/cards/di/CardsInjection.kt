@@ -8,11 +8,12 @@ import com.cziyeli.data.Repository
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.playlists.Playlist
 import com.cziyeli.domain.summary.SummaryActionProcessor
-import com.cziyeli.domain.tracks.TrackActionProcessor
+import com.cziyeli.domain.tracks.CardsActionProcessor
 import com.cziyeli.songbits.cards.CardsActivity
 import com.cziyeli.songbits.cards.CardsViewModel
 import com.cziyeli.songbits.di.AppModule
 import com.cziyeli.songbits.di.viewModels.ViewModelsModule
+import com.cziyeli.songbits.root.RootActionProcessor
 import dagger.Module
 import dagger.Provides
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider
@@ -42,7 +43,7 @@ class CardsModule {
     @PerActivity
     @Named("CardsViewModel")
     fun providesViewModelFactory(repository: RepositoryImpl,
-                                 actionProcessor: TrackActionProcessor,
+                                 actionProcessor: CardsActionProcessor,
                                  schedulerProvider: BaseSchedulerProvider,
                                  playlist: Playlist?): ViewModelProvider.Factory {
         return CardsViewModelFactory(
@@ -56,7 +57,7 @@ class CardsModule {
 
 // See https://github.com/googlesamples/android-architecture-components/issues/207
 class CardsViewModelFactory(val repository: RepositoryImpl,
-                            val actionProcessor: TrackActionProcessor,
+                            val actionProcessor: CardsActionProcessor,
                             val schedulerProvider: BaseSchedulerProvider,
                             val playlist: Playlist?) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
@@ -70,7 +71,9 @@ class SummaryModule {
     @Provides
     @Singleton
     fun provideActionProcessor(repo: Repository,
-                               schedulerProvider: BaseSchedulerProvider): SummaryActionProcessor {
-        return SummaryActionProcessor(repo, schedulerProvider)
+                               schedulerProvider: BaseSchedulerProvider,
+                               rootActionProcessor: RootActionProcessor
+    ): SummaryActionProcessor {
+        return SummaryActionProcessor(repo, schedulerProvider, rootActionProcessor)
     }
 }
