@@ -46,7 +46,6 @@ class RootActionProcessor @Inject constructor(private val repository: Repository
                 .map { tracks -> UserResult.LoadLikedTracks.createSuccess(tracks) }
                 .onErrorReturn { err -> UserResult.LoadLikedTracks.createError(err) }
                 .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
                 .startWith(UserResult.LoadLikedTracks.createLoading())
         }
     }
@@ -58,7 +57,6 @@ class RootActionProcessor @Inject constructor(private val repository: Repository
                 .map { tracks -> UserResult.LoadDislikedTracks.createSuccess(tracks) }
                 .onErrorReturn { err -> UserResult.LoadDislikedTracks.createError(err) }
                 .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
                 .startWith(UserResult.LoadDislikedTracks.createLoading())
             }
         }
