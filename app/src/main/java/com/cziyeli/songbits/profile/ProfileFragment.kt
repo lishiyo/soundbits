@@ -154,6 +154,7 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
                 recommended_tracks_card.loadTracks(state.recommendedTracks)
                 // force-refresh for a new image
                 recommended_tracks_card.refreshHeader(state.recommendedTracks)
+                recommended_tracks_card.showFabCount()
             }
         }
     }

@@ -254,7 +254,7 @@ class SimpleCardViewModel constructor(
                          val error: Throwable? = null,
                          val lastResult: CardResultMarker? = null,
                          val carouselHeaderUrl: String? = null,
-                         val tracks: MutableList<TrackModel> = mutableListOf(),
+                         val tracks: MutableList<TrackModel> = mutableListOf(), // either local or
                          val trackStats: TrackListStats? = null, // stats for ALL tracks
                          val inCreateMode: Boolean = false, // whether in 'create' state
                          val currentTrack: TrackModel? = null, // current track playing, if any

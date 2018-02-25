@@ -1,6 +1,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:card_view="http://schemas.android.com/apk/res-auto"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 
 	>
 
@@ -126,7 +127,6 @@
 						android:background="@drawable/fake_fab"
 						android:layout_gravity="right"
 						android:gravity="right"
-						android:transitionName="@string/playlist_fab_transition"
 						>
 
 						<!-- icon when in create mode -->
@@ -153,6 +153,22 @@
 							android:layout_height="@dimen/fake_fab_diameter_small"
 							android:src="@drawable/note_happy_colored"
 							android:alpha="1"
+							/>
+
+						<TextView
+							android:id="@+id/card_fab_count"
+							android:layout_marginLeft="@dimen/fake_fab_padding"
+							android:layout_marginTop="@dimen/fake_fab_padding"
+							android:layout_width="match_parent"
+							android:layout_height="match_parent"
+							android:textSize="@dimen/fab_number_sp"
+							android:textStyle="bold"
+							android:textAlignment="textStart"
+							android:textColor="@color/colorYellow"
+							android:fontFamily="@font/indie_flower"
+							android:visibility="gone"
+							tools:visibility="gone"
+							tools:text="13"
 							/>
 
 					</FrameLayout>

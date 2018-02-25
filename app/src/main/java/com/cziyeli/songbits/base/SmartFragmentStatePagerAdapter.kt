@@ -27,6 +27,12 @@ abstract class SmartFragmentStatePagerAdapter(fragmentManager: FragmentManager) 
         super.destroyItem(container, position, `object`)
     }
 
+    override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
+        //Force any pending transactions to save before we set an item as primary
+        finishUpdate(container)
+        super.setPrimaryItem(container, position, `object`)
+    }
+
     // Returns the fragment for the position (if instantiated)
     fun getRegisteredFragment(position: Int): Fragment {
         return registeredFragments.get(position)

@@ -336,6 +336,7 @@ class PlaylistCardViewModel @Inject constructor(
         val tracksToCreate: List<TrackModel>
             get() = stashedTracksList.filter { it.liked }
 
+        // all swipeable tracks not in stash yet
         val unswipedTracks: List<TrackModel>
             get() = allTracksList.filter { it.isSwipeable }.filter { !stashedTracksList.map { it.id }.contains(it.id) }
 

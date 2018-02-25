@@ -183,10 +183,10 @@ class PlaylistCardWidget : NestedScrollView, MviView<CardIntentMarker, PlaylistC
                 quickstats_likes.text = "${state.likedCount} likes"
                 quickstats_dislikes.text = "${state.dislikedCount} dislikes"
                 quickstats_total.text = "${state.playlist.totalTracksCount} total"
-                fab_text.text = "${state.unswipedCount}"
-
             }
         }
+
+        fab_count.text = "${state.unswipedCount}"
         checkRefreshFabMenu(state)
     }
 

@@ -110,7 +110,7 @@
 							/>
 
 						<TextView
-							android:id="@+id/fab_text"
+							android:id="@+id/fab_count"
 							android:layout_width="match_parent"
 							android:layout_height="match_parent"
 							android:textSize="@dimen/fab_number_sp"
