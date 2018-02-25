@@ -38,7 +38,6 @@ class PlaylistCardCreateActionProcessor @Inject constructor(private val reposito
                 .map { trackStats -> StatsResult.FetchStats.createSuccess(trackStats) }
                 .onErrorReturn { err -> StatsResult.FetchStats.createError(err) }
                 .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
                 .startWith(StatsResult.FetchStats.createLoading())
         }
     }
@@ -57,7 +56,6 @@ class PlaylistCardCreateActionProcessor @Inject constructor(private val reposito
                 .map { pair -> SummaryResult.CreatePlaylistWithTracks.createSuccess(pair.first, pair.second) }
                 .onErrorReturn { SummaryResult.CreatePlaylistWithTracks.createError(it) }
                 .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
                 .startWith(SummaryResult.CreatePlaylistWithTracks.createLoading())
         }
     }

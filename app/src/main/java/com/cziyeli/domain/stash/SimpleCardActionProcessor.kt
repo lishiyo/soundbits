@@ -56,7 +56,6 @@ class SimpleCardActionProcessor @Inject constructor(private val repository: Repo
                 .map { trackStats -> StatsResult.FetchFullStats.createSuccess(trackStats) }
                 .onErrorReturn { err -> StatsResult.FetchFullStats.createError(err) }
                 .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
                 .startWith(StatsResult.FetchFullStats.createLoading())
         }
     }

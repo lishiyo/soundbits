@@ -73,7 +73,6 @@ class StashActionProcessor @Inject constructor(private val repository: Repositor
                     .map { tracks -> tracks.filter { it.isSwipeable } } // take only playable ones
                     .map { tracks -> StashResult.FetchUserTopTracks.createSuccess(tracks) }
                     .onErrorReturn { err -> StashResult.FetchUserTopTracks.createError(err) }
-                    .observeOn(schedulerProvider.ui())
                     .startWith(StashResult.FetchUserTopTracks.createLoading())
         }
     }

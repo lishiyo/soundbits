@@ -89,7 +89,6 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                         .map { trackCards -> PlaylistCardResult.FetchPlaylistTracks.createSuccess(trackCards, fromLocal = false) }
                         .onErrorReturn { err -> PlaylistCardResult.FetchPlaylistTracks.createError(err, false) }
                         .subscribeOn(schedulerProvider.io())
-                        .observeOn(schedulerProvider.ui())
                         .startWith(PlaylistCardResult.FetchPlaylistTracks.createLoading(false))
             }
     }
@@ -111,7 +110,6 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                     }
                     .onErrorReturn { err -> StatsResult.FetchAllTracksWithStats.createError(err) }
                     .subscribeOn(schedulerProvider.io())
-                    .observeOn(schedulerProvider.ui())
                     .startWith(StatsResult.FetchAllTracksWithStats.createLoading())
         }
     }
@@ -124,7 +122,6 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                 .map { trackStats -> StatsResult.FetchStats.createSuccess(trackStats) }
                 .onErrorReturn { err -> StatsResult.FetchStats.createError(err) }
                 .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
                 .startWith(StatsResult.FetchStats.createLoading())
         }
     }
@@ -135,7 +132,6 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                 actions.switchMap { action ->
                     Observable.just(action)
                             .map { act -> act.track.copy(pref = act.pref) }
-                            .observeOn(schedulerProvider.io())
                             .doOnNext { track ->
                                 // upsert - attempt update first, if that fails then insert
                                 val dbModel = mapTrack(track)
@@ -179,7 +175,6 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                             PlaylistCardResult.FetchPlaylistTracks.createSuccess(pair.second, fromLocal = true) }
                         .onErrorReturn { err ->
                             PlaylistCardResult.FetchPlaylistTracks.createError(err, true) }
-                        .observeOn(schedulerProvider.ui())
                         .startWith(PlaylistCardResult.FetchPlaylistTracks.createLoading(true))
             }
 
@@ -191,7 +186,6 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                 Observable.just(Pair(likedCount, dislikedCount))
                                 .map { pair -> CardResult.CalculateQuickCounts.createSuccess(pair.first, pair.second) }
                                 .onErrorReturn { err -> CardResult.CalculateQuickCounts.createError(err) }
-                                .observeOn(schedulerProvider.ui())
                                 .startWith(CardResult.CalculateQuickCounts.createLoading())
                 }
             }

@@ -43,7 +43,7 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
             Observable.just(act.tracks)
                     .map { trackCards -> TrackResult.LoadTrackCards.createSuccess(trackCards) }
                     .onErrorReturn { err -> TrackResult.LoadTrackCards.createError(err) }
-                    .observeOn(schedulerProvider.ui())
+                    .subscribeOn(schedulerProvider.io())
                     .startWith(TrackResult.LoadTrackCards.createLoading())
         }
     }
@@ -65,7 +65,6 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
                 .map { trackCards -> TrackResult.LoadTrackCards.createSuccess(trackCards) }
                 .onErrorReturn { err -> TrackResult.LoadTrackCards.createError(err) }
                 .subscribeOn(schedulerProvider.io())
-                .observeOn(schedulerProvider.ui())
                 .startWith(TrackResult.LoadTrackCards.createLoading())
         }
     }

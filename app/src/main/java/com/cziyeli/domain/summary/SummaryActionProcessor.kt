@@ -55,7 +55,6 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
                     .map { trackStats -> SummaryResult.FetchLikedStats.createSuccess(trackStats) }
                     .onErrorReturn { err -> SummaryResult.FetchLikedStats.createError(err) }
                     .subscribeOn(schedulerProvider.io())
-                    .observeOn(schedulerProvider.ui())
                     .startWith(SummaryResult.FetchLikedStats.createLoading())
             }
 
@@ -68,7 +67,6 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
                     .map { trackStats -> SummaryResult.FetchDislikedStats.createSuccess(trackStats) }
                     .onErrorReturn { err -> SummaryResult.FetchDislikedStats.createError(err) }
                     .subscribeOn(schedulerProvider.io())
-                    .observeOn(schedulerProvider.ui())
                     .startWith(SummaryResult.FetchDislikedStats.createLoading())
             }
 
@@ -89,7 +87,6 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
                         .map { pair -> SummaryResult.CreatePlaylistWithTracks.createSuccess(pair.first, pair.second) }
                         .onErrorReturn { SummaryResult.CreatePlaylistWithTracks.createError(it) }
                         .subscribeOn(schedulerProvider.io())
-                        .observeOn(schedulerProvider.ui())
                         .startWith(SummaryResult.CreatePlaylistWithTracks.createLoading())
             })
     }
@@ -104,7 +101,6 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
                     .map { act -> SummaryResult.SaveTracks.createSuccess(act.tracks, act.playlistId) }
                     .onErrorReturn { err -> SummaryResult.SaveTracks.createError(err) }
                     .subscribeOn(schedulerProvider.io())
-                    .observeOn(schedulerProvider.ui())
                     .startWith(SummaryResult.SaveTracks.createLoading())
         })
     }
