@@ -157,8 +157,8 @@
 
 						<TextView
 							android:id="@+id/card_fab_count"
-							android:layout_marginLeft="@dimen/fake_fab_padding"
-							android:layout_marginTop="@dimen/fake_fab_padding"
+							android:layout_marginLeft="9dp"
+							android:layout_marginTop="9dp"
 							android:layout_width="match_parent"
 							android:layout_height="match_parent"
 							android:textSize="@dimen/fab_number_sp"
@@ -166,8 +166,6 @@
 							android:textAlignment="textStart"
 							android:textColor="@color/colorYellow"
 							android:fontFamily="@font/indie_flower"
-							android:visibility="gone"
-							tools:visibility="gone"
 							tools:text="13"
 							/>
 

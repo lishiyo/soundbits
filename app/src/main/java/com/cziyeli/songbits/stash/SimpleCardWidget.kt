@@ -278,11 +278,9 @@ class SimpleCardWidget @JvmOverloads constructor(
 
         if (state.tracks.isNotEmpty()) {
             card_fab_count.text = "${state.tracks.size}"
+        } else {
+            Utils.setVisible(card_fab_count, false)
         }
-    }
-
-    fun showFabCount() {
-        Utils.setVisible(card_fab_count, true)
     }
 
     fun changeCreateMode(setCreateMode: Boolean = true) {

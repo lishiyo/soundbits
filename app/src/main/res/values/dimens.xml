@@ -8,7 +8,7 @@
 	<dimen name="default_text_size">14sp</dimen>
 	<dimen name="default_title_size">20sp</dimen>
 	<dimen name="fragment_title_size">30sp</dimen>
-	<dimen name="app_title_size">54sp</dimen>
+	<dimen name="app_title_size">58sp</dimen>
 	<dimen name="bottom_nav_height">56dp</dimen>
 	<dimen name="dotted_line_width">4dp</dimen>
 	<dimen name="like_button_big">30dp</dimen>
@@ -47,7 +47,7 @@
 	<dimen name="list_item_track_height">60dp</dimen>
 	<dimen name="expanded_header_height">48dp</dimen>
 	<dimen name="expanded_header_height_small">40dp</dimen>
-	<dimen name="bottom_cap_height">12dp</dimen>
+	<dimen name="bottom_cap_height">8dp</dimen>
 	<dimen name="top_cap_radius">18dp</dimen>
 	<dimen name="bottom_cap_radius">150dp</dimen>
 	<dimen name="expansion_header_padding">22dp</dimen>

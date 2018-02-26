@@ -16,7 +16,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_centerHorizontal="true"
-		android:layout_marginTop="30dp"
+		android:layout_marginTop="36dp"
 		android:textColor="@color/colorPrimaryLight"
 		/>
 
@@ -37,9 +37,10 @@
 		android:layout_height="wrap_content"
 		android:layout_width="match_parent"
 		android:textAlignment="center"
-		android:textAllCaps="true"
-		android:textSize="@dimen/default_title_size"
+		android:textAllCaps="false"
+		android:textSize="@dimen/fragment_title_size"
 		android:textColor="@color/colorPrimaryLight"
+		android:fontFamily="@font/amatic_sc"
 		android:layout_marginTop="60dp"
 		android:layout_marginEnd="30dp"
 		android:layout_marginStart="30dp"
@@ -47,21 +48,37 @@
 		android:layout_alignParentBottom="true"
 		/>
 
-	<com.cziyeli.songbits.base.WideButton
-		android:id="@+id/login_button"
-		style="@style/WideButton"
-		android:layout_gravity="center_horizontal|bottom"
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
 		android:layout_above="@id/about_button"
+		android:layout_gravity="center_horizontal|bottom"
 		android:layout_marginEnd="30dp"
 		android:layout_marginStart="30dp"
 		android:layout_marginBottom="50dp"
-		android:text="@string/login_button_label"
-		android:visibility="invisible"
-		tools:visibility="visible"
-		android:textColor="@color/colorPrimaryLight"
-		android:textStyle="bold"
-		app:rounded_border_color="@color/colorPrimaryLight"
-	/>
+		>
+
+		<TextView
+			android:id="@+id/app_loading"
+			style="@style/WideButton"
+			android:background="@null"
+			android:text="@string/loading"
+			android:textColor="@color/colorPrimaryLight"
+			android:textStyle="bold"
+			/>
+
+		<com.cziyeli.songbits.base.WideButton
+			android:id="@+id/login_button"
+			style="@style/WideButton"
+			android:text="@string/login_button_label"
+			android:visibility="invisible"
+			tools:visibility="visible"
+			android:textColor="@color/colorPrimaryLight"
+			android:textStyle="bold"
+			app:rounded_border_color="@color/colorPrimaryLight"
+			/>
+	</FrameLayout>
+
 	<TextView
 		android:id="@+id/about_button"
 		android:layout_height="wrap_content"
@@ -74,6 +91,7 @@
 		android:layout_marginBottom="30dp"
 		android:text="@string/app_about"
 		android:layout_alignParentBottom="true"
+		android:fontFamily="@font/quicksand"
 		/>
 
 </RelativeLayout>

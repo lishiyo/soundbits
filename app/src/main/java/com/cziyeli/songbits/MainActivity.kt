@@ -71,6 +71,7 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
         // check if we're already logged in
         val accessTokenValid = isAccessTokenValid()
+        Utils.setVisible(app_loading, accessTokenValid)
         if (accessTokenValid) { // already logged in
             // fetch current user and save to UserManager
             api.setAccessToken(userManager.accessToken)
@@ -118,6 +119,7 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
     override fun render(state: com.cziyeli.songbits.home.HomeViewState) {
         Utils.setVisible(login_button, !isAccessTokenValid())
+        Utils.setVisible(app_loading, isAccessTokenValid())
         when {
             state.lastResult is UserResult.FetchUser && state.status == MviViewState.Status.SUCCESS -> {
                 startActivity(Intent(this, RootActivity::class.java))
@@ -200,6 +202,7 @@ class MainActivity : AppCompatActivity(), ConnectionStateCallback, MviView<HomeI
 
         // rerender! TODO: do via MVI flow
         Utils.setVisible(login_button, false)
+        Utils.setVisible(app_loading, true)
 
         Utils.log(TAG, "Got authentication token!")
     }

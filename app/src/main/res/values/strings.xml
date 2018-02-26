@@ -2,7 +2,8 @@
 	<string name="app_name">Songbits</string>
 	<string name="title_oldhome">Old Home</string>
 	<string name="title_demo">Demo Spotify SDK</string>
-	<string name="app_description">a simply fabulous \nplaylists maker</string>
+	<string name="app_description">a simply fabulous \nplaylist maker</string>
+	<string name="loading">loading...</string>
 	<string name="app_about">about</string>
 
 	<string name="title_home">Real Home</string>
@@ -13,9 +14,11 @@
 	<string name="tab_title_stash">Tracks</string>
 	<string name="tab_title_profile">Profile</string>
 
-	<string name="title_stash_frag">Curate Tracks</string>
+	<string name="title_stash_frag">Tracks Curator</string>
+	<string name="description_stash_frag">Check out the likes and dislikes you\'ve swiped so far,
+		create new playlists, and explore your top tracks from Spotify</string>
 	<string name="title_profile_frag">Profile</string>
-	<string name="profile_subtitle">Build-a-Playlist</string>
+	<string name="profile_subtitle">My Jukebox Machine</string>
 
 	<string name="com_spotify_sdk_redirect_scheme">songbits</string>
 	<string name="com_spotify_sdk_redirect_host">callback</string>
@@ -52,12 +55,12 @@
 
 	<!-- home stuff -->
 	<string name="home_see_more">See more</string>
-	<string name="playlist_section_recent">Recent</string>
-	<string name="playlist_section_recommended">Recommended</string>
-	<string name="playlist_section_featured">Featured</string>
+	<string name="playlist_section_recent">Recent playlists</string>
+	<string name="playlist_section_recommended">Recommended playlists</string>
+	<string name="playlist_section_featured">Featured playlists</string>
 
 	<!-- playlist card stuff -->
-	<string name="expand_tracks">expand swiped (%1$d tracks)</string>
+	<string name="expand_tracks">expand tracks (%1$d count)</string>
 	<string name="expand_tracks_default">no tracks swiped yet</string>
 	<string name="create_expand_tracks">playlist tracks</string>
 	<string name="create_card_label">Nice! Create a new playlist</string>

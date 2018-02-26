@@ -23,6 +23,13 @@
 			android:layout_height="wrap_content"
 			/>
 
+		<TextView
+			android:text="@string/description_stash_frag"
+			style="@style/FragmentTitle.Description"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			/>
+
 		<!-- STASHED - LIKED -->
 		<com.cziyeli.songbits.stash.SimpleCardWidget
 			android:id="@+id/likes_card"
