@@ -124,6 +124,7 @@ class SummaryLayout @JvmOverloads constructor(
 
         summary_title.text = resources.getString(R.string.summary_title)
                 .format(state.currentLikes.size, state.currentDislikes.size)
+        toggleButton(state, action_create_playlist as RoundedCornerButton)
 
         when {
             state.lastResult is SummaryResult.SetTracks -> {
@@ -169,6 +170,7 @@ class SummaryLayout @JvmOverloads constructor(
             else -> {
                 Utils.setVisible(stats_container_first, false)
                 progress_stats.smoothToShow()
+
             }
         }
 
@@ -177,21 +179,19 @@ class SummaryLayout @JvmOverloads constructor(
             quickstats_dislikes.text = "${state.currentDislikes.size} dislikes"
             quickstats_total.text = "${state.allTracks.size} swiped"
         }
-
-        toggleButton(state, action_create_playlist as RoundedCornerButton)
     }
 
     private fun toggleButton(state: SummaryViewState, button: RoundedCornerButton) {
         if (state.currentLikes.isEmpty()) {
             // disable the create button
             button.isEnabled = false
-            button.setColor(R.color.colorGrey)
+            button.setButtonColor(R.color.colorGrey)
             button.setTextColor(resources.getColor(R.color.colorBlack))
             button.setText(R.string.create_disabled)
         } else {
             // enable it
             button.isEnabled = true
-            button.setColor(R.color.colorAccent)
+            button.setButtonColor(R.color.colorAccent)
             button.setText(R.string.summary_create_playlist)
             button.setTextColor(resources.getColor(R.color.colorWhite))
         }
@@ -231,13 +231,13 @@ class SummaryLayout @JvmOverloads constructor(
                 button.alpha = 1f
                 button.isEnabled = true
                 button.text = resources.getString(successResId)
-                button.setColor(R.color.californian_coral)
+                button.setButtonColor(R.color.colorDarkerGrey)
                 button.setOnClickListener(newClickListener)
             }
             state.status == MviViewState.Status.ERROR -> {
                 button.alpha = 1f
                 button.isEnabled = true
-                action_save_to_database.text = resources.getString(errorResId)
+                button.text = resources.getString(errorResId)
             }
         }
     }

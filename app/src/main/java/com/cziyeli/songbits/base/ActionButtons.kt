@@ -158,7 +158,7 @@ class RoundedCornerButton @JvmOverloads constructor(
     /**
      * Set the background color, as well as border color (optional).
      */
-    fun setColor(@ColorRes colorRes: Int, @ColorRes borderColorRes: Int? = null) {
+    fun setButtonColor(@ColorRes colorRes: Int, @ColorRes borderColorRes: Int? = null) {
         BACKGROUND_DRAWABLE.setColor(resources.getColor(colorRes))
         borderColorRes?.run {
             BACKGROUND_DRAWABLE.setStroke(1, this)
