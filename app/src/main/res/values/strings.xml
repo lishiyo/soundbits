@@ -18,7 +18,7 @@
 	<string name="description_stash_frag">Check out the likes and dislikes you\'ve swiped so far,
 		create new playlists, and explore your top tracks from Spotify</string>
 	<string name="title_profile_frag">Profile</string>
-	<string name="profile_subtitle">My Jukebox Machine</string>
+	<string name="profile_subtitle">The Jukebox</string>
 
 	<string name="com_spotify_sdk_redirect_scheme">songbits</string>
 	<string name="com_spotify_sdk_redirect_host">callback</string>
