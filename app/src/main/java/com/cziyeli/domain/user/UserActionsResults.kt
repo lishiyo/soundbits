@@ -24,17 +24,17 @@ sealed class UserAction : HomeActionMarker, StashActionMarker, CardActionMarker 
     // ========= STASHED ========
 
     open class LoadStashedTracks(val areLiked: Boolean = false,
-                                 val limit: Int = 20,
+                                 val limit: Int = 50,
                                  val offset: Int = 0,
                                  val fields: String? = null
     ) : UserAction()
 
-    class LoadLikedTracks(limit: Int = 20,
+    class LoadLikedTracks(limit: Int = 50,
                           offset: Int = 0,
                           fields: String? = null
     ) : LoadStashedTracks(true, limit, offset, fields), ProfileActionMarker
 
-    class LoadDislikedTracks(limit: Int = 20,
+    class LoadDislikedTracks(limit: Int = 50,
                              offset: Int = 0,
                              fields: String? = null
     ) : LoadStashedTracks(false, limit, offset, fields)
