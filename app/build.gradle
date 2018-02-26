@@ -5,14 +5,14 @@ apply plugin: 'kotlin-android-extensions'
 
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion Versions.compile_sdk
     defaultConfig {
         applicationId "com.cziyeli.songbits"
         multiDexEnabled true
-        minSdkVersion 21
-        targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion Versions.min_sdk
+        targetSdkVersion Versions.target_sdk
+        versionCode Versions.version_code
+        versionName Versions.version_name
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         javaCompileOptions {
@@ -40,7 +40,7 @@ android {
 //            main.java.srcDirs += 'src/main/kotlin'
         }
     }
-    buildToolsVersion '27.0.3'
+    buildToolsVersion Versions.build_tools_version
     lintOptions {
         abortOnError false
     }
@@ -54,7 +54,6 @@ android {
 }
 
 repositories {
-//    mavenCentral()
     maven { url "https://jitpack.io" }
     flatDir {
         dirs 'libs'
@@ -63,12 +62,11 @@ repositories {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-//    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.2.21"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "org.jetbrains.anko:anko-commons:$rootProject.ext.ankoVersion"
-    implementation "com.facebook.stetho:stetho:$rootProject.ext.stethoVersion"
-    implementation 'androidx.core:core-ktx:0.1'
+    implementation Deps.kotlin_stdlib
+    implementation Deps.kotlin_reflect
+    implementation Deps.anko
+    implementation Deps.stetho
+    implementation Deps.core_ktx
 
     // personal libraries
     implementation project(':commons')
@@ -76,14 +74,14 @@ dependencies {
     implementation project(':recyclerviewenhanced')
 
     // support libs
-    implementation "com.android.support:appcompat-v7:$rootProject.ext.supportVersion"
-    implementation "com.android.support:design:$rootProject.ext.supportVersion"
-    implementation "com.android.support:cardview-v7:$rootProject.ext.supportVersion"
-    implementation "com.android.support:support-vector-drawable:$rootProject.ext.supportVersion"
-    implementation "com.android.support.constraint:constraint-layout:$rootProject.ext.constraintLayoutVersion"
-    implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportVersion"
-    implementation "com.android.support:support-core-utils:$rootProject.ext.supportVersion"
-    implementation 'com.google.android:flexbox:0.3.2'
+    implementation Deps.support_libs
+    implementation Deps.support_design_libs
+    implementation Deps.support_core_utils
+    implementation Deps.cardview
+    implementation Deps.vector_drawables
+    implementation Deps.constraint_layout
+    implementation Deps.recyclerview
+    implementation Deps.flexbox
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
@@ -92,72 +90,71 @@ dependencies {
     // ==== SPOTIFY ====
 
     // This library handles authentication and authorization
-    implementation "com.spotify.android:auth:$rootProject.ext.spotifyAuthVersion"
+    implementation Deps.spotify_auth
     // This library handles music playback
-    implementation "com.spotify.sdk:$rootProject.ext.spotifySdkVersion"
-    implementation "com.github.kaaes:spotify-web-api-android:$rootProject.ext.spotifyWebApiVersion"
+    implementation Deps.spotify_sdk
+    implementation Deps.spotify_web_api
 
     // lifecycle and room
-    implementation "android.arch.lifecycle:extensions:$rootProject.ext.archVersion"
-    kapt "android.arch.lifecycle:compiler:$rootProject.ext.archVersion"
-    implementation "android.arch.persistence.room:runtime:$rootProject.ext.archVersion"
-    kapt "android.arch.persistence.room:compiler:$rootProject.ext.archVersion"
-    implementation "android.arch.persistence.room:rxjava2:$rootProject.ext.archVersion"
+    implementation Deps.arch_components
+    kapt Deps.arch_components_compiler
+    implementation Deps.room
+    kapt Deps.room_compiler
+    implementation Deps.room_rx
 
     // retrofit and gson
-    implementation "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofitVersion"
-    implementation "com.squareup.retrofit2:converter-gson:$rootProject.ext.retrofitVersion"
-    implementation "com.squareup.okhttp3:okhttp:$rootProject.ext.okhttpVersion"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:$rootProject.ext.retrofitVersion"
-    implementation "com.squareup.okhttp3:logging-interceptor:$rootProject.ext.okhttpVersion"
+    implementation Deps.okhttp3
+    implementation Deps.okhttp3_logging
+    implementation Deps.retrofit
+    implementation Deps.retrofit_gson
+    implementation Deps.retrofit_rx
 
     // Dagger2
-    implementation "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
-    implementation "com.google.dagger:dagger-android:$rootProject.ext.daggerVersion"
-    implementation "com.google.dagger:dagger-android-support:$rootProject.ext.daggerVersion"
-    kapt "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
-    kapt "com.google.dagger:dagger-android-processor:$rootProject.ext.daggerVersion"
-//    kapt  "com.google.dagger:dagger-android-support:$rootProject.ext.daggerVersion"
+    implementation Deps.dagger
+    implementation Deps.dagger_android
+    implementation Deps.dagger_android_support
+    kapt Deps.dagger_compiler
+    kapt Deps.dagger_android_compiler
 
     // Rx
-    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxkotlin:2.2.0"
-    implementation 'com.jakewharton.rxrelay2:rxrelay:2.0.0'
+    implementation Deps.rxjava
+    implementation Deps.rx_android
+    implementation Deps.rx_kotlin
+    implementation Deps.rx_relay
 
     // Image loading
-    implementation "com.github.bumptech.glide:glide:$rootProject.ext.glideVersion"
-    implementation "com.github.bumptech.glide:annotations:$rootProject.ext.glideVersion"
-    kapt "com.github.bumptech.glide:compiler:$rootProject.ext.glideVersion"
+    implementation Deps.glide
+    implementation Deps.glide_annotations
+    kapt Deps.glide_compiler
 
     // Animation
-    implementation "com.wang.avi:library:$rootProject.ext.AVLVersion"
+    implementation Deps.avl
 
     // Global/Main activity
-    implementation 'com.aurelhubert:ahbottomnavigation:2.1.0'
-    implementation 'com.airbnb.android:lottie:2.5.0-beta3'
-    implementation 'com.github.GrenderG:Toasty:1.2.8'
+    implementation Deps.ah_bottom_nav
+    implementation Deps.lottie
+    implementation Deps.toasty
 
     // Playlist card
-    implementation 'com.github.florent37:expansionpanel:1.0.6'
-    implementation 'com.hlab.fabrevealmenu:fab-reveal-menu:1.0.3'
-    implementation 'me.bendik.simplerangeview:simplerangeview:0.2.0'
-    implementation 'com.synnapps:carouselview:0.1.4'
-    implementation 'com.github.gsotti:EqualizerView:v0.2'
-    implementation 'io.saeid:fab-loading:1.0.0'
+    implementation Deps.expansion_panel
+    implementation Deps.fab_reveal_menu
+    implementation Deps.fab_loading
+    implementation Deps.simplerangeview
+    implementation Deps.carouselview
+    implementation Deps.equalizer_view
 
     // Swipe ui
-    implementation "com.mindorks:placeholderview:$rootProject.ext.placeholderViewVersion"
-    implementation 'com.github.aliab:circular-music-progressbar:v1.3.0'
-    implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
+    implementation Deps.placeholder_view
+    implementation Deps.circular_music
+    implementation Deps.material_dialogs
 
     // Home tab
-    implementation 'io.github.luizgrp.sectionedrecyclerviewadapter:sectionedrecyclerviewadapter:1.1.3'
-    implementation 'de.hdodenhof:circleimageview:2.2.0'
+    implementation Deps.sectioned_recyclerview
+    implementation Deps.circleimageview
 
     // Stash tab
-    implementation 'com.github.devlight.navigationtabstrip:navigationtabstrip:1.0.4'
+    implementation Deps.navigation_tab_strip
 
     // Profile tab
-    implementation 'com.github.fiskurgit:ChipCloud:3.0.5'
+    implementation Deps.chipcloud
 }

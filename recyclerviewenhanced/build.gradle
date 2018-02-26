@@ -26,14 +26,14 @@ ext {
 }
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion Versions.compile_sdk
+    buildToolsVersion Versions.build_tools_version
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 27
-        versionCode 1
-        versionName "1.0.1"
+        minSdkVersion Versions.min_sdk
+        targetSdkVersion Versions.target_sdk
+        versionCode Versions.version_code
+        versionName Versions.version_name
     }
     buildTypes {
         release {
@@ -47,12 +47,8 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
 
-    compile "com.android.support:appcompat-v7:$rootProject.ext.supportVersion"
-    implementation "com.android.support:recyclerview-v7:$rootProject.ext.supportVersion"
-//    compile 'com.android.support:appcompat-v7:23.4.0'
-//    compile 'com.android.support:recyclerview-v7:23.4.0'
-//    compile 'com.android.support:appcompat-v7:27.0.2'
-//    compile 'com.android.support:recyclerview-v7:27.0.2'
+    implementation Deps.support_libs
+    implementation Deps.recyclerview
 }
 
 // Place it at the end of the file

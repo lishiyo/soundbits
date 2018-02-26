@@ -6,13 +6,13 @@ Properties props = new Properties()
 props.load(new FileInputStream(new File('secrets.properties')))
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion Versions.compile_sdk
     defaultPublishConfig "debug"
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion Versions.min_sdk
+        targetSdkVersion Versions.target_sdk
+        versionCode Versions.version_code
+        versionName Versions.version_name
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -37,39 +37,36 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-//    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation Deps.kotlin_stdlib
 
-    implementation "com.android.support:appcompat-v7:$rootProject.ext.supportVersion"
-    implementation "com.android.support:design:$rootProject.ext.supportVersion"
-    implementation "com.android.support:cardview-v7:$rootProject.ext.supportVersion"
-    implementation "com.android.support:support-vector-drawable:$rootProject.ext.supportVersion"
-    implementation "com.android.support.constraint:constraint-layout:$rootProject.ext.constraintLayoutVersion"
+    implementation Deps.support_libs
+    implementation Deps.support_design_libs
+    implementation Deps.cardview
+    implementation Deps.vector_drawables
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
     // lifecycle and room
-    implementation "android.arch.lifecycle:extensions:$rootProject.ext.archVersion"
-    kapt "android.arch.lifecycle:compiler:$rootProject.ext.archVersion"
-    implementation "android.arch.persistence.room:runtime:$rootProject.ext.archVersion"
-    kapt "android.arch.persistence.room:compiler:$rootProject.ext.archVersion"
-    implementation "android.arch.persistence.room:rxjava2:$rootProject.ext.archVersion"
+    implementation Deps.arch_components
+    kapt Deps.arch_components_compiler
+    implementation Deps.room
+    kapt Deps.room_compiler
+    implementation Deps.room_rx
 
     // Rx
-    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
-    implementation "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxAndroidVersion"
+    implementation Deps.rxjava
+    implementation Deps.rx_android
 
     // Dagger2
-    implementation "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
-    implementation "com.google.dagger:dagger-android:$rootProject.ext.daggerVersion"
-    implementation "com.google.dagger:dagger-android-support:$rootProject.ext.daggerVersion"
-    kapt "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
-    kapt "com.google.dagger:dagger-android-processor:$rootProject.ext.daggerVersion"
-//    kapt  "com.google.dagger:dagger-android-support:$rootProject.ext.daggerVersion"
+    implementation Deps.dagger
+    implementation Deps.dagger_android
+    implementation Deps.dagger_android_support
+    kapt Deps.dagger_compiler
+    kapt Deps.dagger_android_compiler
 
-    implementation 'com.github.GrenderG:Toasty:1.2.8'
+    implementation Deps.toasty
 }
 
 repositories {
