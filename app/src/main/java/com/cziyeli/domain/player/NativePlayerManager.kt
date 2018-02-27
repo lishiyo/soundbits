@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 
 /**
- * Created by connieli on 1/3/18.
+ * Audio player.
  */
 @Singleton
 class NativePlayerManager(@ForApplication val context: Context) :

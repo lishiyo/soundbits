@@ -45,8 +45,8 @@ android {
         abortOnError false
     }
     compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     packagingOptions {
         pickFirst  'META-INF/*'
@@ -58,6 +58,7 @@ repositories {
     flatDir {
         dirs 'libs'
     }
+    mavenCentral()
 }
 
 dependencies {
@@ -67,12 +68,10 @@ dependencies {
     implementation Deps.anko
     implementation Deps.stetho
     implementation Deps.core_ktx
-
     // personal libraries
     implementation project(':commons')
     implementation project(':data')
     implementation project(':recyclerviewenhanced')
-
     // support libs
     implementation Deps.support_libs
     implementation Deps.support_design_libs
@@ -82,59 +81,48 @@ dependencies {
     implementation Deps.constraint_layout
     implementation Deps.recyclerview
     implementation Deps.flexbox
-
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-
     // ==== SPOTIFY ====
-
     // This library handles authentication and authorization
     implementation Deps.spotify_auth
     // This library handles music playback
     implementation Deps.spotify_sdk
     implementation Deps.spotify_web_api
-
     // lifecycle and room
     implementation Deps.arch_components
     kapt Deps.arch_components_compiler
     implementation Deps.room
     kapt Deps.room_compiler
     implementation Deps.room_rx
-
     // retrofit and gson
     implementation Deps.okhttp3
     implementation Deps.okhttp3_logging
     implementation Deps.retrofit
     implementation Deps.retrofit_gson
     implementation Deps.retrofit_rx
-
     // Dagger2
     implementation Deps.dagger
     implementation Deps.dagger_android
     implementation Deps.dagger_android_support
     kapt Deps.dagger_compiler
     kapt Deps.dagger_android_compiler
-
     // Rx
     implementation Deps.rxjava
     implementation Deps.rx_android
     implementation Deps.rx_kotlin
     implementation Deps.rx_relay
-
     // Image loading
     implementation Deps.glide
     implementation Deps.glide_annotations
     kapt Deps.glide_compiler
-
     // Animation
     implementation Deps.avl
-
     // Global/Main activity
     implementation Deps.ah_bottom_nav
     implementation Deps.lottie
     implementation Deps.toasty
-
     // Playlist card
     implementation Deps.expansion_panel
     implementation Deps.fab_reveal_menu
@@ -142,19 +130,15 @@ dependencies {
     implementation Deps.simplerangeview
     implementation Deps.carouselview
     implementation Deps.equalizer_view
-
     // Swipe ui
     implementation Deps.placeholder_view
     implementation Deps.circular_music
     implementation Deps.material_dialogs
-
     // Home tab
     implementation Deps.sectioned_recyclerview
     implementation Deps.circleimageview
-
     // Stash tab
     implementation Deps.navigation_tab_strip
-
     // Profile tab
     implementation Deps.chipcloud
 }

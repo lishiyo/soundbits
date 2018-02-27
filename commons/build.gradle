@@ -5,9 +5,13 @@ apply plugin: 'kotlin-kapt'
 Properties props = new Properties()
 props.load(new FileInputStream(new File('secrets.properties')))
 
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+}
+
 android {
     compileSdkVersion Versions.compile_sdk
-    defaultPublishConfig "debug"
     defaultConfig {
         minSdkVersion Versions.min_sdk
         targetSdkVersion Versions.target_sdk
@@ -67,9 +71,4 @@ dependencies {
     kapt Deps.dagger_android_compiler
 
     implementation Deps.toasty
-}
-
-repositories {
-    mavenCentral()
-    maven { url "https://jitpack.io" }
 }

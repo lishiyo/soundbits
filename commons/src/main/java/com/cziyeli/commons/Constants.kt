@@ -1,9 +1,9 @@
 package com.cziyeli.commons
 
 /**
- * Created by connieli on 12/31/17.
+ * App constants.
  */
-const val TAG = "connie"
+const val TAG = "app"
 
 const val SPOTIFY_CLIENT_ID = BuildConfig.SPOTIFY_CLIENT_ID
 const val SPOTIFY_REDIRECT_URI = BuildConfig.SPOTIFY_REDIRECT_URI

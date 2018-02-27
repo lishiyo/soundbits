@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<array name="preloaded_fonts" translatable="false">
+	<array name="preloaded_fonts">
 		<item>@font/amatic_sc</item>
 		<item>@font/annie_use_your_telescope</item>
 		<item>@font/fredericka_the_great</item>

@@ -88,7 +88,7 @@
 							/>
 
 						<!-- dotted line -->
-						<View
+						<TextView
 							android:id="@+id/dotted_line"
 							android:visibility="invisible"
 							android:layout_width="@dimen/title_input_width"
