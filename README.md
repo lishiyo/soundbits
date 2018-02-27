@@ -71,19 +71,26 @@ The core of MVI is the one-way data flow. There is only one place for events to 
 ```kotlin
 // Intents => Actions => Results => reducer (previous state + result) => new view state
 
-// You can see most of the flow in a single observable in the ViewModel, like ProfileViewModel here:
-val observable = intentsSubject // events from the ProfileFrag's `intents()` stream 
-   .subscribeOn(schedulerProvider.io())
-   .compose(intentFilter) // filter for only profile intents 
-   .map{ it -> actionFromIntent(it)}
-   .compose(actionFilter<ProfileActionMarker>()) // filter for only profile actions 
-   .compose(actionProcessor.combinedProcessor) // does the business logic (hits repo etc)
-   .compose(resultFilter<ProfileResultMarker>()) // filter for only profile results 
-   .scan(currentViewState, reducer) // previous state + result => new state
-   .observeOn(schedulerProvider.ui())
-   .distinctUntilChanged().subscribe({ 
-		viewState -> viewStates.accept(viewState) // publish the new state!
-   })
+// You can see most of the flow in a single observable in the ViewModel, like `ProfileViewModel` here:
+val observable = intentsSubject 
+	// given events from the view's `intents()` stream
+	.subscribeOn(schedulerProvider.io())
+	// filter for relevant intents 
+	.compose(intentFilter)
+	.map{ it -> actionFromIntent(it)}
+ 	// filter for relevant actions 
+	.compose(actionFilter<ProfileActionMarker>()) 
+   	// do the business logic (hit repo etc) using other services, managers etc
+	.compose(actionProcessor.combinedProcessor) 
+	// filter for relevant results 
+	.compose(resultFilter<ProfileResultMarker>()) 
+   	// map previous state + result => new state
+	.scan(currentViewState, reducer) 
+	.observeOn(schedulerProvider.ui())
+	.distinctUntilChanged().subscribe({ 
+	   	// publish the new state!
+		viewState -> viewStates.accept(viewState) 
+	})
 
 // ProfileFragment is subscribed to the ProfileViewModel's states stream, so it re-renders the new state:
 viewModel.states().subscribe({ state ->
