@@ -11,8 +11,8 @@ Swipe, preview, and like/dislike tracks in place to make new playlists | Check o
 One day I got frustrated with Discover Weekly and thought "why can't I just pluck out the one or two tracks I actually like??" and 
 hence "tinder for spotify" was born. And then I added more screens so I wouldn't have to call it "tinder for spotify". 👍 
 
-<img src="screenshots/home.png" width="280" />   <img src="screenshots/playlist_card_01.png" width="280" />   <img src="screenshots/tinder_card.png" width="280" /> 
-<img src="screenshots/summary.png" width="280" />   <img src="screenshots/stash_likes.png" width="280" />   <img src="screenshots/profile.png" width="280" />
+<img src="screenshots/home.png" width="280" />   <img src="screenshots/playlist_card_01.jpg" width="280" />   <img src="screenshots/tinder_card.png" width="280" /> 
+<img src="screenshots/summary.jpg" width="280" />   <img src="screenshots/stash_likes.jpg" width="280" />   <img src="screenshots/profile.jpg" width="280" />
 
 SUMMARY 
 ---------------
