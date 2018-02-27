@@ -74,14 +74,10 @@ class HomeViewModel @Inject constructor(
         // create observable to push into states live data
         val observable = intentsSubject
                 .subscribeOn(schedulerProvider.io())
-                .doOnSubscribe{ Utils.log(TAG, "subscribed!") }
-                .doOnDispose{ Utils.log( TAG, "disposed!") }
-                .doOnTerminate { Utils.log( TAG, "terminated!") }
                 .compose(intentFilter)
                 .map{ it -> actionFromIntent(it)}
                 .compose(actionFilter<HomeActionMarker>())
                 .compose(actionProcessor.combinedProcessor) // action -> result
-                .doOnNext { result -> Utils.log(TAG, "intentsSubject scanning result: ${result.javaClass.simpleName}") }
                 .scan(HomeViewState(), reducer)
                 .observeOn(schedulerProvider.ui())
                 // Emit the last one event of the stream on subscription

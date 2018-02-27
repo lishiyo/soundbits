@@ -12,9 +12,8 @@ import io.reactivex.Observable
 </S></I> */
 interface MviView<out I : MviIntent, in S : MviViewState> {
     /**
-     * Unique [<] used by the [MviViewModel]
-     * to listen to the [MviView].
-     * All the [MviView]'s [MviIntent]s must go through this [<].
+     * Unique events used by the [MviViewModel] to listen to the [MviView].
+     * All the [MviView]'s [MviIntent]s must go through this stream.
      */
     fun intents(): Observable<out I>
 

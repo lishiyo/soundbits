@@ -1,6 +1,5 @@
 package com.cziyeli.domain.user
 
-import com.cziyeli.commons.Utils
 import com.cziyeli.data.Repository
 import com.cziyeli.domain.playlists.HomeActionMarker
 import com.cziyeli.domain.playlists.HomeActionProcessor
@@ -66,7 +65,6 @@ class UserActionProcessor @Inject constructor(private val repository: Repository
         actions.switchMap { action ->
             Observable.just(action)
                     .doOnNext { _ -> userManager.clearUser() }
-                    .doOnNext { Utils.mLog(TAG, "clearUserProcessor", "user: ${it} ") }
                     .map { _ -> UserResult.ClearUser.createSuccess() }
                     .onErrorReturn { err -> UserResult.ClearUser.createError(err) }
                     .subscribeOn(schedulerProvider.io())

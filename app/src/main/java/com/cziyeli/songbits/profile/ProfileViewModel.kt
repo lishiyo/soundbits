@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModel
 import com.cziyeli.commons.Utils
 import com.cziyeli.commons.actionFilter
 import com.cziyeli.commons.mvibase.*
+import com.cziyeli.commons.resultFilter
 import com.cziyeli.data.RepositoryImpl
 import com.cziyeli.domain.summary.*
 import com.cziyeli.domain.tracks.TrackModel
@@ -19,8 +20,6 @@ import javax.inject.Inject
 
 /**
  * Viewmodel for the [ProfileFragment].
- *
- * Created by connieli on 2/18/18.
  */
 class ProfileViewModel @Inject constructor(
         val repository: RepositoryImpl,
@@ -69,15 +68,15 @@ class ProfileViewModel @Inject constructor(
 
     init {
         // create observable to push into states live data
-        val observable = intentsSubject
-                .mergeWith(programmaticEventsPublisher) // programmatic events for ViewModel to call events
+        val observable = intentsSubject // view-driven events (ui events)
+                .mergeWith(programmaticEventsPublisher) // app-initiated events
                 .subscribeOn(schedulerProvider.io())
-                .compose(intentFilter)
+                .compose(intentFilter) // filter for only relevant intents
                 .map{ it -> actionFromIntent(it)}
-                .compose(actionFilter<ProfileActionMarker>())
-                .compose(actionProcessor.combinedProcessor) // own action -> own result
-                .doOnNext { result -> Utils.log(TAG, "intentsSubject scanning result: ${result.javaClass.simpleName}") }
-                .scan(currentViewState, reducer)
+                .compose(actionFilter<ProfileActionMarker>()) // filter for only relevant actions
+                .compose(actionProcessor.combinedProcessor)
+                .compose(resultFilter<ProfileResultMarker>()) // filter for only relevant results
+                .scan(currentViewState, reducer) // previous state + result => new state!
                 .observeOn(schedulerProvider.ui())
 
         compositeDisposable.add(

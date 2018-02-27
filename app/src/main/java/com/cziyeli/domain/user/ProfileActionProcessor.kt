@@ -12,7 +12,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Created by connieli on 2/18/18.
+ * Processes actions for the Profile tab.
  */
 @Singleton
 class ProfileActionProcessor @Inject constructor(private val repository: Repository,

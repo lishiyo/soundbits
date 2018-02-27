@@ -9,8 +9,6 @@ import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
  *
  * Note that for the methods returning Flowables, any update to the table triggers emission,
  * so use [distinctUntilChanged] (https://medium.com/google-developers/7-pro-tips-for-room-fbadea4bfbd1).
- *
- * Created by connieli on 12/31/17.
  */
 @Dao
 abstract class TracksDao {

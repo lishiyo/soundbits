@@ -45,10 +45,8 @@ class PlaylistCardActionProcessor @Inject constructor(private val repository: Re
                             .groupBy { it.onlySwiped }
                             .flatMap { grouped ->
                                 val compose: Observable<CardResultMarker> = if (grouped.key == true) {
-                                    Utils.mLog(TAG, "FetchPlaylistTracks!", "onlySwiped -- fetching stashed")
                                     grouped.compose(fetchStashedTracksIntermediary).compose(mapStashedTracksProcessor)
                                 } else {
-                                    Utils.mLog(TAG, "FetchPlaylistTracks!", "NOT onlySwiped -- fetching remote")
                                     grouped.compose(fetchAllTracksProcessor)
                                 }
                                 compose

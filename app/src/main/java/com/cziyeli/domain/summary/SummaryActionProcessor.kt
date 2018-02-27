@@ -31,11 +31,9 @@ class SummaryActionProcessor @Inject constructor(private val repository: Reposit
                             .flatMap { grouped ->
                                 val compose: Observable<SummaryResultMarker> = when {
                                     grouped.key == Repository.Pref.LIKED -> {
-                                        Utils.mLog(TAG, "FetchFullStats!", "fetching liked")
                                         grouped.compose(mFetchLikedStatsProcessor)
                                     }
                                     grouped.key == Repository.Pref.DISLIKED -> {
-                                        Utils.mLog(TAG, "FetchFullStats!", "fetching disliked")
                                         grouped.compose(mFetchDislikedStatsProcessor)
                                     }
                                     else -> Observable.empty() // not handling the 'all' case

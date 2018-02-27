@@ -12,14 +12,11 @@ import javax.inject.Singleton
 
 /**
  * Business logic to convert actions => results.
- *
- * Created by connieli on 12/31/17.
  */
 @Singleton
 class TrackActionProcessor @Inject constructor(private val repository: Repository,
                                                private val schedulerProvider: BaseSchedulerProvider
 ) {
-
     private val TAG = TrackActionProcessor::class.simpleName
 
     @field:[Inject Named("Native")] lateinit var player: PlayerInterface
@@ -32,8 +29,8 @@ class TrackActionProcessor @Inject constructor(private val repository: Repositor
                     shared.ofType<TrackAction.CommandPlayer>(TrackAction.CommandPlayer::class.java).compose(commandPlayerProcessor),
                     shared.ofType<TrackAction.ChangeTrackPref>(TrackAction.ChangeTrackPref::class.java).compose(changePrefProcessor)
             ).doOnNext {
-                Utils.log(TAG, "commandPlayer processing --- ${it::class.simpleName}")
-            }.retry() // don't ever unsubscribe
+                Utils.log(TAG, "processing --- ${it::class.simpleName}")
+            }.retry()
         }
     }
 

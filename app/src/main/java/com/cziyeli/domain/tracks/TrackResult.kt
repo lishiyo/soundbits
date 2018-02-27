@@ -7,16 +7,18 @@ import com.cziyeli.domain.summary.SwipeResultMarker
 import java.util.*
 
 /**
- * Created by connieli on 1/1/18.
+ * Track-related results for the swipe UI.
  */
 sealed class TrackResult(var status: MviResult.StatusInterface = MviResult.Status.IDLE, var error: Throwable? = null
 ) : SwipeResultMarker {
 
+    /**
+     * Loaded tracks for the swipe UI.
+     */
     class LoadTrackCards(status: Status,
                          error: Throwable?,
                          val items: List<TrackModel> = Collections.emptyList()
     ) : TrackResult(status, error) {
-        // personal status enum
         enum class Status : MviResult.StatusInterface {
             SUCCESS, ERROR, LOADING
         }
@@ -34,6 +36,9 @@ sealed class TrackResult(var status: MviResult.StatusInterface = MviResult.Statu
         }
     }
 
+    /**
+     * Play, pause, stop a track.
+     */
     class CommandPlayerResult(status: MviResult.Status,
                               error: Throwable?,
                               val currentTrack: TrackModel?,
@@ -57,6 +62,9 @@ sealed class TrackResult(var status: MviResult.StatusInterface = MviResult.Statu
         }
     }
 
+    /**
+     * Liked or disliked a track.
+     */
     class ChangePrefResult(status: Status,
                            error: Throwable?,
                            val currentTrack: TrackModel?,

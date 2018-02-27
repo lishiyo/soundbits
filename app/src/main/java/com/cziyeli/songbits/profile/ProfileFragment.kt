@@ -35,20 +35,17 @@ import lishiyo.kotlin_arch.utils.schedulers.SchedulerProvider
 import org.jetbrains.anko.intentFor
 import javax.inject.Inject
 
-
-
+/**
+ * The Profile tab.
+ */
 class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewModel.ViewState> {
     private val TAG = ProfileFragment::class.simpleName
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject lateinit var userManager: com.cziyeli.domain.user.UserManager
+    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
     @Inject lateinit var simpleCardActionProcessor: SimpleCardActionProcessor
-
-    @Inject
-    lateinit var userManager: com.cziyeli.domain.user.UserManager
-
-    val schedulerProvider = SchedulerProvider
     private lateinit var viewModel: ProfileViewModel
+    val schedulerProvider = SchedulerProvider
 
     // intents
     private val eventsPublisher: PublishRelay<ProfileIntentMarker> by lazy { PublishRelay.create<ProfileIntentMarker>() }
@@ -91,11 +88,9 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
         // bind to track changes
         compositeDisposable.addAll(
                 stats_container_left.statsChangePublisher.subscribe {
-                    // "target_danceability" => 0.55
                     eventsPublisher.accept(ProfileIntent.StatChanged(viewModel.currentTargetStats, it))
                 },
                 stats_container_right.statsChangePublisher.subscribe {
-                    // "target_danceability" => 0.55
                     eventsPublisher.accept(ProfileIntent.StatChanged(viewModel.currentTargetStats, it))
                 }
         )
@@ -132,9 +127,6 @@ class ProfileFragment : Fragment(), MviView<ProfileIntentMarker, ProfileViewMode
     }
 
     override fun render(state: ProfileViewModel.ViewState) {
-        Utils.mLog(TAG, "RENDER", "$state")
-
-
         when {
             state.status == MviViewState.Status.SUCCESS && state.lastResult is UserResult.ClearUser -> {
                 // kick back out to landing page!

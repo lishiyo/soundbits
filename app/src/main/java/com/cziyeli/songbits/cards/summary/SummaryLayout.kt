@@ -33,10 +33,7 @@ import kotlinx.android.synthetic.main.widget_quickcounts_row.view.*
 
 
 /**
- * View to show the summary at the end of swiping
- *  - pending likes and actions
- *
- * Created by connieli on 1/7/18.
+ * View to show the summary at the end of swiping.
  */
 class SummaryLayout @JvmOverloads constructor(
         context: Context,
@@ -120,8 +117,6 @@ class SummaryLayout @JvmOverloads constructor(
     }
 
     override fun render(state: SummaryViewState) {
-        Utils.mLog(TAG, "render", "state", "$state")
-
         summary_title.text = resources.getString(R.string.summary_title)
                 .format(state.currentLikes.size, state.currentDislikes.size)
         toggleButton(state, action_create_playlist as RoundedCornerButton)
