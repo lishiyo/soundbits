@@ -7,7 +7,7 @@ class TracksContract {
 
     companion object {
 
-        const val DATABASE_APPLICATION = "songbits.db"
+        const val DATABASE_APPLICATION = "soundbits.db"
 
     }
 }

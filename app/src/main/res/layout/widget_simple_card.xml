@@ -210,7 +210,7 @@
 						android:paddingEnd="10dp"
 						>
 
-						<com.cziyeli.songbits.playlistcard.TrackStatsView
+						<com.cziyeli.soundbits.playlistcard.TrackStatsView
 							android:id="@+id/stats_container_left"
 							android:orientation="vertical"
 							android:layout_width="0dp"
@@ -222,9 +222,9 @@
 							app:two_column="true"
 							app:set="first"
 							>
-						</com.cziyeli.songbits.playlistcard.TrackStatsView>
+						</com.cziyeli.soundbits.playlistcard.TrackStatsView>
 
-						<com.cziyeli.songbits.playlistcard.TrackStatsView
+						<com.cziyeli.soundbits.playlistcard.TrackStatsView
 							android:id="@+id/stats_container_right"
 							android:orientation="vertical"
 							android:layout_width="0dp"
@@ -236,7 +236,7 @@
 							app:two_column="true"
 							app:set="second"
 							>
-						</com.cziyeli.songbits.playlistcard.TrackStatsView>
+						</com.cziyeli.soundbits.playlistcard.TrackStatsView>
 					</LinearLayout>
 
 					<include layout="@layout/widget_expandable_tracks" />

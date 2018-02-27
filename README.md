@@ -1,4 +1,4 @@
-SONGBITS
+SOUNDBITS
 ---------------
 
 A spiffy lil' playlist maker for Spotify - swipe playlists to like and dislike tracks, create playlists with ease, check out 
@@ -21,7 +21,7 @@ This project was really an excuse for me to bite off more than I can chew and EX
  of:
 - [**A Model-View-Intent "reactive" architecture**](https://android.jlelse.eu/reactive-architecture-7baa4ec651c4), inspired by Redux's 
 [uni-directional data flow](https://redux.js.org/basics/data-flow) and [viewstates as finite state machines](https://engineering.udacity.com/modeling-viewmodel-states-using-kotlins-sealed-classes-a5d415ed87a7) 
-	- [sealed](app/src/main/java/com/cziyeli/songbits/home/HomeIntents.kt) [classes](app/src/main/java/com/cziyeli/domain/summary/SummaryAction.kt)... [sealed](app/src/main/java/com/cziyeli/domain/tracks/TrackResult.kt) [classes](app/src/main/java/com/cziyeli/songbits/cards/CardsIntents.kt) [everywhere](app/src/main/java/com/cziyeli/domain/playlistcard/PlaylistCardActions.kt)
+	- [sealed](app/src/main/java/com/cziyeli/soundbits/home/HomeIntents.kt) [classes](app/src/main/java/com/cziyeli/domain/summary/SummaryAction.kt)... [sealed](app/src/main/java/com/cziyeli/domain/tracks/TrackResult.kt) [classes](app/src/main/java/com/cziyeli/soundbits/cards/CardsIntents.kt) [everywhere](app/src/main/java/com/cziyeli/domain/playlistcard/PlaylistCardActions.kt)
 - Android Arch Components and [Room](data/src/main/java/com/cziyeli/data/local/TracksDao.kt)
 - [Repository pattern](data/src/main/java/com/cziyeli/data/Repository.kt)
 - RxJava/RxKotlin voodoo
@@ -58,15 +58,15 @@ interface MviViewModel<in I : MviIntent, S : MviViewState, in R: MviResult> {
 
 The core of MVI is the one-way data flow. There is only one place for events to go in, and one place for view states to come out: 
 - `View` pipes in `Intents` (user click, app-initiated events etc) to the `ViewModel`
-	- Ex: [ProfileFragment](app/src/main/java/com/cziyeli/songbits/profile/ProfileFragment.kt#L101)
+	- Ex: [ProfileFragment](app/src/main/java/com/cziyeli/soundbits/profile/ProfileFragment.kt#L101)
 - `ViewModel` transforms `Intents` to `Actions` -> pass to `ActionProcessor`
-	- Ex: [ProfileViewModel#actionFromIntent](app/src/main/java/com/cziyeli/songbits/profile/ProfileViewModel.kt#L92)
+	- Ex: [ProfileViewModel#actionFromIntent](app/src/main/java/com/cziyeli/soundbits/profile/ProfileViewModel.kt#L92)
 - `ActionProcessor` transforms `Actions` to `Results` -> pass the `Results` to `ViewModel`'s `reducer` 
 	- Ex: [ProfileActionProcessor](app/src/main/java/com/cziyeli/domain/user/ProfileActionProcessor.kt)
 - `reducer` is a function that combines the `Result` + `Previous ViewState` => `New ViewState`
-	- Ex: [ProfileViewModel#reducer](app/src/main/java/com/cziyeli/songbits/profile/ProfileViewModel.kt#L53)
+	- Ex: [ProfileViewModel#reducer](app/src/main/java/com/cziyeli/soundbits/profile/ProfileViewModel.kt#L53)
 - `New ViewState` pipes through the states stream -> triggers `View`'s `render(ViewState)` 
-	- Ex: [ProfileFragment#render](app/src/main/java/com/cziyeli/songbits/profile/ProfileFragment.kt#L129)
+	- Ex: [ProfileFragment#render](app/src/main/java/com/cziyeli/soundbits/profile/ProfileFragment.kt#L129)
 	
 ```kotlin
 // Intents => Actions => Results => reducer (previous state + result) => new view state
@@ -101,7 +101,7 @@ Create a project over at Spotify developer to get a client key.
 Create a `secrets.properties` file in the project root. Add two keys:
 ```
 SPOTIFY_CLIENT_ID = 12345 
-SPOTIFY_REDIRECT_URI = songbits://callback
+SPOTIFY_REDIRECT_URI = soundbits://callback
 ```
 
 If you have trouble with gradle, try:

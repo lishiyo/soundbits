@@ -2,7 +2,7 @@ package com.cziyeli.domain.summary
 
 import com.cziyeli.commons.Utils
 import com.cziyeli.data.Repository
-import com.cziyeli.songbits.root.RootActionProcessor
+import com.cziyeli.soundbits.root.RootActionProcessor
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import lishiyo.kotlin_arch.utils.schedulers.BaseSchedulerProvider

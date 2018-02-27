@@ -1,5 +1,5 @@
 <resources>
-	<string name="app_name">Songbits</string>
+	<string name="app_name">Soundbits</string>
 	<string name="title_oldhome">Old Home</string>
 	<string name="title_demo">Demo Spotify SDK</string>
 	<string name="app_description">a simply fabulous \nplaylist maker</string>
@@ -19,9 +19,6 @@
 		create new playlists, and explore your top tracks from Spotify</string>
 	<string name="title_profile_frag">Profile</string>
 	<string name="profile_subtitle">The Jukebox</string>
-
-	<string name="com_spotify_sdk_redirect_scheme">songbits</string>
-	<string name="com_spotify_sdk_redirect_host">callback</string>
 
 	<string name="title_activity_demo">Spotify Android SDK Demo</string>
 	<string name="login_button_label">Login</string>
@@ -65,7 +62,7 @@
 	<string name="create_expand_tracks">playlist tracks</string>
 	<string name="create_card_label">Nice! Create a new playlist</string>
 	<string name="create_card_label_2">with these %1$d tracks!</string>
-	<string name="new_playlist_description">via songbits</string>
+	<string name="new_playlist_description">via soundbits</string>
 	<string name="dialog_stash_title">Stash the swipes you\'ve made so far?</string>
 	<string name="dialog_stash_content">They\'ll be saved in your Likes and Dislikes in
 		your Stash tab, so you can change your prefs or create playlists from them at any time.</string>

@@ -47,7 +47,7 @@
 			android:paddingEnd="15dp"
 			>
 
-			<com.cziyeli.songbits.profile.EditTrackStatsView
+			<com.cziyeli.soundbits.profile.EditTrackStatsView
 				android:id="@+id/stats_container_left"
 				android:orientation="vertical"
 				android:layout_width="0dp"
@@ -60,9 +60,9 @@
 				app:set="first"
 				app:movable="true"
 				>
-			</com.cziyeli.songbits.profile.EditTrackStatsView>
+			</com.cziyeli.soundbits.profile.EditTrackStatsView>
 
-			<com.cziyeli.songbits.profile.EditTrackStatsView
+			<com.cziyeli.soundbits.profile.EditTrackStatsView
 				android:id="@+id/stats_container_right"
 				android:orientation="vertical"
 				android:layout_width="0dp"
@@ -75,18 +75,18 @@
 				app:set="second"
 				app:movable="true"
 				>
-			</com.cziyeli.songbits.profile.EditTrackStatsView>
+			</com.cziyeli.soundbits.profile.EditTrackStatsView>
 
 		</LinearLayout>
 
-		<com.cziyeli.songbits.base.ChipsWidget
+		<com.cziyeli.soundbits.base.ChipsWidget
 			android:id="@+id/chips_widget"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:paddingStart="20dp"
 			android:paddingEnd="20dp"
 			>
-		</com.cziyeli.songbits.base.ChipsWidget>
+		</com.cziyeli.soundbits.base.ChipsWidget>
 
 		<!-- buttons -->
 		<LinearLayout
@@ -97,7 +97,7 @@
 			android:paddingRight="20dp"
 			>
 
-			<com.cziyeli.songbits.base.RoundedCornerButton
+			<com.cziyeli.soundbits.base.RoundedCornerButton
 				android:id="@+id/action_get_recommended"
 				android:text="@string/action_get_recommended"
 				android:layout_width="0dp"
@@ -110,7 +110,7 @@
 				android:textStyle="bold"
 				/>
 
-			<com.cziyeli.songbits.base.RoundedCornerButton
+			<com.cziyeli.soundbits.base.RoundedCornerButton
 				android:id="@+id/action_reset"
 				android:text="@string/action_reset_recommended"
 				android:layout_width="0dp"
@@ -127,7 +127,7 @@
 		</LinearLayout>
 
 		<!-- Recommendations based on stats -->
-		<com.cziyeli.songbits.stash.SimpleCardWidget
+		<com.cziyeli.soundbits.stash.SimpleCardWidget
 			android:id="@+id/recommended_tracks_card"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -136,9 +136,9 @@
 			tools:visibility="visible"
 			app:menu_res="@menu/menu_playlist_card"
 			>
-		</com.cziyeli.songbits.stash.SimpleCardWidget>
+		</com.cziyeli.soundbits.stash.SimpleCardWidget>
 
-		<com.cziyeli.songbits.base.WideButton
+		<com.cziyeli.soundbits.base.WideButton
 			android:id="@+id/logout"
 			style="@style/WideButton"
 			android:layout_marginTop="60dp"

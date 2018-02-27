@@ -24,7 +24,7 @@
 			android:background="@color/colorAccent"
 			>
 
-			<com.cziyeli.songbits.base.LikeButton
+			<com.cziyeli.soundbits.base.LikeButton
 				android:id="@+id/like_icon_container"
 				android:layout_width="@dimen/track_like_width"
 				android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
 				android:focusable="true"
 				/>
 
-			<com.cziyeli.songbits.base.DisLikeButton
+			<com.cziyeli.soundbits.base.DisLikeButton
 				android:id="@+id/dislike_icon_container"
 				android:layout_width="@dimen/track_dislike_width"
 				android:layout_height="wrap_content"

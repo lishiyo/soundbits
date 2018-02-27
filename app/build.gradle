@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion Versions.compile_sdk
     defaultConfig {
-        applicationId "com.cziyeli.songbits"
+        applicationId "com.cziyeli.soundbits"
         multiDexEnabled true
         minSdkVersion Versions.min_sdk
         targetSdkVersion Versions.target_sdk

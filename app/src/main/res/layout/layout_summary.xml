@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.cziyeli.songbits.cards.summary.SummaryLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.cziyeli.soundbits.cards.summary.SummaryLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	xmlns:button="http://schemas.android.com/apk/res-auto"
@@ -74,7 +74,7 @@
 					android:orientation="horizontal"
 					>
 
-					<com.cziyeli.songbits.base.RoundedCornerButton
+					<com.cziyeli.soundbits.base.RoundedCornerButton
 						android:id="@+id/action_create_playlist"
 						android:text="@string/summary_create_playlist"
 						android:layout_width="0dp"
@@ -83,7 +83,7 @@
 						button:bg_color="@color/colorAccent"
 						/>
 
-					<com.cziyeli.songbits.base.RoundedCornerButton
+					<com.cziyeli.soundbits.base.RoundedCornerButton
 						android:id="@+id/action_save_to_database"
 						android:text="@string/summary_stash_swipes"
 						android:layout_width="0dp"
@@ -236,7 +236,7 @@
 						>
 
 						<!-- LIKES - first set -->
-						<com.cziyeli.songbits.playlistcard.TrackStatsView
+						<com.cziyeli.soundbits.playlistcard.TrackStatsView
 							android:id="@+id/stats_container_likes_first"
 							android:orientation="vertical"
 							android:layout_width="0dp"
@@ -246,10 +246,10 @@
 							android:focusable="false"
 							app:two_column="true"
 							>
-						</com.cziyeli.songbits.playlistcard.TrackStatsView>
+						</com.cziyeli.soundbits.playlistcard.TrackStatsView>
 
 						<!-- DISLIKES - first set -->
-						<com.cziyeli.songbits.playlistcard.TrackStatsView
+						<com.cziyeli.soundbits.playlistcard.TrackStatsView
 							android:id="@+id/stats_container_dislikes_first"
 							android:orientation="vertical"
 							android:layout_width="0dp"
@@ -259,7 +259,7 @@
 							android:focusable="false"
 							app:two_column="true"
 							>
-						</com.cziyeli.songbits.playlistcard.TrackStatsView>
+						</com.cziyeli.soundbits.playlistcard.TrackStatsView>
 					</LinearLayout>
 
 				</RelativeLayout>
@@ -292,5 +292,5 @@
 
 	</ScrollView>
 
-</com.cziyeli.songbits.cards.summary.SummaryLayout>
+</com.cziyeli.soundbits.cards.summary.SummaryLayout>
 

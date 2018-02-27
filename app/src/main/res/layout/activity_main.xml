@@ -67,7 +67,7 @@
 			android:textStyle="bold"
 			/>
 
-		<com.cziyeli.songbits.base.WideButton
+		<com.cziyeli.soundbits.base.WideButton
 			android:id="@+id/login_button"
 			style="@style/WideButton"
 			android:text="@string/login_button_label"

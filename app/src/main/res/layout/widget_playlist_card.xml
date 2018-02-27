@@ -163,7 +163,7 @@
 						/>
 
 					<!-- BODY: audio stats -->
-					<com.cziyeli.songbits.playlistcard.TrackStatsView
+					<com.cziyeli.soundbits.playlistcard.TrackStatsView
 						android:id="@+id/stats_container"
 						android:paddingTop="@dimen/track_stats_padding"
 						android:paddingBottom="@dimen/track_stats_padding"
@@ -175,7 +175,7 @@
 						android:clickable="false"
 						android:focusable="false"
 						>
-					</com.cziyeli.songbits.playlistcard.TrackStatsView>
+					</com.cziyeli.soundbits.playlistcard.TrackStatsView>
 
 					<include layout="@layout/widget_expandable_tracks" />
 

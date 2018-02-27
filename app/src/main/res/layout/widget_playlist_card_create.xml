@@ -140,7 +140,7 @@
 					</RelativeLayout>
 
 					<!-- BODY: audio stats -->
-					<com.cziyeli.songbits.playlistcard.TrackStatsView
+					<com.cziyeli.soundbits.playlistcard.TrackStatsView
 						android:id="@+id/create_stats_container"
 						android:padding="20dp"
 						android:orientation="vertical"
@@ -149,7 +149,7 @@
 						android:clickable="false"
 						android:focusable="false"
 						>
-					</com.cziyeli.songbits.playlistcard.TrackStatsView>
+					</com.cziyeli.soundbits.playlistcard.TrackStatsView>
 
 					<include layout="@layout/widget_expandable_tracks" />
 

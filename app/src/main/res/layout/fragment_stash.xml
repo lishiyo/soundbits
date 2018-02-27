@@ -31,7 +31,7 @@
 			/>
 
 		<!-- STASHED - LIKED -->
-		<com.cziyeli.songbits.stash.SimpleCardWidget
+		<com.cziyeli.soundbits.stash.SimpleCardWidget
 			android:id="@+id/likes_card"
 			xmlns:android="http://schemas.android.com/apk/res/android"
 			android:layout_width="match_parent"
@@ -39,10 +39,10 @@
 			android:focusable="true"
 			app:menu_res="@menu/menu_simple_card"
 			>
-		</com.cziyeli.songbits.stash.SimpleCardWidget>
+		</com.cziyeli.soundbits.stash.SimpleCardWidget>
 
 		<!-- STASHED - DISLIKED -->
-		<com.cziyeli.songbits.stash.SimpleCardWidget
+		<com.cziyeli.soundbits.stash.SimpleCardWidget
 			android:id="@+id/dislikes_card"
 			xmlns:android="http://schemas.android.com/apk/res/android"
 			android:layout_width="match_parent"
@@ -50,10 +50,10 @@
 			android:focusable="true"
 			app:menu_res="@menu/menu_simple_card"
 			>
-		</com.cziyeli.songbits.stash.SimpleCardWidget>
+		</com.cziyeli.soundbits.stash.SimpleCardWidget>
 
 		<!-- TOP TRACKS -->
-		<com.cziyeli.songbits.stash.SimpleCardWidget
+		<com.cziyeli.soundbits.stash.SimpleCardWidget
 			android:id="@+id/top_tracks_card"
 			xmlns:android="http://schemas.android.com/apk/res/android"
 			android:layout_width="match_parent"
@@ -61,7 +61,7 @@
 			android:focusable="true"
 			app:menu_res="@menu/menu_playlist_card"
 			>
-		</com.cziyeli.songbits.stash.SimpleCardWidget>
+		</com.cziyeli.soundbits.stash.SimpleCardWidget>
 
 	</LinearLayout>
 
