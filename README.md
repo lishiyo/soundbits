@@ -1,17 +1,17 @@
 SONGBITS
 ---------------
 
-A delightful playlist maker for Spotify - swipe playlists to like and dislike tracks, create playlists from your likes, check out tracks 
-stats, and build your own recommendations playlists by hand-tuning stats and genres! 
+A spiffy lil' playlist maker for Spotify - swipe playlists to like and dislike tracks, create playlists with ease, check out 
+tracks stats, and gain full control over your recommendations by customizing stats and genres:
 
 Swipe, preview, and like/dislike tracks in place to make new playlists | Check out stats and create new playlists from all your likes and top tracks  | Create custom recommendations by hand-tuning stats and genres   
 :------- | :------------| :--------
 <img src="screenshots/home_swipe_01.gif" width="270" height="480" />|<img src="screenshots/stash_create_00.gif" width="270" height="480" />|<img src="screenshots/recommendations_00.gif" width="270" height="480"  />  
 
 One day I got frustrated with Discover Weekly and thought "why can't I just pluck out the one or two tracks I actually like??" and 
-hence "tinder for spotify" was born. And then I added more screens so I wouldn't have to call it "tinder for spotify". 👍 
+hence "tinder for spotify" was born. And then I added more screens so I wouldn't have to call it "tinder for spotify" 👍 
 
-<img src="screenshots/home.png" width="280" />   <img src="screenshots/playlist_card_01.jpg" width="280" />   <img src="screenshots/tinder_card.png" width="280" /> 
+<img src="screenshots/home.png" width="280" />   <img src="screenshots/playlist_card_01.jpg" width="280" />   <img src="screenshots/tinder_card.jpg" width="280" /> 
 <img src="screenshots/summary.jpg" width="280" />   <img src="screenshots/stash_likes.jpg" width="280" />   <img src="screenshots/profile.jpg" width="280" />
 
 SUMMARY 
@@ -94,7 +94,7 @@ viewModel.states().subscribe({ state ->
 Development
 ---------------
 
-#### Building the App 
+### Building the App 
 
 Create a project over at Spotify developer to get a client key.
 
@@ -107,15 +107,9 @@ SPOTIFY_REDIRECT_URI = songbits://callback
 If you have trouble with gradle, try:
  - checking `ic_launcher_foreground.xml` isn't malformed, sometimes import cuts off the vector
  - deleting the project `.gradle` and `buildSrc/build` folders, then invalidate and restart
-  
 
-#### Upcoming features:
-- Spotify SDK integration to play tracks without preview urls
-- "Add to existing playlist" functionality
-- Pagination with DiffUtil + Paging library
-- Bugfixes and unit tests
 
-#### Stack:
+### Stack:
 - Arch components + Room
 - RxJava/RxKotlin/RxRelay
 - Dagger2
@@ -124,7 +118,18 @@ If you have trouble with gradle, try:
 - [PlaceholderView for the tinder ui](https://github.com/janishar/PlaceHolderView)
 - other UI libs - see [Dependencies](buildSrc/src/main/java/Dependencies.kt)
 
-#### Reading Material:
+
+Upcoming features
+---------------
+
+- Spotify SDK integration to play tracks without preview urls
+- "Add to existing playlist" functionality
+- Pagination with DiffUtil + Paging library
+- Bugfixes and unit tests
+
+Reading Material
+---------------
+
 - https://github.com/oldergod/android-architecture/tree/todo-mvi-rxjava
 - https://android.jlelse.eu/reactive-architecture-7baa4ec651c4
 - https://android.jlelse.eu/reactive-architecture-deep-dive-90cbc1f2dfcb 
