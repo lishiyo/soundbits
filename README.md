@@ -1,7 +1,9 @@
 ### SONGBITS
 
-![Home](screenshots/home.png)
-
+<img src="screenshots/home.png" width="300" />
+<img src="screenshots/playlist_card.png" width="300" />
+<img src="screenshots/stash_likes.png" width="300" />
+<img src="screenshots/profile.png" width="300" />
 
 A playlist assistant for Spotify - swipe playlists to like and dislike tracks, create playlists from your likes, view tracks 
 stats, 
